@@ -2275,6 +2275,8 @@ MonoBehaviour:
   specialEffect: {fileID: 0}
   speedTrail: {fileID: 0}
   minSpeedForTrail: 3
+  controller: {fileID: 0}
+  physics: {fileID: 0}
 --- !u!114 &417854888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2294,17 +2296,14 @@ MonoBehaviour:
   smoothStabilizator: 0.5
   maxTiltAngle: 18
   arenaLayer:
-    serializedVersion: 2
     m_Bits: 1
   maxNormalSpeed: 8
   maxDashSpeed: 15
   maxAttackSpeed: 12
   speedDecayRate: 2
   speedLimitCurve:
-    serializedVersion: 2
     m_Curve:
-    - serializedVersion: 3
-      time: 0
+    - time: 0
       value: 1
       inSlope: 0
       outSlope: 0
@@ -2312,8 +2311,7 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
-    - serializedVersion: 3
-      time: 1
+    - time: 1
       value: 0
       inSlope: 0
       outSlope: 0
@@ -2325,7 +2323,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   spinDecayRate: 0
+  stats: {fileID: 0}
+  currentSpinSpeed: 0
+  actualSpinVelocity: 0
+  lastVelocity: {x: 0, y: 0, z: 0}
+  controller: {fileID: 0}
   collisionCooldown: 0.1
+  lastCollisionTime: 0
+  currentMaxSpeed: 0
+  tempSpeedBoostTimer: 0
+  hasTempSpeedBoost: 0
 --- !u!114 &417854889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2353,6 +2360,15 @@ MonoBehaviour:
   specialMeterCharge: 0
   isSpecialActive: 0
   specialDuration: 0
+  physics: {fileID: 0}
+  particleManager: {fileID: 0}
+  audioSource: {fileID: 0}
+  rb: {fileID: 0}
+  currentMovementInput: {x: 0, y: 0}
+  attackButtonDown: 0
+  attackButtonHeld: 0
+  dashButtonPressed: 0
+  specialButtonPressed: 0
 --- !u!1 &427067986
 GameObject:
   m_ObjectHideFlags: 0
@@ -5007,6 +5023,7 @@ MonoBehaviour:
   allowControllers: 1
   player1Keys: 77000000730000006100000064000000200000003001000071000000
   player2Keys: 11010000120100001401000013010000310100002f0100000d000000
+  registeredPlayers: []
 --- !u!114 &940576446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5024,6 +5041,7 @@ MonoBehaviour:
   currentPlayers: 2
   battleDuration: 180
   enableTimeLimit: 0
+  battleTimer: 0
   activePlayers: []
   spawnPoints: []
   battleManager: {fileID: 1309793547}
@@ -5033,6 +5051,8 @@ MonoBehaviour:
   arenaController: {fileID: 1946509062}
   victoryCondition: 0
   currentState: 3
+  previousState: 0
+  isPaused: 0
 --- !u!4 &940576447
 Transform:
   m_ObjectHideFlags: 0
@@ -5448,14 +5468,28 @@ MonoBehaviour:
   - {fileID: 1868721586}
   - {fileID: 640812493}
   - {fileID: 289204170}
-  chargeReadyColor: {r: 1, g: 1, b: 1, a: 1}
-  chargeEmptyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  chargeRechargingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chargeReadyColor:
+    r: 1
+    g: 1
+    b: 1
+    a: 1
+  chargeEmptyColor:
+    r: 0.5
+    g: 0.5
+    b: 0.5
+    a: 1
+  chargeRechargingColor:
+    r: 1
+    g: 0.92156863
+    b: 0.015686275
+    a: 1
   specialMeter: {fileID: 154801577}
   specialIcon: {fileID: 0}
   specialReadyEffect: {fileID: 0}
   statusEffectIcons: []
   currentRankText: {fileID: 0}
+  assignedPlayer: {fileID: 0}
+  lastRPMValue: 0
 --- !u!1 &1067291716
 GameObject:
   m_ObjectHideFlags: 0
@@ -6244,6 +6278,9 @@ MonoBehaviour:
   currentBattleMode: 0
   battleStartEffect: {fileID: 0}
   battleEndEffect: {fileID: 0}
+  activePlayers: []
+  isBattleActive: 0
+  battleStartTime: 0
 --- !u!1 &1349342424
 GameObject:
   m_ObjectHideFlags: 0
@@ -6331,17 +6368,14 @@ MonoBehaviour:
   smoothStabilizator: 0.1
   maxTiltAngle: 15
   arenaLayer:
-    serializedVersion: 2
     m_Bits: 1
   maxNormalSpeed: 8
   maxDashSpeed: 15
   maxAttackSpeed: 12
   speedDecayRate: 2
   speedLimitCurve:
-    serializedVersion: 2
     m_Curve:
-    - serializedVersion: 3
-      time: 0
+    - time: 0
       value: 1
       inSlope: 0
       outSlope: 0
@@ -6349,8 +6383,7 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
-    - serializedVersion: 3
-      time: 1
+    - time: 1
       value: 0
       inSlope: 0
       outSlope: 0
@@ -6362,7 +6395,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   spinDecayRate: 0
+  stats: {fileID: 0}
+  currentSpinSpeed: 0
+  actualSpinVelocity: 0
+  lastVelocity: {x: 0, y: 0, z: 0}
+  controller: {fileID: 0}
   collisionCooldown: 0.1
+  lastCollisionTime: 0
+  currentMaxSpeed: 0
+  tempSpeedBoostTimer: 0
+  hasTempSpeedBoost: 0
 --- !u!114 &1349342428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6390,6 +6432,15 @@ MonoBehaviour:
   specialMeterCharge: 0
   isSpecialActive: 0
   specialDuration: 0
+  physics: {fileID: 0}
+  particleManager: {fileID: 0}
+  audioSource: {fileID: 0}
+  rb: {fileID: 0}
+  currentMovementInput: {x: 0, y: 0}
+  attackButtonDown: 0
+  attackButtonHeld: 0
+  dashButtonPressed: 0
+  specialButtonPressed: 0
 --- !u!4 &1349342429
 Transform:
   m_ObjectHideFlags: 0
@@ -8595,17 +8646,14 @@ MonoBehaviour:
   smoothStabilizator: 0.5
   maxTiltAngle: 18
   arenaLayer:
-    serializedVersion: 2
     m_Bits: 1
   maxNormalSpeed: 8
   maxDashSpeed: 15
   maxAttackSpeed: 12
   speedDecayRate: 2
   speedLimitCurve:
-    serializedVersion: 2
     m_Curve:
-    - serializedVersion: 3
-      time: 0
+    - time: 0
       value: 1
       inSlope: 0
       outSlope: 0
@@ -8613,8 +8661,7 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
-    - serializedVersion: 3
-      time: 1
+    - time: 1
       value: 0
       inSlope: 0
       outSlope: 0
@@ -8626,7 +8673,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   spinDecayRate: 0
+  stats: {fileID: 0}
+  currentSpinSpeed: 0
+  actualSpinVelocity: 0
+  lastVelocity: {x: 0, y: 0, z: 0}
+  controller: {fileID: 0}
   collisionCooldown: 0.1
+  lastCollisionTime: 0
+  currentMaxSpeed: 0
+  tempSpeedBoostTimer: 0
+  hasTempSpeedBoost: 0
 --- !u!114 &1882691745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8654,6 +8710,15 @@ MonoBehaviour:
   specialMeterCharge: 0
   isSpecialActive: 0
   specialDuration: 0
+  physics: {fileID: 0}
+  particleManager: {fileID: 0}
+  audioSource: {fileID: 0}
+  rb: {fileID: 0}
+  currentMovementInput: {x: 0, y: 0}
+  attackButtonDown: 0
+  attackButtonHeld: 0
+  dashButtonPressed: 0
+  specialButtonPressed: 0
 --- !u!114 &1882691746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8674,6 +8739,8 @@ MonoBehaviour:
   specialEffect: {fileID: 0}
   speedTrail: {fileID: 0}
   minSpeedForTrail: 3
+  controller: {fileID: 0}
+  physics: {fileID: 0}
 --- !u!1 &1883719590
 GameObject:
   m_ObjectHideFlags: 0
@@ -9363,7 +9430,6 @@ MonoBehaviour:
   arenaRadius: 7.12
   arenaCenter: {fileID: 1946509061}
   beybladeLayer:
-    serializedVersion: 2
     m_Bits: 4294967295
   enableKnockout: 1
   knockoutHeight: -2
@@ -9376,6 +9442,9 @@ MonoBehaviour:
   powerUpPrefabs: []
   powerUpSpawnInterval: 30
   maxPowerUpsOnField: 2
+  activePowerUps: []
+  lastPowerUpSpawn: 0
+  registeredBlades: []
 --- !u!1 &1949803992
 GameObject:
   m_ObjectHideFlags: 0
@@ -10034,6 +10103,7 @@ MonoBehaviour:
   masterVolume: 1
   musicVolume: 0.7
   sfxVolume: 0.8
+  activeSources: []
 --- !u!4 &2052257849
 Transform:
   m_ObjectHideFlags: 0
@@ -10660,9 +10730,16 @@ MonoBehaviour:
   effectDuration: 3
   zoneEffect: {fileID: 0}
   zoneMaterial: {fileID: 0}
-  zoneColor: {r: 0, g: 1, b: 0, a: 1}
+  zoneColor:
+    r: 0
+    g: 1
+    b: 0
+    a: 1
   enterZoneSound: {fileID: 0}
   exitZoneSound: {fileID: 0}
+  bladesInZone: []
+  zoneCollider: {fileID: 0}
+  zoneRenderer: {fileID: 0}
 --- !u!1 &2135253853
 GameObject:
   m_ObjectHideFlags: 0

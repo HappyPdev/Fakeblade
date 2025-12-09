@@ -248,3 +248,29 @@ namespace FakeBlade.Core
         private void ChangeState(GameState newState)
         {
             if (currentState == newState) return;
+
+            currentState = newState;
+            OnGameStateChanged?.Invoke(newState);
+
+            if (debugMode)
+                Debug.Log($"[GameManager] State changed to: {newState}");
+        }
+
+        public void SetState(GameState newState)
+        {
+            ChangeState(newState);
+        }
+        #endregion
+
+        #region Enums
+        public enum GameState
+        {
+            MainMenu,
+            Assembly,      // Selección de partes
+            PreMatch,      // Countdown
+            InMatch,       // Combate activo
+            PostMatch      // Resultados
+        }
+        #endregion
+    }
+}

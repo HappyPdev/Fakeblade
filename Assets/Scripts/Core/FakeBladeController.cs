@@ -4,7 +4,7 @@ using System;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Controlador principal de la peonza (FakeBlade). Gestiona física, movimiento y combate.
+    /// Controlador principal de la peonza (FakeBlade). Gestiona fï¿½sica, movimiento y combate.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public class FakeBladeController : MonoBehaviour
@@ -115,8 +115,8 @@ namespace FakeBlade.Core
             if (rb != null)
             {
                 rb.mass = weight;
-                rb.drag = drag;
-                rb.angularDrag = angularDrag;
+                rb.linearDamping = drag;
+                rb.angularDamping = angularDrag;
                 rb.interpolation = RigidbodyInterpolation.Interpolate;
                 rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             }
@@ -126,15 +126,15 @@ namespace FakeBlade.Core
         #region Spin System
         private void UpdateSpin()
         {
-            // Pérdida natural de velocidad
+            // Pï¿½rdida natural de velocidad
             currentSpinSpeed = Mathf.Max(0f, currentSpinSpeed - spinDecay * Time.deltaTime);
 
-            // Rotación visual
+            // Rotaciï¿½n visual
             transform.Rotate(Vector3.up, currentSpinSpeed * Time.deltaTime, Space.Self);
 
             OnSpinChanged?.Invoke(SpinSpeedPercentage);
 
-            // Check para eliminación
+            // Check para eliminaciï¿½n
             if (currentSpinSpeed <= MIN_SPIN_THRESHOLD)
             {
                 HandleSpinOut();
@@ -164,7 +164,7 @@ namespace FakeBlade.Core
                 Debug.Log($"[FakeBlade] {gameObject.name} eliminated by spin-out!");
             }
 
-            // Liberar constraints para caída dramática
+            // Liberar constraints para caï¿½da dramï¿½tica
             if (rb != null)
             {
                 rb.constraints = RigidbodyConstraints.None;
@@ -176,7 +176,7 @@ namespace FakeBlade.Core
                 playerController.OnFakeBladeDestroyed();
             }
 
-            // Desactivar después de un pequeño delay
+            // Desactivar despuï¿½s de un pequeï¿½o delay
             Invoke(nameof(DeactivateFakeBlade), 1f);
         }
 
@@ -195,17 +195,17 @@ namespace FakeBlade.Core
             Vector3 movement = new Vector3(input.x, 0f, input.y).normalized * moveSpeed;
 
             // Aplicar velocidad manteniendo la Y actual
-            rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
+            rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
         }
 
         public void ExecuteDash()
         {
             if (!canDash || isDestroyed || rb == null) return;
 
-            // Dirección del dash
-            Vector3 dashDirection = rb.velocity.normalized;
+            // Direcciï¿½n del dash
+            Vector3 dashDirection = rb.linearVelocity.normalized;
 
-            // Si está quieto, dash hacia adelante
+            // Si estï¿½ quieto, dash hacia adelante
             if (dashDirection.sqrMagnitude < 0.01f)
             {
                 dashDirection = transform.forward;
@@ -228,7 +228,7 @@ namespace FakeBlade.Core
         {
             if (isDestroyed || rb == null) return;
 
-            // Impulso vertical + recuperación de spin
+            // Impulso vertical + recuperaciï¿½n de spin
             rb.AddForce(Vector3.up * SPECIAL_VERTICAL_FORCE, ForceMode.Impulse);
             currentSpinSpeed = Mathf.Min(maxSpinSpeed, currentSpinSpeed + SPECIAL_SPIN_BONUS);
 
@@ -260,7 +260,7 @@ namespace FakeBlade.Core
             if (collision.relativeVelocity.magnitude < minCollisionVelocity)
                 return;
 
-            // Detectar colisión con otra FakeBlade
+            // Detectar colisiï¿½n con otra FakeBlade
             FakeBladeController otherFakeBlade = collision.gameObject.GetComponent<FakeBladeController>();
 
             if (otherFakeBlade != null && !otherFakeBlade.isDestroyed)
@@ -271,16 +271,16 @@ namespace FakeBlade.Core
 
         private void ProcessFakeBladeCollision(FakeBladeController other, Collision collision)
         {
-            // Calcular daño basado en velocidad relativa y estadísticas
+            // Calcular daï¿½o basado en velocidad relativa y estadï¿½sticas
             float relativeSpeed = collision.relativeVelocity.magnitude;
             float baseDamage = relativeSpeed * attackPower * COLLISION_DAMAGE_MULTIPLIER;
 
-            // Factor de peso (el más pesado hace más daño)
+            // Factor de peso (el mï¿½s pesado hace mï¿½s daï¿½o)
             float weightRatio = other.weight / weight;
             float damageToSelf = baseDamage * weightRatio;
             float damageToOther = baseDamage * (weight / other.weight);
 
-            // Aplicar daño
+            // Aplicar daï¿½o
             ReduceSpin(damageToSelf);
             other.ReduceSpin(damageToOther);
 
@@ -330,7 +330,7 @@ namespace FakeBlade.Core
 
             if (rb != null)
             {
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             }
@@ -345,10 +345,10 @@ namespace FakeBlade.Core
         #region Debug
         private void DrawDebugInfo()
         {
-            // Línea de velocidad
-            Debug.DrawRay(transform.position, rb.velocity, Color.green);
+            // Lï¿½nea de velocidad
+            Debug.DrawRay(transform.position, rb.linearVelocity, Color.green);
 
-            // Círculo de rango de dash
+            // Cï¿½rculo de rango de dash
             if (!canDash)
             {
                 Debug.DrawRay(transform.position, Vector3.up * 2f, Color.red);

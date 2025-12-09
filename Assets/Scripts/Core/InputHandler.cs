@@ -1,194 +1,368 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using System;
 
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Maneja el input para un jugador específico.
-    /// Soporta teclado (Player 1) y hasta 4 gamepads.
+    /// Manejador de input optimizado con soporte para múltiples dispositivos.
+    /// Usa el nuevo Input System de Unity con input buffering.
     /// </summary>
     public class InputHandler : MonoBehaviour
     {
-        #region Constants
-        private const float DEADZONE = 0.2f;
+        #region Input Configuration
+        [System.Serializable]
+        public class InputConfig
+        {
+            [Header("Keyboard Bindings")]
+            public KeyCode moveUp = KeyCode.W;
+            public KeyCode moveDown = KeyCode.S;
+            public KeyCode moveLeft = KeyCode.A;
+            public KeyCode moveRight = KeyCode.D;
+            public KeyCode dash = KeyCode.Space;
+            public KeyCode special = KeyCode.LeftShift;
+
+            [Header("Gamepad Settings")]
+            public int gamepadIndex = -1; // -1 = keyboard
+            public float deadzone = 0.15f;
+            public float sensitivity = 1f;
+        }
+        #endregion
+
+        #region Events
+        public event Action OnDashPressed;
+        public event Action OnSpecialPressed;
+        public event Action<Vector2> OnMovementChanged;
         #endregion
 
         #region Serialized Fields
         [Header("Input Configuration")]
-        [SerializeField] private int playerIndex = 0;
-        [SerializeField] private bool useKeyboard = false;
-        [SerializeField] private bool invertVertical = false;
+        [SerializeField] private InputConfig config = new InputConfig();
 
-        [Header("Sensitivity")]
-        [SerializeField] private float sensitivity = 1f;
+        [Header("Input Buffering")]
+        [SerializeField] private float inputBufferTime = 0.1f;
 
         [Header("Debug")]
-        [SerializeField] private bool showInputDebug = false;
+        [SerializeField] private bool debugInput = false;
         #endregion
 
         #region Private Fields
-        private string horizontalAxis;
-        private string verticalAxis;
-        private string dashButton;
-        private string specialButton;
-        private bool isConfigured = false;
+        private Vector2 _movementInput;
+        private Vector2 _smoothedMovement;
+        private float _dashBufferTimer;
+        private float _specialBufferTimer;
+        private bool _dashBuffered;
+        private bool _specialBuffered;
+        private Gamepad _assignedGamepad;
+        private bool _isInitialized;
+
+        // Cache para evitar allocations
+        private readonly Vector2[] _keyboardDirections = new Vector2[4];
         #endregion
 
         #region Properties
-        public int PlayerIndex => playerIndex;
+        public Vector2 MovementInput => _smoothedMovement;
+        public bool IsUsingGamepad => _assignedGamepad != null;
+        public int GamepadIndex => config.gamepadIndex;
         #endregion
 
         #region Unity Lifecycle
+        private void Awake()
+        {
+            InitializeKeyboardDirections();
+        }
+
         private void Start()
         {
-            ConfigureInput();
+            Initialize();
+        }
+
+        private void Update()
+        {
+            if (!_isInitialized) return;
+
+            UpdateMovementInput();
+            UpdateActionInputs();
+            UpdateBuffers();
+        }
+
+        private void OnEnable()
+        {
+            // Suscribirse a cambios de dispositivos
+            InputSystem.onDeviceChange += OnDeviceChange;
+        }
+
+        private void OnDisable()
+        {
+            InputSystem.onDeviceChange -= OnDeviceChange;
         }
         #endregion
 
-        #region Configuration
-        private void ConfigureInput()
+        #region Initialization
+        private void InitializeKeyboardDirections()
         {
-            if (useKeyboard && playerIndex == 0)
+            _keyboardDirections[0] = Vector2.up;
+            _keyboardDirections[1] = Vector2.down;
+            _keyboardDirections[2] = Vector2.left;
+            _keyboardDirections[3] = Vector2.right;
+        }
+
+        private void Initialize()
+        {
+            AssignGamepad();
+            _isInitialized = true;
+
+            if (debugInput)
             {
-                ConfigureKeyboardInput();
+                string device = _assignedGamepad != null ? $"Gamepad {config.gamepadIndex}" : "Keyboard";
+                Debug.Log($"[InputHandler] Initialized with {device}");
+            }
+        }
+
+        private void AssignGamepad()
+        {
+            if (config.gamepadIndex < 0)
+            {
+                _assignedGamepad = null;
+                return;
+            }
+
+            var gamepads = Gamepad.all;
+            if (config.gamepadIndex < gamepads.Count)
+            {
+                _assignedGamepad = gamepads[config.gamepadIndex];
             }
             else
             {
-                ConfigureGamepadInput();
+                Debug.LogWarning($"[InputHandler] Gamepad {config.gamepadIndex} not found. Using keyboard.");
+                _assignedGamepad = null;
             }
-
-            isConfigured = true;
-
-            if (showInputDebug)
-            {
-                Debug.Log($"[InputHandler] Configured for Player {playerIndex + 1} - " +
-                         $"Type: {(useKeyboard ? "Keyboard" : "Gamepad")}");
-            }
-        }
-
-        private void ConfigureKeyboardInput()
-        {
-            horizontalAxis = "Horizontal";
-            verticalAxis = "Vertical";
-            dashButton = "Jump";
-            specialButton = "Fire1";
-        }
-
-        private void ConfigureGamepadInput()
-        {
-            // Nota: Estos ejes deben estar configurados en Input Manager
-            horizontalAxis = $"Horizontal_P{playerIndex + 1}";
-            verticalAxis = $"Vertical_P{playerIndex + 1}";
-            dashButton = $"Dash_P{playerIndex + 1}";
-            specialButton = $"Special_P{playerIndex + 1}";
         }
         #endregion
 
         #region Input Reading
-        public Vector2 GetMovementInput()
+        private void UpdateMovementInput()
         {
-            if (!isConfigured) return Vector2.zero;
+            Vector2 rawInput;
 
-            float horizontal = 0f;
-            float vertical = 0f;
-
-            try
+            if (_assignedGamepad != null)
             {
-                horizontal = Input.GetAxis(horizontalAxis);
-                vertical = Input.GetAxis(verticalAxis);
+                rawInput = ReadGamepadMovement();
             }
-            catch (System.ArgumentException)
+            else
             {
-                if (showInputDebug)
-                {
-                    Debug.LogWarning($"[InputHandler] Axis not configured in Input Manager: {horizontalAxis} or {verticalAxis}");
-                }
-                return Vector2.zero;
+                rawInput = ReadKeyboardMovement();
             }
 
             // Aplicar deadzone
-            if (Mathf.Abs(horizontal) < DEADZONE)
-                horizontal = 0f;
-
-            if (Mathf.Abs(vertical) < DEADZONE)
-                vertical = 0f;
-
-            // Invertir vertical si está configurado
-            if (invertVertical)
-                vertical = -vertical;
-
-            Vector2 input = new Vector2(horizontal, vertical);
-
-            // Aplicar sensibilidad
-            input *= sensitivity;
-
-            // Normalizar si excede magnitud 1
-            if (input.sqrMagnitude > 1f)
+            if (rawInput.sqrMagnitude < config.deadzone * config.deadzone)
             {
-                input.Normalize();
+                rawInput = Vector2.zero;
             }
 
-            return input;
-        }
+            // Input más directo - menos suavizado para mayor respuesta
+            _smoothedMovement = Vector2.Lerp(_smoothedMovement, rawInput, Time.deltaTime * 25f);
 
-        public bool GetDashInput()
-        {
-            if (!isConfigured) return false;
-
-            try
+            // Para teclado, usar input directo sin suavizar
+            if (_assignedGamepad == null && rawInput.sqrMagnitude > 0.01f)
             {
-                return Input.GetButtonDown(dashButton);
+                _smoothedMovement = rawInput;
             }
-            catch (System.ArgumentException)
+
+            // Notificar cambio significativo
+            if (Vector2.Distance(_movementInput, rawInput) > 0.01f)
             {
-                if (showInputDebug)
-                {
-                    Debug.LogWarning($"[InputHandler] Button not configured: {dashButton}");
-                }
-                return false;
+                _movementInput = rawInput;
+                OnMovementChanged?.Invoke(_smoothedMovement);
             }
         }
 
-        public bool GetSpecialInput()
+        private Vector2 ReadGamepadMovement()
         {
-            if (!isConfigured) return false;
+            if (_assignedGamepad == null) return Vector2.zero;
 
-            try
+            Vector2 stick = _assignedGamepad.leftStick.ReadValue();
+            return stick * config.sensitivity;
+        }
+
+        private Vector2 ReadKeyboardMovement()
+        {
+            Vector2 result = Vector2.zero;
+
+            if (Input.GetKey(config.moveUp)) result += _keyboardDirections[0];
+            if (Input.GetKey(config.moveDown)) result += _keyboardDirections[1];
+            if (Input.GetKey(config.moveLeft)) result += _keyboardDirections[2];
+            if (Input.GetKey(config.moveRight)) result += _keyboardDirections[3];
+
+            // Normalizar diagonal
+            if (result.sqrMagnitude > 1f)
             {
-                return Input.GetButtonDown(specialButton);
+                result.Normalize();
             }
-            catch (System.ArgumentException)
+
+            return result * config.sensitivity;
+        }
+
+        private void UpdateActionInputs()
+        {
+            // Dash
+            if (ReadDashInput())
             {
-                if (showInputDebug)
+                _dashBuffered = true;
+                _dashBufferTimer = inputBufferTime;
+                OnDashPressed?.Invoke();
+
+                if (debugInput)
                 {
-                    Debug.LogWarning($"[InputHandler] Button not configured: {specialButton}");
+                    Debug.Log("[InputHandler] Dash input detected");
                 }
-                return false;
+            }
+
+            // Special
+            if (ReadSpecialInput())
+            {
+                _specialBuffered = true;
+                _specialBufferTimer = inputBufferTime;
+                OnSpecialPressed?.Invoke();
+
+                if (debugInput)
+                {
+                    Debug.Log("[InputHandler] Special input detected");
+                }
+            }
+        }
+
+        private bool ReadDashInput()
+        {
+            if (_assignedGamepad != null)
+            {
+                return _assignedGamepad.buttonSouth.wasPressedThisFrame ||
+                       _assignedGamepad.rightTrigger.wasPressedThisFrame;
+            }
+            return Input.GetKeyDown(config.dash);
+        }
+
+        private bool ReadSpecialInput()
+        {
+            if (_assignedGamepad != null)
+            {
+                return _assignedGamepad.buttonWest.wasPressedThisFrame ||
+                       _assignedGamepad.leftTrigger.wasPressedThisFrame;
+            }
+            return Input.GetKeyDown(config.special);
+        }
+
+        private void UpdateBuffers()
+        {
+            if (_dashBuffered)
+            {
+                _dashBufferTimer -= Time.deltaTime;
+                if (_dashBufferTimer <= 0f)
+                {
+                    _dashBuffered = false;
+                }
+            }
+
+            if (_specialBuffered)
+            {
+                _specialBufferTimer -= Time.deltaTime;
+                if (_specialBufferTimer <= 0f)
+                {
+                    _specialBuffered = false;
+                }
             }
         }
         #endregion
 
-        #region Public Methods
-        public void SetPlayerIndex(int index)
+        #region Public Interface
+        public Vector2 GetMovementInput()
         {
-            if (index < 0 || index > 3)
+            return _smoothedMovement;
+        }
+
+        public bool GetDashInput()
+        {
+            if (_dashBuffered)
             {
-                Debug.LogError($"[InputHandler] Invalid player index: {index}. Must be 0-3.");
-                return;
+                _dashBuffered = false;
+                return true;
             }
-
-            playerIndex = index;
-            ConfigureInput();
+            return false;
         }
 
-        public void SetUseKeyboard(bool useKb)
+        public bool GetSpecialInput()
         {
-            useKeyboard = useKb;
-            ConfigureInput();
+            if (_specialBuffered)
+            {
+                _specialBuffered = false;
+                return true;
+            }
+            return false;
         }
 
-        public void SetSensitivity(float newSensitivity)
+        public void SetGamepadIndex(int index)
         {
-            sensitivity = Mathf.Clamp(newSensitivity, 0.1f, 2f);
+            config.gamepadIndex = index;
+            AssignGamepad();
+        }
+
+        public void SetKeyboardBindings(KeyCode up, KeyCode down, KeyCode left, KeyCode right, KeyCode dash, KeyCode special)
+        {
+            config.moveUp = up;
+            config.moveDown = down;
+            config.moveLeft = left;
+            config.moveRight = right;
+            config.dash = dash;
+            config.special = special;
+        }
+
+        public void SetDeadzone(float deadzone)
+        {
+            config.deadzone = Mathf.Clamp01(deadzone);
+        }
+
+        public void SetSensitivity(float sensitivity)
+        {
+            config.sensitivity = Mathf.Clamp(sensitivity, 0.1f, 2f);
+        }
+        #endregion
+
+        #region Device Management
+        private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            if (device is Gamepad gamepad)
+            {
+                switch (change)
+                {
+                    case InputDeviceChange.Added:
+                        if (debugInput)
+                            Debug.Log($"[InputHandler] Gamepad connected: {gamepad.displayName}");
+                        break;
+
+                    case InputDeviceChange.Removed:
+                        if (_assignedGamepad == gamepad)
+                        {
+                            Debug.LogWarning($"[InputHandler] Assigned gamepad disconnected!");
+                            _assignedGamepad = null;
+                        }
+                        break;
+                }
+            }
+        }
+        #endregion
+
+        #region Vibration (Gamepad)
+        public void Vibrate(float lowFreq, float highFreq, float duration)
+        {
+            if (_assignedGamepad == null) return;
+
+            _assignedGamepad.SetMotorSpeeds(lowFreq, highFreq);
+            Invoke(nameof(StopVibration), duration);
+        }
+
+        private void StopVibration()
+        {
+            _assignedGamepad?.SetMotorSpeeds(0f, 0f);
         }
         #endregion
     }

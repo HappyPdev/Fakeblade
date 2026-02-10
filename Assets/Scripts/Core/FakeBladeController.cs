@@ -5,8 +5,25 @@ namespace FakeBlade.Core
 {
     /// <summary>
     /// Controlador principal de la peonza (FakeBlade). 
-    /// Gestiona física, movimiento, spin y combate.
-    /// REESCRITO: Movimiento basado en inercia real - se siente el peso y la masa.
+    /// 
+    /// === JERARQUÍA REQUERIDA DEL PREFAB ===
+    /// 
+    /// FakeBlade_Root (este GameObject)          ← Scripts + Rigidbody + Collider
+    ///   └── SpinPivot (hijo)                    ← visualRoot, SOLO gira en Y
+    ///       ├── Body_Mesh                       ← modelos 3D
+    ///       ├── Blade_Mesh
+    ///       └── etc.
+    /// 
+    /// IMPORTANTE:
+    /// - El ROOT no rota nunca (FreezeRotationX/Z + no spin visual)
+    /// - El SpinPivot es el que gira visualmente
+    /// - Si visualRoot no está asignado, se auto-busca el primer hijo
+    /// - Si no hay hijos, se crea un pivot vacío automáticamente
+    /// 
+    /// === POR QUÉ FALLA SI EL ROOT GIRA ===
+    /// Si pones la rotación de spin en el root (donde está el Rigidbody),
+    /// las fuerzas en world space se "suman" siempre a la orientación actual
+    /// del transform rotado, causando que la peonza solo vaya en una dirección.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(FakeBladeStats))]
@@ -19,7 +36,7 @@ namespace FakeBlade.Core
         private const float GROUND_CHECK_DISTANCE = 0.15f;
         private const float TILT_SMOOTHING = 5f;
         private const float MAX_TILT_ANGLE = 20f;
-        private const float VISUAL_SPIN_MULTIPLIER = 6f; // Mucho más rápido visualmente
+        private const float VISUAL_SPIN_MULTIPLIER = 6f;
         #endregion
 
         #region Events
@@ -33,17 +50,16 @@ namespace FakeBlade.Core
         #endregion
 
         #region Serialized Fields
+        [Header("=== HIERARCHY ===")]
+        [Tooltip("El hijo que gira visualmente. Si está vacío, se busca/crea automáticamente. " +
+                 "NUNCA debe ser el propio root - tiene que ser un hijo.")]
+        [SerializeField] private Transform visualRoot;
+
         [Header("=== MOVEMENT (Inertia-Based) ===")]
-        [Tooltip("Fuerza base de aceleración. Se escala con MoveSpeed del stats.")]
         [SerializeField] private float accelerationForce = 35f;
-        [Tooltip("Velocidad máxima base. Se suma MoveSpeed del stats.")]
         [SerializeField] private float maxVelocity = 10f;
-        [Tooltip("Fricción cuando NO hay input. Más alto = frena más rápido.")]
         [SerializeField] private float stoppingFriction = 3f;
-        [Tooltip("Qué tan rápido gira la dirección de movimiento (0-1). Más bajo = más inercia al girar.")]
         [SerializeField][Range(0.01f, 1f)] private float turnResponsiveness = 0.15f;
-        [Tooltip("Factor de inercia basado en peso. Más alto = más 'pesada' se siente.")]
-        [SerializeField] private float inertiaFactor = 1.5f;
 
         [Header("=== DASH ===")]
         [SerializeField] private float dashForce = 20f;
@@ -55,13 +71,11 @@ namespace FakeBlade.Core
         [SerializeField] private float knockbackForce = 8f;
 
         [Header("=== PHYSICS ===")]
-        [Tooltip("Drag base del Rigidbody. NO usar valores altos, la inercia se maneja con fuerzas.")]
         [SerializeField] private float baseDrag = 0.3f;
         [SerializeField] private float baseAngularDrag = 0.05f;
         [SerializeField] private LayerMask groundLayer;
 
         [Header("=== VISUAL ===")]
-        [SerializeField] private Transform visualRoot;
         [SerializeField] private ParticleSystem sparkEffect;
         [SerializeField] private ParticleSystem spinEffect;
 
@@ -76,7 +90,6 @@ namespace FakeBlade.Core
         #endregion
 
         #region Private Fields
-        // Components (cached)
         private Rigidbody _rb;
         private FakeBladeStats _stats;
         private SpecialAbilityHandler _abilityHandler;
@@ -90,17 +103,17 @@ namespace FakeBlade.Core
         private bool _isGrounded;
         private bool _wasGrounded;
 
-        // Movement - Inertia system
-        private Vector3 _inputDirection;       // Dirección raw del input
-        private Vector3 _smoothedDirection;    // Dirección suavizada (inercia de giro)
-        private float _currentSpeed;           // Velocidad actual real
+        // Movement
+        private Vector3 _inputDirection;
+        private Vector3 _smoothedDirection;
+        private float _currentSpeed;
         private Vector3 _currentTilt;
 
-        // Computed from stats
+        // Stats derivadas
         private float _effectiveAcceleration;
         private float _effectiveMaxSpeed;
-        private float _effectiveTurnSpeed;     // Qué tan rápido gira basado en peso
-        private float _effectiveDrag;          // Drag efectivo basado en peso
+        private float _effectiveTurnSpeed;
+        private float _effectiveDrag;
 
         // Cache
         private Transform _transform;
@@ -125,6 +138,7 @@ namespace FakeBlade.Core
         {
             CacheComponents();
             CacheTransform();
+            SetupVisualRoot();
         }
 
         private void Start()
@@ -141,10 +155,7 @@ namespace FakeBlade.Core
             UpdateDashCooldown();
             UpdateGroundCheck();
 
-            if (showDebugInfo)
-            {
-                DrawDebugInfo();
-            }
+            if (showDebugInfo) DrawDebugInfo();
         }
 
         private void FixedUpdate()
@@ -164,12 +175,10 @@ namespace FakeBlade.Core
         private void OnCollisionStay(Collision collision)
         {
             if (_isDestroyed) return;
-
             FakeBladeController other = collision.gameObject.GetComponent<FakeBladeController>();
             if (other != null && !other._isDestroyed)
             {
-                float frictionDamage = Time.fixedDeltaTime * 8f;
-                ReduceSpin(frictionDamage);
+                ReduceSpin(Time.fixedDeltaTime * 8f);
             }
         }
         #endregion
@@ -180,21 +189,94 @@ namespace FakeBlade.Core
             _rb = GetComponent<Rigidbody>();
             _stats = GetComponent<FakeBladeStats>();
             _abilityHandler = GetComponent<SpecialAbilityHandler>();
-            _renderers = GetComponentsInChildren<Renderer>();
             _propertyBlock = new MaterialPropertyBlock();
 
             if (_rb == null)
-            {
                 Debug.LogError($"[FakeBladeController] Rigidbody missing on {gameObject.name}");
-            }
         }
 
         private void CacheTransform()
         {
             _transform = transform;
-            if (visualRoot == null)
+        }
+
+        /// <summary>
+        /// Configura el visualRoot correctamente.
+        /// 
+        /// REGLAS:
+        /// 1. Si visualRoot ya está asignado Y es un hijo → OK
+        /// 2. Si visualRoot es el propio root → ERROR, reparar
+        /// 3. Si no hay visualRoot → buscar primer hijo, o crear pivot
+        /// </summary>
+        private void SetupVisualRoot()
+        {
+            // Caso 1: Ya está asignado y es un hijo válido
+            if (visualRoot != null && visualRoot != _transform && visualRoot.parent == _transform)
             {
-                visualRoot = _transform;
+                if (showDebugInfo)
+                    Debug.Log($"[FakeBlade] visualRoot OK: {visualRoot.name}");
+                CacheRenderers();
+                return;
+            }
+
+            // Caso 2: visualRoot es el propio root - ESTO CAUSA EL BUG
+            if (visualRoot == _transform || visualRoot == null)
+            {
+                // Buscar primer hijo que NO sea un collider suelto
+                Transform bestChild = null;
+                for (int i = 0; i < _transform.childCount; i++)
+                {
+                    Transform child = _transform.GetChild(i);
+                    // Preferir hijos que tengan renderers (los modelos 3D)
+                    if (child.GetComponentInChildren<Renderer>() != null)
+                    {
+                        bestChild = child;
+                        break;
+                    }
+                }
+
+                if (bestChild != null)
+                {
+                    visualRoot = bestChild;
+                    Debug.Log($"[FakeBlade] visualRoot auto-assigned to child: {bestChild.name}");
+                }
+                else
+                {
+                    // No hay hijos con renderers - crear un pivot vacío y mover todos los hijos dentro
+                    GameObject pivot = new GameObject("SpinPivot");
+                    pivot.transform.SetParent(_transform, false);
+                    pivot.transform.localPosition = Vector3.zero;
+                    pivot.transform.localRotation = Quaternion.identity;
+
+                    // Mover todos los hijos existentes dentro del pivot
+                    // (iterar en reversa para no saltarnos hijos al re-parentar)
+                    for (int i = _transform.childCount - 1; i >= 0; i--)
+                    {
+                        Transform child = _transform.GetChild(i);
+                        if (child != pivot.transform)
+                        {
+                            child.SetParent(pivot.transform, true);
+                        }
+                    }
+
+                    visualRoot = pivot.transform;
+                    Debug.Log($"[FakeBlade] Created SpinPivot and moved {pivot.transform.childCount} children into it");
+                }
+            }
+
+            CacheRenderers();
+        }
+
+        private void CacheRenderers()
+        {
+            // Buscar renderers en el visualRoot y sus hijos
+            if (visualRoot != null)
+            {
+                _renderers = visualRoot.GetComponentsInChildren<Renderer>();
+            }
+            else
+            {
+                _renderers = GetComponentsInChildren<Renderer>();
             }
         }
 
@@ -205,50 +287,33 @@ namespace FakeBlade.Core
             ResetFakeBlade();
 
             if (_stats != null)
-            {
                 _stats.OnStatsChanged += ApplyStatsFromComponent;
-            }
         }
 
-        /// <summary>
-        /// Recalcula todos los valores derivados de las stats.
-        /// El PESO es clave: más peso = más inercia, gira más lento, pero más knockback.
-        /// </summary>
         private void ApplyStatsFromComponent()
         {
             if (_stats == null) return;
 
-            float weight = _stats.Weight;       // 0.5 (ligero) a 3.0 (pesado)
-            float moveSpeed = _stats.MoveSpeed; // 5 (lento) a 15 (rápido)
+            float weight = _stats.Weight;
+            float moveSpeed = _stats.MoveSpeed;
 
             _maxSpinSpeed = _stats.MaxSpin;
             dashForce = _stats.DashForce;
 
-            // === CÁLCULOS DE INERCIA BASADOS EN PESO ===
-            // Pesado: acelera lento, gira lento, frena lento (mucha inercia)
-            // Ligero: acelera rápido, gira rápido, frena rápido (poca inercia)
+            float weightNormalized = Mathf.InverseLerp(0.5f, 3f, weight);
 
-            float weightNormalized = Mathf.InverseLerp(0.5f, 3f, weight); // 0=ligero, 1=pesado
-
-            // Aceleración: ligero acelera un 80% más rápido que pesado
             _effectiveAcceleration = accelerationForce * moveSpeed * 0.3f * Mathf.Lerp(1.8f, 0.6f, weightNormalized);
-
-            // Velocidad máxima: ligero es un poco más rápido
             _effectiveMaxSpeed = maxVelocity + moveSpeed * Mathf.Lerp(1.2f, 0.7f, weightNormalized);
-
-            // Turn speed: ligero gira el doble de rápido que pesado
             _effectiveTurnSpeed = turnResponsiveness * Mathf.Lerp(2.5f, 0.5f, weightNormalized);
-
-            // Drag efectivo: pesado tiene menos drag (más inercia, tarda más en frenar)
             _effectiveDrag = stoppingFriction * Mathf.Lerp(1.5f, 0.4f, weightNormalized);
 
             ConfigureRigidbody();
 
             if (showDebugInfo)
             {
-                Debug.Log($"[FakeBlade] Stats applied - Weight:{weight:F1} Move:{moveSpeed:F1} " +
-                         $"EffAccel:{_effectiveAcceleration:F1} EffMaxSpd:{_effectiveMaxSpeed:F1} " +
-                         $"EffTurn:{_effectiveTurnSpeed:F2} EffDrag:{_effectiveDrag:F2}");
+                Debug.Log($"[FakeBlade] Stats: W:{weight:F1} Spd:{moveSpeed:F1} " +
+                         $"Accel:{_effectiveAcceleration:F1} MaxSpd:{_effectiveMaxSpeed:F1} " +
+                         $"Turn:{_effectiveTurnSpeed:F2} Drag:{_effectiveDrag:F2}");
             }
         }
 
@@ -257,13 +322,13 @@ namespace FakeBlade.Core
             if (_rb == null) return;
 
             _rb.mass = _stats?.Weight ?? 1f;
-            _rb.linearDamping = baseDrag; // Drag bajo - la inercia se controla con fuerzas
+            _rb.linearDamping = baseDrag;
             _rb.angularDamping = baseAngularDrag;
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-
-            // Centro de masa bajo para estabilidad
+            _rb.constraints = RigidbodyConstraints.FreezeRotationX |
+                             RigidbodyConstraints.FreezeRotationY |  // ← TAMBIÉN bloquear Y en el root
+                             RigidbodyConstraints.FreezeRotationZ;
             _rb.centerOfMass = new Vector3(0, -0.1f, 0);
         }
         #endregion
@@ -278,17 +343,17 @@ namespace FakeBlade.Core
             UpdateSpinVisuals();
 
             if (_currentSpinSpeed <= MIN_SPIN_THRESHOLD && !_isDestroyed)
-            {
                 HandleSpinOut();
-            }
         }
 
+        /// <summary>
+        /// Rota SOLO el visualRoot (hijo), NO el root.
+        /// El root del Rigidbody NUNCA debe rotar.
+        /// </summary>
         private void UpdateVisualRotation()
         {
-            if (visualRoot == null) return;
+            if (visualRoot == null || visualRoot == _transform) return;
 
-            // Rotación visual MUCHO más rápida - grados por segundo
-            // Con spin al 100% y MaxSpin=1000, esto da ~6000 grados/s = ~16.7 rev/s
             float rotationSpeed = _currentSpinSpeed * VISUAL_SPIN_MULTIPLIER;
             visualRoot.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.Self);
         }
@@ -301,9 +366,7 @@ namespace FakeBlade.Core
                 foreach (var renderer in _renderers)
                 {
                     if (renderer != null)
-                    {
                         renderer.SetPropertyBlock(_propertyBlock);
-                    }
                 }
             }
 
@@ -321,13 +384,10 @@ namespace FakeBlade.Core
             float defense = _stats?.Defense ?? 0f;
             float actualDamage = amount * (1f - defense * 0.01f);
             actualDamage = Mathf.Max(0.1f, actualDamage);
-
             _currentSpinSpeed = Mathf.Max(0f, _currentSpinSpeed - actualDamage);
 
             if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] Spin reduced: {actualDamage:F1} (defense: {defense:F0}%). Current: {_currentSpinSpeed:F0}");
-            }
+                Debug.Log($"[FakeBlade] Spin: -{actualDamage:F1} (def:{defense:F0}%) = {_currentSpinSpeed:F0}");
         }
 
         public void AddSpin(float amount)
@@ -341,10 +401,7 @@ namespace FakeBlade.Core
             _isDestroyed = true;
             OnSpinOut?.Invoke();
 
-            if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] {gameObject.name} SPIN OUT!");
-            }
+            if (showDebugInfo) Debug.Log($"[FakeBlade] {gameObject.name} SPIN OUT!");
 
             PlaySound(spinOutSound);
 
@@ -354,29 +411,19 @@ namespace FakeBlade.Core
                 _rb.AddTorque(UnityEngine.Random.insideUnitSphere * 10f, ForceMode.Impulse);
             }
 
-            var playerController = GetComponent<PlayerController>();
-            playerController?.OnFakeBladeDestroyed();
-
+            GetComponent<PlayerController>()?.OnFakeBladeDestroyed();
             Invoke(nameof(DeactivateFakeBlade), 1.5f);
         }
 
-        private void DeactivateFakeBlade()
-        {
-            gameObject.SetActive(false);
-        }
+        private void DeactivateFakeBlade() => gameObject.SetActive(false);
         #endregion
 
-        #region Movement - INERTIA SYSTEM
-        /// <summary>
-        /// Recibe el input del jugador. NO aplica fuerza directamente,
-        /// solo almacena la dirección deseada.
-        /// </summary>
+        #region Movement
         public void HandleMovement(Vector2 input)
         {
             if (_isDestroyed || _rb == null) return;
 
             Vector3 desiredDirection = new Vector3(input.x, 0f, input.y);
-
             if (desiredDirection.sqrMagnitude > 1f)
                 desiredDirection.Normalize();
 
@@ -384,14 +431,8 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Sistema de movimiento basado en inercia REAL.
-        /// 
-        /// La clave: NO aplicamos fuerza directamente en la dirección del input.
-        /// En su lugar:
-        /// 1. La dirección de empuje se suaviza (la peonza no gira instantáneamente)
-        /// 2. La aceleración depende del peso (pesado = lento para arrancar)
-        /// 3. El frenado depende del peso (pesado = tarda en frenar, se desliza)
-        /// 4. El peso del Rigidbody amplifica todo esto naturalmente
+        /// TODAS las fuerzas se aplican en WORLD SPACE.
+        /// Como el root NUNCA rota, world space es siempre consistente.
         /// </summary>
         private void ApplyMovementPhysics()
         {
@@ -402,41 +443,36 @@ namespace FakeBlade.Core
 
             if (_inputDirection.sqrMagnitude > 0.01f)
             {
-                // === SUAVIZADO DE DIRECCIÓN (simula inercia de giro) ===
-                // Una peonza pesada NO cambia de dirección instantáneamente
-                _smoothedDirection = Vector3.Lerp(
-                    _smoothedDirection,
-                    _inputDirection,
-                    _effectiveTurnSpeed * Time.fixedDeltaTime * 10f
-                ).normalized;
-
-                // Si no había dirección previa, usar la actual directamente
+                // Suavizar dirección (inercia de giro)
                 if (_smoothedDirection.sqrMagnitude < 0.01f)
                     _smoothedDirection = _inputDirection.normalized;
 
-                // === APLICAR FUERZA DE ACELERACIÓN ===
-                // La fuerza se aplica en la dirección suavizada, NO en la del input
+                _smoothedDirection = Vector3.Lerp(
+                    _smoothedDirection,
+                    _inputDirection.normalized,
+                    _effectiveTurnSpeed * Time.fixedDeltaTime * 10f
+                ).normalized;
+
+                // Velocidad deseada
                 Vector3 desiredVelocity = _smoothedDirection * _effectiveMaxSpeed * _inputDirection.magnitude;
                 Vector3 velocityDifference = desiredVelocity - currentHorizontalVel;
 
-                // Limitar la fuerza de corrección para que no sea instantánea
                 float forceMagnitude = _effectiveAcceleration;
 
-                // Reducir fuerza cuando intentamos cambiar de dirección (más inercia al girar)
+                // Más resistencia al cambiar de dirección (inercia)
                 float directionAlignment = Vector3.Dot(currentHorizontalVel.normalized, _smoothedDirection);
                 if (directionAlignment < 0f && _currentSpeed > 1f)
                 {
-                    // Estamos intentando ir en dirección opuesta - la inercia resiste más
                     forceMagnitude *= Mathf.Lerp(0.3f, 1f, (directionAlignment + 1f) * 0.5f);
                 }
 
+                // Fuerza en WORLD SPACE puro
                 Vector3 force = velocityDifference.normalized * forceMagnitude;
                 _rb.AddForce(force, ForceMode.Force);
             }
             else
             {
-                // === SIN INPUT: FRENADO POR INERCIA ===
-                // Pesado: se desliza muuucho. Ligero: frena rápido.
+                // Sin input: frenar por inercia
                 _inputDirection = Vector3.zero;
 
                 if (_currentSpeed > 0.05f)
@@ -446,12 +482,11 @@ namespace FakeBlade.Core
                 }
                 else if (_currentSpeed > 0f)
                 {
-                    // Detener completamente si va muy lento
                     _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
                 }
             }
 
-            // === LIMITAR VELOCIDAD MÁXIMA ===
+            // Limitar velocidad máxima
             if (_currentSpeed > _effectiveMaxSpeed)
             {
                 Vector3 clampedVel = currentHorizontalVel.normalized * _effectiveMaxSpeed;
@@ -459,9 +494,12 @@ namespace FakeBlade.Core
             }
         }
 
+        /// <summary>
+        /// Tilt visual aplicado al visualRoot, no al root.
+        /// </summary>
         private void ApplyTiltPhysics()
         {
-            if (visualRoot == null) return;
+            if (visualRoot == null || visualRoot == _transform) return;
 
             Vector3 velocity = _rb.linearVelocity;
             float speedRatio = Mathf.Clamp01(_currentSpeed / Mathf.Max(_effectiveMaxSpeed, 0.1f));
@@ -474,8 +512,12 @@ namespace FakeBlade.Core
 
             _currentTilt = Vector3.Lerp(_currentTilt, targetTilt, Time.fixedDeltaTime * TILT_SMOOTHING);
 
-            // Aplicar tilt solo al visual
-            visualRoot.localRotation = Quaternion.Euler(_currentTilt);
+            // NOTA: No podemos hacer localRotation = Euler(tilt) porque eso
+            // resetea la rotación de spin. En su lugar, el spin se acumula
+            // en UpdateVisualRotation() y el tilt se aplica como offset.
+            // Solución: separar spin y tilt usando la rotación actual del spin.
+            float currentSpinAngle = visualRoot.localEulerAngles.y;
+            visualRoot.localRotation = Quaternion.Euler(_currentTilt.x, currentSpinAngle, _currentTilt.z);
         }
         #endregion
 
@@ -490,29 +532,23 @@ namespace FakeBlade.Core
                 return;
             }
 
-            // Dirección del dash: usa la velocidad actual o la dirección suavizada
             Vector3 dashDirection;
             if (_currentSpeed > 1f)
-            {
-                dashDirection = _rb.linearVelocity.normalized;
-            }
+                dashDirection = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z).normalized;
             else if (_smoothedDirection.sqrMagnitude > 0.01f)
-            {
-                dashDirection = _smoothedDirection.normalized;
-            }
+                dashDirection = _smoothedDirection;
+            else if (_inputDirection.sqrMagnitude > 0.01f)
+                dashDirection = _inputDirection.normalized;
             else
-            {
-                dashDirection = _transform.forward;
-            }
+                dashDirection = Vector3.forward; // Fallback world forward, no transform.forward
+
             dashDirection.y = 0f;
             dashDirection.Normalize();
 
-            // Impulso proporcional al peso (pesado dashea con más fuerza pero cuesta más)
             float weightedDash = dashForce * Mathf.Lerp(0.8f, 1.4f, Mathf.InverseLerp(0.5f, 3f, Weight));
             _rb.AddForce(dashDirection * weightedDash, ForceMode.Impulse);
 
             ReduceSpin(dashSpinCost);
-
             _canDash = false;
             _dashTimer = dashCooldown;
 
@@ -520,20 +556,14 @@ namespace FakeBlade.Core
             OnDashExecuted?.Invoke();
 
             if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] Dash! Dir: {dashDirection}, Force: {weightedDash:F1}");
-            }
+                Debug.Log($"[FakeBlade] Dash! Dir:{dashDirection} Force:{weightedDash:F1}");
         }
 
         private void UpdateDashCooldown()
         {
             if (_canDash) return;
-
             _dashTimer -= Time.deltaTime;
-            if (_dashTimer <= 0f)
-            {
-                _canDash = true;
-            }
+            if (_dashTimer <= 0f) _canDash = true;
         }
 
         public float GetDashCooldownProgress()
@@ -553,23 +583,15 @@ namespace FakeBlade.Core
                 return;
             }
 
-            ExecuteDefaultSpecial();
-        }
-
-        private void ExecuteDefaultSpecial()
-        {
+            // Default: SpinBoost
             if (_rb != null)
-            {
                 _rb.AddForce(Vector3.up * SPECIAL_VERTICAL_FORCE, ForceMode.Impulse);
-            }
 
             AddSpin(100f);
             OnSpecialExecuted?.Invoke(SpecialAbilityType.SpinBoost);
 
             if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] Special executed! Spin: {_currentSpinSpeed:F0}");
-            }
+                Debug.Log($"[FakeBlade] Default special! Spin: {_currentSpinSpeed:F0}");
         }
         #endregion
 
@@ -582,13 +604,9 @@ namespace FakeBlade.Core
             FakeBladeController other = collision.gameObject.GetComponent<FakeBladeController>();
 
             if (other != null && !other._isDestroyed)
-            {
                 ProcessFakeBladeCollision(other, collision, relativeSpeed);
-            }
             else
-            {
                 ProcessEnvironmentCollision(collision, relativeSpeed);
-            }
         }
 
         private void ProcessFakeBladeCollision(FakeBladeController other, Collision collision, float relativeSpeed)
@@ -599,18 +617,15 @@ namespace FakeBlade.Core
             float myWeight = Weight;
             float otherWeight = other.Weight;
 
-            // Ratio de spin: quien gira más rápido hace más daño
             float spinRatio = _currentSpinSpeed / (other._currentSpinSpeed + 0.001f);
             spinRatio = Mathf.Clamp(spinRatio, 0.5f, 2f);
 
-            // Daño final - el peso amplifica el daño infligido
             float damageToOther = baseDamage * spinRatio * (myWeight / (otherWeight + 0.001f));
             float damageToSelf = baseDamage * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f));
 
             other.ReduceSpin(damageToOther);
             ReduceSpin(damageToSelf);
 
-            // Knockback - el peso determina cuánto empujas y cuánto te empujan
             Vector3 knockbackDir = (other._transform.position - _transform.position).normalized;
             knockbackDir.y = 0.15f;
 
@@ -623,22 +638,18 @@ namespace FakeBlade.Core
             SpawnCollisionEffects(collision.GetContact(0).point);
             PlaySound(collisionSound);
 
-            var inputHandler = GetComponent<InputHandler>();
-            inputHandler?.Vibrate(0.3f, 0.5f, 0.15f);
+            GetComponent<InputHandler>()?.Vibrate(0.3f, 0.5f, 0.15f);
 
             OnCollisionWithFakeBlade?.Invoke(other, damageToOther);
             other.OnCollisionWithFakeBlade?.Invoke(this, damageToSelf);
 
             if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] CLASH! Speed:{relativeSpeed:F1} Dealt:{damageToOther:F1} Received:{damageToSelf:F1}");
-            }
+                Debug.Log($"[FakeBlade] CLASH! Spd:{relativeSpeed:F1} Dealt:{damageToOther:F1} Recv:{damageToSelf:F1}");
         }
 
         private void ProcessEnvironmentCollision(Collision collision, float relativeSpeed)
         {
-            float environmentDamage = relativeSpeed * 0.5f;
-            ReduceSpin(environmentDamage);
+            ReduceSpin(relativeSpeed * 0.5f);
 
             if (sparkEffect != null && relativeSpeed > 3f)
             {
@@ -668,10 +679,8 @@ namespace FakeBlade.Core
                 groundLayer
             );
 
-            if (_isGrounded && !_wasGrounded)
-                OnGrounded?.Invoke();
-            else if (!_isGrounded && _wasGrounded)
-                OnAirborne?.Invoke();
+            if (_isGrounded && !_wasGrounded) OnGrounded?.Invoke();
+            else if (!_isGrounded && _wasGrounded) OnAirborne?.Invoke();
         }
         #endregion
 
@@ -679,9 +688,7 @@ namespace FakeBlade.Core
         private void PlaySound(AudioClip clip)
         {
             if (audioSource != null && clip != null)
-            {
                 audioSource.PlayOneShot(clip);
-            }
         }
         #endregion
 
@@ -701,20 +708,24 @@ namespace FakeBlade.Core
             {
                 _rb.linearVelocity = Vector3.zero;
                 _rb.angularVelocity = Vector3.zero;
-                _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                _rb.constraints = RigidbodyConstraints.FreezeRotation; // Bloquear toda rotación
+            }
+
+            // Reset rotación del visual
+            if (visualRoot != null && visualRoot != _transform)
+            {
+                visualRoot.localRotation = Quaternion.identity;
             }
 
             gameObject.SetActive(true);
 
             if (showDebugInfo)
-            {
-                Debug.Log($"[FakeBlade] Reset complete. Spin: {_currentSpinSpeed:F0}/{_maxSpinSpeed:F0}");
-            }
+                Debug.Log($"[FakeBlade] Reset. Spin:{_currentSpinSpeed:F0}/{_maxSpinSpeed:F0}");
         }
 
         public void SetPosition(Vector3 position, Quaternion rotation)
         {
-            _transform.SetPositionAndRotation(position, rotation);
+            _transform.SetPositionAndRotation(position, Quaternion.identity); // Root siempre sin rotación
             if (_rb != null)
             {
                 _rb.linearVelocity = Vector3.zero;
@@ -726,16 +737,10 @@ namespace FakeBlade.Core
         #region Debug
         private void DrawDebugInfo()
         {
-            // Velocidad actual (verde)
             Debug.DrawRay(_transform.position, _rb.linearVelocity, Color.green);
-
-            // Dirección suavizada (amarillo)
             Debug.DrawRay(_transform.position, _smoothedDirection * 3f, Color.yellow);
-
-            // Input raw (rojo)
             Debug.DrawRay(_transform.position, _inputDirection * 2f, Color.red);
 
-            // Ground check
             Color groundColor = _isGrounded ? Color.green : Color.red;
             Debug.DrawRay(_transform.position + Vector3.up * 0.1f, Vector3.down * (GROUND_CHECK_DISTANCE + 0.1f), groundColor);
         }
@@ -752,6 +757,13 @@ namespace FakeBlade.Core
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
             }
+
+            // Mostrar dirección suavizada
+            if (_smoothedDirection.sqrMagnitude > 0.01f)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(transform.position, transform.position + _smoothedDirection * 2f);
+            }
         }
         #endregion
 
@@ -759,9 +771,7 @@ namespace FakeBlade.Core
         private void OnDestroy()
         {
             if (_stats != null)
-            {
                 _stats.OnStatsChanged -= ApplyStatsFromComponent;
-            }
         }
         #endregion
     }

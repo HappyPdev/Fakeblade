@@ -1,517 +1,321 @@
 using UnityEngine;
-using System;
-using System.Collections;
 
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Manejador de habilidades especiales para FakeBlades.
-    /// Las habilidades se definen en el componente Core equipado.
+    /// Gestiona la ejecución de habilidades especiales.
+    /// Lee el tipo de habilidad del Core equipado en FakeBladeStats.
+    /// Si no hay Core, usa SpinBoost por defecto.
     /// </summary>
     [RequireComponent(typeof(FakeBladeController))]
     [RequireComponent(typeof(FakeBladeStats))]
     public class SpecialAbilityHandler : MonoBehaviour
     {
-        #region Events
-        public event Action<SpecialAbilityType> OnAbilityExecuted;
-        public event Action<int> OnUsesChanged;
-        public event Action<float> OnCooldownChanged;
-        #endregion
+        #region Settings
+        [Header("=== ABILITY SETTINGS ===")]
+        [SerializeField] private float shockWaveRadius = 5f;
+        [SerializeField] private float shockWaveForce = 12f;
+        [SerializeField] private float shockWaveDamage = 40f;
 
-        #region Serialized Fields
-        [Header("Ability Settings")]
-        [SerializeField] private SpecialAbilityType currentAbility = SpecialAbilityType.None;
-        [SerializeField] private int maxUses = 3;
-        [SerializeField] private float cooldown = 5f;
-        [SerializeField] private float power = 1f;
-
-        [Header("Effects")]
-        [SerializeField] private ParticleSystem abilityEffect;
-        [SerializeField] private AudioClip abilitySound;
-
-        [Header("Spin Boost Settings")]
-        [SerializeField] private float spinBoostAmount = 150f;
-
-        [Header("Shockwave Settings")]
-        [SerializeField] private float shockwaveRadius = 5f;
-        [SerializeField] private float shockwaveForce = 20f;
-
-        [Header("Shield Settings")]
         [SerializeField] private float shieldDuration = 3f;
-        [SerializeField] private float shieldDamageReduction = 0.7f;
+        [SerializeField] private float shieldDamageReduction = 0.7f; // 70% reducción
 
-        [Header("Dash Settings")]
-        [SerializeField] private float superDashForce = 30f;
+        [SerializeField] private float spinBoostAmount = 150f;
+        [SerializeField] private float spinBoostVerticalForce = 3f;
 
-        [Header("Drain Settings")]
-        [SerializeField] private float drainRange = 3f;
-        [SerializeField] private float drainAmount = 50f;
+        [SerializeField] private float dashAbilityForce = 25f;
 
-        [Header("Debug")]
-        [SerializeField] private bool debugMode = false;
+        [Header("=== COOLDOWN ===")]
+        [SerializeField] private float abilityCooldown = 2f;
+
+        [Header("=== DEBUG ===")]
+        [SerializeField] private bool showDebugInfo = false;
         #endregion
 
         #region Private Fields
         private FakeBladeController _controller;
         private FakeBladeStats _stats;
         private Rigidbody _rb;
-        private AudioSource _audioSource;
+        private Transform _transform;
 
         private int _remainingUses;
         private float _cooldownTimer;
-        private bool _isOnCooldown;
-        private bool _isAbilityActive;
+        private bool _canUse = true;
 
         // Shield state
-        private float _originalDefense;
-        private bool _hasShield;
+        private bool _shieldActive;
+        private float _shieldTimer;
         #endregion
 
         #region Properties
-        public SpecialAbilityType CurrentAbility => currentAbility;
         public int RemainingUses => _remainingUses;
-        public bool CanUseAbility => _remainingUses > 0 && !_isOnCooldown && !_isAbilityActive;
-        public float CooldownProgress => _isOnCooldown ? 1f - (_cooldownTimer / cooldown) : 1f;
+        public bool CanUse => _canUse && _remainingUses > 0;
+        public bool IsShieldActive => _shieldActive;
+        public SpecialAbilityType CurrentAbilityType => GetCurrentAbilityType();
+
+        public float CooldownProgress
+        {
+            get
+            {
+                if (_canUse) return 1f;
+                return 1f - (_cooldownTimer / abilityCooldown);
+            }
+        }
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
         {
-            CacheComponents();
+            _controller = GetComponent<FakeBladeController>();
+            _stats = GetComponent<FakeBladeStats>();
+            _rb = GetComponent<Rigidbody>();
+            _transform = transform;
         }
 
         private void Start()
         {
-            Initialize();
+            ResetAbility();
+
+            if (_stats != null)
+            {
+                _stats.OnStatsChanged += OnStatsChanged;
+            }
         }
 
         private void Update()
         {
             UpdateCooldown();
-        }
-        #endregion
-
-        #region Initialization
-        private void CacheComponents()
-        {
-            _controller = GetComponent<FakeBladeController>();
-            _stats = GetComponent<FakeBladeStats>();
-            _rb = GetComponent<Rigidbody>();
-            _audioSource = GetComponent<AudioSource>();
+            UpdateShield();
         }
 
-        private void Initialize()
+        private void OnDestroy()
         {
-            // Obtener habilidad del componente Core
-            LoadAbilityFromStats();
-
-            _remainingUses = maxUses;
-            _cooldownTimer = 0f;
-            _isOnCooldown = false;
-
-            // Suscribirse a cambios de stats
             if (_stats != null)
             {
-                _stats.OnStatsChanged += LoadAbilityFromStats;
-            }
-        }
-
-        private void LoadAbilityFromStats()
-        {
-            if (_stats?.Core == null) return;
-
-            currentAbility = _stats.Core.SpecialAbility;
-            maxUses = _stats.Core.MaxAbilityUses;
-            cooldown = _stats.Core.AbilityCooldown;
-            power = _stats.Core.AbilityPower;
-
-            _remainingUses = maxUses;
-
-            if (debugMode)
-            {
-                Debug.Log($"[SpecialAbility] Loaded: {currentAbility}, Uses: {maxUses}, Cooldown: {cooldown}s");
+                _stats.OnStatsChanged -= OnStatsChanged;
             }
         }
         #endregion
 
-        #region Cooldown
+        #region Core Logic
+        /// <summary>
+        /// Ejecuta la habilidad especial actual.
+        /// Llamado desde FakeBladeController.ExecuteSpecial().
+        /// </summary>
+        public void ExecuteAbility()
+        {
+            if (!_canUse || _remainingUses <= 0)
+            {
+                if (showDebugInfo) Debug.Log("[Ability] Cannot use - on cooldown or no uses left");
+                return;
+            }
+
+            SpecialAbilityType type = GetCurrentAbilityType();
+
+            switch (type)
+            {
+                case SpecialAbilityType.SpinBoost:
+                    ExecuteSpinBoost();
+                    break;
+                case SpecialAbilityType.ShockWave:
+                    ExecuteShockWave();
+                    break;
+                case SpecialAbilityType.Shield:
+                    ExecuteShield();
+                    break;
+                case SpecialAbilityType.Dash:
+                    ExecuteDashAbility();
+                    break;
+                case SpecialAbilityType.None:
+                default:
+                    ExecuteSpinBoost(); // Fallback
+                    break;
+            }
+
+            _remainingUses--;
+            _canUse = false;
+            _cooldownTimer = abilityCooldown;
+
+            if (showDebugInfo)
+            {
+                Debug.Log($"[Ability] Executed {type}! Uses left: {_remainingUses}");
+            }
+        }
+
+        private SpecialAbilityType GetCurrentAbilityType()
+        {
+            if (_stats == null) return SpecialAbilityType.SpinBoost;
+
+            var core = _stats.EquippedCore;
+            if (core == null) return SpecialAbilityType.SpinBoost;
+
+            return core.SpecialAbility != SpecialAbilityType.None
+                ? core.SpecialAbility
+                : SpecialAbilityType.SpinBoost;
+        }
+        #endregion
+
+        #region Ability Implementations
+        private void ExecuteSpinBoost()
+        {
+            _controller.AddSpin(spinBoostAmount);
+
+            if (_rb != null)
+            {
+                _rb.AddForce(Vector3.up * spinBoostVerticalForce, ForceMode.Impulse);
+            }
+
+            if (showDebugInfo)
+            {
+                Debug.Log($"[Ability] SpinBoost: +{spinBoostAmount} spin");
+            }
+        }
+
+        private void ExecuteShockWave()
+        {
+            // Encontrar todos los FakeBlades en el radio
+            Collider[] hits = Physics.OverlapSphere(_transform.position, shockWaveRadius);
+
+            int affected = 0;
+            foreach (var hit in hits)
+            {
+                if (hit.gameObject == gameObject) continue;
+
+                FakeBladeController other = hit.GetComponent<FakeBladeController>();
+                if (other == null || other.IsDestroyed) continue;
+
+                // Empujar lejos
+                Vector3 direction = (other.transform.position - _transform.position).normalized;
+                direction.y = 0.2f;
+
+                float distance = Vector3.Distance(_transform.position, other.transform.position);
+                float falloff = 1f - (distance / shockWaveRadius);
+                falloff = Mathf.Clamp01(falloff);
+
+                Rigidbody otherRb = other.GetComponent<Rigidbody>();
+                if (otherRb != null)
+                {
+                    otherRb.AddForce(direction * shockWaveForce * falloff, ForceMode.Impulse);
+                }
+
+                other.ReduceSpin(shockWaveDamage * falloff);
+                affected++;
+            }
+
+            // Pequeño coste propio
+            _controller.ReduceSpin(15f);
+
+            if (showDebugInfo)
+            {
+                Debug.Log($"[Ability] ShockWave: Hit {affected} targets in radius {shockWaveRadius}");
+            }
+        }
+
+        private void ExecuteShield()
+        {
+            _shieldActive = true;
+            _shieldTimer = shieldDuration;
+
+            if (showDebugInfo)
+            {
+                Debug.Log($"[Ability] Shield activated for {shieldDuration}s ({shieldDamageReduction * 100}% reduction)");
+            }
+        }
+
+        private void ExecuteDashAbility()
+        {
+            if (_rb == null) return;
+
+            // Dash en dirección de movimiento actual o forward
+            Vector3 dashDir = _rb.linearVelocity.normalized;
+            if (dashDir.sqrMagnitude < 0.01f)
+            {
+                dashDir = _transform.forward;
+            }
+            dashDir.y = 0f;
+            dashDir.Normalize();
+
+            _rb.AddForce(dashDir * dashAbilityForce, ForceMode.Impulse);
+
+            if (showDebugInfo)
+            {
+                Debug.Log($"[Ability] Dash ability: Force {dashAbilityForce} in dir {dashDir}");
+            }
+        }
+        #endregion
+
+        #region Update Loops
         private void UpdateCooldown()
         {
-            if (!_isOnCooldown) return;
+            if (_canUse) return;
 
             _cooldownTimer -= Time.deltaTime;
-            OnCooldownChanged?.Invoke(CooldownProgress);
-
             if (_cooldownTimer <= 0f)
             {
-                _isOnCooldown = false;
-                _cooldownTimer = 0f;
+                _canUse = true;
             }
         }
 
-        private void StartCooldown()
+        private void UpdateShield()
         {
-            _isOnCooldown = true;
-            _cooldownTimer = cooldown;
-        }
-        #endregion
+            if (!_shieldActive) return;
 
-        #region Ability Execution
-        public bool ExecuteAbility()
-        {
-            if (!CanUseAbility)
+            _shieldTimer -= Time.deltaTime;
+            if (_shieldTimer <= 0f)
             {
-                if (debugMode)
-                {
-                    string reason = _remainingUses <= 0 ? "No uses left" :
-                                   _isOnCooldown ? "On cooldown" : "Ability active";
-                    Debug.Log($"[SpecialAbility] Cannot execute: {reason}");
-                }
-                return false;
-            }
-
-            bool success = currentAbility switch
-            {
-                SpecialAbilityType.SpinBoost => ExecuteSpinBoost(),
-                SpecialAbilityType.ShockWave => ExecuteShockwave(),
-                SpecialAbilityType.Shield => ExecuteShield(),
-                SpecialAbilityType.Dash => ExecuteSuperDash(),
-                SpecialAbilityType.Drain => ExecuteDrain(),
-                SpecialAbilityType.Berserk => ExecuteBerserk(),
-                SpecialAbilityType.Anchor => ExecuteAnchor(),
-                SpecialAbilityType.Phantom => ExecutePhantom(),
-                _ => false
-            };
-
-            if (success)
-            {
-                _remainingUses--;
-                StartCooldown();
-                PlayAbilityEffects();
-
-                OnAbilityExecuted?.Invoke(currentAbility);
-                OnUsesChanged?.Invoke(_remainingUses);
-
-                if (debugMode)
-                {
-                    Debug.Log($"[SpecialAbility] {currentAbility} executed! Remaining: {_remainingUses}");
-                }
-            }
-
-            return success;
-        }
-        #endregion
-
-        #region Individual Abilities
-        private bool ExecuteSpinBoost()
-        {
-            float boost = spinBoostAmount * power;
-            _controller?.AddSpin(boost);
-
-            // Pequeño impulso hacia arriba
-            _rb?.AddForce(Vector3.up * 2f, ForceMode.Impulse);
-
-            return true;
-        }
-
-        private bool ExecuteShockwave()
-        {
-            // Encontrar FakeBlades cercanas
-            Collider[] hits = Physics.OverlapSphere(transform.position, shockwaveRadius * power);
-
-            int enemiesHit = 0;
-
-            foreach (var hit in hits)
-            {
-                if (hit.gameObject == gameObject) continue;
-
-                FakeBladeController enemy = hit.GetComponent<FakeBladeController>();
-                if (enemy != null && !enemy.IsDestroyed)
-                {
-                    // Calcular dirección y aplicar fuerza
-                    Vector3 direction = (enemy.transform.position - transform.position).normalized;
-                    direction.y = 0.2f;
-
-                    Rigidbody enemyRb = enemy.GetComponent<Rigidbody>();
-                    enemyRb?.AddForce(direction * shockwaveForce * power, ForceMode.Impulse);
-
-                    // Daño de spin
-                    enemy.ReduceSpin(30f * power);
-                    enemiesHit++;
-                }
-            }
-
-            // Auto-daño si no golpea a nadie
-            if (enemiesHit == 0)
-            {
-                _controller?.ReduceSpin(20f);
-            }
-
-            return true;
-        }
-
-        private bool ExecuteShield()
-        {
-            if (_hasShield) return false;
-
-            StartCoroutine(ShieldCoroutine());
-            return true;
-        }
-
-        private IEnumerator ShieldCoroutine()
-        {
-            _hasShield = true;
-            _isAbilityActive = true;
-
-            // Guardar y modificar defensa
-            // Nota: Necesitaría modificar FakeBladeStats para esto
-            // Por ahora usamos un multiplicador interno
-
-            if (debugMode)
-            {
-                Debug.Log($"[SpecialAbility] Shield activated for {shieldDuration}s");
-            }
-
-            yield return new WaitForSeconds(shieldDuration * power);
-
-            _hasShield = false;
-            _isAbilityActive = false;
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Shield deactivated");
-            }
-        }
-
-        private bool ExecuteSuperDash()
-        {
-            if (_rb == null) return false;
-
-            Vector3 direction = _rb.linearVelocity.normalized;
-            if (direction.sqrMagnitude < 0.01f)
-            {
-                direction = transform.forward;
-            }
-
-            _rb.AddForce(direction * superDashForce * power, ForceMode.Impulse);
-            return true;
-        }
-
-        private bool ExecuteDrain()
-        {
-            // Encontrar el enemigo más cercano
-            FakeBladeController nearestEnemy = null;
-            float nearestDistance = drainRange * power;
-
-            Collider[] hits = Physics.OverlapSphere(transform.position, nearestDistance);
-
-            foreach (var hit in hits)
-            {
-                if (hit.gameObject == gameObject) continue;
-
-                FakeBladeController enemy = hit.GetComponent<FakeBladeController>();
-                if (enemy != null && !enemy.IsDestroyed)
-                {
-                    float dist = Vector3.Distance(transform.position, enemy.transform.position);
-                    if (dist < nearestDistance)
-                    {
-                        nearestDistance = dist;
-                        nearestEnemy = enemy;
-                    }
-                }
-            }
-
-            if (nearestEnemy != null)
-            {
-                float drain = drainAmount * power;
-                nearestEnemy.ReduceSpin(drain);
-                _controller?.AddSpin(drain * 0.5f); // 50% de lo drenado
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool ExecuteBerserk()
-        {
-            StartCoroutine(BerserkCoroutine());
-            return true;
-        }
-
-        private IEnumerator BerserkCoroutine()
-        {
-            _isAbilityActive = true;
-
-            // Aumentar velocidad y ataque temporalmente
-            // Esto requeriría modificar stats temporalmente
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Berserk mode activated!");
-            }
-
-            yield return new WaitForSeconds(4f * power);
-
-            _isAbilityActive = false;
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Berserk mode ended");
-            }
-        }
-
-        private bool ExecuteAnchor()
-        {
-            StartCoroutine(AnchorCoroutine());
-            return true;
-        }
-
-        private IEnumerator AnchorCoroutine()
-        {
-            _isAbilityActive = true;
-
-            // Aumentar masa temporalmente
-            float originalMass = _rb.mass;
-            _rb.mass *= 3f * power;
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Anchor activated!");
-            }
-
-            yield return new WaitForSeconds(3f);
-
-            _rb.mass = originalMass;
-            _isAbilityActive = false;
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Anchor ended");
-            }
-        }
-
-        private bool ExecutePhantom()
-        {
-            StartCoroutine(PhantomCoroutine());
-            return true;
-        }
-
-        private IEnumerator PhantomCoroutine()
-        {
-            _isAbilityActive = true;
-
-            // Hacer temporalmente invulnerable
-            // Cambiar layer temporalmente para evitar colisiones
-            int originalLayer = gameObject.layer;
-            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-
-            // Visual: hacer semi-transparente
-            SetTransparency(0.3f);
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Phantom activated!");
-            }
-
-            yield return new WaitForSeconds(1.5f * power);
-
-            gameObject.layer = originalLayer;
-            SetTransparency(1f);
-            _isAbilityActive = false;
-
-            if (debugMode)
-            {
-                Debug.Log("[SpecialAbility] Phantom ended");
-            }
-        }
-
-        private void SetTransparency(float alpha)
-        {
-            Renderer[] renderers = GetComponentsInChildren<Renderer>();
-            MaterialPropertyBlock block = new MaterialPropertyBlock();
-
-            foreach (var renderer in renderers)
-            {
-                renderer.GetPropertyBlock(block);
-                Color color = block.GetColor("_BaseColor");
-                color.a = alpha;
-                block.SetColor("_BaseColor", color);
-                renderer.SetPropertyBlock(block);
-            }
-        }
-        #endregion
-
-        #region Effects
-        private void PlayAbilityEffects()
-        {
-            if (abilityEffect != null)
-            {
-                abilityEffect.Play();
-            }
-
-            if (_audioSource != null && abilitySound != null)
-            {
-                _audioSource.PlayOneShot(abilitySound);
+                _shieldActive = false;
+                if (showDebugInfo) Debug.Log("[Ability] Shield expired");
             }
         }
         #endregion
 
         #region Public Methods
-        public void ResetAbility()
-        {
-            _remainingUses = maxUses;
-            _cooldownTimer = 0f;
-            _isOnCooldown = false;
-            _isAbilityActive = false;
-            _hasShield = false;
-
-            StopAllCoroutines();
-        }
-
-        public void SetAbility(SpecialAbilityType ability, int uses, float cd, float pow)
-        {
-            currentAbility = ability;
-            maxUses = uses;
-            cooldown = cd;
-            power = pow;
-            _remainingUses = uses;
-        }
-
+        /// <summary>
+        /// Devuelve el multiplicador de daño actual (afectado por Shield).
+        /// Llamar desde FakeBladeController.ReduceSpin() si se quiere integrar.
+        /// </summary>
         public float GetDamageMultiplier()
         {
-            if (_hasShield)
+            if (_shieldActive)
             {
                 return 1f - shieldDamageReduction;
             }
             return 1f;
         }
-        #endregion
 
-        #region Cleanup
-        private void OnDestroy()
+        /// <summary>
+        /// Resetea la habilidad al inicio de una partida.
+        /// </summary>
+        public void ResetAbility()
         {
-            if (_stats != null)
-            {
-                _stats.OnStatsChanged -= LoadAbilityFromStats;
-            }
+            var core = _stats?.EquippedCore;
+            _remainingUses = core != null ? core.SpecialAbilityUses : 3;
+            _canUse = true;
+            _cooldownTimer = 0f;
+            _shieldActive = false;
+            _shieldTimer = 0f;
+        }
+
+        private void OnStatsChanged()
+        {
+            // Recalcular usos cuando cambian los stats (nuevo Core equipado)
+            ResetAbility();
         }
         #endregion
 
         #region Debug
         private void OnDrawGizmosSelected()
         {
-            // Visualizar rangos de habilidades
-            switch (currentAbility)
+            if (GetCurrentAbilityType() == SpecialAbilityType.ShockWave)
             {
-                case SpecialAbilityType.ShockWave:
-                    Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
-                    Gizmos.DrawWireSphere(transform.position, shockwaveRadius);
-                    break;
+                Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+                Gizmos.DrawWireSphere(transform.position, shockWaveRadius);
+            }
 
-                case SpecialAbilityType.Drain:
-                    Gizmos.color = new Color(0.5f, 0f, 0.5f, 0.3f);
-                    Gizmos.DrawWireSphere(transform.position, drainRange);
-                    break;
+            if (_shieldActive)
+            {
+                Gizmos.color = new Color(0.3f, 0.8f, 1f, 0.3f);
+                Gizmos.DrawSphere(transform.position, 1f);
             }
         }
         #endregion

@@ -3,115 +3,116 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// ScriptableObject base para datos de componentes de FakeBlade.
-    /// Permite crear componentes desde el editor de Unity.
+    /// Tipo de slot donde encaja el componente.
+    /// </summary>
+    public enum ComponentSlot
+    {
+        Tip,    // Punta - afecta estabilidad y velocidad
+        Body,   // Cuerpo - afecta peso y resistencia
+        Blade,  // Disco/Cuchilla - afecta ataque y defensa
+        Core    // Núcleo - afecta spin máximo y habilidad especial
+    }
+
+    /// <summary>
+    /// Clase de peso del componente. Define el "tier" general.
+    /// </summary>
+    public enum WeightClass
+    {
+        Light,   // Ligero: rápido, ágil, frágil
+        Medium,  // Medio: equilibrado
+        Heavy    // Pesado: lento, resistente, poderoso
+    }
+
+    /// <summary>
+    /// ScriptableObject que define las propiedades de un componente de peonza.
+    /// Cada componente tiene modificadores que se suman a las stats base.
+    /// 
+    /// DISEÑO: Valores POSITIVOS aumentan la stat, NEGATIVOS la reducen.
+    /// Esto permite trade-offs: un cuerpo pesado aumenta peso y defensa
+    /// pero puede reducir velocidad de movimiento.
     /// </summary>
     [CreateAssetMenu(fileName = "New FakeBlade Component", menuName = "FakeBlade/Component Data")]
     public class FakeBladeComponentData : ScriptableObject
     {
-        #region Component Info
-        [Header("Component Info")]
-        [SerializeField] private string componentName = "New Component";
-        [SerializeField] private ComponentSlot slot;
-        [SerializeField] private ComponentRarity rarity = ComponentRarity.Common;
-        [SerializeField, TextArea] private string description;
+        [Header("=== IDENTITY ===")]
+        [SerializeField] private string componentName = "Component";
+        [SerializeField][TextArea(2, 4)] private string description = "";
+        [SerializeField] private ComponentSlot componentType = ComponentSlot.Body;
+        [SerializeField] private WeightClass weightClass = WeightClass.Medium;
         [SerializeField] private Sprite icon;
-        [SerializeField] private GameObject prefab;
-        #endregion
 
-        #region Stats
-        [Header("Base Stats")]
-        [SerializeField] private FakeBladeStats.StatBlock stats;
-        #endregion
+        [Header("=== STAT MODIFIERS ===")]
+        [Tooltip("Modifica el spin máximo (+/-)")]
+        [SerializeField] private float maxSpinModifier = 0f;
 
-        #region Special Ability
-        [Header("Special Ability (Core Only)")]
+        [Tooltip("Modifica el decay del spin. POSITIVO = pierde spin más rápido. NEGATIVO = más estable.")]
+        [SerializeField] private float spinDecayModifier = 0f;
+
+        [Tooltip("Modifica la velocidad de movimiento (+/-)")]
+        [SerializeField] private float moveSpeedModifier = 0f;
+
+        [Tooltip("Modifica el peso (+/-). Más peso = más inercia, más daño de choque.")]
+        [SerializeField] private float weightModifier = 0f;
+
+        [Tooltip("Modifica la potencia de ataque (+/-)")]
+        [SerializeField] private float attackPowerModifier = 0f;
+
+        [Tooltip("Modifica la defensa (+/-). Reduce daño recibido por porcentaje.")]
+        [SerializeField] private float defenseModifier = 0f;
+
+        [Tooltip("Modifica la fuerza de dash (+/-)")]
+        [SerializeField] private float dashForceModifier = 0f;
+
+        [Header("=== SPECIAL ===")]
+        [Tooltip("Solo para Core: tipo de habilidad especial que otorga")]
         [SerializeField] private SpecialAbilityType specialAbility = SpecialAbilityType.None;
-        [SerializeField] private int maxAbilityUses = 3;
-        [SerializeField] private float abilityCooldown = 5f;
-        [SerializeField] private float abilityPower = 1f;
-        #endregion
 
-        #region Properties
+        [Tooltip("Solo para Core: usos máximos de la habilidad especial por partida")]
+        [SerializeField] private int specialAbilityUses = 3;
+
+        #region Public Properties
         public string ComponentName => componentName;
-        public ComponentSlot Slot => slot;
-        public ComponentRarity Rarity => rarity;
         public string Description => description;
+        public ComponentSlot ComponentType => componentType;
+        public WeightClass WeightClass => weightClass;
         public Sprite Icon => icon;
-        public GameObject Prefab => prefab;
-        public FakeBladeStats.StatBlock Stats => stats;
+
+        public float MaxSpinModifier => maxSpinModifier;
+        public float SpinDecayModifier => spinDecayModifier;
+        public float MoveSpeedModifier => moveSpeedModifier;
+        public float WeightModifier => weightModifier;
+        public float AttackPowerModifier => attackPowerModifier;
+        public float DefenseModifier => defenseModifier;
+        public float DashForceModifier => dashForceModifier;
+
         public SpecialAbilityType SpecialAbility => specialAbility;
-        public int MaxAbilityUses => maxAbilityUses;
-        public float AbilityCooldown => abilityCooldown;
-        public float AbilityPower => abilityPower;
-        #endregion
-
-        #region Validation
-        private void OnValidate()
-        {
-            // Auto-ajustar stats según rareza
-            if (Application.isPlaying) return;
-
-            float rarityMultiplier = GetRarityMultiplier();
-            // Los stats se muestran escalados visualmente pero se almacenan base
-        }
-
-        private float GetRarityMultiplier()
-        {
-            return rarity switch
-            {
-                ComponentRarity.Common => 1f,
-                ComponentRarity.Uncommon => 1.15f,
-                ComponentRarity.Rare => 1.3f,
-                ComponentRarity.Epic => 1.5f,
-                ComponentRarity.Legendary => 1.75f,
-                _ => 1f
-            };
-        }
+        public int SpecialAbilityUses => specialAbilityUses;
         #endregion
 
         #region Utility
-        public Color GetRarityColor()
+        /// <summary>
+        /// Devuelve un resumen legible de los modificadores.
+        /// Solo muestra los que no son cero.
+        /// </summary>
+        public string GetModifiersSummary()
         {
-            return rarity switch
-            {
-                ComponentRarity.Common => Color.gray,
-                ComponentRarity.Uncommon => Color.green,
-                ComponentRarity.Rare => Color.blue,
-                ComponentRarity.Epic => new Color(0.5f, 0f, 0.5f), // Purple
-                ComponentRarity.Legendary => new Color(1f, 0.65f, 0f), // Orange
-                _ => Color.white
-            };
+            var parts = new System.Collections.Generic.List<string>();
+
+            if (maxSpinModifier != 0) parts.Add($"Spin:{FormatModifier(maxSpinModifier)}");
+            if (spinDecayModifier != 0) parts.Add($"Decay:{FormatModifier(spinDecayModifier)}");
+            if (moveSpeedModifier != 0) parts.Add($"Speed:{FormatModifier(moveSpeedModifier)}");
+            if (weightModifier != 0) parts.Add($"Weight:{FormatModifier(weightModifier)}");
+            if (attackPowerModifier != 0) parts.Add($"Atk:{FormatModifier(attackPowerModifier)}");
+            if (defenseModifier != 0) parts.Add($"Def:{FormatModifier(defenseModifier)}");
+            if (dashForceModifier != 0) parts.Add($"Dash:{FormatModifier(dashForceModifier)}");
+
+            return parts.Count > 0 ? string.Join(" | ", parts) : "No modifiers";
         }
 
-        public FakeBladeStats.StatBlock GetScaledStats()
+        private string FormatModifier(float value)
         {
-            return stats * GetRarityMultiplier();
+            return value > 0 ? $"+{value:F0}" : $"{value:F0}";
         }
         #endregion
     }
-
-    #region Enums
-    public enum ComponentRarity
-    {
-        Common,
-        Uncommon,
-        Rare,
-        Epic,
-        Legendary
-    }
-
-    public enum SpecialAbilityType
-    {
-        None,
-        SpinBoost,      // Recupera velocidad de giro
-        ShockWave,      // Empuja enemigos cercanos
-        Shield,         // Reduce daño temporalmente
-        Dash,           // Dash extra potente
-        Drain,          // Roba spin al enemigo
-        Berserk,        // Aumenta ataque pero reduce defensa
-        Anchor,         // Aumenta peso temporalmente
-        Phantom         // Breve invulnerabilidad
-    }
-    #endregion
 }

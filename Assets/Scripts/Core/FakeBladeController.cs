@@ -450,11 +450,15 @@ namespace FakeBlade.Core
 
         // Debug timer
         private float _debugTimer;
-        private int _debugFrameCount;
 
         /// <summary>
-        /// TODAS las fuerzas se aplican en WORLD SPACE.
-        /// Como el root NUNCA rota, world space es siempre consistente.
+        /// Sistema de movimiento: fuerza directa en dirección del input + frenado lateral.
+        /// 
+        /// FILOSOFÍA:
+        /// - La fuerza se aplica DIRECTAMENTE en la dirección que el jugador quiere ir
+        /// - La velocidad perpendicular al input se frena activamente (giro)
+        /// - Cuanto más pesada la peonza, más lento frena lateralmente (inercia de giro)
+        /// - Cuanto más ligera, más instantáneo el cambio de dirección
         /// </summary>
         private void ApplyMovementPhysics()
         {
@@ -462,7 +466,6 @@ namespace FakeBlade.Core
 
             // ===== DEBUG =====
             _debugTimer += Time.fixedDeltaTime;
-            _debugFrameCount++;
             bool shouldLog = false;
             float logInterval = Time.timeSinceLevelLoad < 5f ? 0.5f : 2f;
             if (_debugTimer >= logInterval)
@@ -470,91 +473,95 @@ namespace FakeBlade.Core
                 _debugTimer = 0f;
                 shouldLog = true;
             }
-
             if (shouldLog)
             {
                 Debug.Log($"[FB-DEBUG] {gameObject.name} | " +
                     $"Pos:({_transform.position.x:F1},{_transform.position.y:F1},{_transform.position.z:F1}) | " +
                     $"Vel:({_rb.linearVelocity.x:F2},{_rb.linearVelocity.y:F2},{_rb.linearVelocity.z:F2}) Spd:{_currentSpeed:F2} | " +
                     $"Input:({_inputDirection.x:F2},{_inputDirection.z:F2}) | " +
-                    $"SmDir:({_smoothedDirection.x:F2},{_smoothedDirection.z:F2}) | " +
                     $"Accel:{_effectiveAcceleration:F1} MaxSpd:{_effectiveMaxSpeed:F1} Turn:{_effectiveTurnSpeed:F3} | " +
                     $"Mass:{_rb.mass:F2} LinDamp:{_rb.linearDamping:F2} Grounded:{_isGrounded}");
             }
-            // ===== FIN DEBUG =====
 
             // Anti-flotación
             if (_rb.linearVelocity.y > 2f)
-            {
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 2f, _rb.linearVelocity.z);
-            }
 
-            Vector3 currentHorizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
-            _currentSpeed = currentHorizontalVel.magnitude;
+            Vector3 vel = _rb.linearVelocity;
+            Vector3 horizontalVel = new Vector3(vel.x, 0f, vel.z);
+            _currentSpeed = horizontalVel.magnitude;
 
             if (_inputDirection.sqrMagnitude > 0.01f)
             {
-                // === DIRECCIÓN: respuesta directa con algo de suavizado ===
-                if (_smoothedDirection.sqrMagnitude < 0.01f)
+                Vector3 inputDir = _inputDirection.normalized;
+                float inputMag = _inputDirection.magnitude;
+
+                // === 1. FUERZA DE ACELERACIÓN: directa en la dirección del input ===
+                float accelForce = _effectiveAcceleration;
+
+                // Reducir aceleración si ya estamos a tope en ESA dirección
+                float speedInInputDir = Vector3.Dot(horizontalVel, inputDir);
+                float targetSpeed = _effectiveMaxSpeed * inputMag;
+                if (speedInInputDir > 0f)
                 {
-                    // Primera vez: dirección inmediata
-                    _smoothedDirection = _inputDirection.normalized;
-                }
-                else
-                {
-                    // Suavizado de giro - MUCHO más rápido que antes
-                    // turnResponsiveness 0.15 base → effectiveTurnSpeed ~0.315
-                    // Multiplicador alto (60) para que sea arcade y responsivo
-                    // Light: 0.375 * 0.02 * 60 = 0.45 por frame → giro en ~5 frames
-                    // Heavy: 0.075 * 0.02 * 60 = 0.09 por frame → giro en ~20 frames
-                    float turnLerp = Mathf.Clamp01(_effectiveTurnSpeed * Time.fixedDeltaTime * 60f);
-                    _smoothedDirection = Vector3.Lerp(
-                        _smoothedDirection,
-                        _inputDirection.normalized,
-                        turnLerp
-                    ).normalized;
+                    float ratio = speedInInputDir / targetSpeed;
+                    accelForce *= Mathf.Clamp01(1f - ratio);
                 }
 
-                // === FUERZA DE MOVIMIENTO ===
-                Vector3 desiredVelocity = _smoothedDirection * _effectiveMaxSpeed * _inputDirection.magnitude;
-                Vector3 velocityDifference = desiredVelocity - currentHorizontalVel;
+                Vector3 driveForce = inputDir * accelForce;
+                driveForce.y = 0f;
+                _rb.AddForce(driveForce, ForceMode.Force);
 
-                float forceMagnitude = _effectiveAcceleration;
+                // === 2. FRENADO LATERAL: frenar la velocidad perpendicular al input ===
+                // Esto es lo que permite cambiar de dirección
+                Vector3 lateralVel = horizontalVel - inputDir * speedInInputDir;
 
-                // Reducir fuerza cerca de velocidad máxima
-                float speedRatio = _currentSpeed / Mathf.Max(_effectiveMaxSpeed, 0.1f);
-                forceMagnitude *= Mathf.Lerp(1f, 0.15f, speedRatio);
+                if (lateralVel.sqrMagnitude > 0.01f)
+                {
+                    // turnSpeed controla cuánto frenamos lateralmente
+                    // Light: frena lateral rápido → giro responsivo
+                    // Heavy: frena lateral lento → derrapa más
+                    float lateralBrakeStrength = _effectiveTurnSpeed * 120f; // Multiplicador alto para arcade
+                    lateralBrakeStrength = Mathf.Clamp(lateralBrakeStrength, 5f, 50f);
 
-                // Fuerza en WORLD SPACE, sin componente Y
-                Vector3 force = velocityDifference.normalized * forceMagnitude;
-                force.y = 0f;
-                _rb.AddForce(force, ForceMode.Force);
+                    Vector3 lateralBrake = -lateralVel * lateralBrakeStrength;
+                    lateralBrake.y = 0f;
+                    _rb.AddForce(lateralBrake, ForceMode.Force);
+                }
+
+                // === 3. FRENADO CONTRARIO: si vamos en dirección opuesta al input, frenar más ===
+                if (speedInInputDir < -0.5f)
+                {
+                    Vector3 counterBrake = -horizontalVel.normalized * _effectiveAcceleration * 0.5f;
+                    counterBrake.y = 0f;
+                    _rb.AddForce(counterBrake, ForceMode.Force);
+                }
+
+                // Mantener smoothedDirection para el visual tilt (no afecta física)
+                _smoothedDirection = inputDir;
             }
             else
             {
-                // Sin input: frenar
-                // Resetear smoothedDirection para que la próxima pulsación sea instantánea
-                if (_currentSpeed < 0.5f)
-                {
-                    _smoothedDirection = Vector3.zero;
-                }
+                // Sin input: frenar progresivamente
+                _smoothedDirection = Vector3.zero;
 
-                if (_currentSpeed > 0.05f)
+                if (_currentSpeed > 0.1f)
                 {
-                    Vector3 brakeForce = -currentHorizontalVel.normalized * _effectiveDrag * _rb.mass;
+                    Vector3 brakeForce = -horizontalVel * _effectiveDrag;
+                    brakeForce.y = 0f;
                     _rb.AddForce(brakeForce, ForceMode.Force);
                 }
                 else if (_currentSpeed > 0f)
                 {
-                    _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
+                    _rb.linearVelocity = new Vector3(0f, vel.y, 0f);
                 }
             }
 
             // Limitar velocidad máxima
-            if (_currentSpeed > _effectiveMaxSpeed)
+            if (_currentSpeed > _effectiveMaxSpeed * 1.1f) // 10% de margen para colisiones
             {
-                Vector3 clampedVel = currentHorizontalVel.normalized * _effectiveMaxSpeed;
-                _rb.linearVelocity = new Vector3(clampedVel.x, _rb.linearVelocity.y, clampedVel.z);
+                Vector3 clamped = horizontalVel.normalized * _effectiveMaxSpeed;
+                _rb.linearVelocity = new Vector3(clamped.x, vel.y, clamped.z);
             }
         }
 

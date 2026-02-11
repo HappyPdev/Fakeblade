@@ -4,7 +4,7 @@ using UnityEditor;
 namespace FakeBlade.Core
 {
     [CustomEditor(typeof(TestArenaSetup))]
-    public class TestArenaSetupEditor : Editor
+    public class TestArenaSetupEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

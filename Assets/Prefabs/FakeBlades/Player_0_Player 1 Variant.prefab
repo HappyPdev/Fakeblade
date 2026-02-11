@@ -99,12 +99,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7701812551886728522}
-  - component: {fileID: 3660930988950475666}
   - component: {fileID: 4889329646313031379}
   - component: {fileID: 6134463171555009717}
   - component: {fileID: 2634975724729395945}
   - component: {fileID: 6507939902758627887}
   - component: {fileID: 5023859707895737653}
+  - component: {fileID: 9111698540839128479}
   m_Layer: 0
   m_Name: Player_0_Player 1 Variant
   m_TagString: Untagged
@@ -128,27 +128,6 @@ Transform:
   - {fileID: 5524399954143691228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &3660930988950475666
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7037302236697475056}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.45
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4889329646313031379
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -188,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59fc9befd7e8c948a1e9a61f1ce3282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeStats
-  baseMaxSpin: 100
+  baseMaxSpin: 350
   baseSpinDecay: 2
   baseMoveSpeed: 8
   baseWeight: 1
@@ -278,6 +257,27 @@ MonoBehaviour:
   - {fileID: 5785517998429369443}
   uiAnchor: {fileID: 0}
   debugMode: 0
+--- !u!135 &9111698540839128479
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7037302236697475056}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.4
+  m_Center: {x: 0, y: 1.4, z: 0}
 --- !u!1 &7329898604928986825
 GameObject:
   m_ObjectHideFlags: 0

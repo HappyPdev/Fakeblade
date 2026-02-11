@@ -57,8 +57,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.45
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 1.4
+  m_Center: {x: 0, y: 1.4, z: 0}
 --- !u!54 &4481473787028342883
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59fc9befd7e8c948a1e9a61f1ce3282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeStats
-  baseMaxSpin: 100
+  baseMaxSpin: 350
   baseSpinDecay: 2
   baseMoveSpeed: 8
   baseWeight: 1

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - BeyBlade
   - Arena
+  - Ground
   layers:
   - Default
   - TransparentFX

@@ -71,8 +71,8 @@ namespace FakeBlade.Core
         [SerializeField] private float knockbackForce = 8f;
 
         [Header("=== PHYSICS ===")]
-        [SerializeField] private float baseDrag = 0.3f;
-        [SerializeField] private float baseAngularDrag = 0.05f;
+        [SerializeField] private float baseDrag = 1.5f;
+        [SerializeField] private float baseAngularDrag = 0.5f;
         [SerializeField] private LayerMask groundLayer;
 
         [Header("=== VISUAL ===")]
@@ -288,6 +288,15 @@ namespace FakeBlade.Core
 
             if (_stats != null)
                 _stats.OnStatsChanged += ApplyStatsFromComponent;
+
+            // SIEMPRE logear la inicialización para diagnosticar
+            Debug.Log($"[FB-INIT] {gameObject.name} | " +
+                $"Mass:{_rb?.mass:F2} Drag:{_rb?.linearDamping:F2} Gravity:{_rb?.useGravity} | " +
+                $"Accel:{_effectiveAcceleration:F1} MaxSpd:{_effectiveMaxSpeed:F1} Turn:{_effectiveTurnSpeed:F3} Drag:{_effectiveDrag:F2} | " +
+                $"Weight:{_stats?.Weight:F1} MoveSpd:{_stats?.MoveSpeed:F1} MaxSpin:{_maxSpinSpeed:F0} | " +
+                $"visualRoot:{(visualRoot != null ? visualRoot.name : "NULL")} isChild:{(visualRoot != null && visualRoot != _transform)} | " +
+                $"Constraints:{_rb?.constraints} | " +
+                $"Pos:{_transform.position} Collider:{GetComponent<Collider>()?.GetType().Name ?? "NONE"}");
         }
 
         private void ApplyStatsFromComponent()
@@ -302,8 +311,9 @@ namespace FakeBlade.Core
 
             float weightNormalized = Mathf.InverseLerp(0.5f, 3f, weight);
 
-            _effectiveAcceleration = accelerationForce * moveSpeed * 0.3f * Mathf.Lerp(1.8f, 0.6f, weightNormalized);
-            _effectiveMaxSpeed = maxVelocity + moveSpeed * Mathf.Lerp(1.2f, 0.7f, weightNormalized);
+            _effectiveAcceleration = accelerationForce * Mathf.Max(moveSpeed * 0.1f, 1f) * Mathf.Lerp(1.5f, 0.5f, weightNormalized);
+            _effectiveAcceleration = Mathf.Clamp(_effectiveAcceleration, 5f, 80f); // Nunca más de 80
+            _effectiveMaxSpeed = Mathf.Clamp(maxVelocity + moveSpeed * Mathf.Lerp(0.8f, 0.4f, weightNormalized), 3f, 20f);
             _effectiveTurnSpeed = turnResponsiveness * Mathf.Lerp(2.5f, 0.5f, weightNormalized);
             _effectiveDrag = stoppingFriction * Mathf.Lerp(1.5f, 0.4f, weightNormalized);
 
@@ -324,12 +334,13 @@ namespace FakeBlade.Core
             _rb.mass = _stats?.Weight ?? 1f;
             _rb.linearDamping = baseDrag;
             _rb.angularDamping = baseAngularDrag;
+            _rb.useGravity = true;
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             _rb.constraints = RigidbodyConstraints.FreezeRotationX |
-                             RigidbodyConstraints.FreezeRotationY |  // ← TAMBIÉN bloquear Y en el root
+                             RigidbodyConstraints.FreezeRotationY |
                              RigidbodyConstraints.FreezeRotationZ;
-            _rb.centerOfMass = new Vector3(0, -0.1f, 0);
+            _rb.centerOfMass = new Vector3(0, -0.15f, 0); // Centro de masa bajo = más estable
         }
         #endregion
 
@@ -423,12 +434,23 @@ namespace FakeBlade.Core
         {
             if (_isDestroyed || _rb == null) return;
 
+            // Dead zone de seguridad
+            if (input.sqrMagnitude < 0.04f)
+            {
+                _inputDirection = Vector3.zero;
+                return;
+            }
+
             Vector3 desiredDirection = new Vector3(input.x, 0f, input.y);
             if (desiredDirection.sqrMagnitude > 1f)
                 desiredDirection.Normalize();
 
             _inputDirection = desiredDirection;
         }
+
+        // Debug timer
+        private float _debugTimer;
+        private int _debugFrameCount;
 
         /// <summary>
         /// TODAS las fuerzas se aplican en WORLD SPACE.
@@ -438,42 +460,84 @@ namespace FakeBlade.Core
         {
             if (_rb == null) return;
 
+            // ===== DEBUG =====
+            _debugTimer += Time.fixedDeltaTime;
+            _debugFrameCount++;
+            bool shouldLog = false;
+            float logInterval = Time.timeSinceLevelLoad < 5f ? 0.5f : 2f;
+            if (_debugTimer >= logInterval)
+            {
+                _debugTimer = 0f;
+                shouldLog = true;
+            }
+
+            if (shouldLog)
+            {
+                Debug.Log($"[FB-DEBUG] {gameObject.name} | " +
+                    $"Pos:({_transform.position.x:F1},{_transform.position.y:F1},{_transform.position.z:F1}) | " +
+                    $"Vel:({_rb.linearVelocity.x:F2},{_rb.linearVelocity.y:F2},{_rb.linearVelocity.z:F2}) Spd:{_currentSpeed:F2} | " +
+                    $"Input:({_inputDirection.x:F2},{_inputDirection.z:F2}) | " +
+                    $"SmDir:({_smoothedDirection.x:F2},{_smoothedDirection.z:F2}) | " +
+                    $"Accel:{_effectiveAcceleration:F1} MaxSpd:{_effectiveMaxSpeed:F1} Turn:{_effectiveTurnSpeed:F3} | " +
+                    $"Mass:{_rb.mass:F2} LinDamp:{_rb.linearDamping:F2} Grounded:{_isGrounded}");
+            }
+            // ===== FIN DEBUG =====
+
+            // Anti-flotación
+            if (_rb.linearVelocity.y > 2f)
+            {
+                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 2f, _rb.linearVelocity.z);
+            }
+
             Vector3 currentHorizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
             _currentSpeed = currentHorizontalVel.magnitude;
 
             if (_inputDirection.sqrMagnitude > 0.01f)
             {
-                // Suavizar dirección (inercia de giro)
+                // === DIRECCIÓN: respuesta directa con algo de suavizado ===
                 if (_smoothedDirection.sqrMagnitude < 0.01f)
+                {
+                    // Primera vez: dirección inmediata
                     _smoothedDirection = _inputDirection.normalized;
+                }
+                else
+                {
+                    // Suavizado de giro - MUCHO más rápido que antes
+                    // turnResponsiveness 0.15 base → effectiveTurnSpeed ~0.315
+                    // Multiplicador alto (60) para que sea arcade y responsivo
+                    // Light: 0.375 * 0.02 * 60 = 0.45 por frame → giro en ~5 frames
+                    // Heavy: 0.075 * 0.02 * 60 = 0.09 por frame → giro en ~20 frames
+                    float turnLerp = Mathf.Clamp01(_effectiveTurnSpeed * Time.fixedDeltaTime * 60f);
+                    _smoothedDirection = Vector3.Lerp(
+                        _smoothedDirection,
+                        _inputDirection.normalized,
+                        turnLerp
+                    ).normalized;
+                }
 
-                _smoothedDirection = Vector3.Lerp(
-                    _smoothedDirection,
-                    _inputDirection.normalized,
-                    _effectiveTurnSpeed * Time.fixedDeltaTime * 10f
-                ).normalized;
-
-                // Velocidad deseada
+                // === FUERZA DE MOVIMIENTO ===
                 Vector3 desiredVelocity = _smoothedDirection * _effectiveMaxSpeed * _inputDirection.magnitude;
                 Vector3 velocityDifference = desiredVelocity - currentHorizontalVel;
 
                 float forceMagnitude = _effectiveAcceleration;
 
-                // Más resistencia al cambiar de dirección (inercia)
-                float directionAlignment = Vector3.Dot(currentHorizontalVel.normalized, _smoothedDirection);
-                if (directionAlignment < 0f && _currentSpeed > 1f)
-                {
-                    forceMagnitude *= Mathf.Lerp(0.3f, 1f, (directionAlignment + 1f) * 0.5f);
-                }
+                // Reducir fuerza cerca de velocidad máxima
+                float speedRatio = _currentSpeed / Mathf.Max(_effectiveMaxSpeed, 0.1f);
+                forceMagnitude *= Mathf.Lerp(1f, 0.15f, speedRatio);
 
-                // Fuerza en WORLD SPACE puro
+                // Fuerza en WORLD SPACE, sin componente Y
                 Vector3 force = velocityDifference.normalized * forceMagnitude;
+                force.y = 0f;
                 _rb.AddForce(force, ForceMode.Force);
             }
             else
             {
-                // Sin input: frenar por inercia
-                _inputDirection = Vector3.zero;
+                // Sin input: frenar
+                // Resetear smoothedDirection para que la próxima pulsación sea instantánea
+                if (_currentSpeed < 0.5f)
+                {
+                    _smoothedDirection = Vector3.zero;
+                }
 
                 if (_currentSpeed > 0.05f)
                 {
@@ -599,6 +663,11 @@ namespace FakeBlade.Core
         private void HandleCollision(Collision collision)
         {
             float relativeSpeed = collision.relativeVelocity.magnitude;
+
+            Debug.Log($"[FB-COLLISION] {gameObject.name} hit {collision.gameObject.name} | " +
+                $"RelSpd:{relativeSpeed:F2} | ContactNormal:{collision.GetContact(0).normal} | " +
+                $"MyVel:{_rb.linearVelocity} MyPos:{_transform.position}");
+
             if (relativeSpeed < minCollisionVelocity) return;
 
             FakeBladeController other = collision.gameObject.GetComponent<FakeBladeController>();
@@ -626,11 +695,16 @@ namespace FakeBlade.Core
             other.ReduceSpin(damageToOther);
             ReduceSpin(damageToSelf);
 
-            Vector3 knockbackDir = (other._transform.position - _transform.position).normalized;
-            knockbackDir.y = 0.15f;
+            Vector3 knockbackDir = (other._transform.position - _transform.position);
+            knockbackDir.y = 0f; // NUNCA empujar hacia arriba
+            knockbackDir.Normalize();
 
             float knockbackToOther = knockbackForce * spinRatio * (myWeight / (otherWeight + 0.001f));
             float knockbackToSelf = knockbackForce * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f)) * 0.3f;
+
+            // Clamp para evitar lanzar a la órbita
+            knockbackToOther = Mathf.Min(knockbackToOther, knockbackForce * 3f);
+            knockbackToSelf = Mathf.Min(knockbackToSelf, knockbackForce * 2f);
 
             other._rb?.AddForce(knockbackDir * knockbackToOther, ForceMode.Impulse);
             _rb?.AddForce(-knockbackDir * knockbackToSelf, ForceMode.Impulse);
@@ -672,12 +746,26 @@ namespace FakeBlade.Core
         private void UpdateGroundCheck()
         {
             _wasGrounded = _isGrounded;
-            _isGrounded = Physics.Raycast(
-                _transform.position + Vector3.up * 0.1f,
-                Vector3.down,
-                GROUND_CHECK_DISTANCE + 0.1f,
-                groundLayer
-            );
+
+            // Si groundLayer está configurado, usarlo. Si no, raycast sin máscara (todo).
+            if (groundLayer.value != 0)
+            {
+                _isGrounded = Physics.Raycast(
+                    _transform.position + Vector3.up * 0.1f,
+                    Vector3.down,
+                    GROUND_CHECK_DISTANCE + 0.1f,
+                    groundLayer
+                );
+            }
+            else
+            {
+                // Raycast contra todo excepto triggers
+                _isGrounded = Physics.Raycast(
+                    _transform.position + Vector3.up * 0.1f,
+                    Vector3.down,
+                    GROUND_CHECK_DISTANCE + 0.1f
+                );
+            }
 
             if (_isGrounded && !_wasGrounded) OnGrounded?.Invoke();
             else if (!_isGrounded && _wasGrounded) OnAirborne?.Invoke();

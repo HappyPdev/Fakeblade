@@ -19,8 +19,8 @@ MonoBehaviour:
   icon: {fileID: 0}
   maxSpinModifier: 0
   spinDecayModifier: 0
-  moveSpeedModifier: 3
-  weightModifier: -0.4
+  moveSpeedModifier: 0
+  weightModifier: 0
   attackPowerModifier: 0
   defenseModifier: 0
   dashForceModifier: 0

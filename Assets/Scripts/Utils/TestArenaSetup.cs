@@ -465,10 +465,15 @@ namespace FakeBlade.Core
 
         private void CreateFloor()
         {
-            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            // IMPORTANTE: Usar Cube, NO Cylinder.
+            // Un Cylinder tiene bordes curvos que actúan como rampa
+            // y lanzan las peonzas lateralmente al hacer contacto con el borde.
+            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "Floor";
             floor.transform.parent = generatedArena.transform;
-            floor.transform.localScale = new Vector3(arenaRadius * 2f, 0.1f, arenaRadius * 2f);
+            // Cube de 1x1x1, escalamos: ancho x grosor x profundidad
+            floor.transform.localScale = new Vector3(arenaRadius * 2.2f, 0.1f, arenaRadius * 2.2f);
+            floor.transform.position = new Vector3(0, -0.05f, 0); // Centrar en Y=0 (superficie arriba)
             floor.transform.position = Vector3.zero;
             floor.tag = "Ground";
 
@@ -565,12 +570,13 @@ namespace FakeBlade.Core
             if (rb == null) rb = fakeBlade.AddComponent<Rigidbody>();
 
             rb.mass = 1.5f;
-            rb.linearDamping = 0.3f;
-            rb.angularDamping = 0.05f;
+            rb.linearDamping = 1.5f;   // DEBE coincidir con FakeBladeController.baseDrag
+            rb.angularDamping = 0.5f;
+            rb.useGravity = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             rb.constraints = RigidbodyConstraints.FreezeRotation;
-            rb.centerOfMass = new Vector3(0, -0.1f, 0);
+            rb.centerOfMass = new Vector3(0, -0.15f, 0);
 
             // Scripts (solo añadir si no existen)
             if (fakeBlade.GetComponent<FakeBladeStats>() == null)

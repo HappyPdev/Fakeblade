@@ -21,8 +21,8 @@ MonoBehaviour:
   spinDecayModifier: 0
   moveSpeedModifier: 0
   weightModifier: 0
-  attackPowerModifier: 8
-  defenseModifier: -5
+  attackPowerModifier: 0
+  defenseModifier: 0
   dashForceModifier: 0
   specialAbility: 0
   specialAbilityUses: 3

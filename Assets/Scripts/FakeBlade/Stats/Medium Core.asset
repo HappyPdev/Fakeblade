@@ -20,7 +20,7 @@ MonoBehaviour:
   maxSpinModifier: 0
   spinDecayModifier: 0
   moveSpeedModifier: 0
-  weightModifier: 2
+  weightModifier: 0
   attackPowerModifier: 0
   defenseModifier: 0
   dashForceModifier: 0

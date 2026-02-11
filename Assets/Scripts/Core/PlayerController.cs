@@ -36,18 +36,15 @@ namespace FakeBlade.Core
         #endregion
 
         #region Private Fields
-        // Cached components
         private FakeBladeController _fakeBladeController;
         private InputHandler _inputHandler;
         private FakeBladeStats _stats;
         private Transform _transform;
 
-        // State
         private bool _isAlive = true;
         private bool _isInitialized;
         private bool _isReady;
 
-        // Visual
         private MaterialPropertyBlock _propertyBlock;
         private static readonly int ColorProperty = Shader.PropertyToID("_BaseColor");
         private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
@@ -81,8 +78,7 @@ namespace FakeBlade.Core
         {
             if (!_isInitialized || !_isAlive) return;
 
-            // Solo procesar input durante partida activa
-            if (GameManager.Instance != null && 
+            if (GameManager.Instance != null &&
                 GameManager.Instance.CurrentState == GameManager.GameState.InMatch)
             {
                 ProcessInput();
@@ -110,24 +106,15 @@ namespace FakeBlade.Core
         private void ValidateComponents()
         {
             if (_fakeBladeController == null)
-            {
                 Debug.LogError($"[PlayerController] FakeBladeController missing on {gameObject.name}");
-            }
-
             if (_inputHandler == null)
-            {
                 Debug.LogError($"[PlayerController] InputHandler missing on {gameObject.name}");
-            }
-
             if (_stats == null)
-            {
                 Debug.LogError($"[PlayerController] FakeBladeStats missing on {gameObject.name}");
-            }
         }
 
         private void Initialize()
         {
-            // Registrar con GameManager
             if (GameManager.Instance != null)
             {
                 if (!GameManager.Instance.RegisterPlayer(this))
@@ -137,10 +124,8 @@ namespace FakeBlade.Core
                 }
             }
 
-            // Configurar visual
             ApplyPlayerColor();
 
-            // Suscribirse a eventos del FakeBlade
             if (_fakeBladeController != null)
             {
                 _fakeBladeController.OnSpinChanged += HandleSpinChanged;
@@ -149,28 +134,21 @@ namespace FakeBlade.Core
                 _fakeBladeController.OnCollisionWithFakeBlade += HandleCollision;
             }
 
-            // Configurar input handler
             ConfigureInputHandler();
 
             _isInitialized = true;
 
             if (debugMode)
-            {
                 Debug.Log($"[PlayerController] Player {playerID} ({playerName}) initialized");
-            }
         }
 
         private void ConfigureInputHandler()
         {
             if (_inputHandler == null) return;
 
-            // Asignar gamepad según playerID
-            // Player 0: Keyboard o Gamepad 0
-            // Player 1-3: Gamepads 1-3
             if (playerID == 0)
             {
-                // Primer jugador puede usar keyboard o gamepad
-                _inputHandler.SetGamepadIndex(-1); // -1 = keyboard
+                _inputHandler.SetGamepadIndex(-1); // keyboard
             }
             else
             {
@@ -180,7 +158,6 @@ namespace FakeBlade.Core
 
         private void Cleanup()
         {
-            // Desuscribirse de eventos
             if (_fakeBladeController != null)
             {
                 _fakeBladeController.OnSpinChanged -= HandleSpinChanged;
@@ -189,7 +166,6 @@ namespace FakeBlade.Core
                 _fakeBladeController.OnCollisionWithFakeBlade -= HandleCollision;
             }
 
-            // Desregistrar del GameManager
             GameManager.Instance?.UnregisterPlayer(this);
         }
         #endregion
@@ -199,19 +175,21 @@ namespace FakeBlade.Core
         {
             if (_inputHandler == null || _fakeBladeController == null) return;
 
-            // Movimiento
+            // =====================================================
+            // FIX CRÍTICO: SIEMPRE enviar movimiento al controller,
+            // incluyendo Vector2.zero cuando no hay input.
+            // Sin esto, _inputDirection nunca se resetea y la
+            // peonza sigue acelerando en la última dirección.
+            // =====================================================
             Vector2 moveInput = _inputHandler.GetMovementInput();
-            if (moveInput.sqrMagnitude > 0.01f)
-            {
-                _fakeBladeController.HandleMovement(moveInput);
+            _fakeBladeController.HandleMovement(moveInput);
 
-                if (debugMode)
-                {
-                    Debug.Log($"[Player {playerID}] Move: {moveInput}");
-                }
+            if (debugMode && moveInput.sqrMagnitude > 0.01f)
+            {
+                Debug.Log($"[Player {playerID}] Move: ({moveInput.x:F2}, {moveInput.y:F2})");
             }
 
-            // Dash (con input buffering del InputHandler)
+            // Dash
             if (_inputHandler.GetDashInput())
             {
                 _fakeBladeController.ExecuteDash();
@@ -238,22 +216,18 @@ namespace FakeBlade.Core
             _isAlive = false;
 
             if (debugMode)
-            {
                 Debug.Log($"[PlayerController] Player {playerID} ({playerName}) ELIMINATED!");
-            }
 
             OnPlayerDefeated?.Invoke(playerID);
         }
 
         private void HandleDashExecuted()
         {
-            // Vibración del gamepad
             _inputHandler?.Vibrate(0.2f, 0.4f, 0.1f);
         }
 
         private void HandleCollision(FakeBladeController other, float damage)
         {
-            // Vibración proporcional al daño
             float intensity = Mathf.Clamp01(damage / 50f);
             _inputHandler?.Vibrate(intensity * 0.3f, intensity * 0.6f, 0.15f);
         }
@@ -292,9 +266,7 @@ namespace FakeBlade.Core
         {
             _isReady = ready;
             if (ready)
-            {
                 OnPlayerReady?.Invoke(playerID);
-            }
         }
 
         public void ResetPlayer()
@@ -303,15 +275,12 @@ namespace FakeBlade.Core
             _fakeBladeController?.ResetFakeBlade();
 
             if (debugMode)
-            {
                 Debug.Log($"[PlayerController] Player {playerID} reset");
-            }
         }
 
         public void SetSpawnPosition(Transform spawnPoint)
         {
             if (spawnPoint == null) return;
-
             _fakeBladeController?.SetPosition(spawnPoint.position, spawnPoint.rotation);
         }
         #endregion
@@ -320,15 +289,10 @@ namespace FakeBlade.Core
         private void ApplyPlayerColor()
         {
             if (_propertyBlock == null)
-            {
                 _propertyBlock = new MaterialPropertyBlock();
-            }
 
-            // Buscar renderers si no están asignados
             if (coloredRenderers == null || coloredRenderers.Length == 0)
-            {
                 coloredRenderers = GetComponentsInChildren<Renderer>();
-            }
 
             foreach (var renderer in coloredRenderers)
             {
@@ -336,17 +300,8 @@ namespace FakeBlade.Core
 
                 renderer.GetPropertyBlock(_propertyBlock);
                 _propertyBlock.SetColor(ColorProperty, playerColor);
-                
-                // Color de emisión sutil
-                Color emission = playerColor * 0.2f;
-                _propertyBlock.SetColor(EmissionProperty, emission);
-                
+                _propertyBlock.SetColor(EmissionProperty, playerColor * 0.2f);
                 renderer.SetPropertyBlock(_propertyBlock);
-            }
-
-            if (debugMode)
-            {
-                Debug.Log($"[PlayerController] Applied color {playerColor} to Player {playerID}");
             }
         }
 
@@ -359,7 +314,6 @@ namespace FakeBlade.Core
             foreach (var renderer in coloredRenderers)
             {
                 if (renderer == null) continue;
-
                 renderer.GetPropertyBlock(_propertyBlock);
                 _propertyBlock.SetColor(EmissionProperty, emissionColor);
                 renderer.SetPropertyBlock(_propertyBlock);
@@ -370,7 +324,6 @@ namespace FakeBlade.Core
         #region Debug
         private void OnDrawGizmosSelected()
         {
-            // Dibujar UI anchor
             if (uiAnchor != null)
             {
                 Gizmos.color = playerColor;
@@ -378,7 +331,6 @@ namespace FakeBlade.Core
                 Gizmos.DrawLine(transform.position, uiAnchor.position);
             }
 
-            // Team indicator
             Gizmos.color = teamID == 0 ? Color.red : Color.blue;
             Gizmos.DrawWireCube(transform.position + Vector3.up * 2f, Vector3.one * 0.3f);
         }

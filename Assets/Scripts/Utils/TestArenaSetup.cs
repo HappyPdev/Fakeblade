@@ -794,14 +794,26 @@ namespace FakeBlade.Core
     /// <summary>
     /// Cámara que sigue múltiples objetivos con zoom dinámico.
     /// </summary>
+    /// <summary>
+    /// Cámara que sigue a todos los jugadores con zoom dinámico.
+    /// Valores ajustables desde el Inspector del objeto cámara.
+    /// </summary>
     public class SimpleCameraFollow : MonoBehaviour
     {
+        [Header("=== CAMERA SETTINGS ===")]
+        [Tooltip("Distancia mínima de la cámara (cuando están juntos)")]
+        public float minZoom = 10f;
+        [Tooltip("Distancia máxima de la cámara (cuando están lejos)")]
+        public float maxZoom = 22f;
+        [Tooltip("Divisor de distancia para calcular zoom (menor = zoom más lejano)")]
+        public float zoomLimiter = 12f;
+        [Tooltip("Velocidad de suavizado del movimiento")]
+        public float smoothSpeed = 5f;
+        [Tooltip("Offset vertical extra")]
+        public float heightOffset = 2f;
+
         private GameObject[] _targets;
         private Vector3 _offset;
-        private float _smoothSpeed = 4f;
-        private float _minZoom = 14f;
-        private float _maxZoom = 28f;
-        private float _zoomLimiter = 12f;
 
         public void SetTargets(GameObject[] targets)
         {
@@ -816,11 +828,11 @@ namespace FakeBlade.Core
 
             Vector3 center = GetCenterPoint();
             float distance = GetMaxDistance();
-            float zoom = Mathf.Lerp(_minZoom, _maxZoom, distance / _zoomLimiter);
+            float zoom = Mathf.Lerp(minZoom, maxZoom, distance / zoomLimiter);
 
-            Vector3 targetPos = center + _offset.normalized * zoom;
-            transform.position = Vector3.Lerp(transform.position, targetPos, _smoothSpeed * Time.deltaTime);
-            transform.LookAt(center);
+            Vector3 targetPos = center + _offset.normalized * zoom + Vector3.up * heightOffset;
+            transform.position = Vector3.Lerp(transform.position, targetPos, smoothSpeed * Time.deltaTime);
+            transform.LookAt(center + Vector3.up * 0.5f);
         }
 
         private Vector3 GetCenterPoint()
@@ -851,6 +863,62 @@ namespace FakeBlade.Core
                 }
             }
             return max * 2f;
+        }
+    }
+
+    /// <summary>
+    /// Sistema de camera shake estático. Se engancha automáticamente a Camera.main.
+    /// Llamar CameraShake.Shake(intensidad, duración) desde cualquier script.
+    /// </summary>
+    public class CameraShake : MonoBehaviour
+    {
+        private static CameraShake _instance;
+        private float _shakeTimer;
+        private float _shakeIntensity;
+        private Vector3 _originalLocalPos;
+
+        /// <summary>
+        /// Sacude la cámara principal.
+        /// </summary>
+        /// <param name="intensity">Magnitud del shake (0.05 = sutil, 0.2 = fuerte)</param>
+        /// <param name="duration">Duración en segundos</param>
+        public static void Shake(float intensity, float duration)
+        {
+            if (_instance == null)
+            {
+                Camera cam = Camera.main;
+                if (cam == null) return;
+                _instance = cam.GetComponent<CameraShake>();
+                if (_instance == null)
+                    _instance = cam.gameObject.AddComponent<CameraShake>();
+            }
+
+            // Solo sobrescribir si el nuevo shake es más intenso
+            if (intensity > _instance._shakeIntensity || _instance._shakeTimer <= 0f)
+            {
+                _instance._shakeIntensity = intensity;
+                _instance._shakeTimer = duration;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (_shakeTimer > 0f)
+            {
+                _shakeTimer -= Time.deltaTime;
+
+                float decay = _shakeTimer > 0f ? _shakeTimer / 0.2f : 0f; // decay rápido
+                decay = Mathf.Clamp01(decay);
+
+                Vector3 offset = Random.insideUnitSphere * _shakeIntensity * decay;
+                offset.z = 0f; // Shake solo en X/Y para que no cambie la profundidad
+                transform.localPosition += offset;
+
+                if (_shakeTimer <= 0f)
+                {
+                    _shakeIntensity = 0f;
+                }
+            }
         }
     }
 }

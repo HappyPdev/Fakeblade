@@ -56,15 +56,18 @@ namespace FakeBlade.Core
         [SerializeField] private Transform visualRoot;
 
         [Header("=== MOVEMENT (Inertia-Based) ===")]
+        [Tooltip("Fuerza de aceleración base")]
         [SerializeField] private float accelerationForce = 35f;
-        [SerializeField] private float maxVelocity = 10f;
+        [Tooltip("Velocidad máxima de movimiento normal (bajar para más contraste con dash)")]
+        [SerializeField] private float maxVelocity = 5f;
         [SerializeField] private float stoppingFriction = 3f;
         [SerializeField][Range(0.01f, 1f)] private float turnResponsiveness = 0.15f;
 
         [Header("=== DASH ===")]
-        [SerializeField] private float dashForce = 20f;
-        [SerializeField] private float dashCooldown = 1.5f;
-        [SerializeField] private float dashSpinCost = 25f;
+        [Tooltip("Fuerza de impulso del dash (subir para dash más explosivo)")]
+        [SerializeField] private float dashForce = 30f;
+        [SerializeField] private float dashCooldown = 1.2f;
+        [SerializeField] private float dashSpinCost = 10f;
 
         [Header("=== COMBAT ===")]
         [SerializeField] private float minCollisionVelocity = 1.5f;
@@ -75,9 +78,17 @@ namespace FakeBlade.Core
         [SerializeField] private float baseAngularDrag = 0.5f;
         [SerializeField] private LayerMask groundLayer;
 
-        [Header("=== VISUAL ===")]
-        [SerializeField] private ParticleSystem sparkEffect;
-        [SerializeField] private ParticleSystem spinEffect;
+        [Header("=== VISUAL FX ===")]
+        [Tooltip("Chispas al chocar entre peonzas")]
+        [SerializeField] private ParticleSystem vfxCollision;
+        [Tooltip("Trail de partículas en la base mientras se mueve")]
+        [SerializeField] private ParticleSystem vfxSpinTrail;
+        [Tooltip("Explosión de partículas al hacer dash")]
+        [SerializeField] private ParticleSystem vfxDash;
+        [Tooltip("Efecto al usar habilidad especial")]
+        [SerializeField] private ParticleSystem vfxSpecial;
+        [Tooltip("Efecto al ser eliminada (spin out)")]
+        [SerializeField] private ParticleSystem vfxSpinOut;
 
         [Header("=== AUDIO ===")]
         [SerializeField] private AudioSource audioSource;
@@ -103,11 +114,19 @@ namespace FakeBlade.Core
         private bool _isGrounded;
         private bool _wasGrounded;
 
+        // Dash armor: protección temporal al dashear
+        private bool _isDashing;
+        private float _dashArmorTimer;
+        private const float DASH_ARMOR_DURATION = 0.4f;     // Ventana de protección al dashear
+        private const float DASH_ARMOR_REDUCTION = 0.8f;    // 80% reducción de daño recibido durante dash
+        private const float DASH_ATTACKER_BONUS = 0.6f;     // Solo recibe 40% del daño al atacar con dash
+
         // Movement
         private Vector3 _inputDirection;
         private Vector3 _smoothedDirection;
         private float _currentSpeed;
         private Vector3 _currentTilt;
+        private Transform _tiltPivot; // Nodo intermedio para tilt, padre del SpinPivot
 
         // Stats derivadas
         private float _effectiveAcceleration;
@@ -127,6 +146,7 @@ namespace FakeBlade.Core
         public float CurrentSpinSpeed => _currentSpinSpeed;
         public float MaxSpinSpeed => _maxSpinSpeed;
         public bool CanDash => _canDash && !_isDestroyed;
+        public bool IsDashing => _isDashing;
         public bool IsDestroyed => _isDestroyed;
         public bool IsGrounded => _isGrounded;
         public float Weight => _stats?.Weight ?? 1f;
@@ -201,33 +221,27 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Configura el visualRoot correctamente.
+        /// Configura la jerarquía visual:
         /// 
-        /// REGLAS:
-        /// 1. Si visualRoot ya está asignado Y es un hijo → OK
-        /// 2. Si visualRoot es el propio root → ERROR, reparar
-        /// 3. Si no hay visualRoot → buscar primer hijo, o crear pivot
+        /// FakeBlade_Root (Rigidbody, NUNCA rota)
+        ///   └── TiltPivot (_tiltPivot - solo inclinación X/Z, NO gira en Y)
+        ///        └── SpinPivot (visualRoot - solo gira en Y)
+        ///             ├── Body_Mesh
+        ///             └── Blade_Mesh
+        /// 
+        /// El tilt y el spin están en transforms separados para evitar
+        /// que la rotación de spin a alta velocidad distorsione la inclinación.
         /// </summary>
         private void SetupVisualRoot()
         {
-            // Caso 1: Ya está asignado y es un hijo válido
-            if (visualRoot != null && visualRoot != _transform && visualRoot.parent == _transform)
+            // Paso 1: Encontrar o crear el SpinPivot (visualRoot)
+            if (visualRoot == null || visualRoot == _transform)
             {
-                if (showDebugInfo)
-                    Debug.Log($"[FakeBlade] visualRoot OK: {visualRoot.name}");
-                CacheRenderers();
-                return;
-            }
-
-            // Caso 2: visualRoot es el propio root - ESTO CAUSA EL BUG
-            if (visualRoot == _transform || visualRoot == null)
-            {
-                // Buscar primer hijo que NO sea un collider suelto
+                // Buscar primer hijo con renderers
                 Transform bestChild = null;
                 for (int i = 0; i < _transform.childCount; i++)
                 {
                     Transform child = _transform.GetChild(i);
-                    // Preferir hijos que tengan renderers (los modelos 3D)
                     if (child.GetComponentInChildren<Renderer>() != null)
                     {
                         bestChild = child;
@@ -238,33 +252,61 @@ namespace FakeBlade.Core
                 if (bestChild != null)
                 {
                     visualRoot = bestChild;
-                    Debug.Log($"[FakeBlade] visualRoot auto-assigned to child: {bestChild.name}");
                 }
                 else
                 {
-                    // No hay hijos con renderers - crear un pivot vacío y mover todos los hijos dentro
+                    // Crear SpinPivot y mover todos los hijos dentro
                     GameObject pivot = new GameObject("SpinPivot");
                     pivot.transform.SetParent(_transform, false);
                     pivot.transform.localPosition = Vector3.zero;
                     pivot.transform.localRotation = Quaternion.identity;
 
-                    // Mover todos los hijos existentes dentro del pivot
-                    // (iterar en reversa para no saltarnos hijos al re-parentar)
                     for (int i = _transform.childCount - 1; i >= 0; i--)
                     {
                         Transform child = _transform.GetChild(i);
                         if (child != pivot.transform)
-                        {
                             child.SetParent(pivot.transform, true);
-                        }
                     }
 
                     visualRoot = pivot.transform;
-                    Debug.Log($"[FakeBlade] Created SpinPivot and moved {pivot.transform.childCount} children into it");
+                    Debug.Log($"[FakeBlade] Created SpinPivot with {pivot.transform.childCount} children");
+                }
+            }
+
+            // Paso 2: Crear TiltPivot entre Root y SpinPivot
+            // Comprobar si ya existe un TiltPivot
+            _tiltPivot = _transform.Find("TiltPivot");
+
+            if (_tiltPivot == null)
+            {
+                // Crear TiltPivot
+                GameObject tiltObj = new GameObject("TiltPivot");
+                tiltObj.transform.SetParent(_transform, false);
+                tiltObj.transform.localPosition = Vector3.zero;
+                tiltObj.transform.localRotation = Quaternion.identity;
+                _tiltPivot = tiltObj.transform;
+
+                // Re-parentar SpinPivot dentro de TiltPivot
+                visualRoot.SetParent(_tiltPivot, false);
+                visualRoot.localPosition = Vector3.zero;
+                visualRoot.localRotation = Quaternion.identity;
+
+                Debug.Log($"[FakeBlade] Created TiltPivot. Hierarchy: {_transform.name} > TiltPivot > {visualRoot.name}");
+            }
+            else
+            {
+                // TiltPivot ya existe, asegurar que SpinPivot está dentro
+                if (visualRoot.parent != _tiltPivot)
+                {
+                    visualRoot.SetParent(_tiltPivot, false);
+                    visualRoot.localPosition = Vector3.zero;
                 }
             }
 
             CacheRenderers();
+
+            if (showDebugInfo)
+                Debug.Log($"[FakeBlade] Hierarchy OK: {_transform.name} > {_tiltPivot.name} > {visualRoot.name} ({_renderers?.Length ?? 0} renderers)");
         }
 
         private void CacheRenderers()
@@ -358,15 +400,16 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Rota SOLO el visualRoot (hijo), NO el root.
-        /// El root del Rigidbody NUNCA debe rotar.
+        /// Rota SOLO el SpinPivot (visualRoot) en Y.
+        /// La inclinación viene del TiltPivot padre, no se toca aquí.
         /// </summary>
         private void UpdateVisualRotation()
         {
             if (visualRoot == null || visualRoot == _transform) return;
 
             float rotationSpeed = _currentSpinSpeed * VISUAL_SPIN_MULTIPLIER;
-            visualRoot.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.Self);
+            // Solo rotar en Y local - el tilt viene del padre (TiltPivot)
+            visualRoot.localRotation = Quaternion.Euler(0f, visualRoot.localEulerAngles.y + rotationSpeed * Time.deltaTime, 0f);
         }
 
         private void UpdateSpinVisuals()
@@ -381,10 +424,11 @@ namespace FakeBlade.Core
                 }
             }
 
-            if (spinEffect != null)
+            // Spin trail: emite más partículas cuanto más rápido gira
+            if (vfxSpinTrail != null)
             {
-                var emission = spinEffect.emission;
-                emission.rateOverTime = _currentSpinSpeed * 0.1f;
+                var emission = vfxSpinTrail.emission;
+                emission.rateOverTime = _currentSpinSpeed * 0.1f + _currentSpeed * 2f;
             }
         }
 
@@ -415,6 +459,16 @@ namespace FakeBlade.Core
             if (showDebugInfo) Debug.Log($"[FakeBlade] {gameObject.name} SPIN OUT!");
 
             PlaySound(spinOutSound);
+
+            // VFX: explosión de eliminación
+            if (vfxSpinOut != null)
+            {
+                vfxSpinOut.transform.position = _transform.position;
+                vfxSpinOut.Play();
+            }
+
+            // Camera shake fuerte
+            CameraShake.Shake(0.25f, 0.2f);
 
             if (_rb != null)
             {
@@ -566,29 +620,45 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Tilt visual aplicado al visualRoot, no al root.
+        /// Inclinación visual aplicada al TiltPivot (padre del SpinPivot).
+        /// Como el TiltPivot NO gira en Y, la inclinación es estable y limpia.
+        /// El SpinPivot (hijo) solo gira en Y, heredando la inclinación del padre.
         /// </summary>
         private void ApplyTiltPhysics()
         {
-            if (visualRoot == null || visualRoot == _transform) return;
+            if (_tiltPivot == null) return;
 
-            Vector3 velocity = _rb.linearVelocity;
-            float speedRatio = Mathf.Clamp01(_currentSpeed / Mathf.Max(_effectiveMaxSpeed, 0.1f));
+            Vector3 vel = _rb.linearVelocity;
+            Vector3 horizontalVel = new Vector3(vel.x, 0f, vel.z);
+            float speed = horizontalVel.magnitude;
+            float speedRatio = Mathf.Clamp01(speed / Mathf.Max(_effectiveMaxSpeed, 0.1f));
 
-            Vector3 targetTilt = new Vector3(
-                -velocity.z * MAX_TILT_ANGLE * speedRatio / Mathf.Max(_effectiveMaxSpeed, 0.1f),
-                0f,
-                velocity.x * MAX_TILT_ANGLE * speedRatio / Mathf.Max(_effectiveMaxSpeed, 0.1f)
-            );
+            float tiltAmount = MAX_TILT_ANGLE * speedRatio;
 
-            _currentTilt = Vector3.Lerp(_currentTilt, targetTilt, Time.fixedDeltaTime * TILT_SMOOTHING);
+            Vector3 targetTilt;
+            if (speed > 0.3f)
+            {
+                Vector3 velDir = horizontalVel / speed;
+                targetTilt = new Vector3(
+                    velDir.z * tiltAmount,
+                    0f,
+                    -velDir.x * tiltAmount
+                );
+            }
+            else
+            {
+                targetTilt = Vector3.zero;
+            }
 
-            // NOTA: No podemos hacer localRotation = Euler(tilt) porque eso
-            // resetea la rotación de spin. En su lugar, el spin se acumula
-            // en UpdateVisualRotation() y el tilt se aplica como offset.
-            // Solución: separar spin y tilt usando la rotación actual del spin.
-            float currentSpinAngle = visualRoot.localEulerAngles.y;
-            visualRoot.localRotation = Quaternion.Euler(_currentTilt.x, currentSpinAngle, _currentTilt.z);
+            float lerpSpeed = (targetTilt.sqrMagnitude > _currentTilt.sqrMagnitude)
+                ? TILT_SMOOTHING * 2f
+                : TILT_SMOOTHING * 0.8f;
+
+            _currentTilt = Vector3.Lerp(_currentTilt, targetTilt, Time.fixedDeltaTime * lerpSpeed);
+
+            // Aplicar SOLO tilt al TiltPivot (sin componente Y)
+            // El SpinPivot hijo hereda esta inclinación y gira libremente en Y
+            _tiltPivot.localRotation = Quaternion.Euler(_currentTilt.x, 0f, _currentTilt.z);
         }
         #endregion
 
@@ -597,21 +667,21 @@ namespace FakeBlade.Core
         {
             if (!_canDash || _isDestroyed || _rb == null) return;
 
-            if (_currentSpinSpeed < dashSpinCost)
+            // Coste reducido: 5% del spin máximo en vez de un valor fijo alto
+            float actualCost = Mathf.Max(dashSpinCost, _maxSpinSpeed * 0.05f);
+            if (_currentSpinSpeed < actualCost * 1.5f) // No dashear si te dejaría muy bajo
             {
                 if (showDebugInfo) Debug.Log("[FakeBlade] Not enough spin for dash!");
                 return;
             }
 
             Vector3 dashDirection;
-            if (_currentSpeed > 1f)
+            if (_inputDirection.sqrMagnitude > 0.01f)
+                dashDirection = _inputDirection.normalized; // Prioridad: dirección del input
+            else if (_currentSpeed > 1f)
                 dashDirection = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z).normalized;
-            else if (_smoothedDirection.sqrMagnitude > 0.01f)
-                dashDirection = _smoothedDirection;
-            else if (_inputDirection.sqrMagnitude > 0.01f)
-                dashDirection = _inputDirection.normalized;
             else
-                dashDirection = Vector3.forward; // Fallback world forward, no transform.forward
+                dashDirection = Vector3.forward;
 
             dashDirection.y = 0f;
             dashDirection.Normalize();
@@ -619,22 +689,49 @@ namespace FakeBlade.Core
             float weightedDash = dashForce * Mathf.Lerp(0.8f, 1.4f, Mathf.InverseLerp(0.5f, 3f, Weight));
             _rb.AddForce(dashDirection * weightedDash, ForceMode.Impulse);
 
-            ReduceSpin(dashSpinCost);
+            ReduceSpin(actualCost);
             _canDash = false;
             _dashTimer = dashCooldown;
+
+            // Activar dash armor
+            _isDashing = true;
+            _dashArmorTimer = DASH_ARMOR_DURATION;
+
+            // VFX: burst de partículas en la base
+            if (vfxDash != null)
+            {
+                vfxDash.transform.position = _transform.position;
+                vfxDash.transform.rotation = Quaternion.LookRotation(dashDirection);
+                vfxDash.Emit(20);
+            }
+
+            // Camera shake ligero
+            CameraShake.Shake(0.08f, 0.06f);
 
             PlaySound(dashSound);
             OnDashExecuted?.Invoke();
 
             if (showDebugInfo)
-                Debug.Log($"[FakeBlade] Dash! Dir:{dashDirection} Force:{weightedDash:F1}");
+                Debug.Log($"[FakeBlade] Dash! Dir:{dashDirection} Force:{weightedDash:F1} Cost:{actualCost:F1} DashArmor:ON");
         }
 
         private void UpdateDashCooldown()
         {
-            if (_canDash) return;
-            _dashTimer -= Time.deltaTime;
-            if (_dashTimer <= 0f) _canDash = true;
+            if (!_canDash)
+            {
+                _dashTimer -= Time.deltaTime;
+                if (_dashTimer <= 0f) _canDash = true;
+            }
+
+            // Dash armor countdown
+            if (_isDashing)
+            {
+                _dashArmorTimer -= Time.deltaTime;
+                if (_dashArmorTimer <= 0f)
+                {
+                    _isDashing = false;
+                }
+            }
         }
 
         public float GetDashCooldownProgress()
@@ -659,6 +756,16 @@ namespace FakeBlade.Core
                 _rb.AddForce(Vector3.up * SPECIAL_VERTICAL_FORCE, ForceMode.Impulse);
 
             AddSpin(100f);
+
+            // VFX: efecto especial
+            if (vfxSpecial != null)
+            {
+                vfxSpecial.transform.position = _transform.position;
+                vfxSpecial.Play();
+            }
+
+            CameraShake.Shake(0.1f, 0.08f);
+
             OnSpecialExecuted?.Invoke(SpecialAbilityType.SpinBoost);
 
             if (showDebugInfo)
@@ -671,9 +778,11 @@ namespace FakeBlade.Core
         {
             float relativeSpeed = collision.relativeVelocity.magnitude;
 
-            Debug.Log($"[FB-COLLISION] {gameObject.name} hit {collision.gameObject.name} | " +
-                $"RelSpd:{relativeSpeed:F2} | ContactNormal:{collision.GetContact(0).normal} | " +
-                $"MyVel:{_rb.linearVelocity} MyPos:{_transform.position}");
+            if (showDebugInfo)
+            {
+                Debug.Log($"[FB-COLLISION] {gameObject.name} hit {collision.gameObject.name} | " +
+                    $"RelSpd:{relativeSpeed:F2} | MyVel:{_rb.linearVelocity} | Dashing:{_isDashing}");
+            }
 
             if (relativeSpeed < minCollisionVelocity) return;
 
@@ -688,35 +797,85 @@ namespace FakeBlade.Core
         private void ProcessFakeBladeCollision(FakeBladeController other, Collision collision, float relativeSpeed)
         {
             float attackPower = _stats?.AttackPower ?? 10f;
-            float baseDamage = relativeSpeed * attackPower * COLLISION_DAMAGE_BASE;
+            float otherAttackPower = other._stats?.AttackPower ?? 10f;
 
             float myWeight = Weight;
             float otherWeight = other.Weight;
 
+            // === DETERMINAR QUIÉN ES EL ATACANTE ===
+            // El atacante es quien se mueve más hacia el otro (mayor velocidad relativa en esa dirección)
+            Vector3 toOther = (other._transform.position - _transform.position).normalized;
+            float myApproachSpeed = Vector3.Dot(_rb.linearVelocity, toOther);
+            float otherApproachSpeed = Vector3.Dot(other._rb.linearVelocity, -toOther);
+
+            bool iAmAttacker = myApproachSpeed > otherApproachSpeed;
+
+            // Spin ratio: más spin = más daño
             float spinRatio = _currentSpinSpeed / (other._currentSpinSpeed + 0.001f);
             spinRatio = Mathf.Clamp(spinRatio, 0.5f, 2f);
 
-            float damageToOther = baseDamage * spinRatio * (myWeight / (otherWeight + 0.001f));
-            float damageToSelf = baseDamage * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f));
+            // === CALCULAR DAÑO BASE ===
+            float baseDmg = relativeSpeed * COLLISION_DAMAGE_BASE;
 
+            // Daño que YO hago al otro
+            float damageToOther = baseDmg * attackPower * 0.1f * spinRatio * (myWeight / (otherWeight + 0.001f));
+
+            // Daño que el OTRO me hace a mí
+            float damageToSelf = baseDmg * otherAttackPower * 0.1f * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f));
+
+            // === VENTAJA DEL ATACANTE ===
+            if (iAmAttacker)
+            {
+                // El atacante recibe mucho menos daño
+                damageToSelf *= 0.3f;
+
+                // Bonus de daño al otro por ser atacante
+                damageToOther *= 1.3f;
+            }
+
+            // === DASH ARMOR ===
+            // Si estoy dasheando, recibo menos daño y hago más
+            if (_isDashing)
+            {
+                damageToSelf *= (1f - DASH_ARMOR_REDUCTION); // 80% reducción
+                damageToOther *= 1.5f; // 50% más daño al otro
+            }
+
+            // Si el otro está dasheando, él recibe menos daño
+            if (other._isDashing)
+            {
+                damageToOther *= (1f - DASH_ARMOR_REDUCTION);
+                damageToSelf *= 1.5f;
+            }
+
+            // Aplicar daño
             other.ReduceSpin(damageToOther);
             ReduceSpin(damageToSelf);
 
-            Vector3 knockbackDir = (other._transform.position - _transform.position);
-            knockbackDir.y = 0f; // NUNCA empujar hacia arriba
+            // === KNOCKBACK ===
+            Vector3 knockbackDir = toOther;
+            knockbackDir.y = 0f;
             knockbackDir.Normalize();
 
-            float knockbackToOther = knockbackForce * spinRatio * (myWeight / (otherWeight + 0.001f));
-            float knockbackToSelf = knockbackForce * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f)) * 0.3f;
+            float baseKnockback = knockbackForce;
 
-            // Clamp para evitar lanzar a la órbita
+            // El atacante empuja más
+            float knockbackToOther = baseKnockback * (iAmAttacker ? 1.3f : 0.8f) * spinRatio * (myWeight / (otherWeight + 0.001f));
+            float knockbackToSelf = baseKnockback * (iAmAttacker ? 0.2f : 0.5f) * (1f / spinRatio) * (otherWeight / (myWeight + 0.001f));
+
+            // Dash = knockback extra al otro
+            if (_isDashing) knockbackToOther *= 1.5f;
+            if (other._isDashing) knockbackToSelf *= 1.5f;
+
+            // Clamp
             knockbackToOther = Mathf.Min(knockbackToOther, knockbackForce * 3f);
             knockbackToSelf = Mathf.Min(knockbackToSelf, knockbackForce * 2f);
 
             other._rb?.AddForce(knockbackDir * knockbackToOther, ForceMode.Impulse);
             _rb?.AddForce(-knockbackDir * knockbackToSelf, ForceMode.Impulse);
 
-            SpawnCollisionEffects(collision.GetContact(0).point);
+            float collisionIntensity = Mathf.Clamp01(relativeSpeed / 15f);
+            SpawnCollisionEffects(collision.GetContact(0).point, collisionIntensity);
             PlaySound(collisionSound);
 
             GetComponent<InputHandler>()?.Vibrate(0.3f, 0.5f, 0.15f);
@@ -725,27 +884,35 @@ namespace FakeBlade.Core
             other.OnCollisionWithFakeBlade?.Invoke(this, damageToSelf);
 
             if (showDebugInfo)
-                Debug.Log($"[FakeBlade] CLASH! Spd:{relativeSpeed:F1} Dealt:{damageToOther:F1} Recv:{damageToSelf:F1}");
+            {
+                string role = iAmAttacker ? "ATTACKER" : "DEFENDER";
+                string dashInfo = _isDashing ? " [DASH]" : "";
+                Debug.Log($"[FakeBlade] CLASH! {role}{dashInfo} | Dealt:{damageToOther:F1} Recv:{damageToSelf:F1} | " +
+                    $"KBout:{knockbackToOther:F1} KBin:{knockbackToSelf:F1}");
+            }
         }
 
         private void ProcessEnvironmentCollision(Collision collision, float relativeSpeed)
         {
             ReduceSpin(relativeSpeed * 0.5f);
 
-            if (sparkEffect != null && relativeSpeed > 3f)
+            if (vfxCollision != null && relativeSpeed > 3f)
             {
-                sparkEffect.transform.position = collision.GetContact(0).point;
-                sparkEffect.Emit(5);
+                vfxCollision.transform.position = collision.GetContact(0).point;
+                vfxCollision.Emit(5);
             }
         }
 
-        private void SpawnCollisionEffects(Vector3 point)
+        private void SpawnCollisionEffects(Vector3 point, float intensity = 1f)
         {
-            if (sparkEffect != null)
+            if (vfxCollision != null)
             {
-                sparkEffect.transform.position = point;
-                sparkEffect.Emit(15);
+                vfxCollision.transform.position = point;
+                vfxCollision.Emit(Mathf.RoundToInt(10 + 15 * intensity));
             }
+
+            // Camera shake proporcional a la intensidad del golpe
+            CameraShake.Shake(0.15f * intensity, 0.12f * intensity);
         }
         #endregion
 
@@ -793,6 +960,8 @@ namespace FakeBlade.Core
             _currentSpinSpeed = _maxSpinSpeed;
             _canDash = true;
             _dashTimer = 0f;
+            _isDashing = false;
+            _dashArmorTimer = 0f;
             _isDestroyed = false;
             _inputDirection = Vector3.zero;
             _smoothedDirection = Vector3.zero;
@@ -807,10 +976,11 @@ namespace FakeBlade.Core
             }
 
             // Reset rotación del visual
+            if (_tiltPivot != null)
+                _tiltPivot.localRotation = Quaternion.identity;
+
             if (visualRoot != null && visualRoot != _transform)
-            {
                 visualRoot.localRotation = Quaternion.identity;
-            }
 
             gameObject.SetActive(true);
 

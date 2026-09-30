@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df89077d6c25ea94f98832f467fe8c42, type: 3}
+  m_Name: FakeBladeCatalog
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeCatalog
+  playerPrefab: {fileID: 7037302236697475056, guid: aea8ba6f2fb2fa24d92576d76010671d, type: 3}
+  combatConfig: {fileID: 11400000, guid: 63f210dfdef68734d9367eff49e7571c, type: 2}
+  uiTheme: {fileID: 11400000, guid: 9165171fd9aff314b934c84a99feb1a8, type: 2}
+  credits: {fileID: 11400000, guid: 1d4cfde7aa28dc740a46d53f722ceda7, type: 2}
+  tips:
+  - {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}
+  - {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}
+  - {fileID: 11400000, guid: 63f111d8601228047967dfcbc166c32d, type: 2}
+  bodies:
+  - {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
+  - {fileID: 11400000, guid: b77002e7e4b3826419eaafd5498ba1ef, type: 2}
+  - {fileID: 11400000, guid: 3cb8064594041fe49afb8bf74c551ebf, type: 2}
+  blades:
+  - {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
+  - {fileID: 11400000, guid: 8a11b5029c5c5624aa5685c48f5c87e5, type: 2}
+  - {fileID: 11400000, guid: 1fe7235a9118abf468d2b3dd6a3a1b2b, type: 2}
+  cores:
+  - {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
+  - {fileID: 11400000, guid: 57b46a9fbadc1ed4e953921250de26cd, type: 2}
+  - {fileID: 11400000, guid: 175b1150fa1760f41ab87491b11ffc57, type: 2}
+  - {fileID: 11400000, guid: 8a87d7d1cc53b264d87ef3c1ae45b85e, type: 2}
+  presets:
+  - nameKey: PRESET_ATTACK
+    tip: {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}
+    body: {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
+    blade: {fileID: 11400000, guid: 1fe7235a9118abf468d2b3dd6a3a1b2b, type: 2}
+    core: {fileID: 11400000, guid: 8a87d7d1cc53b264d87ef3c1ae45b85e, type: 2}
+  - nameKey: PRESET_DEFENSE
+    tip: {fileID: 11400000, guid: 63f111d8601228047967dfcbc166c32d, type: 2}
+    body: {fileID: 11400000, guid: 3cb8064594041fe49afb8bf74c551ebf, type: 2}
+    blade: {fileID: 11400000, guid: 1fe7235a9118abf468d2b3dd6a3a1b2b, type: 2}
+    core: {fileID: 11400000, guid: 175b1150fa1760f41ab87491b11ffc57, type: 2}
+  - nameKey: PRESET_AGILITY
+    tip: {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}
+    body: {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
+    blade: {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
+    core: {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
+  - nameKey: PRESET_BALANCED
+    tip: {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}
+    body: {fileID: 11400000, guid: b77002e7e4b3826419eaafd5498ba1ef, type: 2}
+    blade: {fileID: 11400000, guid: 8a11b5029c5c5624aa5685c48f5c87e5, type: 2}
+    core: {fileID: 11400000, guid: 57b46a9fbadc1ed4e953921250de26cd, type: 2}
+  palette:
+  - {r: 0.2, g: 0.5, b: 1, a: 1}
+  - {r: 1, g: 0.3, b: 0.3, a: 1}
+  - {r: 0.3, g: 1, b: 0.35, a: 1}
+  - {r: 1, g: 0.9, b: 0.2, a: 1}
+  - {r: 0.7, g: 0.35, b: 1, a: 1}
+  - {r: 1, g: 0.55, b: 0.15, a: 1}
+  - {r: 0.2, g: 0.95, b: 0.95, a: 1}
+  - {r: 1, g: 0.45, b: 0.75, a: 1}
+  dummyColor: {r: 0.55, g: 0.55, b: 0.6, a: 1}
+  teamColors:
+  - {r: 0.25, g: 0.55, b: 1, a: 1}
+  - {r: 1, g: 0.35, b: 0.3, a: 1}
+  arenas:
+  - {fileID: 11400000, guid: bffacfe4af0a3664b9b7e85f0913adbd, type: 2}
+  - {fileID: 11400000, guid: fcd93f753daf7714fa5326d39bcf2101, type: 2}
+  lastStanding: {fileID: 11400000, guid: 26d7b26a6dede674790e3842b1716c17, type: 2}
+  stocks: {fileID: 11400000, guid: d3d6c00df9b71a647a2fbc2df098b44f, type: 2}
+  points: {fileID: 11400000, guid: 0a424468e6c192a43ae3484e9c7b6a68, type: 2}
+  teams: {fileID: 11400000, guid: 5b85429176e1a8a4892b4c663f1a4b8b, type: 2}
+  practice: {fileID: 11400000, guid: 3858904a18091644aa9ba83f2064ad44, type: 2}

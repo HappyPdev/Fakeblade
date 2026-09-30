@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
+  m_Name: Core_Light_ElectricDash
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
+  componentName: Velocity Core
+  description: "N\xFAcleo de velocidad. Poder: Dash el\xE9ctrico."
+  componentType: 3
+  weightClass: 0
+  icon: {fileID: 0}
+  maxSpinModifier: 100
+  spinDecayModifier: 0.5
+  moveSpeedModifier: 2
+  weightModifier: -0.1
+  attackPowerModifier: 0
+  defenseModifier: 0
+  dashForceModifier: 5
+  attackChargesModifier: 0
+  specialAbility: 4

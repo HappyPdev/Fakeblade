@@ -1,544 +1,667 @@
+using FakeBlade.Core;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace FakeBlade.UI
 {
     /// <summary>
-    /// Panel individual de HUD para un jugador.
-    /// 
-    /// === ESTRUCTURA INTERNA ===
-    /// 
-    /// PlayerPanel_N
-    ///   ├── Background           (Image - fondo semi-transparente)
-    ///   ├── Border               (Image + Outline - borde decorativo)
-    ///   ├── PlayerAccent         (Image - franja de color del jugador)
-    ///   ├── PlayerID             (Text + Image - badge "P1", "P2"...)
-    ///   ├── PlayerName           (Text - nombre del jugador)
-    ///   ├── HealthBar_Container  (HorizontalLayoutGroup)
-    ///   │   ├── SpinLabel        (Text "SPIN")
-    ///   │   ├── HealthBar_BG     (Image - fondo oscuro)
-    ///   │   ├── Segment_0..N     (Image - segmentos individuales)
-    ///   │   └── PercentText      (Text "100%")
-    ///   ├── AbilityCharges_Container (HorizontalLayoutGroup)
-    ///   │   ├── SpecLabel        (Text "SPEC")
-    ///   │   └── Charge_0..N      (cada uno con BG + Fill + Glow)
-    ///   ├── DashIndicator
-    ///   │   ├── DashLabel        (Text "DASH")
-    ///   │   ├── DashBar_BG       (Image)
-    ///   │   ├── DashFill         (Image filled horizontal)
-    ///   │   └── DashStatus       (Text "READY")
-    ///   ├── StatsText            (Text - info adicional/debug)
-    ///   └── EliminatedOverlay    (Image + Text - se activa al morir)
-    /// 
-    /// === PARA SUSTITUIR PLACEHOLDERS POR SPRITES ===
-    /// Cada Image tiene nombre descriptivo. Para cambiar:
-    /// 1. Buscar el GameObject por nombre en el panel
-    /// 2. Obtener su componente Image
-    /// 3. Asignar sprite: image.sprite = tuSprite; image.type = Image.Type.Sliced;
-    /// 
-    /// Ejemplo desde código externo:
-    ///   var panel = CombatHUDManager.Instance.GetPlayerPanel(0);
-    ///   panel.SetHealthBarSprite(myCustomSprite);
-    ///   panel.SetChargeBarSprite(myChargeSprite);
-    ///   panel.SetBackgroundSprite(myPanelBgSprite);
+    /// Panel de HUD de un jugador (GDD 9.1), construido por código en estilo pixel-art.
+    ///
+    ///  ┌──────────────────────────────────────────────┐
+    ///  │ (●)  [J1] Jugador 1              ♦♦♦         │   ← badge, nombre, vidas/puntos
+    ///  │ (●)  ▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░       64%      │   ← barra RPM (2 capas) + %
+    ///  │ (●)  ■ ■ ■ □                                  │   ← cargas de ataque
+    ///  │      ────────────                             │   ← dash
+    ///  └──────────────────────────────────────────────┘
+    ///  (●) = esfera del especial en la esquina exterior. Los paneles de la derecha se reflejan.
+    ///
+    /// Rendimiento: canvas propio (aísla los rebuilds), valores cuantizados a la rejilla
+    /// de píxeles (solo se redibuja cuando cambia un "píxel") y strings cacheadas (sin GC).
     /// </summary>
     public class PlayerHUDPanel : MonoBehaviour
     {
-        #region Config Struct
-        [System.Serializable]
-        public struct PanelConfig
+        #region Layout (píxeles de UI)
+        private const int W = 100;
+        private const int H = 29;
+
+        private const int SPHERE_X = 3;
+        private const int SPHERE_Y = 3;
+        private const int SPHERE_D = 22;
+
+        private const int CONTENT_X = 28;
+        private const int HEADER_Y = 3;
+        private const int HEADER_H = 6;
+        private const int BADGE_W = 10;
+        private const int NAME_X = CONTENT_X + 12;
+        private const int NAME_W = 34;
+        private const int STATUS_X = CONTENT_X + 46;
+        private const int STATUS_W = 23;
+        private const int LIFE_ICON = 5;
+        private const int MAX_LIFE_ICONS = 4;
+
+        private const int BAR_Y = 11;
+        private const int BAR_H = 6;
+        private const int BAR_W = 52;
+        private const int BAR_STEPS = BAR_W - 2;
+        private const int PERCENT_X = CONTENT_X + 54;
+        private const int PERCENT_W = 15;
+
+        private const int PIP_Y = 19;
+        private const int PIP_SIZE = 5;
+        private const int PIP_GAP = 1;
+        private const int PIP_INNER_STEPS = PIP_SIZE - 2;
+
+        private const int DASH_Y = 26;
+        private const int DASH_H = 1;
+
+        private const int ORBIT_COUNT = 6;
+        private const int ORBIT_RADIUS = 13;
+        private const int ORBIT_SIZE = 2;
+        private const int SPHERE_STEPS = SPHERE_D - 2;
+
+        private const float POP_DURATION = 0.15f;
+        #endregion
+
+        #region References
+        private HUDTheme _theme;
+        private int _px;
+        private bool _mirror;
+        private PlayerController _player;
+
+        private Image _border;
+        private CanvasGroup _contentGroup;
+
+        private Image _badge;
+        private TextMeshProUGUI _badgeText;
+        private TextMeshProUGUI _nameText;
+        private readonly Image[] _lifeIcons = new Image[MAX_LIFE_ICONS];
+        private TextMeshProUGUI _statusText;
+
+        private Image _barFill;
+        private Image _barTrail;
+        private TextMeshProUGUI _percentText;
+
+        private readonly Image[] _pipBorders = new Image[AttackSystem.MaxSupportedCharges];
+        private readonly Image[] _pipFills = new Image[AttackSystem.MaxSupportedCharges];
+        private readonly float[] _pipPop = new float[AttackSystem.MaxSupportedCharges];
+        private readonly float[] _pipScale = new float[AttackSystem.MaxSupportedCharges];
+
+        private Image _dashFill;
+
+        private Image _sphereGlow;
+        private Image _sphereFill;
+        private readonly Image[] _orbit = new Image[ORBIT_COUNT];
+
+        private GameObject _koOverlay;
+        private TextMeshProUGUI _koText;
+        #endregion
+
+        #region State
+        private float _time;
+        private float _trail = 1f;
+        private float _trailHold;
+        private float _lastHealth = 1f;
+        private int _lastFillStep = -1;
+        private int _lastTrailStep = -1;
+        private int _lastPercent = -1;
+        private int _lastTier = -1;
+        private int _pipCount = -1;
+        private int _lastCharges = -1;
+        private int _lastDashStep = -1;
+        private int _lastSphereStep = -1;
+        private int _lastOrbitVisible = -1;
+        private float _orbitAngle;
+        private Color _abilityColor;
+        private bool _lastInvulnerableBlink;
+        #endregion
+
+        public PlayerController Player => _player;
+
+        #region Creation
+        /// <summary>Crea un panel en la esquina del slot (0 sup-izq, 1 sup-der, 2 inf-izq, 3 inf-der).</summary>
+        public static PlayerHUDPanel Create(Transform parent, HUDTheme theme, int slot)
         {
-            public int healthSegments;
-            public int maxAbilityCharges;
-            public Color healthHighColor;
-            public Color healthMidColor;
-            public Color healthLowColor;
-            public float healthLowThreshold;
-            public float healthMidThreshold;
-            public Color chargeReadyColor;
-            public Color chargeChargingColor;
-            public Color chargeEmptyColor;
-            public Color dashReadyColor;
-            public Color dashCooldownColor;
+            int px = Mathf.Max(1, theme.pixelSize);
+            bool right = slot == 1 || slot == 3;
+            bool bottom = slot >= 2;
+
+            RectTransform root = PixelUI.CreateRect($"PlayerPanel_{slot}", parent);
+            var anchor = new Vector2(right ? 1f : 0f, bottom ? 0f : 1f);
+            root.anchorMin = anchor;
+            root.anchorMax = anchor;
+            root.pivot = anchor;
+            float margin = theme.screenMarginPixels * px;
+            root.anchoredPosition = new Vector2(right ? -margin : margin, bottom ? margin : -margin);
+            root.sizeDelta = new Vector2(W * px, H * px);
+
+            // Canvas anidado: los cambios de este panel no reconstruyen los demás
+            root.gameObject.AddComponent<Canvas>();
+
+            var panel = root.gameObject.AddComponent<PlayerHUDPanel>();
+            panel.Build(theme, right);
+            return panel;
         }
-        #endregion
 
-        #region Private Fields
-        private int _playerID;
-        private Color _playerColor;
-        private PanelConfig _config;
-        private bool _isEliminated;
-        private float _currentHealth = 1f;
-
-        // === CACHED REFERENCES ===
-        // Estas referencias permiten acceso rápido a cada elemento.
-        // Todas se nombran con prefijo descriptivo para encontrarlas fácilmente.
-        private Image _background;
-        private Image _accentBar;
-        private Text _nameText;
-        private Text _idText;
-        private Text _statsText;
-        private GameObject _eliminatedOverlay;
-
-        // Health bar
-        private GameObject _healthContainer;
-        private Image[] _healthSegments;
-        private Text _healthPercentText;
-
-        // Ability charges
-        private GameObject _chargesContainer;
-        private Image[] _chargeFills;
-        private Image[] _chargeBackgrounds;
-        private GameObject[] _chargeGlows;
-
-        // Dash
-        private GameObject _dashIndicator;
-        private Image _dashFillImage;
-        private Text _dashStatusText;
-
-        // Animation
-        private float _displayedHealth = 1f;
-        private float _healthLerpSpeed = 5f;
-        private float _pulseTimer;
-        private bool _isPulsing;
-        #endregion
-
-        #region Properties
-        public int PlayerID => _playerID;
-        public Color PlayerColor => _playerColor;
-        public float CurrentHealth => _currentHealth;
-        public bool IsEliminated => _isEliminated;
-        #endregion
-
-        // =====================================================================
-        // INITIALIZATION
-        // =====================================================================
-
-        #region Init
-
-        /// <summary>
-        /// Inicializa el panel con todas sus referencias.
-        /// Llamado por CombatHUDManager al crear el panel.
-        /// </summary>
-        public void Initialize(
-            int playerID,
-            Color playerColor,
-            Image background,
-            Image accentBar,
-            Text nameText,
-            Text idText,
-            GameObject healthContainer,
-            GameObject chargesContainer,
-            GameObject dashIndicator,
-            GameObject eliminatedOverlay,
-            Text statsText,
-            PanelConfig config)
+        private void Build(HUDTheme theme, bool mirror)
         {
-            _playerID = playerID;
-            _playerColor = playerColor;
-            _config = config;
+            _theme = theme;
+            _px = Mathf.Max(1, theme.pixelSize);
+            _mirror = mirror;
+            Transform root = transform;
 
-            _background = background;
-            _accentBar = accentBar;
-            _nameText = nameText;
-            _idText = idText;
-            _statsText = statsText;
-            _eliminatedOverlay = eliminatedOverlay;
+            // Marco: sombra, contorno oscuro, borde de color del jugador y fondo
+            var shadow = PixelUI.CreateImage("Shadow", root, theme.panelShadow);
+            PixelUI.Place(shadow.rectTransform, 1, 1, W, H, _px);
+            var outline = PixelUI.CreateImage("Outline", root, theme.sphereOutline);
+            PixelUI.Place(outline.rectTransform, 0, 0, W, H, _px);
+            _border = PixelUI.CreateImage("Border", root, Color.white);
+            PixelUI.Place(_border.rectTransform, 1, 1, W - 2, H - 2, _px);
+            var background = PixelUI.CreateImage("Background", root, theme.panelBackground);
+            PixelUI.Place(background.rectTransform, 2, 2, W - 4, H - 4, _px);
 
-            _healthContainer = healthContainer;
-            _chargesContainer = chargesContainer;
-            _dashIndicator = dashIndicator;
+            RectTransform content = PixelUI.CreateRect("Content", root);
+            PixelUI.Stretch(content, 0, _px);
+            _contentGroup = content.gameObject.AddComponent<CanvasGroup>();
+            _contentGroup.interactable = false;
+            _contentGroup.blocksRaycasts = false;
 
-            CacheHealthSegments();
-            CacheChargeElements();
-            CacheDashElements();
-
-            ResetPanel();
+            BuildSphere(content);
+            BuildHeader(content);
+            BuildBar(content);
+            BuildPips(content);
+            BuildDash(content);
+            BuildOverlay(root);
         }
 
-        private void CacheHealthSegments()
+        private void BuildSphere(Transform parent)
         {
-            if (_healthContainer == null) return;
+            RectTransform sphere = PixelUI.CreateRect("SpecialSphere", parent);
+            PixelUI.Place(sphere, SPHERE_X, SPHERE_Y, SPHERE_D, SPHERE_D, _px, _mirror, W);
 
-            // Los segmentos son hijos directos con Image que NO son el BG ni el PercentText
-            var images = _healthContainer.GetComponentsInChildren<Image>();
-            var segments = new System.Collections.Generic.List<Image>();
+            _sphereGlow = PixelUI.CreateImage("Glow", sphere, Color.clear, PixelUI.Disc(SPHERE_D + 4));
+            CenterIn(_sphereGlow.rectTransform, 0, 0, SPHERE_D + 4);
+            _sphereGlow.enabled = false;
 
-            foreach (var img in images)
+            var outline = PixelUI.CreateImage("Outline", sphere, _theme.sphereOutline, PixelUI.Disc(SPHERE_D));
+            PixelUI.Stretch(outline.rectTransform, 0, _px);
+
+            var empty = PixelUI.CreateImage("Empty", sphere, _theme.sphereEmpty, PixelUI.Disc(SPHERE_D - 2));
+            PixelUI.Stretch(empty.rectTransform, 1, _px);
+
+            _sphereFill = PixelUI.CreateFilledImage("Fill", sphere, Color.white, PixelUI.Disc(SPHERE_D - 2),
+                Image.FillMethod.Vertical, (int)Image.OriginVertical.Bottom);
+            PixelUI.Stretch(_sphereFill.rectTransform, 1, _px);
+            _sphereFill.fillAmount = 0f;
+
+            var shine = PixelUI.CreateImage("Shine", sphere, new Color(1f, 1f, 1f, 0.45f));
+            PixelUI.Place(shine.rectTransform, 5, 4, 2, 2, _px);
+
+            for (int i = 0; i < ORBIT_COUNT; i++)
             {
-                if (img.gameObject.name.StartsWith("Segment_"))
-                    segments.Add(img);
+                _orbit[i] = PixelUI.CreateImage($"Orbit_{i}", sphere, Color.white);
+                CenterIn(_orbit[i].rectTransform, 0, 0, ORBIT_SIZE);
+                _orbit[i].enabled = false;
+            }
+        }
+
+        private void BuildHeader(Transform parent)
+        {
+            _badge = PixelUI.CreateImage("Badge", parent, Color.white);
+            PixelUI.Place(_badge.rectTransform, CONTENT_X, HEADER_Y, BADGE_W, HEADER_H, _px, _mirror, W);
+            _badgeText = PixelUI.CreateText("BadgeText", _badge.transform, _theme, 5 * _px,
+                TextAlignmentOptions.Center, _theme.panelBackground);
+            PixelUI.Stretch(_badgeText.rectTransform, 0, _px);
+
+            _nameText = PixelUI.CreateText("Name", parent, _theme, 5 * _px,
+                _mirror ? TextAlignmentOptions.MidlineRight : TextAlignmentOptions.MidlineLeft, _theme.textColor);
+            PixelUI.Place(_nameText.rectTransform, NAME_X, HEADER_Y, NAME_W, HEADER_H, _px, _mirror, W);
+
+            // Vidas: iconos desde el borde exterior hacia dentro
+            for (int i = 0; i < MAX_LIFE_ICONS; i++)
+            {
+                _lifeIcons[i] = PixelUI.CreateImage($"Life_{i}", parent, Color.white, PixelUI.TopIcon);
+                int x = STATUS_X + STATUS_W - LIFE_ICON - i * (LIFE_ICON + 1);
+                PixelUI.Place(_lifeIcons[i].rectTransform, x, HEADER_Y + 1, LIFE_ICON, LIFE_ICON, _px, _mirror, W);
+                _lifeIcons[i].enabled = false;
             }
 
-            _healthSegments = segments.ToArray();
-
-            // Buscar texto de porcentaje
-            Transform percentTf = _healthContainer.transform.Find("PercentText");
-            if (percentTf != null)
-                _healthPercentText = percentTf.GetComponent<Text>();
+            _statusText = PixelUI.CreateText("Status", parent, _theme, 5 * _px,
+                _mirror ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.MidlineRight, _theme.textColor);
+            PixelUI.Place(_statusText.rectTransform, STATUS_X, HEADER_Y, STATUS_W, HEADER_H, _px, _mirror, W);
         }
 
-        private void CacheChargeElements()
+        private void BuildBar(Transform parent)
         {
-            if (_chargesContainer == null) return;
+            var barBg = PixelUI.CreateImage("RPMBar", parent, _theme.barBackground);
+            PixelUI.Place(barBg.rectTransform, CONTENT_X, BAR_Y, BAR_W, BAR_H, _px, _mirror, W);
 
-            var fills = new System.Collections.Generic.List<Image>();
-            var bgs = new System.Collections.Generic.List<Image>();
-            var glows = new System.Collections.Generic.List<GameObject>();
+            int origin = _mirror ? (int)Image.OriginHorizontal.Right : (int)Image.OriginHorizontal.Left;
 
-            for (int c = 0; c < _config.maxAbilityCharges; c++)
+            _barTrail = PixelUI.CreateFilledImage("Trail", barBg.transform, _theme.healthTrail, null,
+                Image.FillMethod.Horizontal, origin);
+            PixelUI.Stretch(_barTrail.rectTransform, 1, _px);
+
+            _barFill = PixelUI.CreateFilledImage("Fill", barBg.transform, _theme.healthHigh, null,
+                Image.FillMethod.Horizontal, origin);
+            PixelUI.Stretch(_barFill.rectTransform, 1, _px);
+
+            // Brillo superior (1 píxel) y marcas cada 25%
+            var shine = PixelUI.CreateImage("Shine", barBg.transform, new Color(1f, 1f, 1f, 0.18f));
+            PixelUI.Place(shine.rectTransform, 1, 1, BAR_W - 2, 1, _px);
+            for (int i = 1; i <= 3; i++)
             {
-                Transform chargeTf = _chargesContainer.transform.Find($"Charge_{c}");
-                if (chargeTf == null) continue;
-
-                // Background es la Image del propio charge
-                Image bg = chargeTf.GetComponent<Image>();
-                bgs.Add(bg);
-
-                // Fill es el hijo "Fill"
-                Transform fillTf = chargeTf.Find("Fill");
-                if (fillTf != null)
-                    fills.Add(fillTf.GetComponent<Image>());
-
-                // Glow es el hijo "Glow"
-                Transform glowTf = chargeTf.Find("Glow");
-                if (glowTf != null)
-                    glows.Add(glowTf.gameObject);
+                var tick = PixelUI.CreateImage($"Tick_{i}", barBg.transform, new Color(0f, 0f, 0f, 0.45f));
+                PixelUI.Place(tick.rectTransform, 1 + Mathf.RoundToInt(BAR_STEPS * i * 0.25f), 1, 1, BAR_H - 2, _px);
             }
 
-            _chargeFills = fills.ToArray();
-            _chargeBackgrounds = bgs.ToArray();
-            _chargeGlows = glows.ToArray();
+            _percentText = PixelUI.CreateText("Percent", parent, _theme, 5 * _px,
+                _mirror ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.MidlineRight, _theme.healthHigh);
+            PixelUI.Place(_percentText.rectTransform, PERCENT_X, BAR_Y, PERCENT_W, BAR_H, _px, _mirror, W);
         }
 
-        private void CacheDashElements()
+        private void BuildPips(Transform parent)
         {
-            if (_dashIndicator == null) return;
+            for (int i = 0; i < _pipBorders.Length; i++)
+            {
+                _pipBorders[i] = PixelUI.CreateImage($"Charge_{i}", parent, _theme.chargeBorder);
+                RectTransform rt = _pipBorders[i].rectTransform;
+                PixelUI.Place(rt, CONTENT_X + i * (PIP_SIZE + PIP_GAP), PIP_Y, PIP_SIZE, PIP_SIZE, _px, _mirror, W);
+                SetCenterPivot(rt);
 
-            Transform dashFillTf = _dashIndicator.transform.Find("DashFill");
-            if (dashFillTf != null)
-                _dashFillImage = dashFillTf.GetComponent<Image>();
-
-            Transform dashStatusTf = _dashIndicator.transform.Find("DashStatus");
-            if (dashStatusTf != null)
-                _dashStatusText = dashStatusTf.GetComponent<Text>();
+                _pipFills[i] = PixelUI.CreateFilledImage("Fill", rt, _theme.chargeReady, null,
+                    Image.FillMethod.Vertical, (int)Image.OriginVertical.Bottom);
+                PixelUI.Stretch(_pipFills[i].rectTransform, 1, _px);
+                _pipScale[i] = 1f;
+            }
         }
 
+        private void BuildDash(Transform parent)
+        {
+            var dashBg = PixelUI.CreateImage("Dash", parent, _theme.barBackground);
+            PixelUI.Place(dashBg.rectTransform, CONTENT_X, DASH_Y, BAR_W, DASH_H, _px, _mirror, W);
+
+            int origin = _mirror ? (int)Image.OriginHorizontal.Right : (int)Image.OriginHorizontal.Left;
+            _dashFill = PixelUI.CreateFilledImage("Fill", dashBg.transform, _theme.dashReady, null,
+                Image.FillMethod.Horizontal, origin);
+            PixelUI.Stretch(_dashFill.rectTransform, 0, _px);
+        }
+
+        private void BuildOverlay(Transform root)
+        {
+            var overlay = PixelUI.CreateImage("KOOverlay", root, _theme.overlayColor);
+            PixelUI.Place(overlay.rectTransform, 2, 2, W - 4, H - 4, _px);
+            _koOverlay = overlay.gameObject;
+
+            _koText = PixelUI.CreateText("KOText", overlay.transform, _theme, 9 * _px,
+                TextAlignmentOptions.Center, _theme.healthLow);
+            PixelUI.Stretch(_koText.rectTransform, 0, _px);
+            _koOverlay.SetActive(false);
+        }
+
+        /// <summary>Rect centrado en el padre, desplazado (dx, dy) píxeles de UI.</summary>
+        private void CenterIn(RectTransform rt, int dx, int dy, int size)
+        {
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(dx * _px, dy * _px);
+            rt.sizeDelta = new Vector2(size * _px, size * _px);
+        }
+
+        /// <summary>Cambia el pivot al centro sin mover el rect (para escalar desde el centro).</summary>
+        private static void SetCenterPivot(RectTransform rt)
+        {
+            Vector2 size = rt.sizeDelta;
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition += new Vector2(size.x * 0.5f, -size.y * 0.5f);
+        }
         #endregion
 
-        // =====================================================================
-        // UPDATE LOOP
-        // =====================================================================
+        #region Binding
+        public void Bind(PlayerController player)
+        {
+            Unbind();
+            _player = player;
+            if (player == null)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
 
-        #region Unity Update
+            gameObject.SetActive(true);
+            player.OnStatusChanged += HandleStatusChanged;
+            Loc.OnLanguageChanged += RefreshTexts;
 
+            Color color = player.PlayerColor;
+            _border.color = color;
+            _badge.color = color;
+            for (int i = 0; i < _lifeIcons.Length; i++) _lifeIcons[i].color = color;
+
+            ResetVisualState();
+            RefreshTexts();
+            HandleStatusChanged(player);
+        }
+
+        private void Unbind()
+        {
+            if (_player != null) _player.OnStatusChanged -= HandleStatusChanged;
+            Loc.OnLanguageChanged -= RefreshTexts;
+            _player = null;
+        }
+
+        private void OnDestroy() => Unbind();
+
+        private void ResetVisualState()
+        {
+            _trail = 1f;
+            _trailHold = 0f;
+            _lastHealth = 1f;
+            _lastFillStep = _lastTrailStep = _lastPercent = _lastTier = -1;
+            _pipCount = _lastCharges = -1;
+            _lastDashStep = _lastSphereStep = _lastOrbitVisible = -1;
+            _lastInvulnerableBlink = false;
+            for (int i = 0; i < _pipPop.Length; i++) _pipPop[i] = 0f;
+
+            _abilityColor = _theme.GetAbilityColor(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost);
+            _sphereGlow.color = new Color(_abilityColor.r, _abilityColor.g, _abilityColor.b, 0.35f);
+            for (int i = 0; i < _orbit.Length; i++) _orbit[i].color = Color.Lerp(_abilityColor, Color.white, 0.4f);
+
+            HideKO();
+            _contentGroup.alpha = 1f;
+        }
+
+        private void RefreshTexts()
+        {
+            if (_player == null) return;
+
+            int number = _player.PlayerID + 1;
+            _badgeText.text = Loc.Format("PLAYER_BADGE", number);
+
+            string playerName = _player.PlayerName;
+            bool isDefaultName = string.IsNullOrEmpty(playerName) || playerName.StartsWith("Player ");
+            _nameText.text = isDefaultName ? Loc.Format("PLAYER_NAME", number) : playerName;
+
+            HandleStatusChanged(_player);
+        }
+
+        /// <summary>Vidas / puntos (por evento, no por frame).</summary>
+        private void HandleStatusChanged(PlayerController player)
+        {
+            var gm = GameManager.Instance;
+            MatchRules rules = gm != null ? gm.Rules : null;
+
+            for (int i = 0; i < _lifeIcons.Length; i++) _lifeIcons[i].enabled = false;
+            _statusText.text = string.Empty;
+
+            if (rules == null || player == null) return;
+
+            if (rules.ShowsLives)
+            {
+                int lives = player.Lives;
+                if (lives <= MAX_LIFE_ICONS)
+                {
+                    for (int i = 0; i < lives; i++) _lifeIcons[i].enabled = true;
+                }
+                else
+                {
+                    _lifeIcons[0].enabled = true;
+                    _statusText.text = PixelUI.Times(lives);
+                    // Deja hueco para el icono (que está en el lado exterior)
+                    float gap = (LIFE_ICON + 1) * _px;
+                    _statusText.margin = _mirror ? new Vector4(gap, 0f, 0f, 0f) : new Vector4(0f, 0f, gap, 0f);
+                }
+            }
+            else if (rules.ShowsScore)
+            {
+                _statusText.margin = Vector4.zero;
+                _statusText.text = PixelUI.Number(player.Score) + " " + Loc.Get("POINTS_SHORT");
+            }
+
+            if (player.IsEliminated) ShowKO(true);
+        }
+        #endregion
+
+        #region K.O.
+        public void ShowKO(bool eliminated)
+        {
+            _koOverlay.SetActive(true);
+            _koText.text = Loc.Get(eliminated ? "OUT" : "KO");
+            _koText.fontSize = (eliminated ? 6 : 9) * _px;
+            _contentGroup.alpha = eliminated ? 0.45f : 0.8f;
+        }
+
+        public void ShowRespawning()
+        {
+            _koOverlay.SetActive(true);
+            _koText.text = Loc.Get("RESPAWN");
+            _koText.fontSize = 6 * _px;
+        }
+
+        public void HideKO()
+        {
+            _koOverlay.SetActive(false);
+            _contentGroup.alpha = 1f;
+        }
+        #endregion
+
+        #region Update
         private void Update()
         {
-            if (_isEliminated) return;
+            // _barFill null = recompilación en caliente (las referencias construidas por código no se serializan)
+            if (_player == null || _barFill == null) return;
+            FakeBladeController blade = _player.Blade;
+            if (blade == null) return;
 
-            // Lerp suave de la barra de vida
-            if (Mathf.Abs(_displayedHealth - _currentHealth) > 0.001f)
-            {
-                _displayedHealth = Mathf.Lerp(_displayedHealth, _currentHealth, _healthLerpSpeed * Time.deltaTime);
-                ApplyHealthVisuals(_displayedHealth);
-            }
+            float dt = Time.deltaTime;
+            _time += dt;
 
-            // Pulso cuando la vida está baja
-            if (_isPulsing)
-            {
-                _pulseTimer += Time.deltaTime * 3f;
-                float pulse = 0.7f + Mathf.Sin(_pulseTimer) * 0.3f;
-                if (_accentBar != null)
-                {
-                    Color c = _config.healthLowColor;
-                    c.a = pulse;
-                    _accentBar.color = c;
-                }
-            }
-        }
-
-        #endregion
-
-        // =====================================================================
-        // PUBLIC UPDATE METHODS
-        // =====================================================================
-
-        #region Public Updates
-
-        /// <summary>
-        /// Actualiza la barra de vida (spin percentage 0-1).
-        /// Llamado automáticamente via evento OnSpinChanged.
-        /// </summary>
-        public void UpdateHealth(float percentage)
-        {
-            _currentHealth = Mathf.Clamp01(percentage);
-
-            // Activar pulso si vida baja
-            _isPulsing = _currentHealth <= _config.healthLowThreshold && _currentHealth > 0;
-            if (!_isPulsing && _accentBar != null)
-                _accentBar.color = _playerColor;
+            UpdateHealth(blade.SpinSpeedPercentage, dt);
+            UpdatePips(blade.Attack, dt);
+            UpdateDash(blade.DashCooldownProgress);
+            UpdateSphere(blade.Special, dt);
+            UpdateInvulnerability(blade.IsInvulnerable);
         }
 
         /// <summary>
-        /// Actualiza las cargas de habilidad especial.
-        /// currentCharges: cargas completas disponibles
-        /// maxCharges: máximo de cargas
-        /// currentChargeProgress: progreso de la carga actual (0-1), 
-        ///   se aplica a la primera carga no completada
+        /// Barra de dos capas: la superior baja de golpe; la inferior espera un momento
+        /// y luego la sigue poco a poco (GDD 9.1).
         /// </summary>
-        public void UpdateAbilityCharges(int currentCharges, int maxCharges, float currentChargeProgress)
+        private void UpdateHealth(float health, float dt)
         {
-            if (_chargeFills == null) return;
+            health = Mathf.Clamp01(health);
 
-            for (int c = 0; c < _chargeFills.Length; c++)
+            if (health < _lastHealth - 0.005f) _trailHold = _theme.trailDelay; // golpe
+            _lastHealth = health;
+
+            if (_trail <= health) _trail = health;
+            else if (_trailHold > 0f) _trailHold -= dt;
+            else _trail = Mathf.MoveTowards(_trail, health, _theme.trailSpeed * dt);
+
+            int fillStep = Quantize(health, BAR_STEPS);
+            if (fillStep != _lastFillStep)
             {
-                if (c < currentCharges)
+                _lastFillStep = fillStep;
+                _barFill.fillAmount = fillStep / (float)BAR_STEPS;
+            }
+
+            int trailStep = Quantize(_trail, BAR_STEPS);
+            if (trailStep != _lastTrailStep)
+            {
+                _lastTrailStep = trailStep;
+                _barTrail.fillAmount = trailStep / (float)BAR_STEPS;
+            }
+
+            int tier = health <= _theme.lowThreshold ? 0 : health <= _theme.midThreshold ? 1 : 2;
+            if (tier != _lastTier)
+            {
+                _lastTier = tier;
+                _barFill.color = _theme.GetHealthColor(health);
+            }
+
+            int percent = health <= 0f ? 0 : Mathf.Max(1, Mathf.CeilToInt(health * 100f - 0.001f));
+            if (percent != _lastPercent)
+            {
+                _lastPercent = percent;
+                _percentText.text = PixelUI.Percent(percent);
+            }
+
+            // Vida baja: el % parpadea por pasos
+            Color percentColor = tier == 0 && percent > 0 && PixelUI.Blink(_time, 2f)
+                ? _theme.textColor
+                : _theme.GetHealthColor(health);
+            _percentText.color = percentColor;
+        }
+
+        /// <summary>
+        /// Cargas de ataque: llenas, recargando (se llenan por pasos y parpadea el contorno
+        /// poco antes de completarse) y "pop" de tamaño al recuperarse.
+        /// Mientras se carga un ataque, las cargas que se van a gastar parpadean.
+        /// </summary>
+        private void UpdatePips(AttackSystem attack, float dt)
+        {
+            int max = attack.MaxCharges;
+            if (max != _pipCount)
+            {
+                _pipCount = max;
+                for (int i = 0; i < _pipBorders.Length; i++)
+                    _pipBorders[i].gameObject.SetActive(i < max);
+            }
+
+            int current = attack.CurrentCharges;
+            if (_lastCharges >= 0 && current > _lastCharges)
+            {
+                for (int i = _lastCharges; i < current && i < max; i++)
+                    _pipPop[i] = POP_DURATION;
+            }
+            _lastCharges = current;
+
+            bool charging = attack.IsCharging;
+            int chargeLevel = attack.ChargeLevel;
+            float recharge = attack.RechargeProgress;
+            bool chargeBlink = PixelUI.Blink(_time, 6f);
+            bool readyBlink = recharge >= _theme.blinkBeforeReady && PixelUI.Blink(_time, 8f);
+
+            for (int i = 0; i < max; i++)
+            {
+                Image border = _pipBorders[i];
+                Image fill = _pipFills[i];
+
+                if (i < current)
                 {
-                    // Carga completa
-                    _chargeFills[c].fillAmount = 1f;
-                    _chargeFills[c].color = _config.chargeReadyColor;
-                    if (c < _chargeGlows.Length)
-                        _chargeGlows[c].SetActive(true);
+                    bool willSpend = charging && i >= current - chargeLevel;
+                    fill.fillAmount = 1f;
+                    fill.color = willSpend && chargeBlink ? _theme.chargeCharging : _theme.chargeReady;
+                    border.color = willSpend ? _theme.chargeCharging : _theme.chargeBorder;
                 }
-                else if (c == currentCharges && currentChargeProgress > 0)
+                else if (i == current)
                 {
-                    // Carga en progreso (se llena de abajo a arriba)
-                    _chargeFills[c].fillAmount = currentChargeProgress;
-                    _chargeFills[c].color = _config.chargeChargingColor;
-                    if (c < _chargeGlows.Length)
-                        _chargeGlows[c].SetActive(false);
+                    int step = Mathf.FloorToInt(recharge * PIP_INNER_STEPS);
+                    fill.fillAmount = step / (float)PIP_INNER_STEPS;
+                    fill.color = _theme.chargeEmpty;
+                    border.color = readyBlink ? _theme.chargeBlink : _theme.chargeBorder;
                 }
                 else
                 {
-                    // Carga vacía
-                    _chargeFills[c].fillAmount = 0f;
-                    _chargeFills[c].color = _config.chargeEmptyColor;
-                    if (c < _chargeGlows.Length)
-                        _chargeGlows[c].SetActive(false);
+                    fill.fillAmount = 0f;
+                    border.color = _theme.chargeBorder;
                 }
-            }
-        }
 
-        /// <summary>
-        /// Actualiza el indicador de dash cooldown (0 = en cooldown, 1 = listo).
-        /// </summary>
-        public void UpdateDashCooldown(float progress)
-        {
-            if (_dashFillImage != null)
-            {
-                _dashFillImage.fillAmount = progress;
-                _dashFillImage.color = progress >= 1f ? _config.dashReadyColor : _config.dashCooldownColor;
-            }
-
-            if (_dashStatusText != null)
-            {
-                _dashStatusText.text = progress >= 1f ? "READY" : $"{progress * 100:F0}%";
-            }
-        }
-
-        /// <summary>
-        /// Muestra/oculta el overlay de eliminación.
-        /// </summary>
-        public void SetEliminated(bool eliminated)
-        {
-            _isEliminated = eliminated;
-
-            if (_eliminatedOverlay != null)
-                _eliminatedOverlay.SetActive(eliminated);
-
-            // Desaturar el panel
-            if (eliminated && _background != null)
-            {
-                Color bg = _background.color;
-                _background.color = new Color(bg.r * 0.5f, bg.g * 0.5f, bg.b * 0.5f, bg.a);
-            }
-        }
-
-        /// <summary>
-        /// Actualiza texto de stats adicionales (velocidad, peso, etc.)
-        /// </summary>
-        public void UpdateStats(float speed, float weight)
-        {
-            if (_statsText != null)
-                _statsText.text = $"SPD:{speed:F1}  W:{weight:F1}";
-        }
-
-        /// <summary>
-        /// Resetea el panel a su estado inicial (100% vida, cargas llenas, no eliminado).
-        /// </summary>
-        public void ResetPanel()
-        {
-            _currentHealth = 1f;
-            _displayedHealth = 1f;
-            _isEliminated = false;
-            _isPulsing = false;
-
-            ApplyHealthVisuals(1f);
-            UpdateDashCooldown(1f);
-            UpdateAbilityCharges(_config.maxAbilityCharges, _config.maxAbilityCharges, 0f);
-
-            if (_eliminatedOverlay != null)
-                _eliminatedOverlay.SetActive(false);
-
-            if (_accentBar != null)
-                _accentBar.color = _playerColor;
-
-            if (_background != null)
-            {
-                // Restaurar color original
-                Color bgColor = new Color(0.05f, 0.05f, 0.1f, 0.85f);
-                _background.color = bgColor;
-            }
-        }
-
-        #endregion
-
-        // =====================================================================
-        // SPRITE REPLACEMENT API
-        // =====================================================================
-
-        #region Sprite Replacement
-
-        /// <summary>
-        /// Sustituye el fondo del panel por un sprite personalizado.
-        /// Útil para temas/skins del HUD.
-        /// </summary>
-        public void SetBackgroundSprite(Sprite sprite)
-        {
-            if (_background != null && sprite != null)
-            {
-                _background.sprite = sprite;
-                _background.type = Image.Type.Sliced;
-            }
-        }
-
-        /// <summary>
-        /// Sustituye los sprites de los segmentos de la barra de vida.
-        /// </summary>
-        public void SetHealthBarSprite(Sprite sprite)
-        {
-            if (_healthSegments == null || sprite == null) return;
-            foreach (var seg in _healthSegments)
-            {
-                if (seg != null)
+                // Pop por pasos: 1.4 → 1.2 → 1.0
+                float scale = 1f;
+                if (_pipPop[i] > 0f)
                 {
-                    seg.sprite = sprite;
-                    seg.type = Image.Type.Sliced;
+                    _pipPop[i] -= dt;
+                    scale = _pipPop[i] > POP_DURATION * 0.66f ? 1.4f : _pipPop[i] > POP_DURATION * 0.33f ? 1.2f : 1f;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sustituye los sprites de las barras de carga de habilidad.
-        /// </summary>
-        public void SetChargeBarSprite(Sprite fillSprite, Sprite bgSprite = null)
-        {
-            if (_chargeFills != null && fillSprite != null)
-            {
-                foreach (var fill in _chargeFills)
+                if (!Mathf.Approximately(scale, _pipScale[i]))
                 {
-                    if (fill != null)
-                    {
-                        fill.sprite = fillSprite;
-                        fill.type = Image.Type.Filled;
-                    }
-                }
-            }
-
-            if (_chargeBackgrounds != null && bgSprite != null)
-            {
-                foreach (var bg in _chargeBackgrounds)
-                {
-                    if (bg != null)
-                    {
-                        bg.sprite = bgSprite;
-                        bg.type = Image.Type.Sliced;
-                    }
+                    _pipScale[i] = scale;
+                    border.rectTransform.localScale = new Vector3(scale, scale, 1f);
                 }
             }
         }
 
-        /// <summary>
-        /// Sustituye el sprite del indicador de dash.
-        /// </summary>
-        public void SetDashBarSprite(Sprite sprite)
+        private void UpdateDash(float progress)
         {
-            if (_dashFillImage != null && sprite != null)
-            {
-                _dashFillImage.sprite = sprite;
-                _dashFillImage.type = Image.Type.Filled;
-            }
+            int step = Quantize(progress, BAR_W);
+            if (step == _lastDashStep) return;
+
+            _lastDashStep = step;
+            _dashFill.fillAmount = step / (float)BAR_W;
+            _dashFill.color = step >= BAR_W ? _theme.dashReady : _theme.dashCooldown;
         }
 
         /// <summary>
-        /// Cambia la fuente de todos los textos del panel.
-        /// Usar para migrar a una fuente personalizada sin cambiar código.
+        /// Esfera del especial: se rellena al cargar; llena → brilla y aparecen partículas;
+        /// activa → color y partículas exagerados mientras el relleno baja (GDD 9.1).
         /// </summary>
-        public void SetFont(Font font)
+        private void UpdateSphere(SpecialAbilitySystem special, float dt)
         {
-            if (font == null) return;
+            bool ready = special.IsReady;
+            bool active = special.IsActive;
 
-            Text[] allTexts = GetComponentsInChildren<Text>(true);
-            foreach (var text in allTexts)
+            int step = Quantize(special.Energy, SPHERE_STEPS);
+            if (step != _lastSphereStep)
             {
-                text.font = font;
+                _lastSphereStep = step;
+                _sphereFill.fillAmount = step / (float)SPHERE_STEPS;
             }
-        }
 
-        #endregion
-
-        // =====================================================================
-        // PRIVATE VISUALS
-        // =====================================================================
-
-        #region Health Visuals
-
-        private void ApplyHealthVisuals(float health)
-        {
-            if (_healthSegments == null || _healthSegments.Length == 0) return;
-
-            float healthPercent = Mathf.Clamp01(health);
-            int totalSegments = _healthSegments.Length;
-            int filledSegments = Mathf.CeilToInt(healthPercent * totalSegments);
-
-            // Determinar color según nivel de vida
-            Color barColor;
-            if (healthPercent <= _config.healthLowThreshold)
-                barColor = _config.healthLowColor;
-            else if (healthPercent <= _config.healthMidThreshold)
-                barColor = Color.Lerp(_config.healthLowColor, _config.healthMidColor,
-                    (healthPercent - _config.healthLowThreshold) /
-                    (_config.healthMidThreshold - _config.healthLowThreshold));
+            Color fillColor;
+            if (active)
+                fillColor = PixelUI.Blink(_time, 4f) ? Color.Lerp(_abilityColor, Color.white, 0.45f) : _abilityColor;
+            else if (ready)
+                fillColor = PixelUI.Blink(_time, 1.5f) ? Color.Lerp(_abilityColor, Color.white, 0.25f) : _abilityColor;
             else
-                barColor = Color.Lerp(_config.healthMidColor, _config.healthHighColor,
-                    (healthPercent - _config.healthMidThreshold) /
-                    (1f - _config.healthMidThreshold));
+                fillColor = new Color(_abilityColor.r * 0.7f, _abilityColor.g * 0.7f, _abilityColor.b * 0.7f, 1f);
+            _sphereFill.color = fillColor;
 
-            for (int i = 0; i < totalSegments; i++)
+            bool glow = ready || active;
+            _sphereGlow.enabled = glow;
+            if (glow)
             {
-                if (_healthSegments[i] == null) continue;
-
-                if (i < filledSegments)
-                {
-                    _healthSegments[i].color = barColor;
-                    _healthSegments[i].gameObject.SetActive(true);
-                }
-                else
-                {
-                    // Segmento vacío - color oscuro
-                    _healthSegments[i].color = new Color(0.12f, 0.12f, 0.18f);
-                    _healthSegments[i].gameObject.SetActive(true);
-                }
+                bool strong = active ? PixelUI.Blink(_time, 5f) : PixelUI.Blink(_time, 1.5f);
+                float alpha = active ? (strong ? 0.75f : 0.4f) : (strong ? 0.45f : 0.2f);
+                _sphereGlow.color = new Color(_abilityColor.r, _abilityColor.g, _abilityColor.b, alpha);
             }
 
-            // Actualizar texto de porcentaje
-            if (_healthPercentText != null)
+            int visible = active ? ORBIT_COUNT : ready ? ORBIT_COUNT / 2 : 0;
+            if (visible != _lastOrbitVisible)
             {
-                _healthPercentText.text = $"{healthPercent * 100:F0}%";
-                _healthPercentText.color = barColor;
+                _lastOrbitVisible = visible;
+                for (int i = 0; i < ORBIT_COUNT; i++) _orbit[i].enabled = i < visible;
+            }
+
+            if (visible > 0)
+            {
+                _orbitAngle += (active ? 300f : 110f) * dt;
+                float stepAngle = 360f / visible;
+                for (int i = 0; i < visible; i++)
+                {
+                    float a = (_orbitAngle + i * stepAngle) * Mathf.Deg2Rad;
+                    // Posición ajustada a la rejilla de píxeles
+                    float x = Mathf.Round(Mathf.Cos(a) * ORBIT_RADIUS) * _px;
+                    float y = Mathf.Round(Mathf.Sin(a) * ORBIT_RADIUS) * _px;
+                    RectTransform rt = _orbit[i].rectTransform;
+                    Vector2 pos = new Vector2(x, y);
+                    if (rt.anchoredPosition != pos) rt.anchoredPosition = pos;
+                }
             }
         }
 
+        private void UpdateInvulnerability(bool invulnerable)
+        {
+            bool blink = invulnerable && PixelUI.Blink(_time, 6f);
+            if (blink == _lastInvulnerableBlink) return;
+
+            _lastInvulnerableBlink = blink;
+            _border.color = blink ? Color.white : _player.PlayerColor;
+        }
+
+        private static int Quantize(float value, int steps)
+        {
+            if (value <= 0f) return 0;
+            return Mathf.Clamp(Mathf.CeilToInt(value * steps - 0.001f), 1, steps);
+        }
         #endregion
     }
 }

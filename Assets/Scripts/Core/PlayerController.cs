@@ -1,11 +1,11 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Controlador de jugador individual. 
-    /// Gestiona input, estado de vida y vinculación con el sistema de juego.
+    /// Jugador: identidad (ID, nombre, color, equipo), estado de partida (vidas, puntos)
+    /// y paso del input a la peonza. El flujo de partida lo decide el GameManager.
     /// </summary>
     [RequireComponent(typeof(FakeBladeController))]
     [RequireComponent(typeof(InputHandler))]
@@ -13,9 +13,10 @@ namespace FakeBlade.Core
     public class PlayerController : MonoBehaviour
     {
         #region Events
+        /// <summary>La peonza se ha quedado sin RPM (id del jugador).</summary>
         public event Action<int> OnPlayerDefeated;
-        public event Action<int> OnPlayerReady;
-        public event Action<float> OnSpinChanged;
+        /// <summary>Cambian vidas, puntos o estado de eliminación.</summary>
+        public event Action<PlayerController> OnStatusChanged;
         #endregion
 
         #region Serialized Fields
@@ -25,29 +26,29 @@ namespace FakeBlade.Core
         [SerializeField] private Color playerColor = Color.white;
         [SerializeField] private int teamID = 0;
 
-        [Header("Visual")]
-        [SerializeField] private Renderer[] coloredRenderers;
+        [Header("Input")]
+        [Tooltip("Asigna el dispositivo por defecto según el ID (J1 teclado, J2 mando/flechas...)")]
+        [SerializeField] private bool autoAssignInput = true;
 
-        [Header("UI References")]
-        [SerializeField] private Transform uiAnchor;
+        [Header("Visual")]
+        [Tooltip("Renderers que se tiñen con el color del jugador. Vacío = todos los hijos.")]
+        [SerializeField] private Renderer[] coloredRenderers;
 
         [Header("Debug")]
         [SerializeField] private bool debugMode = false;
         #endregion
 
         #region Private Fields
-        private FakeBladeController _fakeBladeController;
-        private InputHandler _inputHandler;
+        private FakeBladeController _blade;
+        private InputHandler _input;
+        private IBladeInputSource _source;
         private FakeBladeStats _stats;
-        private Transform _transform;
-
-        private bool _isAlive = true;
-        private bool _isInitialized;
-        private bool _isReady;
-
         private MaterialPropertyBlock _propertyBlock;
-        private static readonly int ColorProperty = Shader.PropertyToID("_BaseColor");
-        private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
+        private bool _registered;
+        private bool _inputAssignedExternally;
+
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
         #endregion
 
         #region Properties
@@ -55,200 +56,151 @@ namespace FakeBlade.Core
         public string PlayerName => playerName;
         public Color PlayerColor => playerColor;
         public int TeamID => teamID;
-        public bool IsAlive => _isAlive;
-        public bool IsReady => _isReady;
-        public FakeBladeController FakeBladeController => _fakeBladeController;
+
+        public FakeBladeController FakeBladeController => _blade;
+        public FakeBladeController Blade => _blade;
+        public InputHandler Input => _input;
         public FakeBladeStats Stats => _stats;
-        public Transform UIAnchor => uiAnchor ?? _transform;
-        public float SpinPercentage => _fakeBladeController?.SpinSpeedPercentage ?? 0f;
+        public float SpinPercentage => _blade != null ? _blade.SpinSpeedPercentage : 0f;
+
+        /// <summary>Vidas restantes. 0 con reglas de vidas infinitas (modo Points).</summary>
+        public int Lives { get; private set; }
+        public int Score { get; private set; }
+        /// <summary>Fuera de la partida (sin vidas).</summary>
+        public bool IsEliminated { get; private set; }
+        public bool IsAlive => _blade != null && !_blade.IsDestroyed;
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
         {
-            CacheComponents();
+            _blade = GetComponent<FakeBladeController>();
+            _input = GetComponent<InputHandler>();
+            _source = _input;
+            _stats = GetComponent<FakeBladeStats>();
+            _propertyBlock = new MaterialPropertyBlock();
         }
 
         private void Start()
         {
-            Initialize();
-        }
-
-        private void Update()
-        {
-            if (!_isInitialized || !_isAlive) return;
-
-            if (GameManager.Instance != null &&
-                GameManager.Instance.CurrentState == GameManager.GameState.InMatch)
+            if (autoAssignInput && !_inputAssignedExternally)
             {
-                ProcessInput();
-            }
-        }
-
-        private void OnDestroy()
-        {
-            Cleanup();
-        }
-        #endregion
-
-        #region Initialization
-        private void CacheComponents()
-        {
-            _transform = transform;
-            _fakeBladeController = GetComponent<FakeBladeController>();
-            _inputHandler = GetComponent<InputHandler>();
-            _stats = GetComponent<FakeBladeStats>();
-            _propertyBlock = new MaterialPropertyBlock();
-
-            ValidateComponents();
-        }
-
-        private void ValidateComponents()
-        {
-            if (_fakeBladeController == null)
-                Debug.LogError($"[PlayerController] FakeBladeController missing on {gameObject.name}");
-            if (_inputHandler == null)
-                Debug.LogError($"[PlayerController] InputHandler missing on {gameObject.name}");
-            if (_stats == null)
-                Debug.LogError($"[PlayerController] FakeBladeStats missing on {gameObject.name}");
-        }
-
-        private void Initialize()
-        {
-            if (GameManager.Instance != null)
-            {
-                if (!GameManager.Instance.RegisterPlayer(this))
-                {
-                    Debug.LogWarning($"[PlayerController] Failed to register Player {playerID}");
-                    return;
-                }
+                InputAssignment.GetDefault(playerID, out var kind, out int pad);
+                _input.SetDevice(kind, pad);
             }
 
             ApplyPlayerColor();
 
-            if (_fakeBladeController != null)
-            {
-                _fakeBladeController.OnSpinChanged += HandleSpinChanged;
-                _fakeBladeController.OnSpinOut += HandleSpinOut;
-                _fakeBladeController.OnDashExecuted += HandleDashExecuted;
-                _fakeBladeController.OnCollisionWithFakeBlade += HandleCollision;
-            }
+            _blade.OnSpinOut += HandleSpinOut;
+            _blade.OnDashExecuted += HandleDash;
+            _blade.OnClash += HandleClash;
 
-            ConfigureInputHandler();
-
-            _isInitialized = true;
+            var gm = GameManager.Instance;
+            if (gm != null) _registered = gm.RegisterPlayer(this);
 
             if (debugMode)
-                Debug.Log($"[PlayerController] Player {playerID} ({playerName}) initialized");
+                Debug.Log($"[PlayerController] P{playerID} ({playerName}) input:{_input.DeviceKind}", this);
         }
 
-        private void ConfigureInputHandler()
+        private void OnDestroy()
         {
-            if (_inputHandler == null) return;
+            if (_blade != null)
+            {
+                _blade.OnSpinOut -= HandleSpinOut;
+                _blade.OnDashExecuted -= HandleDash;
+                _blade.OnClash -= HandleClash;
+            }
 
-            if (playerID == 0)
-            {
-                _inputHandler.SetGamepadIndex(-1); // keyboard
-            }
-            else
-            {
-                _inputHandler.SetGamepadIndex(playerID - 1);
-            }
+            if (_registered && GameManager.HasInstance)
+                GameManager.Instance.UnregisterPlayer(this);
         }
 
-        private void Cleanup()
+        private void Update()
         {
-            if (_fakeBladeController != null)
+            if (_blade.IsDestroyed) return;
+            if (_source == null) _source = _input; // tras una recompilación en caliente
+
+            var gm = GameManager.Instance;
+            bool canAct = gm == null || gm.IsMatchActive;
+            if (!canAct)
             {
-                _fakeBladeController.OnSpinChanged -= HandleSpinChanged;
-                _fakeBladeController.OnSpinOut -= HandleSpinOut;
-                _fakeBladeController.OnDashExecuted -= HandleDashExecuted;
-                _fakeBladeController.OnCollisionWithFakeBlade -= HandleCollision;
+                _source.ClearBuffers();
+                return;
             }
 
-            GameManager.Instance?.UnregisterPlayer(this);
-        }
-        #endregion
+            _blade.HandleMovement(_source.MovementInput);
+            _blade.SetAttackHeld(_source.AttackHeld);
 
-        #region Input Processing
-        private void ProcessInput()
-        {
-            if (_inputHandler == null || _fakeBladeController == null) return;
-
-            // =====================================================
-            // FIX CRÍTICO: SIEMPRE enviar movimiento al controller,
-            // incluyendo Vector2.zero cuando no hay input.
-            // Sin esto, _inputDirection nunca se resetea y la
-            // peonza sigue acelerando en la última dirección.
-            // =====================================================
-            Vector2 moveInput = _inputHandler.GetMovementInput();
-            _fakeBladeController.HandleMovement(moveInput);
-
-            if (debugMode && moveInput.sqrMagnitude > 0.01f)
-            {
-                Debug.Log($"[Player {playerID}] Move: ({moveInput.x:F2}, {moveInput.y:F2})");
-            }
-
-            // Dash
-            if (_inputHandler.GetDashInput())
-            {
-                _fakeBladeController.ExecuteDash();
-            }
-
-            // Special
-            if (_inputHandler.GetSpecialInput())
-            {
-                _fakeBladeController.ExecuteSpecial();
-            }
+            if (_source.ConsumeDash()) _blade.ExecuteDash();
+            if (_source.ConsumeSpecial()) _blade.ExecuteSpecial();
         }
         #endregion
 
         #region Event Handlers
-        private void HandleSpinChanged(float percentage)
-        {
-            OnSpinChanged?.Invoke(percentage);
-        }
-
         private void HandleSpinOut()
         {
-            if (!_isAlive) return;
-
-            _isAlive = false;
-
-            if (debugMode)
-                Debug.Log($"[PlayerController] Player {playerID} ({playerName}) ELIMINATED!");
-
+            if (debugMode) Debug.Log($"[PlayerController] P{playerID} K.O.", this);
+            _source.Vibrate(0.6f, 0.9f, 0.35f);
             OnPlayerDefeated?.Invoke(playerID);
         }
 
-        private void HandleDashExecuted()
-        {
-            _inputHandler?.Vibrate(0.2f, 0.4f, 0.1f);
-        }
+        private void HandleDash() => _source.Vibrate(0.2f, 0.4f, 0.1f);
 
-        private void HandleCollision(FakeBladeController other, float damage)
+        private void HandleClash(FakeBladeController other, float damageTaken)
         {
-            float intensity = Mathf.Clamp01(damage / 50f);
-            _inputHandler?.Vibrate(intensity * 0.3f, intensity * 0.6f, 0.15f);
-        }
-
-        public void OnFakeBladeDestroyed()
-        {
-            HandleSpinOut();
+            float intensity = Mathf.Clamp01(damageTaken / Mathf.Max(1f, _blade.MaxSpinSpeed * 0.1f));
+            _source.Vibrate(0.15f + intensity * 0.35f, 0.3f + intensity * 0.6f, 0.15f);
         }
         #endregion
 
-        #region Public Methods
+        #region Match State (GameManager)
+        public void ResetMatchState(int startingLives)
+        {
+            Lives = startingLives;
+            Score = 0;
+            IsEliminated = false;
+            OnStatusChanged?.Invoke(this);
+        }
+
+        public void LoseLife()
+        {
+            if (Lives > 0) Lives--;
+            OnStatusChanged?.Invoke(this);
+        }
+
+        public void AddScore(int amount)
+        {
+            Score += amount;
+            OnStatusChanged?.Invoke(this);
+        }
+
+        public void SetEliminated(bool eliminated)
+        {
+            IsEliminated = eliminated;
+            OnStatusChanged?.Invoke(this);
+        }
+
+        /// <summary>Compatibilidad con el flujo antiguo: reinicia la peonza.</summary>
+        public void ResetPlayer() => _blade.ResetFakeBlade();
+
+        public void SetSpawnPosition(Transform spawnPoint)
+        {
+            if (spawnPoint != null)
+                _blade.SetPosition(spawnPoint.position, spawnPoint.rotation);
+        }
+        #endregion
+
+        #region Setup
         public void SetPlayerID(int id)
         {
             playerID = id;
             gameObject.name = $"Player_{id}_{playerName}";
         }
 
-        public void SetPlayerName(string name)
+        public void SetPlayerName(string newName)
         {
-            playerName = name;
-            gameObject.name = $"Player_{playerID}_{name}";
+            playerName = newName;
+            gameObject.name = $"Player_{playerID}_{newName}";
         }
 
         public void SetPlayerColor(Color color)
@@ -257,66 +209,56 @@ namespace FakeBlade.Core
             ApplyPlayerColor();
         }
 
-        public void SetTeamID(int team)
+        public void SetTeamID(int team) => teamID = team;
+
+        /// <summary>Asigna el dispositivo (menú de selección). Desactiva la asignación automática.</summary>
+        public void SetInputDevice(InputDeviceKind kind, int gamepadIndex = 0)
         {
-            teamID = team;
+            _inputAssignedExternally = true;
+            if (_input == null) _input = GetComponent<InputHandler>();
+            _input.SetDevice(kind, gamepadIndex);
         }
 
-        public void SetReady(bool ready)
+        /// <summary>Asigna un mando concreto por deviceId (selección de peonzas).</summary>
+        public void SetInputDeviceById(InputDeviceKind kind, int gamepadDeviceId)
         {
-            _isReady = ready;
-            if (ready)
-                OnPlayerReady?.Invoke(playerID);
+            _inputAssignedExternally = true;
+            if (_input == null) _input = GetComponent<InputHandler>();
+            _input.SetDeviceById(kind, gamepadDeviceId);
         }
 
-        public void ResetPlayer()
+        /// <summary>
+        /// Cambia quién controla la peonza (dummy, IA...). Null vuelve al input humano.
+        /// Con una fuente no humana se desactiva el InputHandler para no leer el teclado en vano.
+        /// </summary>
+        public void SetInputSource(IBladeInputSource source)
         {
-            _isAlive = true;
-            _fakeBladeController?.ResetFakeBlade();
-
-            if (debugMode)
-                Debug.Log($"[PlayerController] Player {playerID} reset");
+            if (_input == null) _input = GetComponent<InputHandler>();
+            _source = source ?? _input;
+            _inputAssignedExternally = true;
+            _input.enabled = ReferenceEquals(_source, _input);
         }
 
-        public void SetSpawnPosition(Transform spawnPoint)
-        {
-            if (spawnPoint == null) return;
-            _fakeBladeController?.SetPosition(spawnPoint.position, spawnPoint.rotation);
-        }
+        public bool IsHumanControlled => ReferenceEquals(_source, _input);
         #endregion
 
         #region Visual
         private void ApplyPlayerColor()
         {
-            if (_propertyBlock == null)
-                _propertyBlock = new MaterialPropertyBlock();
+            if (_propertyBlock == null) _propertyBlock = new MaterialPropertyBlock();
 
             if (coloredRenderers == null || coloredRenderers.Length == 0)
-                coloredRenderers = GetComponentsInChildren<Renderer>();
+                coloredRenderers = GetComponentsInChildren<Renderer>(true);
 
-            foreach (var renderer in coloredRenderers)
+            for (int i = 0; i < coloredRenderers.Length; i++)
             {
-                if (renderer == null) continue;
+                Renderer r = coloredRenderers[i];
+                if (r == null) continue;
 
-                renderer.GetPropertyBlock(_propertyBlock);
-                _propertyBlock.SetColor(ColorProperty, playerColor);
-                _propertyBlock.SetColor(EmissionProperty, playerColor * 0.2f);
-                renderer.SetPropertyBlock(_propertyBlock);
-            }
-        }
-
-        public void SetHighlight(bool enabled)
-        {
-            if (_propertyBlock == null) return;
-
-            Color emissionColor = enabled ? playerColor * 0.5f : playerColor * 0.1f;
-
-            foreach (var renderer in coloredRenderers)
-            {
-                if (renderer == null) continue;
-                renderer.GetPropertyBlock(_propertyBlock);
-                _propertyBlock.SetColor(EmissionProperty, emissionColor);
-                renderer.SetPropertyBlock(_propertyBlock);
+                r.GetPropertyBlock(_propertyBlock);
+                _propertyBlock.SetColor(BaseColorId, playerColor);
+                _propertyBlock.SetColor(EmissionColorId, playerColor * 0.2f);
+                r.SetPropertyBlock(_propertyBlock);
             }
         }
         #endregion
@@ -324,14 +266,7 @@ namespace FakeBlade.Core
         #region Debug
         private void OnDrawGizmosSelected()
         {
-            if (uiAnchor != null)
-            {
-                Gizmos.color = playerColor;
-                Gizmos.DrawWireSphere(uiAnchor.position, 0.2f);
-                Gizmos.DrawLine(transform.position, uiAnchor.position);
-            }
-
-            Gizmos.color = teamID == 0 ? Color.red : Color.blue;
+            Gizmos.color = playerColor;
             Gizmos.DrawWireCube(transform.position + Vector3.up * 2f, Vector3.one * 0.3f);
         }
         #endregion

@@ -1,68 +1,55 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 namespace FakeBlade.Core
 {
+    /// <summary>Resultado de una partida.</summary>
+    public sealed class MatchResult
+    {
+        public readonly List<PlayerController> Winners = new List<PlayerController>(4);
+        public bool IsDraw;
+        /// <summary>Equipo ganador (-1 si no es por equipos o empate).</summary>
+        public int WinningTeam = -1;
+        public bool EndedByTime;
+        public float Duration;
+    }
+
     /// <summary>
-    /// Gestor principal del juego. Controla estados, jugadores y flujo de partida.
-    /// Implementa Singleton thread-safe con lazy initialization.
+    /// Flujo de partida (GDD 6 y 9.2): registro de jugadores, cuenta atrás, reglas
+    /// (vidas, tiempo, puntos, equipos), K.O. y reaparición, pausa y resultado.
+    ///
+    /// Es de escena (no persiste entre escenas). Los menús le pasan la configuración
+    /// con SetRules antes de BeginMatch.
     /// </summary>
+    [DefaultExecutionOrder(-100)]
     public class GameManager : MonoBehaviour
     {
         #region Singleton
         private static GameManager _instance;
-        private static readonly object _lock = new object();
-        private static bool _applicationIsQuitting = false;
 
-        public static GameManager Instance
-        {
-            get
-            {
-                if (_applicationIsQuitting)
-                {
-                    Debug.LogWarning("[GameManager] Instance already destroyed. Returning null.");
-                    return null;
-                }
+        /// <summary>
+        /// Instancia de la escena (se asigna en Awake, que se ejecuta antes que el resto gracias
+        /// a DefaultExecutionOrder). Null en escenas sin partida, como el menú principal.
+        /// No se busca en escena para no pagar un Find por frame cuando no existe.
+        /// </summary>
+        public static GameManager Instance => _instance;
 
-                lock (_lock)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = FindFirstObjectByType<GameManager>();
-
-                        if (_instance == null)
-                        {
-                            var go = new GameObject("[GameManager]");
-                            _instance = go.AddComponent<GameManager>();
-                            DontDestroyOnLoad(go);
-                        }
-                    }
-                    return _instance;
-                }
-            }
-        }
+        public static bool HasInstance => _instance != null;
         #endregion
 
         #region Enums
         public enum GameState
         {
             MainMenu,
-            CharacterSelect,
-            Assembly,
+            Lobby,
             Countdown,
             InMatch,
             Paused,
-            MatchEnd,
-            Results
-        }
-
-        public enum GameMode
-        {
-            FreeForAll,
-            Teams,
-            LastStanding,
-            TimedMatch
+            Resuming,
+            MatchEnd
         }
         #endregion
 
@@ -70,22 +57,30 @@ namespace FakeBlade.Core
         public event Action<GameState, GameState> OnStateChanged;
         public event Action<PlayerController> OnPlayerRegistered;
         public event Action<PlayerController> OnPlayerUnregistered;
-        public event Action<PlayerController> OnPlayerEliminated;
-        public event Action<PlayerController> OnMatchWinner;
-        public event Action OnMatchStart;
-        public event Action OnMatchEnd;
+        /// <summary>Partida preparada: jugadores colocados y reseteados (el HUD se construye aquí).</summary>
+        public event Action<IReadOnlyList<PlayerController>> OnMatchPrepared;
+        /// <summary>Segundos restantes de la cuenta atrás. 0 = ¡ya!</summary>
         public event Action<int> OnCountdownTick;
+        /// <summary>K.O.: (víctima, quien lo provocó o null).</summary>
+        public event Action<PlayerController, PlayerController> OnPlayerKO;
+        public event Action<PlayerController> OnPlayerRespawned;
+        public event Action<PlayerController> OnPlayerEliminated;
+        public event Action<bool> OnPauseChanged;
+        public event Action<MatchResult> OnMatchEnded;
         #endregion
 
         #region Serialized Fields
-        [Header("Game Settings")]
-        [SerializeField] private int maxPlayers = 4;
-        [SerializeField] private int minPlayersToStart = 2;
-        [SerializeField] private float matchTimeLimit = 180f;
-        [SerializeField] private int countdownSeconds = 3;
+        [Header("Configuración")]
+        [Tooltip("Reglas de la partida. Vacío = Último en pie sin tiempo")]
+        [SerializeField] private MatchRules rules;
+        [Tooltip("Ajuste global de combate. Vacío = valores por defecto")]
+        [SerializeField] private CombatConfig combatConfig;
 
-        [Header("Game Mode")]
-        [SerializeField] private GameMode currentMode = GameMode.FreeForAll;
+        [Header("Flujo")]
+        [SerializeField] private int maxPlayers = 4;
+        [SerializeField] private int countdownSeconds = 3;
+        [Tooltip("Cuenta atrás corta al reanudar tras la pausa")]
+        [SerializeField] private int resumeCountdownSeconds = 2;
 
         [Header("Spawn Points")]
         [SerializeField] private Transform[] spawnPoints;
@@ -95,387 +90,536 @@ namespace FakeBlade.Core
         #endregion
 
         #region Private Fields
-        private GameState _currentState = GameState.MainMenu;
-        private readonly List<PlayerController> _activePlayers = new List<PlayerController>(4);
-        private readonly List<PlayerController> _eliminatedPlayers = new List<PlayerController>(4);
-        private float _matchTimer;
-        private int _currentCountdown;
-        private bool _isInitialized;
+        private GameState _state = GameState.MainMenu;
+        private readonly List<PlayerController> _players = new List<PlayerController>(4);
+        private readonly List<RespawnEntry> _respawnQueue = new List<RespawnEntry>(4);
+        private readonly MatchResult _lastResult = new MatchResult();
+
+        private float _matchTime;
+        private float _countdownTimer;
+        private int _lastCountdownTick;
+
+        private struct RespawnEntry
+        {
+            public PlayerController Player;
+            public float TimeLeft;
+        }
         #endregion
 
         #region Properties
-        public GameState CurrentState => _currentState;
-        public GameMode CurrentMode => currentMode;
-        public IReadOnlyList<PlayerController> ActivePlayers => _activePlayers;
-        public IReadOnlyList<PlayerController> EliminatedPlayers => _eliminatedPlayers;
-        public int ActivePlayerCount => _activePlayers.Count;
-        public float MatchTimer => _matchTimer;
-        public float MatchTimeLimit => matchTimeLimit;
-        public bool IsMatchActive => _currentState == GameState.InMatch;
+        public GameState CurrentState => _state;
+        public MatchRules Rules => rules;
+        public IReadOnlyList<PlayerController> Players => _players;
+        public int PlayerCount => _players.Count;
+        public float MatchTime => _matchTime;
+        /// <summary>Segundos restantes o -1 si no hay límite.</summary>
+        public float RemainingTime => rules.HasTimeLimit ? Mathf.Max(0f, rules.timeLimit - _matchTime) : -1f;
+        public bool IsMatchActive => _state == GameState.InMatch;
+        public bool IsPaused => _state == GameState.Paused;
+        public MatchResult LastResult => _lastResult;
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
-        {
-            InitializeSingleton();
-        }
-
-        private void Start()
-        {
-            Initialize();
-        }
-
-        private void Update()
-        {
-            if (!_isInitialized) return;
-
-            switch (_currentState)
-            {
-                case GameState.Countdown:
-                    UpdateCountdown();
-                    break;
-                case GameState.InMatch:
-                    UpdateMatch();
-                    break;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_instance == this)
-            {
-                _applicationIsQuitting = true;
-            }
-        }
-
-        private void OnApplicationQuit()
-        {
-            _applicationIsQuitting = true;
-        }
-        #endregion
-
-        #region Initialization
-        private void InitializeSingleton()
         {
             if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-
             _instance = this;
-            DontDestroyOnLoad(gameObject);
+
+            if (rules == null) rules = MatchRules.CreateDefault();
+            CombatConfig.SetActive(combatConfig);
         }
 
-        private void Initialize()
+        private void OnDestroy()
         {
-            _activePlayers.Clear();
-            _eliminatedPlayers.Clear();
-            _isInitialized = true;
-
-            if (debugMode)
-            {
-                Debug.Log("[GameManager] Initialized successfully");
-            }
-        }
-        #endregion
-
-        #region State Management
-        public void ChangeState(GameState newState)
-        {
-            if (_currentState == newState) return;
-
-            GameState previousState = _currentState;
-            _currentState = newState;
-
-            OnStateExit(previousState);
-            OnStateEnter(newState);
-
-            OnStateChanged?.Invoke(previousState, newState);
-
-            if (debugMode)
-            {
-                Debug.Log($"[GameManager] State changed: {previousState} -> {newState}");
-            }
+            if (_instance != this) return;
+            _instance = null;
+            Time.timeScale = 1f;
         }
 
-        private void OnStateEnter(GameState state)
+        private void Update()
         {
-            switch (state)
+            switch (_state)
             {
                 case GameState.Countdown:
-                    StartCountdown();
+                case GameState.Resuming:
+                    UpdateCountdown();
                     break;
+
                 case GameState.InMatch:
-                    StartMatch();
+                    UpdateMatch(Time.deltaTime);
+                    PollPauseInput();
                     break;
-                case GameState.MatchEnd:
-                    EndMatch();
+
+                case GameState.Paused:
+                    PollPauseInput();
                     break;
             }
-        }
-
-        private void OnStateExit(GameState state)
-        {
-            // Cleanup espec�fico por estado si es necesario
         }
         #endregion
 
-        #region Player Management
+        #region State
+        public void ChangeState(GameState newState)
+        {
+            if (_state == newState) return;
+
+            GameState previous = _state;
+            _state = newState;
+
+            bool simulate = newState == GameState.InMatch;
+            for (int i = 0; i < _players.Count; i++)
+                _players[i].Blade.SetSimulationActive(simulate);
+
+            OnStateChanged?.Invoke(previous, newState);
+
+            if (debugMode) Debug.Log($"[GameManager] {previous} → {newState}", this);
+        }
+        #endregion
+
+        #region Players
         public bool RegisterPlayer(PlayerController player)
         {
-            if (player == null)
+            if (player == null || _players.Contains(player)) return false;
+
+            if (_players.Count >= maxPlayers)
             {
-                Debug.LogWarning("[GameManager] Cannot register null player");
+                Debug.LogWarning($"[GameManager] Máximo de jugadores ({maxPlayers}) alcanzado", this);
                 return false;
             }
 
-            if (_activePlayers.Count >= maxPlayers)
-            {
-                Debug.LogWarning($"[GameManager] Max players ({maxPlayers}) reached");
-                return false;
-            }
-
-            if (_activePlayers.Contains(player))
-            {
-                Debug.LogWarning($"[GameManager] Player {player.PlayerID} already registered");
-                return false;
-            }
-
-            _activePlayers.Add(player);
+            _players.Add(player);
+            _players.Sort((a, b) => a.PlayerID.CompareTo(b.PlayerID));
             player.OnPlayerDefeated += HandlePlayerDefeated;
+            player.Blade.SetSimulationActive(_state == GameState.InMatch);
 
             OnPlayerRegistered?.Invoke(player);
-
-            if (debugMode)
-            {
-                Debug.Log($"[GameManager] Player {player.PlayerID} registered. Total: {_activePlayers.Count}");
-            }
-
+            if (debugMode) Debug.Log($"[GameManager] P{player.PlayerID} registrado ({_players.Count})", this);
             return true;
         }
 
         public void UnregisterPlayer(PlayerController player)
         {
-            if (player == null) return;
+            if (player == null || !_players.Remove(player)) return;
 
             player.OnPlayerDefeated -= HandlePlayerDefeated;
+            RemoveFromRespawnQueue(player);
+            OnPlayerUnregistered?.Invoke(player);
 
-            if (_activePlayers.Remove(player))
-            {
-                OnPlayerUnregistered?.Invoke(player);
-
-                if (debugMode)
-                {
-                    Debug.Log($"[GameManager] Player {player.PlayerID} unregistered. Remaining: {_activePlayers.Count}");
-                }
-
-                // Verificar condici�n de victoria
-                if (_currentState == GameState.InMatch)
-                {
-                    CheckWinCondition();
-                }
-            }
+            if (_state == GameState.InMatch) CheckWinCondition();
         }
 
-        private void HandlePlayerDefeated(int playerId)
-        {
-            PlayerController player = _activePlayers.Find(p => p.PlayerID == playerId);
-
-            if (player != null)
-            {
-                _activePlayers.Remove(player);
-                _eliminatedPlayers.Add(player);
-
-                OnPlayerEliminated?.Invoke(player);
-
-                if (debugMode)
-                {
-                    Debug.Log($"[GameManager] Player {playerId} eliminated. Active: {_activePlayers.Count}");
-                }
-
-                CheckWinCondition();
-            }
-        }
+        public void SetSpawnPoints(Transform[] points) => spawnPoints = points;
 
         public Transform GetSpawnPoint(int playerIndex)
         {
-            if (spawnPoints == null || spawnPoints.Length == 0)
-            {
-                Debug.LogWarning("[GameManager] No spawn points configured");
-                return null;
-            }
-
-            return spawnPoints[playerIndex % spawnPoints.Length];
+            if (spawnPoints == null || spawnPoints.Length == 0) return null;
+            return spawnPoints[Mathf.Abs(playerIndex) % spawnPoints.Length];
         }
         #endregion
 
         #region Match Flow
-        private void StartCountdown()
+        public void SetRules(MatchRules newRules)
         {
-            _currentCountdown = countdownSeconds;
-            OnCountdownTick?.Invoke(_currentCountdown);
+            if (newRules != null) rules = newRules;
+        }
+
+        /// <summary>
+        /// Prepara y arranca una partida con los jugadores registrados:
+        /// resetea peonzas y marcadores, las coloca en sus spawns y lanza la cuenta atrás.
+        /// </summary>
+        public void BeginMatch()
+        {
+            Time.timeScale = 1f;
+            _matchTime = 0f;
+            _respawnQueue.Clear();
+
+            int startingLives = rules.StartingLives;
+            for (int i = 0; i < _players.Count; i++)
+            {
+                PlayerController player = _players[i];
+                player.Blade.ResetFakeBlade();
+                player.SetSpawnPosition(GetSpawnPoint(i));
+                player.ResetMatchState(startingLives);
+            }
+
+            ChangeState(GameState.Lobby);
+            OnMatchPrepared?.Invoke(_players);
+            StartCountdown(countdownSeconds, GameState.Countdown);
+        }
+
+        public void RestartMatch() => BeginMatch();
+
+        private void StartCountdown(int seconds, GameState countdownState)
+        {
+            _countdownTimer = Mathf.Max(0, seconds);
+            _lastCountdownTick = int.MaxValue;
+            ChangeState(countdownState);
+            UpdateCountdown();
         }
 
         private void UpdateCountdown()
         {
-            // Usar InvokeRepeating o Timer en producci�n
-            // Simplificado para demostraci�n
-            _currentCountdown--;
-            OnCountdownTick?.Invoke(_currentCountdown);
+            _countdownTimer -= Time.unscaledDeltaTime;
 
-            if (_currentCountdown <= 0)
+            int tick = Mathf.Max(0, Mathf.CeilToInt(_countdownTimer));
+            if (tick != _lastCountdownTick)
             {
-                ChangeState(GameState.InMatch);
-            }
-        }
-
-        private void StartMatch()
-        {
-            _matchTimer = 0f;
-            _eliminatedPlayers.Clear();
-
-            OnMatchStart?.Invoke();
-
-            if (debugMode)
-            {
-                Debug.Log($"[GameManager] Match started with {_activePlayers.Count} players");
-            }
-        }
-
-        private void UpdateMatch()
-        {
-            _matchTimer += Time.deltaTime;
-
-            // Verificar l�mite de tiempo
-            if (currentMode == GameMode.TimedMatch && _matchTimer >= matchTimeLimit)
-            {
-                DetermineTimeoutWinner();
-            }
-        }
-
-        private void EndMatch()
-        {
-            OnMatchEnd?.Invoke();
-
-            if (debugMode)
-            {
-                Debug.Log($"[GameManager] Match ended. Duration: {_matchTimer:F1}s");
-            }
-        }
-
-        private void CheckWinCondition()
-        {
-            switch (currentMode)
-            {
-                case GameMode.FreeForAll:
-                case GameMode.LastStanding:
-                    if (_activePlayers.Count <= 1)
-                    {
-                        DeclareWinner(_activePlayers.Count > 0 ? _activePlayers[0] : null);
-                    }
-                    break;
-
-                case GameMode.Teams:
-                    // Implementar l�gica de equipos
-                    break;
-            }
-        }
-
-        private void DetermineTimeoutWinner()
-        {
-            // El jugador con mayor spin gana en timeout
-            PlayerController winner = null;
-            float highestSpin = 0f;
-
-            foreach (var player in _activePlayers)
-            {
-                var controller = player.GetComponent<FakeBladeController>();
-                if (controller != null && controller.CurrentSpinSpeed > highestSpin)
-                {
-                    highestSpin = controller.CurrentSpinSpeed;
-                    winner = player;
-                }
+                _lastCountdownTick = tick;
+                OnCountdownTick?.Invoke(tick);
             }
 
-            DeclareWinner(winner);
-        }
-
-        private void DeclareWinner(PlayerController winner)
-        {
-            OnMatchWinner?.Invoke(winner);
-            ChangeState(GameState.MatchEnd);
-
-            if (debugMode)
-            {
-                string winnerName = winner != null ? winner.PlayerName : "No one";
-                Debug.Log($"[GameManager] Winner: {winnerName}!");
-            }
-        }
-        #endregion
-
-        #region Public Methods
-        public void StartGame()
-        {
-            if (_activePlayers.Count < minPlayersToStart)
-            {
-                Debug.LogWarning($"[GameManager] Need at least {minPlayersToStart} players to start");
-                return;
-            }
-
-            ChangeState(GameState.Countdown);
-        }
-
-        public void PauseGame()
-        {
-            if (_currentState == GameState.InMatch)
-            {
-                Time.timeScale = 0f;
-                ChangeState(GameState.Paused);
-            }
-        }
-
-        public void ResumeGame()
-        {
-            if (_currentState == GameState.Paused)
+            if (_countdownTimer <= 0f)
             {
                 Time.timeScale = 1f;
                 ChangeState(GameState.InMatch);
             }
         }
 
-        public void RestartMatch()
+        private void UpdateMatch(float dt)
         {
-            // Reset todos los jugadores
-            foreach (var player in _eliminatedPlayers)
+            _matchTime += dt;
+
+            for (int i = _respawnQueue.Count - 1; i >= 0; i--)
             {
-                if (player != null)
+                RespawnEntry entry = _respawnQueue[i];
+                entry.TimeLeft -= dt;
+                if (entry.TimeLeft > 0f)
                 {
-                    _activePlayers.Add(player);
+                    _respawnQueue[i] = entry;
+                    continue;
+                }
+
+                _respawnQueue.RemoveAt(i);
+                Respawn(entry.Player);
+            }
+
+            if (rules.HasTimeLimit && _matchTime >= rules.timeLimit)
+                EndByTimeout();
+        }
+
+        private void HandlePlayerDefeated(int playerId)
+        {
+            if (_state != GameState.InMatch) return;
+
+            PlayerController victim = FindPlayer(playerId);
+            if (victim == null) return;
+
+            PlayerController killer = ResolveKiller(victim);
+            if (killer != null && rules.winCondition == WinCondition.Points)
+                killer.AddScore(1);
+
+            OnPlayerKO?.Invoke(victim, killer);
+
+            bool eliminated;
+            switch (rules.winCondition)
+            {
+                case WinCondition.Points:
+                case WinCondition.Practice:
+                    eliminated = false;
+                    break;
+                case WinCondition.Stocks:
+                    victim.LoseLife();
+                    eliminated = victim.Lives <= 0;
+                    break;
+                default:
+                    victim.LoseLife();
+                    eliminated = true;
+                    break;
+            }
+
+            if (eliminated)
+            {
+                victim.SetEliminated(true);
+                OnPlayerEliminated?.Invoke(victim);
+            }
+            else
+            {
+                _respawnQueue.Add(new RespawnEntry { Player = victim, TimeLeft = rules.respawnDelay });
+            }
+
+            if (debugMode)
+                Debug.Log($"[GameManager] K.O. P{victim.PlayerID} por {(killer != null ? "P" + killer.PlayerID : "nadie")} " +
+                          $"(vidas {victim.Lives}, eliminado {eliminated})", this);
+
+            CheckWinCondition();
+        }
+
+        private PlayerController ResolveKiller(PlayerController victim)
+        {
+            FakeBladeController source = victim.Blade.LastDamageSource;
+            if (source == null || source.Owner == null || source.Owner == victim) return null;
+            if (Time.time - victim.Blade.LastDamageTime > CombatConfig.Active.killCreditWindow) return null;
+            if (rules.teams && source.Owner.TeamID == victim.TeamID) return null;
+            return source.Owner;
+        }
+
+        private void Respawn(PlayerController player)
+        {
+            if (player == null || player.IsEliminated) return;
+
+            int index = _players.IndexOf(player);
+            player.Blade.ResetFakeBlade();
+            player.SetSpawnPosition(GetSpawnPoint(index));
+            player.Blade.SetSimulationActive(_state == GameState.InMatch);
+            player.Blade.SetInvulnerable(rules.respawnInvulnerability);
+            VfxSystem.Play(VfxType.Respawn, player.Blade.Position, Vector3.up, player.PlayerColor);
+
+            OnPlayerRespawned?.Invoke(player);
+        }
+
+        private void RemoveFromRespawnQueue(PlayerController player)
+        {
+            for (int i = _respawnQueue.Count - 1; i >= 0; i--)
+                if (_respawnQueue[i].Player == player) _respawnQueue.RemoveAt(i);
+        }
+
+        private PlayerController FindPlayer(int playerId)
+        {
+            for (int i = 0; i < _players.Count; i++)
+                if (_players[i].PlayerID == playerId) return _players[i];
+            return null;
+        }
+        #endregion
+
+        #region Win Conditions
+        private void CheckWinCondition()
+        {
+            if (_state != GameState.InMatch || _players.Count == 0) return;
+            if (rules.IsPractice) return; // la práctica no termina sola
+
+            if (rules.winCondition == WinCondition.Points)
+            {
+                if (rules.pointsToWin > 0)
+                {
+                    for (int i = 0; i < _players.Count; i++)
+                    {
+                        if (SideScore(_players[i]) >= rules.pointsToWin)
+                        {
+                            EndMatch(false);
+                            return;
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Last Standing / Stocks: termina cuando queda un bando (o ninguno)
+            int remainingSide = int.MinValue;
+            int sidesAlive = 0;
+            for (int i = 0; i < _players.Count; i++)
+            {
+                PlayerController p = _players[i];
+                if (p.IsEliminated) continue;
+
+                int side = SideKey(p);
+                if (side == remainingSide) continue;
+                remainingSide = side;
+                sidesAlive++;
+                if (sidesAlive > 1) return;
+            }
+
+            // Si solo había un bando desde el principio (pruebas en solitario) no se termina
+            if (sidesAlive == 1 && CountSides() <= 1) return;
+
+            EndMatch(false);
+        }
+
+        private void EndByTimeout()
+        {
+            EndMatch(true);
+        }
+
+        /// <summary>
+        /// Calcula ganadores. Criterio: puntos (modo Points) o vidas, y como desempate el % de RPM.
+        /// </summary>
+        private void EndMatch(bool byTime)
+        {
+            if (_state == GameState.MatchEnd) return;
+
+            _lastResult.Winners.Clear();
+            _lastResult.IsDraw = false;
+            _lastResult.WinningTeam = -1;
+            _lastResult.EndedByTime = byTime;
+            _lastResult.Duration = _matchTime;
+
+            int bestSide = int.MinValue;
+            float bestPrimary = float.MinValue;
+            float bestSecondary = float.MinValue;
+            bool tie = false;
+
+            // Evalúa cada bando (jugador o equipo) una sola vez
+            for (int i = 0; i < _players.Count; i++)
+            {
+                int side = SideKey(_players[i]);
+                if (IsSideEvaluatedBefore(i, side)) continue;
+
+                SideRanking(side, out float primary, out float secondary);
+
+                if (primary > bestPrimary || (Mathf.Approximately(primary, bestPrimary) && secondary > bestSecondary + 0.0001f))
+                {
+                    bestSide = side;
+                    bestPrimary = primary;
+                    bestSecondary = secondary;
+                    tie = false;
+                }
+                else if (Mathf.Approximately(primary, bestPrimary) && Mathf.Abs(secondary - bestSecondary) <= 0.0001f)
+                {
+                    tie = true;
                 }
             }
-            _eliminatedPlayers.Clear();
 
-            // Reset FakeBlades
-            foreach (var player in _activePlayers)
+            _lastResult.IsDraw = tie || bestSide == int.MinValue;
+            if (!_lastResult.IsDraw)
             {
-                var controller = player.GetComponent<FakeBladeController>();
-                controller?.ResetFakeBlade();
-                player.gameObject.SetActive(true);
+                for (int i = 0; i < _players.Count; i++)
+                    if (SideKey(_players[i]) == bestSide) _lastResult.Winners.Add(_players[i]);
+
+                if (rules.teams) _lastResult.WinningTeam = bestSide;
             }
 
-            ChangeState(GameState.Countdown);
+            _respawnQueue.Clear();
+            ChangeState(GameState.MatchEnd);
+            OnMatchEnded?.Invoke(_lastResult);
+
+            if (debugMode)
+                Debug.Log($"[GameManager] Fin de partida ({(byTime ? "tiempo" : "condición")}). " +
+                          $"Empate:{_lastResult.IsDraw} Ganadores:{_lastResult.Winners.Count}", this);
         }
 
+        private void SideRanking(int side, out float primary, out float secondary)
+        {
+            primary = 0f;
+            secondary = 0f;
+            bool anyAlive = false;
+
+            for (int i = 0; i < _players.Count; i++)
+            {
+                PlayerController p = _players[i];
+                if (SideKey(p) != side) continue;
+
+                if (rules.winCondition == WinCondition.Points)
+                    primary += p.Score;
+                else if (!p.IsEliminated)
+                    primary += Mathf.Max(1, p.Lives);
+
+                if (!p.IsEliminated && p.IsAlive)
+                {
+                    secondary += p.SpinPercentage;
+                    anyAlive = true;
+                }
+            }
+
+            // En Last Standing/Stocks un bando eliminado nunca gana
+            if (rules.winCondition != WinCondition.Points && !anyAlive && primary <= 0f)
+                primary = -1f;
+        }
+
+        private bool IsSideEvaluatedBefore(int index, int side)
+        {
+            for (int j = 0; j < index; j++)
+                if (SideKey(_players[j]) == side) return true;
+            return false;
+        }
+
+        private int SideKey(PlayerController p) => rules.teams ? p.TeamID : p.PlayerID;
+
+        private int SideScore(PlayerController p)
+        {
+            if (!rules.teams) return p.Score;
+            int total = 0;
+            for (int i = 0; i < _players.Count; i++)
+                if (_players[i].TeamID == p.TeamID) total += _players[i].Score;
+            return total;
+        }
+
+        private int CountSides()
+        {
+            int count = 0;
+            for (int i = 0; i < _players.Count; i++)
+                if (!IsSideEvaluatedBefore(i, SideKey(_players[i]))) count++;
+            return count;
+        }
+        #endregion
+
+        #region Pause
+        /// <summary>Cualquier jugador puede pausar: Esc o Start de cualquier mando (GDD 9.2).</summary>
+        private void PollPauseInput()
+        {
+            // Con un submenú abierto (opciones, controles) Esc/Start los gestiona el submenú
+            if (MenuStack.IsSubmenuOpen) return;
+
+            bool pressed = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+
+            if (!pressed)
+            {
+                var pads = Gamepad.all;
+                for (int i = 0; i < pads.Count; i++)
+                {
+                    if (pads[i].startButton.wasPressedThisFrame)
+                    {
+                        pressed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (pressed) TogglePause();
+        }
+
+        public void TogglePause()
+        {
+            if (_state == GameState.InMatch) PauseGame();
+            else if (_state == GameState.Paused) ResumeGame();
+        }
+
+        public void PauseGame()
+        {
+            if (_state != GameState.InMatch) return;
+
+            Time.timeScale = 0f;
+            ChangeState(GameState.Paused);
+            OnPauseChanged?.Invoke(true);
+        }
+
+        /// <summary>Reanuda con una cuenta atrás corta para que todos empiecen igual.</summary>
+        public void ResumeGame()
+        {
+            if (_state != GameState.Paused) return;
+
+            OnPauseChanged?.Invoke(false);
+            StartCountdown(resumeCountdownSeconds, GameState.Resuming);
+        }
+
+        /// <summary>Sale al menú principal (la configuración de jugadores se descarta).</summary>
         public void ReturnToMenu()
         {
-            Time.timeScale = 1f;
-            ChangeState(GameState.MainMenu);
+            if (SceneFlow.CanLoad(SceneFlow.MainMenu))
+            {
+                MatchSetup.Clear();
+                ChangeState(GameState.MainMenu);
+                SceneFlow.Load(SceneFlow.MainMenu);
+                return;
+            }
+
+            Debug.LogWarning($"[GameManager] La escena '{SceneFlow.MainMenu}' no está en Build Settings. Se reinicia la partida.", this);
+            RestartMatch();
         }
 
-        public void SetGameMode(GameMode mode)
+        /// <summary>"Cambiar peonzas": vuelve a la selección manteniendo jugadores y montaje.</summary>
+        public void ReturnToLobby()
         {
-            currentMode = mode;
+            if (SceneFlow.CanLoad(SceneFlow.Lobby))
+            {
+                ChangeState(GameState.Lobby);
+                SceneFlow.Load(SceneFlow.Lobby);
+                return;
+            }
+
+            Debug.LogWarning($"[GameManager] La escena '{SceneFlow.Lobby}' no está en Build Settings. Se reinicia la partida.", this);
+            RestartMatch();
         }
         #endregion
     }

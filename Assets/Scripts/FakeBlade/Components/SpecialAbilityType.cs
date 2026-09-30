@@ -1,24 +1,30 @@
+using UnityEngine;
+
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Tipos de habilidades especiales disponibles para las peonzas.
-    /// Asignadas a trav�s del componente Core equipado.
+    /// Poderes especiales (GDD 5). Los otorga el Núcleo (Core) equipado.
+    /// Los valores numéricos se serializan en los assets: no reordenar.
     /// </summary>
     public enum SpecialAbilityType
     {
-        /// <summary>Sin habilidad especial.</summary>
+        /// <summary>Sin poder (se usa Spin Boost por defecto).</summary>
         None = 0,
 
-        /// <summary>Recupera velocidad de spin.</summary>
+        /// <summary>Recupera RPM progresivamente mientras está activo.</summary>
+        [InspectorName("Spin Boost")]
         SpinBoost = 1,
 
-        /// <summary>Onda de choque que empuja a enemigos cercanos.</summary>
+        /// <summary>Onda de choque que empuja y quita RPM a los enemigos cercanos.</summary>
+        [InspectorName("Onda de choque")]
         ShockWave = 2,
 
-        /// <summary>Escudo temporal que reduce da�o recibido.</summary>
+        /// <summary>Storm Breaker: menos daño, gran resistencia al empuje y ataques rápidos como cargados.</summary>
+        [InspectorName("Storm Breaker (escudo)")]
         Shield = 3,
 
-        /// <summary>Dash extra instant�neo.</summary>
+        /// <summary>Dash eléctrico: dashes más largos casi sin cooldown y carga de ataque más rápida.</summary>
+        [InspectorName("Dash eléctrico")]
         Dash = 4
     }
 }

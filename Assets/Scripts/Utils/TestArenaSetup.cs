@@ -1,19 +1,22 @@
+using FakeBlade.UI;
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 namespace FakeBlade.Core
 {
     /// <summary>
     /// Generador de arena de prueba con botones de Editor.
     /// Usa los botones en el Inspector para generar la escena sin ejecutar.
-    /// 
+    ///
     /// FEATURES:
     /// - Botones de Editor: Generar Todo, Arena, Jugadores, Spawn Points, Limpiar
     /// - Soporte de prefabs con/sin componentes pre-existentes
     /// - Sistema de Spawn Points dinámico basado en número de jugadores
     /// - Loadouts de test con componentes equipados
-    /// - HUD en runtime: controles, spin%, velocidad, peso
+    /// - En Play: asegura GameManager + HUD y arranca la partida con cuenta atrás
     /// - Gizmos para visualizar arena y spawn points
+    ///
+    /// Atajos de prueba: F5 reinicia la partida. Esc / Start pausa.
     /// </summary>
     public class TestArenaSetup : MonoBehaviour
     {
@@ -58,9 +61,9 @@ namespace FakeBlade.Core
         [SerializeField] private float wallFriction = 0.05f;
         [SerializeField] private float wallBounce = 0.4f;
 
-        [Header("=== HUD EN RUNTIME ===")]
+        [Header("=== AYUDA EN RUNTIME ===")]
+        [Tooltip("Muestra los controles en pantalla (solo pruebas; el HUD real es CombatHUDManager)")]
         [SerializeField] private bool showControlsOnScreen = true;
-        [SerializeField] private bool showStatsOnScreen = true;
 
         [Header("=== REFERENCIAS GENERADAS ===")]
         [SerializeField] private GameObject generatedArena;
@@ -254,39 +257,25 @@ namespace FakeBlade.Core
         private void Start()
         {
             // Si no se generó en el editor, generar en runtime
-            if (generatedArena == null)
-            {
-                GenerateArena();
-            }
-
-            if (generatedSpawnPoints == null || generatedSpawnPoints.Length == 0)
-            {
-                GenerateSpawnPoints();
-            }
-
-            if (generatedPlayers == null || generatedPlayers.Length == 0)
-            {
-                GeneratePlayers();
-            }
+            if (generatedArena == null) GenerateArena();
+            if (generatedSpawnPoints == null || generatedSpawnPoints.Length == 0) GenerateSpawnPoints();
+            if (generatedPlayers == null || generatedPlayers.Length == 0) GeneratePlayers();
 
             SetupRuntimeCamera();
 
-            if (GameManager.Instance == null)
-            {
-                GenerateGameManager();
-            }
+            if (GameManager.Instance == null) GenerateGameManager();
+            GameManager.Instance.SetSpawnPoints(generatedSpawnPoints);
 
-            Invoke(nameof(DelayedStartMatch), 0.5f);
+            if (CombatHUDManager.Instance == null)
+                new GameObject("[CombatHUD]").AddComponent<CombatHUDManager>();
 
-            Debug.Log("=== TEST ARENA READY ===");
-            Debug.Log("Player 1: WASD + Space (dash) + Shift (special)");
-            Debug.Log("Player 2+: Gamepad - Left Stick + A/RT (dash) + X/LT (special)");
-            Debug.Log("R: Reset | ESC: Quit");
+            // Los jugadores se registran en su Start: se arranca en el siguiente frame
+            Invoke(nameof(BeginTestMatch), 0.1f);
         }
 
-        private void DelayedStartMatch()
+        private void BeginTestMatch()
         {
-            GameManager.Instance?.ChangeState(GameManager.GameState.InMatch);
+            GameManager.Instance?.BeginMatch();
         }
 
         private void SetupRuntimeCamera()
@@ -306,8 +295,7 @@ namespace FakeBlade.Core
             mainCam.transform.LookAt(Vector3.zero);
             mainCam.fieldOfView = 60f;
 
-            SimpleCameraFollow camFollow = mainCam.GetComponent<SimpleCameraFollow>();
-            if (camFollow == null)
+            if (!mainCam.TryGetComponent(out SimpleCameraFollow camFollow))
                 camFollow = mainCam.gameObject.AddComponent<SimpleCameraFollow>();
 
             if (generatedPlayers != null)
@@ -316,144 +304,46 @@ namespace FakeBlade.Core
 
         private void Update()
         {
-            if (!Application.isPlaying) return;
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
-            }
-
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                ResetMatch();
-            }
-        }
-
-        private void ResetMatch()
-        {
-            if (generatedPlayers == null) return;
-
-            for (int i = 0; i < generatedPlayers.Length; i++)
-            {
-                if (generatedPlayers[i] == null) continue;
-
-                // Usar spawn points si existen
-                Vector3 spawnPos;
-                if (generatedSpawnPoints != null && i < generatedSpawnPoints.Length && generatedSpawnPoints[i] != null)
-                {
-                    spawnPos = generatedSpawnPoints[i].position;
-                }
-                else
-                {
-                    float angle = (i * (360f / numberOfPlayers) + spawnAngleOffset) * Mathf.Deg2Rad;
-                    float spawnRadius = arenaRadius * spawnRadiusPercent;
-                    spawnPos = new Vector3(Mathf.Cos(angle) * spawnRadius, spawnHeight, Mathf.Sin(angle) * spawnRadius);
-                }
-
-                generatedPlayers[i].transform.position = spawnPos;
-                generatedPlayers[i].transform.rotation = Quaternion.identity;
-                generatedPlayers[i].SetActive(true);
-
-                var rb = generatedPlayers[i].GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-                }
-
-                generatedPlayers[i].GetComponent<FakeBladeController>()?.ResetFakeBlade();
-                generatedPlayers[i].GetComponent<PlayerController>()?.ResetPlayer();
-            }
-
-            Debug.Log("=== Match Reset! ===");
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.f5Key.wasPressedThisFrame)
+                GameManager.Instance?.RestartMatch();
         }
 
         #endregion
 
         // =====================================================================
-        // HUD RUNTIME
+        // AYUDA EN PANTALLA (solo pruebas)
         // =====================================================================
 
         #region Runtime GUI
 
+        private const string ControlsHelp =
+            "J1 (teclado): WASD | Ataque Espacio (mantener = cargado) | Dash Shift izq. | Especial E\n" +
+            "J2 (teclado): Flechas | Ataque Ctrl der./Num0 | Dash Shift der./Num1 | Especial Enter/Num2\n" +
+            "Mando: Stick | Ataque A/RB | Dash B/RT | Especial Y/LT | Start pausa\n" +
+            "F5: reiniciar | Esc: pausa";
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // IMGUI asigna memoria cada frame por el mero hecho de existir OnGUI: solo en editor/desarrollo
+        private GUIStyle _helpStyle;
+
         private void OnGUI()
         {
-            if (!Application.isPlaying) return;
-            if (generatedPlayers == null) return;
+            if (!showControlsOnScreen) return;
 
-            float y = 10f;
-
-            // Panel de controles
-            if (showControlsOnScreen)
+            if (_helpStyle == null)
             {
-                GUIStyle controlStyle = new GUIStyle(GUI.skin.box);
-                controlStyle.fontSize = 12;
-                controlStyle.alignment = TextAnchor.UpperLeft;
-
-                string controls =
-                    "=== CONTROLS ===\n" +
-                    "P1: WASD + Space + Shift\n" +
-                    "P2+: Gamepad LStick + A/RT + X/LT\n" +
-                    "R: Reset | ESC: Quit";
-
-                GUI.Box(new Rect(10, y, 230, 80), controls, controlStyle);
-                y += 90;
-            }
-
-            // Stats de cada jugador
-            if (showStatsOnScreen)
-            {
-                for (int i = 0; i < generatedPlayers.Length; i++)
+                _helpStyle = new GUIStyle(GUI.skin.box)
                 {
-                    if (generatedPlayers[i] == null) continue;
-
-                    var controller = generatedPlayers[i].GetComponent<FakeBladeController>();
-                    var stats = generatedPlayers[i].GetComponent<FakeBladeStats>();
-                    if (controller == null) continue;
-
-                    float spin = controller.SpinSpeedPercentage;
-                    float speed = controller.Velocity.magnitude;
-                    float weight = stats != null ? stats.Weight : 1f;
-                    bool destroyed = controller.IsDestroyed;
-
-                    // Color del jugador
-                    Color pColor = playerColors[i % playerColors.Length];
-                    if (destroyed) pColor *= 0.4f;
-
-                    // Info text
-                    string status = destroyed ? " [ELIMINATED]" : "";
-                    string info = $"P{i + 1}: Spin {spin * 100:F0}% | Spd {speed:F1} | W:{weight:F1}{status}";
-
-                    // Fondo
-                    GUI.color = new Color(0, 0, 0, 0.6f);
-                    GUI.Box(new Rect(10, y, 280, 28), "");
-
-                    // Barra de spin (fondo)
-                    GUI.color = new Color(pColor.r * 0.3f, pColor.g * 0.3f, pColor.b * 0.3f, 0.8f);
-                    GUI.Box(new Rect(10, y, 280, 28), "");
-
-                    // Barra de spin (progreso)
-                    GUI.color = new Color(pColor.r, pColor.g, pColor.b, 0.9f);
-                    GUI.Box(new Rect(10, y, 280 * spin, 28), "");
-
-                    // Texto
-                    GUIStyle textStyle = new GUIStyle(GUI.skin.label);
-                    textStyle.fontStyle = FontStyle.Bold;
-                    textStyle.fontSize = 13;
-                    textStyle.normal.textColor = Color.white;
-                    textStyle.alignment = TextAnchor.MiddleLeft;
-                    GUI.Label(new Rect(15, y, 270, 28), info, textStyle);
-
-                    y += 32f;
-                }
-
-                GUI.color = Color.white;
+                    fontSize = 12,
+                    alignment = TextAnchor.UpperLeft,
+                    wordWrap = false
+                };
             }
+
+            GUI.Box(new Rect(10f, Screen.height - 80f, 620f, 70f), ControlsHelp, _helpStyle);
         }
+#endif
 
         #endregion
 
@@ -565,36 +455,25 @@ namespace FakeBlade.Core
 
         private void ConfigureGameComponents(GameObject fakeBlade, int playerIndex)
         {
-            // Rigidbody
-            Rigidbody rb = fakeBlade.GetComponent<Rigidbody>();
-            if (rb == null) rb = fakeBlade.AddComponent<Rigidbody>();
-
-            rb.mass = 1.5f;
-            rb.linearDamping = 1.5f;   // DEBE coincidir con FakeBladeController.baseDrag
-            rb.angularDamping = 0.5f;
-            rb.useGravity = true;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
-            rb.centerOfMass = new Vector3(0, -0.15f, 0);
+            // Rigidbody (masa, damping y constraints los configura FakeBladeController desde CombatConfig)
+            if (fakeBlade.GetComponent<Rigidbody>() == null)
+                fakeBlade.AddComponent<Rigidbody>();
 
             // Scripts (solo añadir si no existen)
             if (fakeBlade.GetComponent<FakeBladeStats>() == null)
                 fakeBlade.AddComponent<FakeBladeStats>();
             if (fakeBlade.GetComponent<FakeBladeController>() == null)
                 fakeBlade.AddComponent<FakeBladeController>();
-
-            InputHandler inputHandler = fakeBlade.GetComponent<InputHandler>();
-            if (inputHandler == null) inputHandler = fakeBlade.AddComponent<InputHandler>();
+            if (fakeBlade.GetComponent<InputHandler>() == null)
+                fakeBlade.AddComponent<InputHandler>();
 
             PlayerController playerController = fakeBlade.GetComponent<PlayerController>();
             if (playerController == null) playerController = fakeBlade.AddComponent<PlayerController>();
 
-            // Configurar
+            // El dispositivo lo asigna PlayerController al iniciar (J1 teclado, J2 mando o flechas...)
             playerController.SetPlayerID(playerIndex);
             playerController.SetPlayerName($"Player {playerIndex + 1}");
             playerController.SetPlayerColor(playerColors[playerIndex % playerColors.Length]);
-            inputHandler.SetGamepadIndex(playerIndex == 0 ? -1 : playerIndex - 1);
         }
 
         private void ApplyTestLoadout(GameObject fakeBlade, int playerIndex)
@@ -789,136 +668,5 @@ namespace FakeBlade.Core
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Cámara que sigue múltiples objetivos con zoom dinámico.
-    /// </summary>
-    /// <summary>
-    /// Cámara que sigue a todos los jugadores con zoom dinámico.
-    /// Valores ajustables desde el Inspector del objeto cámara.
-    /// </summary>
-    public class SimpleCameraFollow : MonoBehaviour
-    {
-        [Header("=== CAMERA SETTINGS ===")]
-        [Tooltip("Distancia mínima de la cámara (cuando están juntos)")]
-        public float minZoom = 10f;
-        [Tooltip("Distancia máxima de la cámara (cuando están lejos)")]
-        public float maxZoom = 22f;
-        [Tooltip("Divisor de distancia para calcular zoom (menor = zoom más lejano)")]
-        public float zoomLimiter = 12f;
-        [Tooltip("Velocidad de suavizado del movimiento")]
-        public float smoothSpeed = 5f;
-        [Tooltip("Offset vertical extra")]
-        public float heightOffset = 2f;
-
-        private GameObject[] _targets;
-        private Vector3 _offset;
-
-        public void SetTargets(GameObject[] targets)
-        {
-            _targets = targets;
-            if (targets != null && targets.Length > 0)
-                _offset = transform.position - GetCenterPoint();
-        }
-
-        private void LateUpdate()
-        {
-            if (_targets == null || _targets.Length == 0) return;
-
-            Vector3 center = GetCenterPoint();
-            float distance = GetMaxDistance();
-            float zoom = Mathf.Lerp(minZoom, maxZoom, distance / zoomLimiter);
-
-            Vector3 targetPos = center + _offset.normalized * zoom + Vector3.up * heightOffset;
-            transform.position = Vector3.Lerp(transform.position, targetPos, smoothSpeed * Time.deltaTime);
-            transform.LookAt(center + Vector3.up * 0.5f);
-        }
-
-        private Vector3 GetCenterPoint()
-        {
-            Vector3 sum = Vector3.zero;
-            int count = 0;
-            foreach (var t in _targets)
-            {
-                if (t != null && t.activeInHierarchy)
-                {
-                    sum += t.transform.position;
-                    count++;
-                }
-            }
-            return count > 0 ? sum / count : Vector3.zero;
-        }
-
-        private float GetMaxDistance()
-        {
-            Vector3 center = GetCenterPoint();
-            float max = 0f;
-            foreach (var t in _targets)
-            {
-                if (t != null && t.activeInHierarchy)
-                {
-                    float d = Vector3.Distance(center, t.transform.position);
-                    if (d > max) max = d;
-                }
-            }
-            return max * 2f;
-        }
-    }
-
-    /// <summary>
-    /// Sistema de camera shake estático. Se engancha automáticamente a Camera.main.
-    /// Llamar CameraShake.Shake(intensidad, duración) desde cualquier script.
-    /// </summary>
-    public class CameraShake : MonoBehaviour
-    {
-        private static CameraShake _instance;
-        private float _shakeTimer;
-        private float _shakeIntensity;
-        private Vector3 _originalLocalPos;
-
-        /// <summary>
-        /// Sacude la cámara principal.
-        /// </summary>
-        /// <param name="intensity">Magnitud del shake (0.05 = sutil, 0.2 = fuerte)</param>
-        /// <param name="duration">Duración en segundos</param>
-        public static void Shake(float intensity, float duration)
-        {
-            if (_instance == null)
-            {
-                Camera cam = Camera.main;
-                if (cam == null) return;
-                _instance = cam.GetComponent<CameraShake>();
-                if (_instance == null)
-                    _instance = cam.gameObject.AddComponent<CameraShake>();
-            }
-
-            // Solo sobrescribir si el nuevo shake es más intenso
-            if (intensity > _instance._shakeIntensity || _instance._shakeTimer <= 0f)
-            {
-                _instance._shakeIntensity = intensity;
-                _instance._shakeTimer = duration;
-            }
-        }
-
-        private void LateUpdate()
-        {
-            if (_shakeTimer > 0f)
-            {
-                _shakeTimer -= Time.deltaTime;
-
-                float decay = _shakeTimer > 0f ? _shakeTimer / 0.2f : 0f; // decay rápido
-                decay = Mathf.Clamp01(decay);
-
-                Vector3 offset = Random.insideUnitSphere * _shakeIntensity * decay;
-                offset.z = 0f; // Shake solo en X/Y para que no cambie la profundidad
-                transform.localPosition += offset;
-
-                if (_shakeTimer <= 0f)
-                {
-                    _shakeIntensity = 0f;
-                }
-            }
-        }
     }
 }

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
+  m_Name: Blade_Light_RazorEdge
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
+  componentName: Razor Edge
+  description: "Disco afilado y ligero. Muchos ataques r\xE1pidos pero poco empuje."
+  componentType: 2
+  weightClass: 0
+  icon: {fileID: 0}
+  maxSpinModifier: 0
+  spinDecayModifier: 0.3
+  moveSpeedModifier: 1
+  weightModifier: -0.1
+  attackPowerModifier: 8
+  defenseModifier: -5
+  dashForceModifier: 1
+  attackChargesModifier: 1
+  specialAbility: 0

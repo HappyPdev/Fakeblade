@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dccb2bab28ba4d74baf031084c30bc05, type: 3}
+  m_Name: VfxLibrary
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.VfxLibrary
+  entries:
+  - type: 0
+    prefab: {fileID: 7979944749670962526, guid: f12b9ffc7aee29c438c951313afc8deb, type: 3}
+    burstCount: 18
+  - type: 1
+    prefab: {fileID: 6436817721323102043, guid: a9ce9875fb3d83f468bbca1ddc59de33, type: 3}
+    burstCount: 8
+  - type: 2
+    prefab: {fileID: 8322391807627500709, guid: 395c343176a578240b497f5b681074f9, type: 3}
+    burstCount: 16
+  - type: 3
+    prefab: {fileID: 5085532064689587533, guid: 451607821db5cf944964bc30a2fdff5b, type: 3}
+    burstCount: 10
+  - type: 4
+    prefab: {fileID: 4233164275463166409, guid: 0c5463da097d3754e9f1880823e16d11, type: 3}
+    burstCount: 40
+  - type: 5
+    prefab: {fileID: 5643138125025185857, guid: 79d7d0befdbb3b1438ca2f5b23354481, type: 3}
+    burstCount: 36
+  - type: 6
+    prefab: {fileID: 3146551568413929271, guid: 7500736563a4d1348a4e947854cf5eda, type: 3}
+    burstCount: 1
+  - type: 7
+    prefab: {fileID: 406530325224689501, guid: 73b99363229fbe84eabd20b46af8d45f, type: 3}
+    burstCount: 30
+  - type: 8
+    prefab: {fileID: 2761431526578157856, guid: f5e8617fdbd42034098df66a581baa43, type: 3}
+    burstCount: 28
+  spinBoostColor: {r: 0.3, g: 1, b: 0.6, a: 1}
+  shockWaveColor: {r: 1, g: 0.55, b: 0.15, a: 1}
+  stormBreakerColor: {r: 0.45, g: 0.55, b: 1, a: 1}
+  electricDashColor: {r: 1, g: 0.95, b: 0.25, a: 1}
+  parryColor: {r: 0.55, g: 0.95, b: 1, a: 1}

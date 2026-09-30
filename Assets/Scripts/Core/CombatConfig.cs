@@ -55,6 +55,19 @@ namespace FakeBlade.Core
         [Tooltip("Fracción de RPM a la que la peonza todavía gira al 90% de su velocidad visual máxima. " +
                  "Más bajo = solo se frena cuando está muy cerca de 0 (0.08 = sigue casi a tope hasta el 8%).")]
         [Range(0.005f, 0.5f)] public float visualSpinKnee = 0.08f;
+        [Tooltip("Fracción de RPM por debajo de la cual la peonza se bambolea y echa humo y chispas")]
+        [Range(0f, 1f)] public float lowSpinThreshold = 0.3f;
+        [Tooltip("Inclinación máxima (grados) del bamboleo cerca de 0 RPM. 0 = sin bamboleo")]
+        public float lowSpinWobbleAngle = 12f;
+        [Tooltip("Vueltas por segundo del bamboleo (precesión) justo al entrar en RPM bajas y cerca de 0")]
+        public Vector2 lowSpinWobbleFrequency = new Vector2(3.5f, 1.6f);
+
+        /// <summary>0 por encima del umbral de RPM bajas, 1 a 0 RPM.</summary>
+        public float LowSpinFactor(float spinPercentage)
+        {
+            if (lowSpinThreshold <= 0f || spinPercentage >= lowSpinThreshold) return 0f;
+            return 1f - Mathf.Clamp01(spinPercentage / lowSpinThreshold);
+        }
 
         /// <summary>
         /// Factor 0-1 de la velocidad de giro visual según las RPM restantes (0-1).

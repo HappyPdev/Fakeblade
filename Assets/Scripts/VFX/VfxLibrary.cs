@@ -13,9 +13,30 @@ namespace FakeBlade.Core
         Attack = 3,
         SpinOut = 4,
         SpecialBurst = 5,
+        /// <summary>Aura genérica (poder sin aura propia).</summary>
         SpecialAura = 6,
         Respawn = 7,
-        Parry = 8
+        Parry = 8,
+
+        // Aura de cada poder mientras está activo (GDD 5)
+        AuraSpinBoost = 9,
+        AuraShockWave = 10,
+        AuraStormBreaker = 11,
+        AuraElectric = 12,
+
+        // Ataque cargado (GDD 2.3)
+        ChargeGather = 13,
+        ChargeRing = 14,
+        ChargeFlame = 15,
+
+        // Peonza en movimiento y con RPM bajas (GDD 2.1)
+        Trail = 16,
+        GroundSpark = 17,
+        LowSpinSmoke = 18,
+        LowSpinSpark = 19,
+
+        /// <summary>Destellos en estrella (carga al máximo, escudo...).</summary>
+        Sparkle = 20
     }
 
     /// <summary>
@@ -47,6 +68,37 @@ namespace FakeBlade.Core
 
         [Header("Parry")]
         public Color parryColor = new Color(0.55f, 0.95f, 1f);
+
+        [Header("Ataque cargado")]
+        [Tooltip("Color de las partículas en el nivel de carga máximo (el nivel 1 usa el color del jugador)")]
+        public Color chargeHotColor = new Color(1f, 0.95f, 0.7f);
+        [Tooltip("Partículas/s que convergen hacia la peonza en el nivel 1 (+50% por nivel)")]
+        public float chargeGatherRate = 30f;
+        [Tooltip("Llamas/s mientras la carga está al máximo")]
+        public float chargeFlameRate = 26f;
+
+        [Header("Estela")]
+        [Tooltip("Metros recorridos entre dos partículas de la estela")]
+        public float trailSpacing = 0.12f;
+        [Tooltip("Velocidad mínima (m/s) para dejar estela")]
+        public float trailMinSpeed = 2.5f;
+
+        [Header("Chispas contra el suelo (giro rápido)")]
+        public Color groundSparkColor = new Color(1f, 0.8f, 0.45f);
+        [Tooltip("Chispas/s a velocidad y RPM altas")]
+        public float groundSparkRate = 30f;
+        [Tooltip("Velocidad (m/s) a partir de la que salen chispas")]
+        public float groundSparkMinSpeed = 4f;
+        [Tooltip("RPM (fracción) a partir de la que salen chispas")]
+        [Range(0f, 1f)] public float groundSparkMinSpin = 0.5f;
+
+        [Header("RPM bajas (umbral en CombatConfig.lowSpinThreshold)")]
+        public Color smokeColor = new Color(0.32f, 0.32f, 0.36f, 0.85f);
+        public Color lowSpinSparkColor = new Color(1f, 0.55f, 0.2f);
+        [Tooltip("Bocanadas de humo/s cerca de 0 RPM")]
+        public float lowSpinSmokeRate = 14f;
+        [Tooltip("Chispas sueltas/s cerca de 0 RPM")]
+        public float lowSpinSparkRate = 10f;
 
         public Entry Get(VfxType type)
         {

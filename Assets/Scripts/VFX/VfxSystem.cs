@@ -102,6 +102,38 @@ namespace FakeBlade.Core
             system.Emit(type, position, Vector3.up, color, count);
         }
 
+        /// <summary>
+        /// Una partícula con posición y velocidad propias (efectos continuos de las peonzas).
+        /// Sin culling: el llamador lo comprueba una vez por frame con IsOnScreen.
+        /// size / lifetime / rotation ≤ 0 usan los valores del prefab.
+        /// </summary>
+        public static void EmitParticle(VfxType type, Vector3 position, Vector3 velocity, Color color,
+            float size = 0f, float lifetime = 0f, float rotation = 0f)
+        {
+            VfxSystem system = _instance;
+            if (system == null) return;
+            ParticleSystem emitter = system._emitters[(int)type];
+            if (emitter == null) return;
+
+            var emitParams = new ParticleSystem.EmitParams
+            {
+                position = position,
+                velocity = velocity,
+                startColor = color
+            };
+            if (size > 0f) emitParams.startSize = size;
+            if (lifetime > 0f) emitParams.startLifetime = lifetime;
+            if (rotation > 0f) emitParams.rotation = rotation;
+            emitter.Emit(emitParams, 1);
+        }
+
+        /// <summary>¿Se ve este punto? (con margen). Crea el sistema si hace falta.</summary>
+        public static bool IsOnScreen(Vector3 position)
+        {
+            VfxSystem system = Instance;
+            return system != null && system.IsVisible(position);
+        }
+
         public static Color ParryColor
         {
             get

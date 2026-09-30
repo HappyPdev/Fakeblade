@@ -40,8 +40,57 @@ MonoBehaviour:
   - type: 8
     prefab: {fileID: 2761431526578157856, guid: f5e8617fdbd42034098df66a581baa43, type: 3}
     burstCount: 28
+  - type: 9
+    prefab: {fileID: 5844811492878944544, guid: e813bc4dfbc92754d94dd608e09f66ff, type: 3}
+    burstCount: 1
+  - type: 10
+    prefab: {fileID: 5944267531080151382, guid: 2b957bfeb0dd5f941a4810db7d133900, type: 3}
+    burstCount: 1
+  - type: 11
+    prefab: {fileID: 5797946034858527354, guid: 755fa4cb8d9827e49904ef9031af521d, type: 3}
+    burstCount: 1
+  - type: 12
+    prefab: {fileID: 425933134706453676, guid: ab736b738e74d1c4fafb8e142c87ca74, type: 3}
+    burstCount: 2
+  - type: 13
+    prefab: {fileID: 1639797674572384321, guid: 6037f4ba694a2ec42b60cce31297dc18, type: 3}
+    burstCount: 1
+  - type: 14
+    prefab: {fileID: 5737662135789982002, guid: 1de67620d4b18174caa0c851c0db48dd, type: 3}
+    burstCount: 1
+  - type: 15
+    prefab: {fileID: 3855406076068649418, guid: c4cc5402a8296134ca45ef35f3eac04e, type: 3}
+    burstCount: 6
+  - type: 16
+    prefab: {fileID: 3341934195595295649, guid: 223b46352c5aee441963ebc7e32c09eb, type: 3}
+    burstCount: 1
+  - type: 17
+    prefab: {fileID: 885057064469646519, guid: b8daac0374bef0b4cbf3c8879e2c2ab4, type: 3}
+    burstCount: 8
+  - type: 18
+    prefab: {fileID: 573205689383019559, guid: 9f00861e1eddd6542bf809bbfa36b48e, type: 3}
+    burstCount: 10
+  - type: 19
+    prefab: {fileID: 7155107171194040362, guid: 44c5b101299ac0944878503d3f08b8eb, type: 3}
+    burstCount: 3
+  - type: 20
+    prefab: {fileID: 8859113551543651562, guid: 5ead5788400569b4a9860b22cb709d63, type: 3}
+    burstCount: 14
   spinBoostColor: {r: 0.3, g: 1, b: 0.6, a: 1}
   shockWaveColor: {r: 1, g: 0.55, b: 0.15, a: 1}
   stormBreakerColor: {r: 0.45, g: 0.55, b: 1, a: 1}
   electricDashColor: {r: 1, g: 0.95, b: 0.25, a: 1}
   parryColor: {r: 0.55, g: 0.95, b: 1, a: 1}
+  chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
+  chargeGatherRate: 30
+  chargeFlameRate: 26
+  trailSpacing: 0.12
+  trailMinSpeed: 2.5
+  groundSparkColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+  groundSparkRate: 30
+  groundSparkMinSpeed: 4
+  groundSparkMinSpin: 0.5
+  smokeColor: {r: 0.32, g: 0.32, b: 0.36, a: 0.85}
+  lowSpinSparkColor: {r: 1, g: 0.55, b: 0.2, a: 1}
+  lowSpinSmokeRate: 14
+  lowSpinSparkRate: 10

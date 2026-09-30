@@ -38,7 +38,8 @@ Audiencia: a partir de 8 años.
 - **Masa e inercia:** dependen de las piezas montadas.
 - **Fricción dinámica:** superficie + colisiones.
 - **Giroscopio:** efecto de estabilización. Internamente, la peonza se mantiene estable sola hasta que se le termina la "estamina" (RPM).
-- **Precisión:** bamboleo cuando pierde velocidad.
+- **Precisión:** bamboleo cuando pierde velocidad. Por debajo del **30% de RPM** la peonza se bambolea: su inclinación da vueltas (precesión) y crece hasta 12° cerca de 0 RPM. Además echa **humo** y **chispas sueltas**, cada vez más cuanto menos RPM le quedan. Por ahora el bamboleo es solo visual y no afecta al control. Se ajusta en `CombatConfig` → `lowSpinThreshold`, `lowSpinWobbleAngle` y `lowSpinWobbleFrequency`.
+- **Estela y chispas:** al moverse deja una estela de píxeles de su color (más grande y opaca durante ataques y dash). Si va rápido con muchas RPM, la punta saca chispas contra el suelo.
 - **Giro visual:** la velocidad a la que se ve girar la peonza no es proporcional a las RPM. Sigue una curva de forma logarítmica: se mantiene casi al máximo durante casi toda la vida y solo se frena de golpe cuando las RPM están muy cerca de 0. Por defecto gira al 90% con un 8% de RPM y al 94% con un 10%. Solo por debajo del 5% se nota que frena. El punto de frenado se ajusta en `CombatConfig` → `visualSpinKnee`.
 - **Control:** según la velocidad y la masa, cada peonza tiene un control más o menos estable.
 - **Movimiento:** se aplica una fuerza en la dirección indicada con el mando. Al hacer un ataque o un dash, la peonza acelera en la dirección en la que avanza. Si no se está moviendo, lo hace hacia el enemigo más cercano.
@@ -65,6 +66,7 @@ Hasta **2 jugadores pueden compartir el teclado** (J1 con WASD y J2 con las flec
 - **Cargas de ataque:** cada peonza tiene un número de cargas que se gastan al atacar y se recuperan con el tiempo. La media es **3 cargas**. Las piezas ligeras dan más cargas y las pesadas menos. Se muestran como puntos debajo de la barra de vida.
 - **Ataques rápidos seguidos (combos):** pulsando repetidamente se encadenan varios ataques, cada uno con su coste en cargas y RPM. Los golpes consecutivos acumulan una pequeña bonificación de daño y de empuje.
 - **Ataque cargado:** al mantener pulsado el botón de ataque, aumentan la potencia, la velocidad máxima del acelerón y la bonificación de masa. El nivel máximo de carga depende de las cargas restantes, y el ataque gasta tantas cargas como niveles se hayan cargado. Si se mantiene en el máximo un tiempo, el ataque se lanza solo. Los ataques cargados empujan más al objetivo.
+- **Efecto de la carga:** mientras se carga, unas partículas convergen hacia la peonza. En cada nivel son más, más grandes y pasan del color del jugador a un blanco dorado, y sale un anillo en el suelo. Al llegar al máximo hay un destello de estrellas y salen llamas de la base hasta que se lanza.
 - **Coste:** los ataques cuestan RPM, igual que el dash.
 - **Cooldown:** entre ataques cargados hay un tiempo de enfriamiento.
 
@@ -170,6 +172,15 @@ Poderes:
 | Dash eléctrico | Implementado | Dashes de mayor alcance, sin apenas cooldown, y los ataques cargados se cargan más rápido. |
 | Rastro de fuego | Pendiente | Deja un rastro que quita RPM a quien lo pisa y da velocidad al usuario mientras dura. |
 
+**Aura de cada poder** (mientras está activo, con el color del poder):
+
+| Poder | Aura |
+|---|---|
+| Spin Boost | Doble espiral de cruces verdes que sube alrededor de la peonza. |
+| Onda de choque | Ondas naranjas que se expanden por el suelo cada 0,4 s, más chispas a ras de suelo. |
+| Storm Breaker | Anillo protector azul que gira alrededor del cuerpo, más destellos en una cúpula. |
+| Dash eléctrico | Rayos amarillos que chisporrotean alrededor, más chispas que saltan. |
+
 6. # Sistema de Multijugador
 
 Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado).
@@ -232,8 +243,9 @@ Presupuesto de rendimiento por frame:
 
 Técnicas de optimización:
 
-* **Pooling de partículas (implementado):** hay un único emisor por tipo de efecto (choque, pared, dash, ataque, K.O., especial, aura y reaparición). Cada ráfaga se emite con `Emit()` en la posición del evento. No se instancia ni destruye nada durante el combate, y `maxParticles` limita la memoria de cada efecto. Los efectos están en `Assets/VFX/Prefabs` y la biblioteca en `Resources/VfxLibrary`.
-* **Culling dinámico de efectos (implementado):** no se emite lo que queda fuera de la cámara. La cantidad de partículas se escala con la opción Partículas (Bajas, Medias o Altas).
+* **Pooling de partículas (implementado):** hay un único emisor por tipo de efecto, compartido por todas las peonzas: golpes (choque, pared, dash, ataque, parry, K.O., reaparición), poderes (activación y un aura por poder), carga del ataque (partículas, anillo y llamas), estela, chispas y RPM bajas (humo y chispas). Cada ráfaga se emite con `Emit()` en la posición del evento. Los efectos continuos de cada peonza (`BladeParticles`) emiten partícula a partícula con su posición y velocidad. No se instancia ni destruye nada durante el combate, y `maxParticles` limita la memoria de cada efecto. Los efectos están en `Assets/VFX/Prefabs` y la biblioteca, con colores y tasas ajustables, en `Resources/VfxLibrary`.
+* **Estilo de los efectos (implementado):** sprites pixel art de 2 a 16 píxeles con filtro Point: píxel, chispa, estrella, cruz, llama, anillo, humo y rayo. Los genera el menú *FakeBlade → Setup VFX*. Usan transparencia normal con un color HDR por encima de 1, para que el bloom los haga brillar. No se usa mezcla aditiva porque sobre el suelo claro de la arena satura a blanco y se pierde el color de cada efecto. El humo no brilla.
+* **Culling dinámico de efectos (implementado):** no se emite lo que queda fuera de la cámara; los efectos continuos lo comprueban una vez por peonza y frame. La cantidad de partículas se escala con la opción Partículas (Bajas, Medias o Altas).
 * LOD system para meshes de peonzas (pendiente).
 * Batching de audio events (pendiente).
 * Cero asignaciones de memoria (GC) por frame en gameplay, HUD y efectos. Medido con 4 peonzas combatiendo: 0 KB por frame.
@@ -380,6 +392,10 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
 | 2026-09-30 | Parry | Ventana de 0,12 s al inicio de un ataque rápido. Bloquea todo el daño; el atacante se lleva su fracción, rebota aturdido y se le corta el ataque. Recompensas: carga devuelta, energía y aviso con hit-stop. Doble parry = se anulan. |
 | 2026-09-30 | Parry y piezas | Las piezas modificarán la ventana de parry (agilidad +, defensa −). Campo ya disponible; pendiente de dar valores. |
 | 2026-09-30 | Suelo y paredes | El suelo nunca quita RPM; en paredes solo cuenta el impacto perpendicular. |
+| 2026-09-30 | Estilo de partículas | Sprites pixel art con brillo (bloom). Formas: chispa, estrella, cruz, llama, anillo, humo y rayo. |
+| 2026-09-30 | Auras de poderes | Un aura distinta por poder: espiral verde (Spin Boost), ondas naranjas (Onda de choque), anillo azul (Storm Breaker) y rayos amarillos (Dash eléctrico). |
+| 2026-09-30 | Carga del ataque | Partículas que convergen, crecen y se calientan por nivel; anillo al subir de nivel; destello y llamas al máximo. |
+| 2026-09-30 | Estela y RPM bajas | Estela según la velocidad y chispas contra el suelo con muchas RPM. Por debajo del 30% de RPM: bamboleo visual, humo y chispas sueltas. |
 
 12. # Pendiente de definir
 
@@ -391,3 +407,5 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - Modelos o skins distintos por pieza. Ahora las piezas solo cambian estadísticas y el color.
 - Valores de ventana de parry de cada pieza (ahora todas en 0) y si la IA debe intentar hacer parry.
+- Si el bamboleo con RPM bajas debe afectar también al control (menos precisión al moverse o atacar). Ahora es solo visual.
+- Efectos del poder Rastro de fuego cuando se implemente.

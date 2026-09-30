@@ -32,7 +32,6 @@ namespace FakeBlade.Core
         private const float MAX_SANE_SPEED = 200f;
         /// <summary>Superficies con |normal.y| mayor que esto se consideran suelo, no pared.</summary>
         private const float WALL_NORMAL_MAX_Y = 0.6f;
-        private const float SPECIAL_AURA_RATE = 40f; // partículas/s del aura con el poder activo
         private const float FALL_OUT_HEIGHT = -30f;
         #endregion
 
@@ -60,11 +59,6 @@ namespace FakeBlade.Core
                  "NUNCA debe ser el propio root.")]
         [SerializeField] private Transform visualRoot;
 
-        [Header("=== VISUAL FX ===")]
-        [Tooltip("Trail de partículas en la base mientras se mueve (propio de cada peonza). " +
-                 "El resto de efectos (choques, dash, K.O., especial) los emite VfxSystem con pooling.")]
-        [SerializeField] private ParticleSystem vfxSpinTrail;
-
         [Header("=== AUDIO ===")]
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip collisionSound;
@@ -88,6 +82,8 @@ namespace FakeBlade.Core
 
         private readonly AttackSystem _attack = new AttackSystem();
         private readonly SpecialAbilitySystem _special = new SpecialAbilitySystem();
+        // Estela, chispas, humo, carga y auras: todo con el pool de VfxSystem
+        private BladeParticles _particles;
 
         // RPM
         private float _currentSpin;
@@ -125,9 +121,9 @@ namespace FakeBlade.Core
         private readonly float[] _clashTimes = new float[ClashMemory];
 
         // Visual
-        private float _auraAccumulator;
         private float _spinAngle;
         private Vector3 _currentTilt;
+        private float _wobblePhase;
 
         // Stats derivadas
         private float _effectiveAcceleration;
@@ -211,6 +207,7 @@ namespace FakeBlade.Core
             _rb = GetComponent<Rigidbody>();
             _stats = GetComponent<FakeBladeStats>();
             _owner = GetComponent<PlayerController>();
+            _particles = new BladeParticles(this);
 
             SetupVisualRoot();
         }
@@ -384,6 +381,7 @@ namespace FakeBlade.Core
 
             _attack.SetMaxCharges(_stats.AttackCharges);
             ConfigureRigidbody();
+            _particles?.Reset(); // las piezas pueden cambiar el tamaño de la peonza
         }
 
         private void ConfigureRigidbody()
@@ -505,6 +503,8 @@ namespace FakeBlade.Core
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
+            VfxLibrary vfx = VfxSystem.Library;
+            if (vfx != null) VfxSystem.Play(VfxType.LowSpinSmoke, _transform.position, Vector3.up, vfx.smokeColor, 0.8f);
             CameraShake.Shake(0.25f, 0.2f);
 
             if (_rb != null)
@@ -532,8 +532,6 @@ namespace FakeBlade.Core
 
             if (_special.Tick(dt))
                 OnSpecialEnded?.Invoke(_special.Type);
-            else if (_special.IsActive)
-                EmitSpecialAura(dt);
 
             // Aturdida tras un parry: el botón de ataque no cuenta
             int launch = _attack.Tick(dt, _attackHeld && !IsStaggered, _special.ChargeSpeedMultiplier);
@@ -608,7 +606,6 @@ namespace FakeBlade.Core
 
             float burst = _special.Type == SpecialAbilityType.ShockWave ? 2.5f : 1f;
             VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, VfxSystem.AbilityColor(_special.Type), burst);
-            _auraAccumulator = 0f;
 
             CameraShake.Shake(0.1f, 0.08f);
             PlaySound(specialSound);
@@ -1006,27 +1003,24 @@ namespace FakeBlade.Core
                 ? TILT_SMOOTHING * 2f
                 : TILT_SMOOTHING * 0.8f;
             _currentTilt = Vector3.Lerp(_currentTilt, targetTilt, dt * lerpSpeed);
-            _tiltPivot.localRotation = Quaternion.Euler(_currentTilt.x, 0f, _currentTilt.z);
 
-            if (vfxSpinTrail != null)
+            // Bamboleo con RPM bajas (GDD 2.1): la inclinación da vueltas (precesión) y crece hacia 0 RPM
+            Vector3 wobble = Vector3.zero;
+            float low = cfg.LowSpinFactor(SpinSpeedPercentage);
+            if (low > 0f && cfg.lowSpinWobbleAngle > 0f)
             {
-                var emission = vfxSpinTrail.emission;
-                emission.rateOverTime = (_currentSpin * 0.1f + speed * 2f) * SettingsService.ParticleMultiplier;
+                float turnsPerSecond = Mathf.Lerp(cfg.lowSpinWobbleFrequency.x, cfg.lowSpinWobbleFrequency.y, low);
+                _wobblePhase = Mathf.Repeat(_wobblePhase + dt * turnsPerSecond * Mathf.PI * 2f, Mathf.PI * 2f);
+                float amplitude = cfg.lowSpinWobbleAngle * low;
+                wobble = new Vector3(Mathf.Cos(_wobblePhase) * amplitude, 0f, Mathf.Sin(_wobblePhase) * amplitude);
             }
+            _tiltPivot.localRotation = Quaternion.Euler(_currentTilt.x + wobble.x, 0f, _currentTilt.z + wobble.z);
+
+            _particles.Tick(dt);
         }
 
-        /// <summary>Aura continua del poder activo, emitida con el pool compartido.</summary>
-        private void EmitSpecialAura(float dt)
-        {
-            _auraAccumulator += dt * SPECIAL_AURA_RATE * SettingsService.ParticleMultiplier;
-            int count = (int)_auraAccumulator;
-            if (count <= 0) return;
-
-            _auraAccumulator -= count;
-            VfxSystem.EmitCount(VfxType.SpecialAura, _transform.position, VfxSystem.AbilityColor(_special.Type), count);
-        }
-
-        private Color OwnerColor => _owner != null ? _owner.PlayerColor : Color.white;
+        /// <summary>Color del jugador (efectos y HUD).</summary>
+        public Color OwnerColor => _owner != null ? _owner.PlayerColor : Color.white;
 
         private static readonly Color ClashColor = new Color(1f, 0.92f, 0.55f);
 
@@ -1065,7 +1059,8 @@ namespace FakeBlade.Core
 
             _attack.Reset(_stats != null ? _stats.AttackCharges : 3);
             _special.Reset(_stats != null ? _stats.SpecialAbility : SpecialAbilityType.SpinBoost);
-            _auraAccumulator = 0f;
+            _particles?.Reset();
+            _wobblePhase = 0f;
 
             if (_rb != null)
             {

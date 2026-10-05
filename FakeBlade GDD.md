@@ -5,7 +5,7 @@
 Juego arcade de duelos de peonzas que recrea la serie de dibujos de Beyblade, para hasta 4 jugadores en local.
 
 > **Documento consolidado.** La fuente prioritaria es *"JUEGO DE PEONZAS v.2"*: si algo de este documento contradice al v2, manda el v2 y se ha eliminado de aquí.
-> Las decisiones tomadas durante el desarrollo están en la sección **11. Registro de decisiones**.
+> Las decisiones tomadas durante el desarrollo están en la sección **11. Registro de decisiones**, lo que falta por decidir en **12. Pendiente de definir** y la lista de trabajo en **13. Quehaceres**.
 > Última actualización: 2026-09-30.
 
 1. # Visión General
@@ -98,7 +98,7 @@ Cuando dos peonzas chocan, se comparan sus velocidades en el momento del choque 
 
 Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloquea por completo.
 
-- **Ventana:** los primeros **0,12 s** desde que se lanza el ataque rápido (al soltar el botón). Solo vale el ataque rápido: ni el cargado ni el dash hacen parry. Con Storm Breaker, un ataque rápido cuenta como cargado para el daño, pero sigue pudiendo hacer parry.
+- **Ventana:** los primeros **0,12 s** desde que se lanza el ataque rápido (al soltar el botón). Solo vale el ataque rápido: ni el cargado ni el dash hacen parry.
 - **Condición:** la otra peonza tiene que venir atacando (ataque rápido, cargado o dash). El parry tiene prioridad sobre la regla de la más rápida.
 - **Resultado:**
   - Quien hace el parry **no recibe daño**.
@@ -110,7 +110,7 @@ Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloque
   - gana un 20% de la energía del especial.
 - **Aviso:** partículas especiales (estallido blanco y cian), texto "¡PARRY!" en pantalla y una pausa muy breve del juego (hit-stop de 0,08 s).
 - **Doble parry:** si las dos peonzas están en su ventana a la vez, se anulan. Ninguna recibe daño ni recompensa, y las dos rebotan aturdidas.
-- **Piezas:** cada pieza puede sumar o restar ventana de parry (`parryWindowModifier`). La idea es que las de agilidad la amplíen y las de defensa la reduzcan.
+- **Piezas:** cada pieza suma o resta ventana de parry (`parryWindowModifier`): las de agilidad **+0,03 s**, las balanceadas 0, las de ataque **−0,01 s** y las de defensa **−0,03 s**. Se suman todas las piezas montadas; la ventana nunca baja de 0,02 s. *(Pendiente de asignar en los assets de las piezas.)*
 - **Ajustes:** todo se configura en `CombatConfig` → Parry.
 
 ## 2.6 Gestión de Energía
@@ -157,33 +157,64 @@ Cuando todo funcione, se añadirán **hazards**: suelos con distintas fricciones
 
 5. # Sistema de Poderes
 
-El poder especial lo define el **Núcleo** montado.
+El poder especial lo define el **Núcleo** montado: para cambiar de especial se cambia el núcleo de la peonza. Habrá un núcleo por poder.
 
-- **Carga:** el poder se carga al **golpear a los enemigos con éxito** (sobre todo al ganar choques) o al recoger powerups del escenario.
-- **Activación:** cuando la carga está llena, se pulsa Especial. Mientras está activo, la carga se va vaciando con el tiempo. Cuando se vacía, el poder termina.
+- **Carga:** el poder se carga al **golpear a los enemigos con éxito** (sobre todo al ganar choques) o al recoger powerups del escenario. **Cada poder necesita una cantidad distinta de energía** para llenarse: los más fuertes tardan más (columna *Energía* de la tabla; 1 = la barra actual). Mientras el poder está activo **no se gana energía**: al terminar, la barra empieza de 0.
+- **Activación:** cuando la carga está llena, se pulsa Especial. Mientras está activo, la carga se va vaciando con el tiempo. Todos duran **5 s**. Cuando se vacía, el poder termina. Excepción: Rayos dura hasta 6 s o hasta que da su golpe fuerte (ver tabla).
+- **Nombres:** simples, en español e inglés: Defensa / Defense, Fuego / Fire, Hielo / Ice, Rayos / Lightning, Fantasma / Ghost. Spin Boost y Onda de choque mantienen los suyos.
 
-Poderes:
+**Efecto común a todos los poderes (al activarse):**
 
-| Poder | Estado | Efecto |
-|---|---|---|
-| Spin Boost | Implementado | Recupera RPM progresivamente mientras está activo. |
-| Onda de choque | Implementado | Al activarse empuja y quita RPM a las peonzas cercanas. |
-| Storm Breaker (escudo) | Implementado | Para builds defensivas. Pequeña bonificación de movimiento, gran resistencia al empuje, menos daño recibido y los ataques rápidos cuentan como cargados. |
-| Dash eléctrico | Implementado | Dashes de mayor alcance, sin apenas cooldown, y los ataques cargados se cargan más rápido. |
-| Rastro de fuego | Pendiente | Deja un rastro que quita RPM a quien lo pisa y da velocidad al usuario mientras dura. |
+- Recupera el **25% de las RPM máximas** (mismo valor para todos, ajustable en `CombatConfig`).
+- **Rellena todas las cargas de ataque** disponibles en ese momento.
+
+Después, durante el tiempo activo, cada poder tiene su efecto propio.
+
+Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
+
+| Poder | Estado | Energía | Efecto propio |
+|---|---|---|---|
+| Spin Boost | Implementado (se rehará más adelante) | 1 | Recupera RPM progresivamente mientras está activo. |
+| Onda de choque | Implementado (se rehará más adelante) | 1 | Al activarse empuja y quita RPM a las peonzas cercanas. |
+| Defensa *(sustituye a Storm Breaker)* | Pendiente | 1,2 | Defensa casi al 100%: no pierde RPM por golpes, paredes ni desgaste, y el empuje que recibe es casi nulo. Además, sus ataques se recargan **1,5 veces más rápido**, pero se mueve un **15% más lento**. El dash solo cuesta el **10% de lo normal**, pero su alcance baja un **40%**. Atacar sí cuesta RPM. |
+| Fuego *(sustituye a Rastro de fuego)* | Pendiente | 1 | Sus golpes **queman** al enemigo: 1,5% de sus RPM máximas cada 0,5 s durante 3 s (9% en total). Un golpe nuevo reinicia la duración; no se acumula. |
+| Hielo | Pendiente | 1 | Aura de hielo y humo blanco de frío. A los enemigos que golpea los **congela** durante 3 s: −35% de velocidad de movimiento y recarga de ataques a la mitad. Un golpe nuevo reinicia la duración; no se acumula. |
+| Rayos *(sustituye a Dash eléctrico)* | Pendiente | 0,8 | Entra en modo cargado hasta 6 s, con sus partículas. **Choques pequeños:** empujan fuerte al enemigo, pero no gastan el poder. **Choque fuerte** (por encima de una velocidad mínima): golpe con +20% de daño y empuje x2,5, deja al rival **lanzado** 0,5 s y gasta el poder. |
+| Fantasma | Pendiente | 1,3 | Crea **un clon fantasma** de sí misma, invulnerable, que dura lo que el poder y va a la velocidad de su dueño. Persigue al enemigo más cercano; sus golpes quitan el 10% del daño normal, pero empujan y cortan la carga de ataque del rival: sirve para molestar. No hace parry ni se le puede hacer. |
+
+**Estados alterados** (nuevo, lo usan varios poderes):
+
+- **Quemadura** (Fuego): pierde RPM por tic durante unos segundos.
+- **Congelación** (Hielo): menos velocidad de movimiento y recarga de ataques más lenta durante unos segundos.
+- **Lanzada** (Rayos): durante 0,5 s tras el golpe fuerte, la peonza **no tiene prioridad por velocidad**. Si choca contra una pared o contra otra peonza, recibe el daño como la más lenta, y la otra recibe un choque parejo. Ese daño cuenta como golpe del usuario de Rayos (punto de K.O.). Así se premia empujar enemigos contra paredes o contra otros enemigos.
+
+**Reglas entre estados:**
+
+- **Solo un estado a la vez.** Si llega uno nuevo que no está bloqueado, **sustituye** al anterior (por ejemplo, el fuego derrite el hielo).
+- **Triángulo de bloqueos:** Fuego > Hielo > Rayos > Fuego.
+  - Una peonza **en llamas no se puede congelar**.
+  - Una peonza **congelada no puede ser afectada por el rayo**. Si Rayos la golpea, es un choque normal (sin empuje extra ni lanzada) y **el poder no se gasta**: puede buscar a otro rival.
+  - Una peonza **lanzada no se puede quemar**, y el golpe fuerte de Rayos **apaga** una quemadura que ya tuviera.
+
+**Cómo se ven los estados:** salen partículas del estado desde el panel del jugador (de su barra de RPM), hay partículas sobre la peonza y un **icono del estado encima de la peonza**.
 
 **Aura de cada poder** (mientras está activo, con el color del poder):
 
 | Poder | Aura |
 |---|---|
-| Spin Boost | Doble espiral de cruces verdes que sube alrededor de la peonza. |
-| Onda de choque | Ondas naranjas que se expanden por el suelo cada 0,4 s, más chispas a ras de suelo. |
-| Storm Breaker | Anillo protector azul que gira alrededor del cuerpo, más destellos en una cúpula. |
-| Dash eléctrico | Rayos amarillos que chisporrotean alrededor, más chispas que saltan. |
+| Spin Boost | Doble espiral de cruces verdes que sube alrededor de la peonza (hecho). |
+| Onda de choque | Ondas naranjas que se expanden por el suelo cada 0,4 s, más chispas a ras de suelo (hecho). |
+| Defensa | Anillo protector azul que gira alrededor del cuerpo, más destellos en una cúpula (hecho, heredado de Storm Breaker). |
+| Rayos | Rayos amarillos que chisporrotean alrededor, más chispas que saltan (hecho, heredado de Dash eléctrico). Falta el destello del golpe fuerte. |
+| Fuego | Pendiente: llamas alrededor; llamitas sobre las peonzas quemadas. |
+| Hielo | Pendiente: cristales de hielo y humo blanco de frío; escarcha sobre las peonzas congeladas. |
+| Fantasma | Pendiente: clon translúcido con estela. |
 
 6. # Sistema de Multijugador
 
-Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado).
+Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado). Los huecos se pueden completar con **rivales CPU** (ver 6.4): el máximo de 4 cuenta jugadores humanos y CPU juntos.
+
+**Escalable a 8:** en el futuro se quiere llegar a **8 jugadores**. Por ahora el máximo es 4, pero el código debe prepararse para que ese número sea un único valor configurable (lobby, HUD, colores, puntos de aparición, equipos...).
 
 - **Asignación de controles flexible:** cada jugador se une en la pantalla de selección **manteniendo pulsado** el botón de ataque de su dispositivo (ver 9.2). El orden en que se unen fija el número de jugador (J1, J2...) y el dispositivo que usa cada uno.
 - **Cámara dinámica** que encuadra a todos los jugadores vivos en todo momento.
@@ -192,10 +223,10 @@ Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y h
 ## 6.1 Modos de juego
 
 - **Último en pie:** sin reaparición. Gana la última peonza (o equipo) con RPM. Sirve tanto para duelos 1vs1 como para batallas de 2-4 jugadores.
-- **Todos contra todos (por puntos):** partida con tiempo límite. Cada eliminación da un punto al último jugador que golpeó a la peonza eliminada, y la peonza eliminada **reaparece**. Gana quien tenga más puntos al acabar el tiempo o quien llegue antes a los puntos objetivo.
+- **Todos contra todos (por puntos):** partida con tiempo límite. Cada eliminación da un punto al último jugador que golpeó a la peonza eliminada, y la peonza eliminada **reaparece**. Si una peonza se queda sin RPM **sin que nadie la haya golpeado** en los últimos segundos (desgaste o paredes), **pierde 1 punto** (autoeliminación). Gana quien tenga más puntos al acabar el tiempo o quien llegue antes a los puntos objetivo.
 - **Por equipos (2vs2):** los equipos se enfrentan con las mismas reglas. El **fuego amigo es configurable**. Cada jugador elige su equipo en su columna de la pantalla de selección.
-- **Práctica (1 jugador):** si solo se une un jugador, la partida es de práctica contra un **dummy** (una peonza que no se controla). No termina sola y sirve para probar peonzas y controles. Se sale desde la pausa.
-- **Futuro, contra la IA:** la arquitectura separa quién controla la peonza (jugador, dummy o IA), para poder añadir rivales controlados por IA más adelante.
+- **Sandbox (campo de pruebas):** sustituye al modo Práctica. Tiene **escena propia** y se usa tanto para practicar como de **entorno de debug**. Ver 6.3. *(Ahora mismo sigue existiendo la Práctica simple contra un dummy, dentro de la escena de batalla, hasta que se haga el sandbox.)*
+- **Contra la IA:** la arquitectura separa quién controla la peonza (jugador, dummy o IA). La IA se usará primero en el sandbox y después como rival CPU en partidas normales. Ver 6.4.
 
 ## 6.2 Reglas personalizables
 
@@ -207,6 +238,47 @@ Como en Super Smash Bros, cada modo tiene reglas por defecto y el jugador puede 
 - **Fuego amigo** (activado o desactivado).
 
 **Desempates** cuando se acaba el tiempo: gana quien tenga más puntos o vidas. Si siguen empatados, gana quien tenga más % de RPM.
+
+## 6.3 Sandbox (campo de pruebas y debug)
+
+Escena propia (`Sandbox`) para probar mecánicas sin salir de la partida: parrys, especiales, piezas, etc. Todo se puede cambiar **en ejecución**.
+
+- **Jugadores:** pueden entrar **hasta 4 jugadores humanos**, que se unen manteniendo pulsado ataque, como en la selección de peonzas. Sirve, por ejemplo, para practicar parrys entre dos personas con mando.
+- **Panel del sandbox:** se abre con un **botón propio** (Select/Back en mando, Tab en teclado; reasignable), que **pausa** el juego. Se navega con mando y con ratón. Al cerrarlo, el juego sigue con los cambios aplicados.
+- **Primera versión del panel:**
+  - **Rivales:** ninguno, dummy o IA (nivel y arquetipo), de 1 a 3 rivales.
+  - **Comportamiento del dummy:** quieto, moverse, **atacar cada X segundos** (para practicar parry), hacer dash hacia el jugador, usar el especial.
+- **Más adelante** (se irá ampliando):
+  - **Mi peonza:** cambiar piezas y **núcleo (especial)** en caliente.
+  - **Trucos:** RPM infinitas (mías o del rival), especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable.
+  - **Reiniciar:** posiciones, RPM, cargas y energía.
+  - **Tiempo:** cámara lenta (x0,25 / x0,5 / x1) y avance frame a frame.
+  - **Debug visual:** indicador de la ventana de parry, vectores de velocidad, números de daño, estados alterados, info de choques, FPS y un registro de eventos (choques, parrys, especiales).
+  - Cambiar de arena y retocar valores clave de `CombatConfig` (ventana de parry, costes...) sin salir.
+
+## 6.4 IA rival
+
+La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSource`), así que no hace trampas: pulsa los mismos botones.
+
+**Niveles de dificultad (4):** Fácil, Normal, Difícil y Experto. Cambian el tiempo de reacción, la puntería, la probabilidad de hacer parry, el uso del dash para esquivar y cómo usa el especial.
+
+| Nivel | Reacción | Parry | Especial |
+|---|---|---|---|
+| Fácil | Lenta (~0,5 s) | Nunca | Al azar |
+| Normal | Media (~0,3 s) | A veces | Cuando está lleno |
+| Difícil | Rápida (~0,18 s) | A menudo | En buen momento |
+| Experto | Muy rápida (~0,1 s) | Casi siempre que puede | Óptimo |
+
+*(Valores orientativos, por ajustar.)*
+
+**Comportamiento según el arquetipo de su peonza:**
+
+- **Agilidad:** agresiva. Entra y sale con dash y **busca parrys** (ataque rápido justo cuando el rival lanza el suyo).
+- **Ataque:** presión constante, combos y ataques cargados; usa el especial en cuanto lo tiene.
+- **Defensa:** aguanta en el centro y contraataca cuando el rival gasta sus cargas o queda aturdido. Busca empujar al rival contra las paredes.
+- **Balanceada:** mezcla de los anteriores según la situación.
+
+**Rivales CPU en partidas normales:** se podrán añadir CPU a las partidas, hasta completar el máximo de jugadores (4 ahora; 8 en el futuro).
 
 7. # Sistema Técnico
 
@@ -226,6 +298,7 @@ Como en Super Smash Bros, cada modo tiene reglas por defecto y el jugador puede 
   - `HUDTheme`: colores, fuente y tamaños del HUD.
 - **Input System** para teclado y mandos, con esquemas de teclado J1/J2 y asignación de mando por jugador. Los controles se pueden reasignar y se guardan.
 - **Fuentes de control intercambiables:** cada peonza recibe sus órdenes de una fuente (jugador humano, dummy o, en el futuro, IA).
+- **Poderes como datos + comportamiento** *(pendiente)*: cada poder tendrá un asset con sus valores comunes (energía necesaria, duración, color, núcleo) y una clase con su efecto propio. Así, añadir un poder es crear su asset y su clase, sin tocar un `switch` central. Los estados alterados (quemadura, congelación, lanzada) serán un sistema común de la peonza.
 - **Escenas:** `MainMenu` (menú principal, opciones, controles e información, con la arena de fondo), `Assembly` (unirse, montar peonzas y parámetros de partida) y `BattleArena` (combate). La configuración pasa de una escena a otra en `MatchSetup`.
 - **Catálogo** (`FakeBladeCatalog`): piezas, presets, paleta de colores, arenas y prefab de jugador. Añadir contenido es añadir entradas al catálogo.
 - **HUD dirigido por eventos:** no busca objetos en la escena ni formatea strings cada frame.
@@ -349,10 +422,9 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
 
 10. # Ideas futuras
 
-- **Rivales controlados por IA** (ver 6.1). También permitirían el modo Survival.
+- **Rivales controlados por IA en partidas normales** (añadir CPU en la selección de peonzas). La IA se diseña en 6.4 y se usará primero en el sandbox. También permitiría el modo Survival.
 - **Survival:** 1 contra oleadas de enemigos con dificultad progresiva (necesita IA; no está en el v2).
 - Hazards y powerups de arena (ver sección 4).
-- Poder "Rastro de fuego".
 - Más efectos de postprocesado en Opciones.
 - Portar a móvil con partidas en red local.
 
@@ -396,16 +468,131 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
 | 2026-09-30 | Auras de poderes | Un aura distinta por poder: espiral verde (Spin Boost), ondas naranjas (Onda de choque), anillo azul (Storm Breaker) y rayos amarillos (Dash eléctrico). |
 | 2026-09-30 | Carga del ataque | Partículas que convergen, crecen y se calientan por nivel; anillo al subir de nivel; destello y llamas al máximo. |
 | 2026-09-30 | Estela y RPM bajas | Estela según la velocidad y chispas contra el suelo con muchas RPM. Por debajo del 30% de RPM: bamboleo visual, humo y chispas sueltas. |
+| 2026-09-30 | Especiales: efecto común | Al activar cualquier poder: +25% de RPM máximas (igual para todos) y se rellenan todas las cargas de ataque. Después, cada poder tiene su efecto propio. |
+| 2026-09-30 | Especiales: energía | Cada poder necesita una cantidad distinta de energía para llenarse. |
+| 2026-09-30 | Lista de poderes | Se fusionan los actuales con los nuevos: Spin Boost, Onda de choque, Defensa (sustituye a Storm Breaker), Fuego (sustituye a Rastro de fuego), Hielo, Rayos (sustituye a Dash eléctrico) y Fantasma. 7 núcleos, uno por poder. |
+| 2026-09-30 | Poder Defensa | Defensa casi al 100%: no pierde RPM por golpes, paredes ni desgaste, y el empuje recibido es casi nulo. Atacar y hacer dash sí cuestan RPM. |
+| 2026-09-30 | Poder Fuego | Los golpes queman: el enemigo pierde RPM por tic durante unos segundos. |
+| 2026-09-30 | Poder Hielo | Aura de hielo y humo blanco. Los enemigos golpeados se mueven más lento y recargan los ataques más despacio durante unos segundos. |
+| 2026-09-30 | Poder Rayos | Modo cargado durante unos segundos. El primer golpe o choque es fuerte (algo más de daño y mucho más empuje) y gasta el poder. La peonza golpeada queda "lanzada" ~0,5 s: sin prioridad por velocidad, recibe el daño al chocar contra paredes u otras peonzas, y ese daño cuenta para el usuario de Rayos. |
+| 2026-09-30 | Poder Fantasma | Clon fantasma invulnerable que dura lo que el poder. Persigue al enemigo más cercano; sus golpes quitan el 10% del daño normal, pero empujan y cortan la carga de ataque. |
+| 2026-09-30 | Sandbox | Sustituye al modo Práctica, en una escena propia. Sirve para practicar y de entorno de debug; todo se cambia en ejecución. |
+| 2026-09-30 | Panel del sandbox | Botón propio (Select/Back o Tab) que pausa y abre el panel, navegable con mando y ratón. |
+| 2026-09-30 | IA | 4 niveles (Fácil, Normal, Difícil, Experto). El comportamiento depende del arquetipo; Agilidad es agresiva y busca parrys. |
+| 2026-09-30 | Energía por poder | Spin Boost 1, Onda de choque 1, Fuego 1, Hielo 1, Defensa 1,2, Fantasma 1,3, Rayos 0,8 (1 = la barra actual). |
+| 2026-09-30 | Duración de los poderes | 5 s todos. Rayos: hasta 6 s o hasta dar su golpe fuerte. No se gana energía mientras el poder está activo. |
+| 2026-09-30 | Spin Boost y Onda de choque | Se quedan como están por ahora y se rehacen más adelante. |
+| 2026-09-30 | Valores de Fuego | 1,5% de RPM máx. cada 0,5 s durante 3 s; se reinicia, no se acumula. |
+| 2026-09-30 | Valores de Hielo | −35% de movimiento y recarga de ataques a la mitad durante 3 s; se reinicia, no se acumula. |
+| 2026-09-30 | Valores de Rayos | +20% de daño, empuje x2,5 y lanzada 0,5 s. Los choques pequeños empujan fuerte sin gastar el poder; un choque por encima de una velocidad mínima da el golpe fuerte y lo gasta. |
+| 2026-09-30 | Fantasma | Un solo clon, a la velocidad de su dueño; no hace parry ni se le puede hacer. |
+| 2026-09-30 | Defensa (extras) | Ataques se recargan 1,5 veces más rápido, movimiento −15%, el dash cuesta el 10% de lo normal y su alcance baja un 40%. |
+| 2026-09-30 | Estados alterados | Solo uno a la vez; el nuevo sustituye al anterior si no está bloqueado. Triángulo: Fuego > Hielo > Rayos > Fuego. Rayos contra una peonza congelada = choque normal y no se gasta. |
+| 2026-09-30 | Estados: aspecto | Partículas que salen del panel del jugador (barra de RPM), partículas sobre la peonza e icono del estado encima de la peonza. |
+| 2026-09-30 | Nombres de poderes | Defensa / Defense, Fuego / Fire, Hielo / Ice, Rayos / Lightning, Fantasma / Ghost. |
+| 2026-09-30 | Sandbox: jugadores | Hasta 4 humanos, que se unen manteniendo ataque. |
+| 2026-09-30 | Sandbox: panel v1 | Solo rivales y comportamiento del dummy. Piezas/núcleo, trucos, reinicio, debug y cámara lenta van después. |
+| 2026-09-30 | IA por arquetipo | Se aceptan las propuestas de Ataque, Defensa y Balanceada. |
+| 2026-09-30 | Rivales CPU | Se podrán añadir en partidas normales. Máximo 4 jugadores (humanos + CPU) ahora; escalable a 8 en el futuro. |
+| 2026-09-30 | Autoeliminación | En el modo por puntos, quedarse sin RPM sin que nadie te haya golpeado resta 1 punto. |
+| 2026-09-30 | Moverse cargando | Sí, al 60% de velocidad (ajustable). |
+| 2026-09-30 | Bamboleo | Solo visual; no afecta al control. |
+| 2026-09-30 | Parry por pieza | Agilidad +0,03 s, balanceada 0, ataque −0,01 s, defensa −0,03 s; mínimo 0,02 s. |
 
 12. # Pendiente de definir
 
-- Qué poder concreto lleva cada Núcleo en el catálogo final de piezas.
+Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
+
+- Estadísticas de cada núcleo (uno por poder: RPM máximas, peso...).
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
-- Si en el modo por puntos se resta un punto al quedarse sin RPM sin que nadie te haya golpeado (autoeliminación). Por defecto no se resta.
-- Si la peonza puede moverse mientras carga un ataque. Por defecto se mueve al 60% de su velocidad (ajustable).
-- Comportamiento de la IA rival (niveles de dificultad, estilos por arquetipo).
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - Modelos o skins distintos por pieza. Ahora las piezas solo cambian estadísticas y el color.
-- Valores de ventana de parry de cada pieza (ahora todas en 0) y si la IA debe intentar hacer parry.
-- Si el bamboleo con RPM bajas debe afectar también al control (menos precisión al moverse o atacar). Ahora es solo visual.
-- Efectos del poder Rastro de fuego cuando se implemente.
+- Autoeliminación: cuántos segundos sin recibir golpes hacen que cuente como autoeliminación (los mismos 5 s que dan el punto de K.O.).
+
+**Poderes:**
+
+- Nuevo diseño de Spin Boost y Onda de choque (se rehacen más adelante; mientras tanto se quedan como están).
+- Rayos: velocidad mínima del choque fuerte (velocidad de cierre de 6 m/s) y empuje de los choques pequeños (x1,8, sin daño extra ni lanzada).
+- Rayos: si más adelante cualquiera que toque a la peonza (atacando o en movimiento normal) sale impulsado (por ahora, solo sus propios choques).
+- Fantasma: agresividad del clon (busca al rival más cercano y ataca en cuanto puede, como mucho una vez por segundo).
+- Diseño de los iconos de cada estado (pixel art de 8-12 píxeles con el color del poder).
+
+**Sandbox e IA:**
+
+- Parámetros exactos de cada nivel de IA (tabla orientativa en 6.4).
+- Desde dónde se añaden las CPU en las partidas normales (en una columna libre de la selección de peonzas, eligiendo nivel y peonza).
+- Con varios jugadores en el sandbox, quién maneja el panel (cualquiera puede abrirlo; lo controla quien lo abre).
+
+13. # Quehaceres
+
+Lista de trabajo por fases, para ir añadiendo poco a poco. Se marca `[x]` al terminar. 🎮 = conviene probarlo con mandos reales.
+
+Orden propuesto: primero la base común de los poderes, después un sandbox básico (para poder probar cada poder según se hace), luego los poderes uno a uno y por último la IA completa.
+
+**Fase A. Base común de los especiales**
+
+- [ ] A1. Efecto común al activar: +25% de RPM máximas y rellenar todas las cargas de ataque (`CombatConfig` + `AttackSystem`).
+- [ ] A2. Poderes como datos + comportamiento: un asset por poder (energía necesaria, duración, color, icono, nombre ES/EN) y una clase con su efecto. Migrar Spin Boost y Onda de choque.
+- [ ] A3. Energía necesaria por poder (Spin Boost 1, Onda 1, Fuego 1, Hielo 1, Defensa 1,2, Fantasma 1,3, Rayos 0,8) y esfera del HUD según ese valor.
+- [ ] A4. Estados alterados en la peonza (quemadura, congelación, lanzada): uno a la vez, sustitución, triángulo de bloqueos (Fuego > Hielo > Rayos > Fuego), partículas que salen del panel del jugador, partículas sobre la peonza e icono encima de ella.
+- [ ] A5. Fusión: Storm Breaker → Defensa, Dash eléctrico → Rayos, Rastro de fuego → Fuego. Actualizar enum, núcleos, textos (Defensa/Defense, Fuego/Fire, Hielo/Ice, Rayos/Lightning, Fantasma/Ghost) y auras.
+
+**Fase B. Sandbox básico** (sustituye a Práctica)
+
+- [ ] B1. Escena `Sandbox`; la opción de practicar del menú lleva aquí.
+- [ ] B2. Botón propio del sandbox (Select/Back y Tab, reasignable) que pausa y abre el panel. 🎮
+- [ ] B3. Panel navegable con mando y ratón (reutilizando los widgets pixel del menú). 🎮
+- [ ] B4. Rivales: ninguno o dummy, de 1 a 3 (la IA se añade al panel en D6).
+- [ ] B5. Comportamientos del dummy: quieto, moverse, atacar cada X s (practicar parry), dash hacia el jugador, usar especial.
+- [ ] B6. Hasta 4 jugadores humanos, que se unen manteniendo ataque. 🎮
+
+**Fase C. Poderes, uno a uno** (cada uno con su aura, sus textos y su prueba en el sandbox)
+
+- [ ] C1. Defensa: sin pérdida de RPM por golpes, paredes ni desgaste; empuje casi nulo; recarga de ataques x1,5; movimiento −15%; dash al 10% de coste y −40% de alcance.
+- [ ] C2. Fuego: quemadura (1,5% cada 0,5 s durante 3 s) + llamas.
+- [ ] C3. Hielo: congelación (−35% de movimiento, recarga a la mitad, 3 s) + cristales y humo blanco.
+- [ ] C4. Rayos: modo cargado hasta 6 s; choques pequeños empujan fuerte sin gastar; choque fuerte con +20% de daño, empuje x2,5 y lanzada 0,5 s, que gasta el poder; contra una peonza congelada, choque normal sin gastar; regla de daño de la peonza lanzada + destello del golpe.
+- [ ] C5. Fantasma: un clon invulnerable que persigue (necesita la persecución básica de D1), 10% de daño, empuja y corta cargas, sin parry + aspecto translúcido.
+- [ ] C6. Núcleos en el catálogo: uno por poder, con estadísticas.
+- [ ] C7. Equilibrio de valores de cada poder en partida. 🎮
+
+**Fase D. IA**
+
+- [ ] D1. Base de la IA: percepción (rivales, paredes, ataques enemigos) y decisión por prioridades, sobre `IBladeInputSource` (partiendo de `SimpleAIBrain`).
+- [ ] D2. 4 niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial).
+- [ ] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta.
+- [ ] D4. Parry de la IA: lanzar un ataque rápido justo cuando el rival ataca.
+- [ ] D5. Uso de los especiales por la IA (cada poder en su buen momento).
+- [ ] D6. IA en el panel del sandbox: 1-3 rivales, nivel y arquetipo.
+- [ ] D7. Rivales CPU en partidas normales (hasta completar 4 jugadores).
+- [ ] D8. Menú de fondo con la IA nueva en vez de la actual.
+
+**Fase E. Sandbox completo**
+
+- [ ] E1. Cambiar núcleo (especial) y piezas en caliente.
+- [ ] E2. Trucos: RPM infinitas, especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable.
+- [ ] E3. Reiniciar posiciones, RPM, cargas y energía.
+- [ ] E4. Debug visual: ventana de parry, vectores de velocidad, números de daño, estados y FPS.
+- [ ] E5. Registro de eventos en pantalla (choques, parrys, especiales).
+- [ ] E6. Cámara lenta (x0,25 / x0,5) y avance frame a frame.
+- [ ] E7. Cambiar de arena y retocar valores clave de `CombatConfig` sin salir.
+
+**Fase F. Más adelante**
+
+- [ ] F1. Rehacer Spin Boost y Onda de choque.
+- [ ] F2. Escalar a 8 jugadores: que el máximo sea un único valor configurable (hoy está repetido en `LobbyController.MaxPlayers`, `GameManager.maxPlayers`, `FakeBladeController.ClashMemory` y `MenuArenaBackground`), HUD para más de 4 paneles, paleta de 8 colores o más, puntos de aparición, columnas del lobby y equipos.
+
+**Otros pendientes**
+
+- [ ] Modo por puntos: restar 1 punto por autoeliminación.
+- [ ] Asignar la ventana de parry a las piezas (agilidad +0,03 s, ataque −0,01 s, defensa −0,03 s).
+- [ ] Asignar sonidos (choque, ataque, dash, especial, parry, K.O.) y música.
+- [ ] Fuente pixel para los textos.
+- [ ] Equilibrio general (el ataque cargado de nivel 3 quita ~29%, quizá demasiado). 🎮
+- [ ] Probar menús, lobby y combate con mandos reales. 🎮
+- [ ] Probar builds de PC y WebGL.
+- [ ] Probar el ratón en las columnas del lobby.
+- [ ] Input handling en "Input System" solamente (ahora está en "Both").
+- [ ] Quitar `Assets/Scripts_copiaAntigua.zip` y el stash antiguo de backup cuando ya no hagan falta.
+- [ ] Decidir si la dependencia de Coplay se queda en `Packages/manifest.json`.
+- [ ] Tests automáticos de las reglas de combate (choque, parry, dash).

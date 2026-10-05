@@ -9,6 +9,7 @@ namespace FakeBlade.Core
     /// - Humo y chispas sueltas con RPM bajas (acompañan al bamboleo, GDD 2.1).
     /// - Carga del ataque cargado: partículas que convergen, anillo en cada nivel y llamas al máximo.
     /// - Aura propia de cada poder activo (GDD 5).
+    /// - Estado alterado (GDD 5): partículas del estado sobre la peonza e icono flotante encima.
     ///
     /// Clase C# pura que posee FakeBladeController. Emite con el pool compartido de VfxSystem
     /// (cero instancias y cero GC), hace el culling una vez por frame y escala las tasas
@@ -28,6 +29,7 @@ namespace FakeBlade.Core
         private bool _measured;
         private float _tipOffset = -0.2f;   // punta (apoyo en el suelo) respecto al pivote
         private float _centerOffset = 0.3f; // centro del cuerpo respecto al pivote
+        private float _topOffset = 0.6f;    // parte de arriba del cuerpo respecto al pivote
         private float _radius = 0.35f;
 
         private Vector3 _lastTrailPos;
@@ -36,6 +38,14 @@ namespace FakeBlade.Core
         private float _auraAngle, _auraTimer;
         private int _auraIndex;
         private int _lastChargeLevel;
+        private float _statusAcc;
+
+        // Icono del estado alterado (se crea la primera vez que hace falta)
+        private const float IconGap = 0.35f;
+        private SpriteRenderer _statusIcon;
+        private StatusEffectType _iconStatus;
+        private static Camera s_camera;
+        private static int s_cameraFrame = -1;
 
         public BladeParticles(FakeBladeController blade)
         {
@@ -50,7 +60,7 @@ namespace FakeBlade.Core
         {
             _measured = false;
             _hasTrailPos = false;
-            _sparkAcc = _smokeAcc = _gatherAcc = _flameAcc = _auraAcc = _auraAcc2 = 0f;
+            _sparkAcc = _smokeAcc = _gatherAcc = _flameAcc = _auraAcc = _auraAcc2 = _statusAcc = 0f;
             _auraTimer = 0f;
             _lastChargeLevel = 0;
         }
@@ -61,6 +71,7 @@ namespace FakeBlade.Core
 
             Vector3 pos = _blade.Position;
             VfxLibrary lib = VfxSystem.Library;
+            if (lib != null) UpdateStatusIcon(lib);
             if (lib == null || !VfxSystem.IsOnScreen(pos))
             {
                 _hasTrailPos = false;
@@ -82,6 +93,7 @@ namespace FakeBlade.Core
             UpdateLowSpin(lib, center, tip, spin, mul, dt);
             UpdateCharge(lib, center, tip, mul, owner, dt);
             UpdateAura(lib, center, tip, mul, dt);
+            UpdateStatusParticles(lib, center, tip, mul, dt);
         }
 
         private void Measure(Vector3 pos)
@@ -93,6 +105,7 @@ namespace FakeBlade.Core
             if (bounds.size.sqrMagnitude < 0.0001f) return;
             _tipOffset = Mathf.Clamp(bounds.min.y - pos.y, -2f, 0.5f);
             _centerOffset = Mathf.Clamp(bounds.center.y - pos.y, -1f, 2f);
+            _topOffset = Mathf.Clamp(bounds.max.y - pos.y, 0f, 3f);
             _radius = Mathf.Clamp(Mathf.Max(bounds.extents.x, bounds.extents.z), 0.15f, 2f);
         }
 
@@ -342,6 +355,132 @@ namespace FakeBlade.Core
                 Vector3 dir = RandomFlatDirection();
                 Vector3 v = dir * Random.Range(2f, 4f) + Vector3.up * Random.Range(1f, 3f);
                 VfxSystem.EmitParticle(VfxType.GroundSpark, center + dir * (r * 0.5f), v, color);
+            }
+        }
+        #endregion
+
+        #region Status effects
+        /// <summary>
+        /// Partículas del estado alterado sobre la peonza: llamas que suben (quemada), escarcha y
+        /// vaho frío (congelada) o rayos y chispas que saltan (lanzada).
+        /// </summary>
+        private void UpdateStatusParticles(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
+        {
+            StatusEffectType status = _blade.Status.Current;
+            if (status == StatusEffectType.None)
+            {
+                _statusAcc = 0f;
+                return;
+            }
+
+            Color color = lib.GetStatusColor(status);
+            int count = Accumulate(ref _statusAcc, lib.statusParticleRate * mul, dt);
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 dir = RandomFlatDirection();
+                switch (status)
+                {
+                    case StatusEffectType.Burning:
+                        VfxSystem.EmitParticle(VfxType.ChargeFlame,
+                            center + dir * (_radius * Random.Range(0.4f, 1f)) + Vector3.up * Random.Range(-0.1f, 0.2f),
+                            Vector3.up * Random.Range(1f, 1.8f), color);
+                        break;
+
+                    case StatusEffectType.Frozen:
+                        if ((i & 1) == 0)
+                        {
+                            VfxSystem.EmitParticle(VfxType.Sparkle, center + Random.onUnitSphere * _radius,
+                                Vector3.zero, color, 0.12f, 0.3f);
+                        }
+                        else
+                        {
+                            Color mist = Color.Lerp(Color.white, color, 0.3f);
+                            mist.a = 0.5f;
+                            VfxSystem.EmitParticle(VfxType.LowSpinSmoke, tip + Vector3.up * 0.1f + dir * (_radius * 0.8f),
+                                dir * 0.3f + Vector3.down * 0.1f, mist, 0.18f);
+                        }
+                        break;
+
+                    case StatusEffectType.Launched:
+                        if (i % 3 == 0)
+                        {
+                            Vector3 p = center + dir * (_radius * Random.Range(0.6f, 1.1f)) + Vector3.up * Random.Range(-0.1f, 0.3f);
+                            VfxSystem.EmitParticle(VfxType.AuraElectric, p, Vector3.zero, color, 0.3f, 0f, 90f * Random.Range(0, 4));
+                        }
+                        else
+                        {
+                            VfxSystem.EmitParticle(VfxType.GroundSpark, center + dir * (_radius * 0.6f),
+                                dir * Random.Range(2f, 4f) + Vector3.up * Random.Range(1f, 2.5f), color);
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Icono del estado encima de la peonza, siempre de cara a la cámara, teñido con el color
+        /// del estado y parpadeando por pasos en el último 30% de su duración.
+        /// </summary>
+        private void UpdateStatusIcon(VfxLibrary lib)
+        {
+            StatusEffectSystem status = _blade.Status;
+            if (!status.HasStatus)
+            {
+                if (_statusIcon != null && _statusIcon.enabled) _statusIcon.enabled = false;
+                return;
+            }
+
+            if (_statusIcon == null) CreateStatusIcon();
+
+            if (_iconStatus != status.Current)
+            {
+                _iconStatus = status.Current;
+                _statusIcon.sprite = StatusIcons.Get(_iconStatus);
+                _statusIcon.color = lib.GetStatusColor(_iconStatus);
+            }
+
+            _statusIcon.enabled = status.RemainingFraction > 0.3f || Mathf.FloorToInt(Time.time * 12f) % 2 == 0;
+
+            // Encima de la peonza en pantalla (hacia el "arriba" de la cámara), mirando a la cámara
+            Transform icon = _statusIcon.transform;
+            Vector3 top = _blade.Position + Vector3.up * _topOffset;
+            Camera cam = MainCamera;
+            if (cam != null)
+            {
+                Transform camTransform = cam.transform;
+                icon.SetPositionAndRotation(top + camTransform.up * (_radius + IconGap), camTransform.rotation);
+            }
+            else
+            {
+                icon.position = top + Vector3.up * IconGap;
+            }
+        }
+
+        /// <summary>Oculta el icono al momento (al quitar el estado, también si la peonza ya no se actualiza).</summary>
+        public void HideStatusIcon()
+        {
+            if (_statusIcon != null) _statusIcon.enabled = false;
+        }
+
+        private void CreateStatusIcon()
+        {
+            var go = new GameObject("StatusIcon");
+            go.transform.SetParent(_blade.transform, false); // el root nunca rota
+            _statusIcon = go.AddComponent<SpriteRenderer>();
+            _statusIcon.sortingOrder = 50;
+            _iconStatus = StatusEffectType.None;
+        }
+
+        private static Camera MainCamera
+        {
+            get
+            {
+                if (s_cameraFrame != Time.frameCount)
+                {
+                    s_cameraFrame = Time.frameCount;
+                    if (s_camera == null || !s_camera.isActiveAndEnabled) s_camera = Camera.main;
+                }
+                return s_camera;
             }
         }
         #endregion

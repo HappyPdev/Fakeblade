@@ -6,7 +6,7 @@ Juego arcade de duelos de peonzas que recrea la serie de dibujos de Beyblade, pa
 
 > **Documento consolidado.** La fuente prioritaria es *"JUEGO DE PEONZAS v.2"*: si algo de este documento contradice al v2, manda el v2 y se ha eliminado de aquí.
 > Las decisiones tomadas durante el desarrollo están en la sección **11. Registro de decisiones**, lo que falta por decidir en **12. Pendiente de definir** y la lista de trabajo en **13. Quehaceres**.
-> Última actualización: 2026-09-30.
+> Última actualización: 2026-10-05.
 
 1. # Visión General
 
@@ -182,11 +182,12 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
 | Rayos *(sustituye a Dash eléctrico)* | Pendiente | 0,8 | Entra en modo cargado hasta 6 s, con sus partículas. **Choques pequeños:** empujan fuerte al enemigo, pero no gastan el poder. **Choque fuerte** (por encima de una velocidad mínima): golpe con +20% de daño y empuje x2,5, deja al rival **lanzado** 0,5 s y gasta el poder. |
 | Fantasma | Pendiente | 1,3 | Crea **un clon fantasma** de sí misma, invulnerable, que dura lo que el poder y va a la velocidad de su dueño. Persigue al enemigo más cercano; sus golpes quitan el 10% del daño normal, pero empujan y cortan la carga de ataque del rival: sirve para molestar. No hace parry ni se le puede hacer. |
 
-**Estados alterados** (nuevo, lo usan varios poderes):
+**Estados alterados** (implementado el sistema; los aplicarán Fuego, Hielo y Rayos):
 
-- **Quemadura** (Fuego): pierde RPM por tic durante unos segundos.
+- **Quemadura** (Fuego): pierde RPM por tic durante unos segundos. Es **daño fijo**: no lo reduce la defensa de las piezas (sí un poder defensivo activo).
 - **Congelación** (Hielo): menos velocidad de movimiento y recarga de ataques más lenta durante unos segundos.
-- **Lanzada** (Rayos): durante 0,5 s tras el golpe fuerte, la peonza **no tiene prioridad por velocidad**. Si choca contra una pared o contra otra peonza, recibe el daño como la más lenta, y la otra recibe un choque parejo. Ese daño cuenta como golpe del usuario de Rayos (punto de K.O.). Así se premia empujar enemigos contra paredes o contra otros enemigos.
+- **Lanzada** (Rayos): durante 0,5 s tras el golpe fuerte, la peonza **no tiene prioridad por velocidad**. Si choca contra otra peonza, recibe el daño como la más lenta, y la otra recibe un choque parejo. Si choca contra una **pared**, la pared la golpea como una peonza parada con la fuerza del usuario de Rayos (daño base + diferencia de velocidad; en la prueba, a 30 m/s: 13,8% de las RPM frente al 1,1% de un choque normal). **Todo** ese daño (el de la lanzada y el de la peonza contra la que choca, como en los bolos) cuenta como golpe del usuario de Rayos para el punto de K.O. Así se premia empujar enemigos contra paredes o contra otros enemigos.
+- Las peonzas **invulnerables** (recién reaparecidas) no reciben estados.
 
 **Reglas entre estados:**
 
@@ -196,7 +197,7 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
   - Una peonza **congelada no puede ser afectada por el rayo**. Si Rayos la golpea, es un choque normal (sin empuje extra ni lanzada) y **el poder no se gasta**: puede buscar a otro rival.
   - Una peonza **lanzada no se puede quemar**, y el golpe fuerte de Rayos **apaga** una quemadura que ya tuviera.
 
-**Cómo se ven los estados:** salen partículas del estado desde el panel del jugador (de su barra de RPM), hay partículas sobre la peonza y un **icono del estado encima de la peonza**.
+**Cómo se ven los estados** *(implementado)*: salen partículas pixel del color del estado desde la parte llena de la barra de RPM del panel del jugador (brasas que suben, copos lentos o chispas rápidas). Sobre la peonza hay partículas (llamas; escarcha y vaho frío; rayos y chispas) y un **icono pixel del estado encima de ella** (llama, copo o rayo con contorno oscuro), que mira siempre a la cámara y parpadea en el último 30% de su duración. Colores en `VfxLibrary` → Estados alterados.
 
 **Aura de cada poder** (mientras está activo, con el color del poder):
 
@@ -328,6 +329,25 @@ Técnicas de optimización:
 
 Medición en editor (4 peonzas con IA y efectos): física ~0,3 ms por paso y render ~1 ms, muy por debajo del presupuesto.
 
+## 7.4 Assets de terceros (Asset Store)
+
+**Licencia.** Los assets de la Asset Store, también los que llegaron por Humble Bundle (ya canjeados en la cuenta de Unity), usan la licencia estándar de la Asset Store (EULA):
+
+- Se pueden usar en un juego comercial **sin pagar royalties** a sus autores, siempre que vayan integrados en el juego.
+- **No se pueden redistribuir sueltos.** Como el repositorio de GitHub es público, **no se suben al repo**: sus carpetas están en `.gitignore`. Quien clone el proyecto tiene que descargarlos con su propia cuenta.
+- Las **herramientas de editor** (licencia *Extension*: Odin, Console Pro, NodeCanvas...) son **por puesto**: cada persona que las use necesita su propia licencia.
+- Cada asset indica en su página su tipo de licencia (Standard, Extension o, rara vez, Restricted). Se revisa antes de usarlo.
+- **Odin Inspector** (versión de la Asset Store) solo vale mientras se facture menos de 200.000 $ al año; por encima hace falta Odin Enterprise. Unity Personal tiene el mismo límite (por encima, Unity Pro).
+
+**Reglas de uso:**
+
+- Se importa **solo lo que se va a usar**, desmarcando el resto en la ventana de importación, y sin escenas de demo.
+- Arte y audio van en `Assets/ThirdParty/`. Los paquetes de código o shaders se quedan en su carpeta original (para poder actualizarlos), y esa carpeta se añade al `.gitignore`.
+- **Excepción:** los paquetes con licencia libre (CC0, MIT...) sí se pueden subir al repo. Se comprueba en el archivo de licencia del propio paquete.
+- **Importados hasta ahora:** All In 1 Sprite Shader en `Assets/Plugins/AllIn1SpriteShader/` (sin demos; en `.gitignore`) y FREE Casual Game SFX de Dustyroom en `Assets/Casual Game Sounds U6/` (CC0, sí va en el repo).
+- El código del juego **no depende de clases de paquetes de pago**: los shaders se usan a través de materiales y las herramientas solo en el editor. Así el repo compila aunque falten.
+- **Qué entra en la build:** lo que usan las escenas de la build (y sus dependencias), todo lo que esté en carpetas `Resources` y todo el código de runtime. Lo que no se usa no entra, pero hay que vigilar las carpetas `Resources` y los scripts de cada paquete (se compilan siempre, también en WebGL).
+
 8. # Progresión y contenido
 
 Por ahora será un minijuego gratuito con todo el contenido disponible.
@@ -420,6 +440,59 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
   - **Cambiar peonzas:** vuelve a la selección manteniendo a los jugadores unidos y su montaje.
   - **Menú principal.**
 
+## 9.3 Efectos de la UI *(en pruebas, G2)*
+
+Se hacen con el shader **All In 1 Sprite Shader** (ver 7.4). Reglas:
+
+- **Solo efectos que respetan la rejilla pixel:** destello (Hit Effect), cambio de tono (Hue Shift), Color Swap, contorno (Outline), gris (Greyscale), pixelado (Pixelate) y Shine siempre con Pixelate activado. Nada de blur, ondas ni distorsiones suaves.
+- **Animación por pasos:** el código cambia los valores a saltos, igual que la barra y la esfera (`Quantize`), nunca de forma continua.
+- **Materiales como assets** en `Assets/Materials/UI/`, asignados en `HUDTheme`. Cada panel crea su instancia al construirse (no cada frame: 0 GC) y solo cambia propiedades por ID (`Shader.PropertyToID`), sin usar clases del paquete.
+- **Sin el paquete el juego sigue igual:** si falta el material o su shader (por ejemplo, en un clon del repo sin el paquete), se usa el aspecto actual.
+- No vale para textos TMP.
+
+| Elemento | Código | Efecto | Cuándo |
+|---|---|---|---|
+| Esfera del especial | `PlayerHUDPanel` (`BuildSphere`, `UpdateSphere`) | Glow + Shine que la cruza cada ~1 s | Al llenarse |
+| | | Hue Shift por pasos y más glow | Mientras el poder está activo |
+| Panel del jugador | `PlayerHUDPanel.UpdateHealth` (ya detecta el golpe) | Destello blanco de 2-3 frames + sacudida de 1-2 píxeles de UI | Al perder RPM por un golpe |
+| Icono de estado | `BladeParticles` (`_statusIcon`, SpriteRenderer) | Outline + parpadeo por pasos | Mientras dura el estado; parpadeo rápido al final |
+| Columnas del lobby | `LobbyColumn` | Gris | Columna libre |
+| | | Outline o Shine | Opción seleccionada y jugador listo |
+| Transiciones | `MenuScreen` / `SceneFlow` | Pixelate creciente + fundido | Al cambiar de pantalla o de escena |
+
+## 9.4 Sonido *(en preparación, G4)*
+
+Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/SFX/` si su licencia lo permite (CC0) o `Assets/ThirdParty/Audio/` si no (ver 7.4). Nombres por tipo: `ui_confirm`, `combat_clash`, `flow_countdown`...
+
+| Evento | Código | Candidato |
+|---|---|---|
+| **Combate** | | |
+| Choque entre peonzas | `FakeBladeController.collisionSound` | Pendiente (metálico, G5) |
+| Choque contra la pared | — | Pendiente |
+| Ataque rápido | `attackSound` | Pendiente |
+| Ataque cargado: sube de nivel / máximo | — | Pendiente |
+| Dash | `dashSound` | Pendiente |
+| Activar especial | `specialSound` | Pendiente (uno por poder, packs de poderes) |
+| Parry | `parrySound` | Pendiente |
+| K.O. (peonza parada) | `spinOutSound` | Pendiente |
+| Zumbido de giro en bucle (tono según las RPM, 7.1) | — | Pendiente (G5) |
+| Estados: quemar, congelar, lanzada | — | Pendiente |
+| **Menús y flujo** | | |
+| Moverse por un menú | — | Casual SFX (cortos) |
+| Cambiar un valor (izquierda/derecha) | — | Casual SFX (cortos) |
+| Confirmar / Atrás | — | Casual SFX (cortos) |
+| Unirse en el lobby (mantener → completado) | — | Casual SFX |
+| Jugador listo | — | Casual SFX |
+| Cuenta atrás (3, 2, 1) y ¡Ya! | — | Casual SFX |
+| Pausa / reanudar | — | Casual SFX |
+| Victoria (panel de resultados) | — | Casual SFX (largos) |
+
+**FREE Casual Game SFX, ordenados por duración** para escucharlos (los nombres solo llevan número):
+
+- **Cortos (≤ 0,25 s), para la UI:** 01, 03, 14, 15, 16, 20, 21, 22, 32, 34, 35, 40, 41, 44, 47.
+- **Medios (0,26-1 s), para avisos y la cuenta atrás:** 02, 04, 07, 08, 13, 17, 18, 19, 26, 27, 28, 29, 30, 31, 36, 37, 38, 39, 42, 46.
+- **Largos (> 1 s), para jingles y la victoria:** 05, 06, 09, 10, 11, 12, 23, 24, 25, 33, 43, 45, 48, 49, 50.
+
 10. # Ideas futuras
 
 - **Rivales controlados por IA en partidas normales** (añadir CPU en la selección de peonzas). La IA se diseña en 6.4 y se usará primero en el sandbox. También permitiría el modo Survival.
@@ -498,6 +571,11 @@ Créditos del juego con enlaces a las redes del autor. Los datos están en un as
 | 2026-09-30 | Moverse cargando | Sí, al 60% de velocidad (ajustable). |
 | 2026-09-30 | Bamboleo | Solo visual; no afecta al control. |
 | 2026-09-30 | Parry por pieza | Agilidad +0,03 s, balanceada 0, ataque −0,01 s, defensa −0,03 s; mínimo 0,02 s. |
+| 2026-10-05 | Assets de terceros | Los assets de la Asset Store no se suben al repo público (van en `.gitignore`). Se importa solo lo que se usa y el código del juego no depende de paquetes de pago. Lista de candidatos en la fase G. |
+| 2026-10-05 | Quemadura y defensa | La quemadura es daño fijo: no la reduce la defensa de las piezas (sí un poder defensivo activo). |
+| 2026-10-05 | Lanzada contra la pared | La pared la golpea como una peonza parada con la fuerza del usuario de Rayos (daño base + diferencia de velocidad). |
+| 2026-10-05 | Lanzada: efecto bolos | Todo el daño que provoca una peonza lanzada (el suyo y el de la peonza contra la que choca) cuenta para el usuario de Rayos. |
+| 2026-10-05 | Estados e invulnerabilidad | Las peonzas invulnerables (recién reaparecidas) no reciben estados alterados. |
 
 12. # Pendiente de definir
 
@@ -515,7 +593,13 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Rayos: velocidad mínima del choque fuerte (velocidad de cierre de 6 m/s) y empuje de los choques pequeños (x1,8, sin daño extra ni lanzada).
 - Rayos: si más adelante cualquiera que toque a la peonza (atacando o en movimiento normal) sale impulsado (por ahora, solo sus propios choques).
 - Fantasma: agresividad del clon (busca al rival más cercano y ataca en cuanto puede, como mucho una vez por segundo).
-- Diseño de los iconos de cada estado (pixel art de 8-12 píxeles con el color del poder).
+
+**Efectos de UI y sonido:**
+
+- Biblioteca de sonidos (un asset `SfxLibrary` en `Resources`, como `VfxLibrary`, con clip, volumen y variación de tono por evento).
+- Cómo suenan los menús (un reproductor de UI único que no se destruye entre escenas, con el volumen de efectos de Opciones).
+- Mezcla de audio (sin AudioMixer por ahora; volúmenes desde `SettingsService`).
+- Si la sacudida del panel al recibir un golpe depende de la opción "Sacudida de cámara" (sí, la misma opción).
 
 **Sandbox e IA:**
 
@@ -525,7 +609,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 13. # Quehaceres
 
-Lista de trabajo por fases, para ir añadiendo poco a poco. Se marca `[x]` al terminar. 🎮 = conviene probarlo con mandos reales.
+Lista de trabajo por fases, para ir añadiendo poco a poco. Se marca `[x]` al terminar. 🎮 = conviene probarlo con mandos reales. 🎧 = lo tiene que escuchar el usuario.
 
 Orden propuesto: primero la base común de los poderes, después un sandbox básico (para poder probar cada poder según se hace), luego los poderes uno a uno y por último la IA completa.
 
@@ -534,7 +618,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] A1. Efecto común al activar: +25% de RPM máximas y rellenar todas las cargas de ataque (`CombatConfig.specialActivationSpinPct` + `AttackSystem.RefillCharges`).
 - [x] A2. Poderes como datos + comportamiento: un asset por poder (energía necesaria, duración, color, icono, nombre ES/EN) y una clase con su efecto. Migrados los 4 actuales (Spin Boost, Onda de choque, Storm Breaker y Dash eléctrico).
 - [x] A3. Energía necesaria por poder (Spin Boost 1, Onda 1, Fuego 1, Hielo 1, Defensa 1,2, Fantasma 1,3, Rayos 0,8) y esfera del HUD según ese valor. Storm Breaker y Dash eléctrico ya usan la de Defensa (1,2) y Rayos (0,8). Fuego, Hielo y Fantasma la tendrán al crear su asset.
-- [ ] A4. Estados alterados en la peonza (quemadura, congelación, lanzada): uno a la vez, sustitución, triángulo de bloqueos (Fuego > Hielo > Rayos > Fuego), partículas que salen del panel del jugador, partículas sobre la peonza e icono encima de ella.
+- [x] A4. Estados alterados en la peonza (quemadura, congelación, lanzada): uno a la vez, sustitución, triángulo de bloqueos (Fuego > Hielo > Rayos > Fuego), partículas que salen del panel del jugador, partículas sobre la peonza e icono encima de ella (`StatusEffectSystem`; los aplicarán los poderes con `TryBurn`, `TryFreeze` y `TryLaunch`).
 - [ ] A5. Fusión: Storm Breaker → Defensa, Dash eléctrico → Rayos, Rastro de fuego → Fuego. Actualizar enum, núcleos, textos (Defensa/Defense, Fuego/Fire, Hielo/Ice, Rayos/Lightning, Fantasma/Ghost) y auras.
 
 **Fase B. Sandbox básico** (sustituye a Práctica)
@@ -582,13 +666,46 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] F1. Rehacer Spin Boost y Onda de choque.
 - [ ] F2. Escalar a 8 jugadores: que el máximo sea un único valor configurable (hoy está repetido en `LobbyController.MaxPlayers`, `GameManager.maxPlayers`, `FakeBladeController.ClashMemory` y `MenuArenaBackground`), HUD para más de 4 paneles, paleta de 8 colores o más, puntos de aparición, columnas del lobby y equipos.
 
+**Fase G. Assets de la Asset Store** (importar y analizar; reglas y licencias en 7.4)
+
+Proceso con cada paquete: descargarlo en *Package Manager → My Assets* (con la cuenta de Unity del usuario) → revisar qué trae antes de importarlo → importar solo lo necesario → añadir su carpeta al `.gitignore` si no está en `Assets/ThirdParty/` → probar en PC y WebGL → decidir si se queda.
+
+- [x] G1. `.gitignore` preparado para los assets de terceros (`Assets/ThirdParty/`).
+- [ ] G2. **All In 1 Sprite Shader** (UI). *Importado (sin demos, sin carpetas `Resources`).* Diseño y reglas en **9.3**. No sirve para textos TMP ni para el clon de Fantasma (C5).
+  - [ ] G2.1. Base: carpeta `Assets/Materials/UI/`, campos de material en `HUDTheme`, ayuda para crear la instancia de cada panel y animar valores por pasos sin GC, y vuelta al aspecto actual si falta el shader.
+  - [ ] G2.2. Esfera del especial: glow + shine al llenarse; hue shift y más glow con el poder activo.
+  - [ ] G2.3. Panel: destello blanco y sacudida al recibir un golpe.
+  - [ ] G2.4. Iconos de estado sobre la peonza: outline y parpadeo (después de A4).
+  - [ ] G2.5. Lobby: gris en las columnas libres; outline o shine en la opción seleccionada y al estar listo.
+  - [ ] G2.6. Transiciones de menú y de escena: pixelado creciente + fundido.
+  - [ ] G2.7. Pruebas: 4 paneles a la vez, cada uno con sus efectos; 0 KB de GC por frame en el Profiler; aspecto pixel (sin bordes suaves); build de PC y de WebGL; el proyecto compila y se ve bien sin el paquete. Decidir si se queda.
+- [ ] G3. **Editor Console Pro:** importar y usar en el editor.
+- [ ] G4. **Sonido.** Tabla de eventos y organización en **9.4**.
+  - [ ] G4.1. Escuchar los 50 sonidos de FREE Casual Game SFX (ordenados por duración en 9.4) y apuntar en la tabla cuál va a cada evento de menús y flujo. 🎧
+  - [ ] G4.2. Copiar los elegidos, renombrados, a `Assets/Audio/SFX/`.
+  - [ ] G4.3. Biblioteca de sonidos y reproductor de UI (ver "Pendiente de definir").
+  - [ ] G4.4. Conectar los sonidos de menús, lobby, cuenta atrás, pausa y victoria.
+  - [ ] G4.5. Asignar los de combate a los campos que ya existen en `FakeBladeController` (choque, ataque, dash, especial, parry, K.O.) y añadir los que faltan (pared, niveles de carga, estados).
+  - [ ] G4.6. Descargar y revisar los demás packs: RPG Essentials SFX (Leohpaz) para UI y golpes; Fantasy Sounds Bundle (Cafofo) para los poderes; THOR Thunderstorm (solo los truenos, para Rayos); Monster Sounds & Atmospheres para Fantasma.
+  - FREE Casual Game SFX (Dustyroom): *importado entero* (50 sonidos, CC0).
+  - Human Vocal Sounds (Cafofo): *revisado, no se importa.* Solo trae voces sueltas de hombre y mujer (gritos, risas, esfuerzos, quejidos) y sonidos sueltos (huesos, comer, latidos). No tiene público ni ánimos, y el juego no tiene personajes.
+- [ ] G5. Buscar lo que no cubren los packs: choque metálico de peonzas, zumbido de giro en bucle (tono según las RPM) y música de menú y batalla. Probar también los generadores de sonido y música de Coplay.
+- [ ] G6. **POLYGON Prototype Pack (Synty)** para la escena Sandbox (B1).
+- [ ] G7. **Decoración low poly** (Low Poly Ultimate Pack, Low Poly Environment de Polytope, Low-Poly Simple Nature): entorno de la arena y fondo del menú. Comprobar cómo quedan pixelados. *Aparcado por ahora:* el Low Poly Ultimate Pack queda como candidato para los escenarios y sus distintos tipos cuando haya más de una arena (sección 4).
+- [ ] G8. **UModeler:** probarlo para modelar arenas, hazards y variantes de piezas.
+- [ ] G9. **Odin Inspector:** decidir si se usa. Solo en scripts de editor, nunca en el código de runtime (repo público y límite de 200.000 $). Alternativa gratis para atributos de inspector: NaughtyAttributes (MIT).
+- [ ] G10. Más adelante, si hacen falta: Dreamteck Splines (hazards con recorrido, cámara del menú), Bitgem Stylized Water o Simple Water Shader URP (arena de agua o hielo) y Fantasy Skybox FREE (si alguna cámara ve el cielo).
+
+Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D se hace en C#), White Mage Spells (efectos realistas y aditivos, en contra de 7.3), GUI Pro Fantasy RPG (estilo pintado) y el resto de la lista (entornos realistas, HDRP, personajes, plantillas de otros géneros y assets deprecated).
+
 **Otros pendientes**
 
 - [ ] Modo por puntos: restar 1 punto por autoeliminación.
 - [ ] Asignar la ventana de parry a las piezas (agilidad +0,03 s, ataque −0,01 s, defensa −0,03 s).
-- [ ] Asignar sonidos (choque, ataque, dash, especial, parry, K.O.) y música.
-- [ ] Fuente pixel para los textos.
-- [ ] Equilibrio general (el ataque cargado de nivel 3 quita ~29%, quizá demasiado). 🎮
+- [ ] Asignar sonidos (choque, ataque, dash, especial, parry, K.O.) y música (ver G4 y G5).
+- [ ] Fuente pixel para los textos. Candidatas gratis con licencia OFL: Press Start 2P, Silkscreen o Pixelify Sans.
+- [ ] Pixelar la escena 3D de batalla y el fondo del menú (pilar 1.2). Ahora solo lo tiene la vista previa del lobby (`BladePreviewStage`). Renderizar a una RenderTexture de baja resolución con escala entera y filtro Point; prueba rápida: Render Scale de URP entre 0,33 y 0,5 con filtro Nearest-Neighbor. El HUD (Overlay) no se ve afectado.
+- [ ] Equilibrio general (el ataque cargado de nivel 3 quita ~29%, quizá demasiado; una peonza lanzada que choca a 12 m/s contra una peonza de ataque fuerte perdió un 42%). 🎮
 - [ ] Probar menús, lobby y combate con mandos reales. 🎮
 - [ ] Probar builds de PC y WebGL.
 - [ ] Probar el ratón en las columnas del lobby.

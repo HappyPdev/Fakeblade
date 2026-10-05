@@ -77,3 +77,13 @@ crashlytics-build.properties
 # Ficheros locales del IDE (se regeneran en cada equipo)
 .vscode/
 *.slnx
+
+# Assets de la Asset Store (de pago o con licencia EULA): no se pueden redistribuir
+# y este repositorio es público, así que no se suben. Ver GDD 7.4.
+# - Arte y audio de terceros: dentro de Assets/ThirdParty/.
+# - Paquetes de código o shaders que se quedan en su carpeta original: añadir aquí
+#   su carpeta (y su .meta) al importarlos.
+/[Aa]ssets/[Tt]hird[Pp]arty/
+/[Aa]ssets/[Tt]hird[Pp]arty.meta
+/[Aa]ssets/[Pp]lugins/AllIn1SpriteShader/
+/[Aa]ssets/[Pp]lugins/AllIn1SpriteShader.meta

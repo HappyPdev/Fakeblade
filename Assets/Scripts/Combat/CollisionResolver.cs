@@ -18,6 +18,10 @@ namespace FakeBlade.Core
     /// parry no recibe daño y el atacante solo recibe su fracción del impacto y sale rebotado.
     /// Si ambas están en ventana de parry, se anulan sin daño.
     ///
+    /// LANZADA (estado de Rayos): si solo una de las dos está lanzada, pierde la prioridad por
+    /// velocidad: recibe el daño como la más lenta, la otra un choque parejo, y todo el daño
+    /// cuenta para quien la lanzó.
+    ///
     /// Se ejecuta UNA vez por pareja (lo invoca la peonza con menor InstanceID).
     /// </summary>
     public static class CollisionResolver
@@ -60,6 +64,15 @@ namespace FakeBlade.Core
             if (aParries || bParries)
             {
                 ResolveParry(a, b, toB, closing, aParries, bParries, contactPoint);
+                return;
+            }
+
+            // Peonza lanzada (Rayos): pierde la prioridad por velocidad
+            bool aLaunched = a.Status.IsLaunched;
+            if (aLaunched != b.Status.IsLaunched)
+            {
+                if (aLaunched) ResolveLaunched(a, b, toB, approachA, approachB, closing, contactPoint);
+                else ResolveLaunched(b, a, -toB, approachB, approachA, closing, contactPoint);
                 return;
             }
 
@@ -160,6 +173,39 @@ namespace FakeBlade.Core
             parrier.NotifyClash(attacker, 0f);
             attacker.NotifyClash(parrier, dealt);
             OnParry?.Invoke(parrier, attacker, false);
+        }
+
+        /// <summary>
+        /// Choque de una peonza lanzada por Rayos contra otra (GDD 5, estado Lanzada): la lanzada
+        /// recibe el daño como si fuera la más lenta, la otra un choque parejo, y las dos salen
+        /// empujadas como en un choque parejo. Todo el daño cuenta para quien la lanzó (efecto bolos).
+        /// </summary>
+        private static void ResolveLaunched(FakeBladeController launched, FakeBladeController other,
+            Vector3 launchedToOther, float approachLaunched, float approachOther, float closing, Vector3 contactPoint)
+        {
+            var cfg = CombatConfig.Active;
+            FakeBladeController thrower = launched.Status.Source;
+
+            float diff = Mathf.Abs(approachLaunched - approachOther);
+            float baseDamage = closing * cfg.damagePerImpactSpeed;
+            float ratioOtherOverLaunched = MassRatio(other, launched);
+
+            float damageToLaunched = (baseDamage + diff * cfg.damagePerSpeedDiff) * other.OffenseMultiplier * ratioOtherOverLaunched;
+            float damageToOther = baseDamage * launched.OffenseMultiplier / ratioOtherOverLaunched;
+
+            // Si la otra es quien la lanzó, su daño no cuenta como golpe propio
+            FakeBladeController launchedSource = thrower != null ? thrower : other;
+            FakeBladeController otherSource = thrower != null && thrower != other ? thrower : launched;
+            float dealtToLaunched = launched.ApplyDamage(damageToLaunched, launchedSource);
+            float dealtToOther = other.ApplyDamage(damageToOther, otherSource);
+
+            float knockback = Mathf.Min(cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff, cfg.maxKnockback);
+            launched.ApplyKnockback(-launchedToOther * knockback * launched.KnockbackResistance);
+            other.ApplyKnockback(launchedToOther * knockback * other.KnockbackResistance);
+
+            other.PlayClashFeedback(contactPoint, Mathf.Clamp01(closing / 15f));
+            launched.NotifyClash(other, dealtToLaunched);
+            other.NotifyClash(launched, dealtToOther);
         }
 
         private static float MassRatio(FakeBladeController a, FakeBladeController b)

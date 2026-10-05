@@ -65,6 +65,13 @@ namespace FakeBlade.Core
         [Header("Parry")]
         public Color parryColor = new Color(0.55f, 0.95f, 1f);
 
+        [Header("Estados alterados (partículas, icono y HUD)")]
+        public Color burnColor = new Color(1f, 0.45f, 0.1f);
+        public Color freezeColor = new Color(0.55f, 0.9f, 1f);
+        public Color launchColor = new Color(1f, 0.95f, 0.3f);
+        [Tooltip("Partículas/s sobre la peonza con un estado alterado")]
+        public float statusParticleRate = 22f;
+
         [Header("Ataque cargado")]
         [Tooltip("Color de las partículas en el nivel de carga máximo (el nivel 1 usa el color del jugador)")]
         public Color chargeHotColor = new Color(1f, 0.95f, 0.7f);
@@ -101,6 +108,17 @@ namespace FakeBlade.Core
             for (int i = 0; i < entries.Count; i++)
                 if (entries[i] != null && entries[i].type == type) return entries[i];
             return null;
+        }
+
+        public Color GetStatusColor(StatusEffectType status)
+        {
+            switch (status)
+            {
+                case StatusEffectType.Burning: return burnColor;
+                case StatusEffectType.Frozen: return freezeColor;
+                case StatusEffectType.Launched: return launchColor;
+                default: return Color.white;
+            }
         }
     }
 }

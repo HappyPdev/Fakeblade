@@ -48,6 +48,8 @@ namespace FakeBlade.Core
         public event Action<int> OnAttackLaunched;
         public event Action<SpecialAbilityType> OnSpecialActivated;
         public event Action<SpecialAbilityType> OnSpecialEnded;
+        /// <summary>Cambio de estado alterado (None = se acabó).</summary>
+        public event Action<StatusEffectType> OnStatusEffectChanged;
         /// <summary>Choque con otra peonza: (otra, RPM perdidas por esta).</summary>
         public event Action<FakeBladeController, float> OnClash;
         public event Action OnSpinOut;
@@ -82,7 +84,8 @@ namespace FakeBlade.Core
 
         private readonly AttackSystem _attack = new AttackSystem();
         private readonly SpecialAbilitySystem _special = new SpecialAbilitySystem();
-        // Estela, chispas, humo, carga y auras: todo con el pool de VfxSystem
+        private readonly StatusEffectSystem _status = new StatusEffectSystem();
+        // Estela, chispas, humo, carga, auras y estados: todo con el pool de VfxSystem
         private BladeParticles _particles;
 
         // RPM
@@ -194,6 +197,8 @@ namespace FakeBlade.Core
 
         public AttackSystem Attack => _attack;
         public SpecialAbilitySystem Special => _special;
+        /// <summary>Estado alterado actual (solo lectura; para aplicar uno: TryBurn/TryFreeze/TryLaunch).</summary>
+        public StatusEffectSystem Status => _status;
         public FakeBladeStats Stats => _stats;
         public PlayerController Owner => _owner;
 
@@ -450,11 +455,19 @@ namespace FakeBlade.Core
         /// <summary>
         /// Aplica daño (RPM) tras defensa y modificadores. Devuelve las RPM realmente perdidas.
         /// </summary>
-        public float ApplyDamage(float amount, FakeBladeController source)
+        public float ApplyDamage(float amount, FakeBladeController source) => ApplyDamageInternal(amount, source, false);
+
+        /// <summary>
+        /// Daño de un estado alterado (quemadura): fijo, no lo reduce la defensa de las piezas,
+        /// pero sí un poder defensivo activo y la invulnerabilidad.
+        /// </summary>
+        public float ApplyStatusDamage(float amount, FakeBladeController source) => ApplyDamageInternal(amount, source, true);
+
+        private float ApplyDamageInternal(float amount, FakeBladeController source, bool ignoreDefense)
         {
             if (_isDestroyed || amount <= 0f || _invulnerableTimer > 0f) return 0f;
 
-            float defense = _stats != null ? _stats.Defense : 0f;
+            float defense = _stats != null && !ignoreDefense ? _stats.Defense : 0f;
             float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier;
             if (damage <= 0f) return 0f;
 
@@ -477,6 +490,45 @@ namespace FakeBlade.Core
 
         /// <summary>Compatibilidad: daño sin atacante.</summary>
         public void ReduceSpin(float amount) => ApplyDamage(amount, null);
+
+        #region Status Effects (GDD 5)
+        /// <summary>Quemadura (Fuego). Devuelve false si está bloqueada, invulnerable o fuera de combate.</summary>
+        public bool TryBurn(FakeBladeController source, float damagePctPerTick, float tickInterval, float duration) =>
+            CanReceiveStatus && NotifyStatusApplied(_status.TryBurn(source, damagePctPerTick, tickInterval, duration));
+
+        /// <summary>Congelación (Hielo).</summary>
+        public bool TryFreeze(FakeBladeController source, float moveMultiplier, float rechargeMultiplier, float duration) =>
+            CanReceiveStatus && NotifyStatusApplied(_status.TryFreeze(source, moveMultiplier, rechargeMultiplier, duration));
+
+        /// <summary>Lanzada (Rayos).</summary>
+        public bool TryLaunch(FakeBladeController source, float duration) =>
+            CanReceiveStatus && NotifyStatusApplied(_status.TryLaunch(source, duration));
+
+        public void ClearStatus()
+        {
+            _particles?.HideStatusIcon();
+            if (_status.Clear()) OnStatusEffectChanged?.Invoke(StatusEffectType.None);
+        }
+
+        /// <summary>Recién reaparecida (invulnerable) no recibe estados.</summary>
+        private bool CanReceiveStatus => !_isDestroyed && _invulnerableTimer <= 0f;
+
+        private bool NotifyStatusApplied(bool applied)
+        {
+            if (applied) OnStatusEffectChanged?.Invoke(_status.Current);
+            return applied;
+        }
+
+        private void UpdateStatus(float dt)
+        {
+            if (!_status.HasStatus) return;
+            StatusEffectType before = _status.Current;
+            _status.Tick(dt, this);
+            // Si la quemadura lo ha dejado K.O., HandleSpinOut ya avisó
+            if (!_isDestroyed && _status.Current != before)
+                OnStatusEffectChanged?.Invoke(_status.Current);
+        }
+        #endregion
 
         public void AddSpin(float amount)
         {
@@ -503,6 +555,7 @@ namespace FakeBlade.Core
             _attack.CancelCharge();
             if (_special.Stop())
                 OnSpecialEnded?.Invoke(_special.Type);
+            ClearStatus();
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
@@ -536,8 +589,12 @@ namespace FakeBlade.Core
             if (_special.Tick(dt))
                 OnSpecialEnded?.Invoke(_special.Type);
 
-            // Aturdida tras un parry: el botón de ataque no cuenta
-            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered, _special.ChargeSpeedMultiplier);
+            UpdateStatus(dt);
+            if (_isDestroyed) return;
+
+            // Aturdida tras un parry: el botón de ataque no cuenta. Congelada: recarga más lenta
+            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered, _special.ChargeSpeedMultiplier,
+                _status.AttackRechargeMultiplier);
             if (launch != AttackSystem.NoLaunch)
                 LaunchAttack(launch);
         }
@@ -831,6 +888,17 @@ namespace FakeBlade.Core
             float impactSpeed = Mathf.Abs(Vector3.Dot(collision.relativeVelocity, contact.normal));
             if (impactSpeed < cfg.wallMinDamageSpeed) return;
 
+            if (_status.IsLaunched)
+            {
+                // Lanzada (Rayos, GDD 5): la pared la golpea como una peonza parada con la fuerza de
+                // quien la lanzó (daño base + diferencia de velocidad), y el daño cuenta para él
+                FakeBladeController thrower = _status.Source;
+                float offense = thrower != null ? thrower.OffenseMultiplier : 1f;
+                ApplyDamage(impactSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense, thrower);
+                PlayClashFeedback(contact.point, Mathf.Clamp01(impactSpeed / 15f));
+                return;
+            }
+
             ApplyDamage(impactSpeed * cfg.wallDamagePerSpeed, null);
             VfxSystem.Play(VfxType.WallHit, contact.point, contact.normal, Color.white, Mathf.Clamp01(impactSpeed / 15f) + 0.3f);
         }
@@ -889,7 +957,7 @@ namespace FakeBlade.Core
                 return;
             }
 
-            float maxSpeed = _effectiveMaxSpeed * _special.MoveSpeedMultiplier;
+            float maxSpeed = _effectiveMaxSpeed * _special.MoveSpeedMultiplier * _status.MoveSpeedMultiplier;
             if (_attack.IsCharging) maxSpeed *= cfg.moveMultiplierWhileCharging;
 
             // Recuperación del tope de velocidad tras un burst
@@ -992,7 +1060,8 @@ namespace FakeBlade.Core
             }
             _tiltPivot.localRotation = Quaternion.Euler(_currentTilt.x + wobble.x, 0f, _currentTilt.z + wobble.z);
 
-            _particles.Tick(dt);
+            // null solo tras recompilar en Play (no se serializa)
+            _particles?.Tick(dt);
         }
 
         /// <summary>Color del jugador (efectos y HUD).</summary>
@@ -1035,6 +1104,7 @@ namespace FakeBlade.Core
 
             _attack.Reset(_stats != null ? _stats.AttackCharges : 3);
             _special.Reset(this, _stats != null ? _stats.SpecialAbility : SpecialAbilityType.SpinBoost);
+            ClearStatus();
             _particles?.Reset();
             _wobblePhase = 0f;
 

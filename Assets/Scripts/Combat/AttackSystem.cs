@@ -135,11 +135,12 @@ namespace FakeBlade.Core
         /// Avanza temporizadores y procesa el botón.
         /// Devuelve el nivel a lanzar (0 = rápido, 1+ = cargado) o NoLaunch.
         /// </summary>
-        public int Tick(float dt, bool held, float chargeSpeedMultiplier)
+        /// <param name="rechargeSpeedMultiplier">Velocidad de recarga de las cargas (congelación &lt; 1).</param>
+        public int Tick(float dt, bool held, float chargeSpeedMultiplier, float rechargeSpeedMultiplier = 1f)
         {
             var cfg = CombatConfig.Active;
 
-            TickRecharge(dt, cfg);
+            TickRecharge(dt * Mathf.Max(0f, rechargeSpeedMultiplier), cfg);
             if (_chargedCooldown > 0f) _chargedCooldown -= dt;
             if (_comboTimer > 0f)
             {

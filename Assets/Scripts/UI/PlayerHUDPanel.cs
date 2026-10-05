@@ -61,6 +61,9 @@ namespace FakeBlade.UI
         private const int SPHERE_STEPS = SPHERE_D - 2;
 
         private const float POP_DURATION = 0.15f;
+
+        // Partículas del estado alterado que salen de la barra de RPM (GDD 5)
+        private const int STATUS_FX_COUNT = 14;
         #endregion
 
         #region References
@@ -95,6 +98,13 @@ namespace FakeBlade.UI
 
         private GameObject _koOverlay;
         private TextMeshProUGUI _koText;
+
+        private readonly Image[] _fx = new Image[STATUS_FX_COUNT];
+        private readonly Vector2[] _fxPos = new Vector2[STATUS_FX_COUNT];   // píxeles de UI (sin espejo)
+        private readonly Vector2[] _fxVel = new Vector2[STATUS_FX_COUNT];   // píxeles de UI por segundo
+        private readonly float[] _fxLife = new float[STATUS_FX_COUNT];
+        private readonly float[] _fxMaxLife = new float[STATUS_FX_COUNT];
+        private readonly Color[] _fxColor = new Color[STATUS_FX_COUNT];
         #endregion
 
         #region State
@@ -114,6 +124,8 @@ namespace FakeBlade.UI
         private float _orbitAngle;
         private Color _abilityColor;
         private bool _lastInvulnerableBlink;
+        private int _fxNext;
+        private float _fxAccumulator;
         #endregion
 
         public PlayerController Player => _player;
@@ -171,6 +183,7 @@ namespace FakeBlade.UI
             BuildBar(content);
             BuildPips(content);
             BuildDash(content);
+            BuildStatusFx(content);
             BuildOverlay(root);
         }
 
@@ -287,6 +300,18 @@ namespace FakeBlade.UI
             PixelUI.Stretch(_dashFill.rectTransform, 0, _px);
         }
 
+        private void BuildStatusFx(Transform parent)
+        {
+            RectTransform container = PixelUI.CreateRect("StatusFx", parent);
+            PixelUI.Place(container, 0, 0, W, H, _px);
+            for (int i = 0; i < STATUS_FX_COUNT; i++)
+            {
+                _fx[i] = PixelUI.CreateImage($"Fx_{i}", container, Color.white);
+                PixelUI.Place(_fx[i].rectTransform, 0, 0, 1, 1, _px);
+                _fx[i].enabled = false;
+            }
+        }
+
         private void BuildOverlay(Transform root)
         {
             var overlay = PixelUI.CreateImage("KOOverlay", root, _theme.overlayColor);
@@ -360,6 +385,12 @@ namespace FakeBlade.UI
             _lastDashStep = _lastSphereStep = _lastOrbitVisible = -1;
             _lastInvulnerableBlink = false;
             for (int i = 0; i < _pipPop.Length; i++) _pipPop[i] = 0f;
+            for (int i = 0; i < STATUS_FX_COUNT; i++)
+            {
+                _fxLife[i] = 0f;
+                _fx[i].enabled = false;
+            }
+            _fxAccumulator = 0f;
 
             _abilityColor = SpecialAbilities.Get(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost).color;
             _sphereGlow.color = new Color(_abilityColor.r, _abilityColor.g, _abilityColor.b, 0.35f);
@@ -446,8 +477,9 @@ namespace FakeBlade.UI
         #region Update
         private void Update()
         {
-            // _barFill null = recompilación en caliente (las referencias construidas por código no se serializan)
-            if (_player == null || _barFill == null) return;
+            // null = recompilación en caliente (las referencias construidas por código y los arrays
+            // readonly no se serializan)
+            if (_player == null || _barFill == null || _pipFills[0] == null || _fx[0] == null) return;
             FakeBladeController blade = _player.Blade;
             if (blade == null) return;
 
@@ -459,6 +491,7 @@ namespace FakeBlade.UI
             UpdateDash(blade.DashCooldownProgress);
             UpdateSphere(blade.Special, dt);
             UpdateInvulnerability(blade.IsInvulnerable);
+            UpdateStatusFx(blade.Status.Current, blade.SpinSpeedPercentage, dt);
         }
 
         /// <summary>
@@ -655,6 +688,94 @@ namespace FakeBlade.UI
 
             _lastInvulnerableBlink = blink;
             _border.color = blink ? Color.white : _player.PlayerColor;
+        }
+
+        /// <summary>
+        /// Estado alterado: partículas pixel que salen de la parte llena de la barra de RPM.
+        /// Quemada = brasas que suben, congelada = copos lentos que parpadean, lanzada = chispas
+        /// rápidas a los lados. Posiciones ajustadas a la rejilla de píxeles; sin asignaciones.
+        /// </summary>
+        private void UpdateStatusFx(StatusEffectType status, float health, float dt)
+        {
+            if (status != StatusEffectType.None)
+            {
+                float rate = status == StatusEffectType.Burning ? 16f : status == StatusEffectType.Frozen ? 10f : 22f;
+                _fxAccumulator += rate * dt;
+                while (_fxAccumulator >= 1f)
+                {
+                    _fxAccumulator -= 1f;
+                    SpawnStatusFx(status, health);
+                }
+            }
+            else
+            {
+                _fxAccumulator = 0f;
+            }
+
+            for (int i = 0; i < STATUS_FX_COUNT; i++)
+            {
+                if (_fxLife[i] <= 0f) continue;
+
+                _fxLife[i] -= dt;
+                if (_fxLife[i] <= 0f)
+                {
+                    _fx[i].enabled = false;
+                    continue;
+                }
+
+                // Solo se toca la UI cuando cambia un píxel o un paso de transparencia
+                _fxPos[i] += _fxVel[i] * dt;
+                float x = Mathf.Round(_fxPos[i].x);
+                if (_mirror) x = W - 1 - x;
+                Vector2 position = new Vector2(x * _px, -Mathf.Round(_fxPos[i].y) * _px);
+                RectTransform rt = _fx[i].rectTransform;
+                if (rt.anchoredPosition != position) rt.anchoredPosition = position;
+
+                // Desvanecido por pasos: 100% → 60% → 30%
+                float t = _fxLife[i] / _fxMaxLife[i];
+                float alpha = t > 0.5f ? 1f : t > 0.25f ? 0.6f : 0.3f;
+                if (!Mathf.Approximately(_fx[i].color.a, alpha))
+                {
+                    Color c = _fxColor[i];
+                    c.a = alpha;
+                    _fx[i].color = c;
+                }
+            }
+        }
+
+        private void SpawnStatusFx(StatusEffectType status, float health)
+        {
+            int i = _fxNext;
+            _fxNext = (_fxNext + 1) % STATUS_FX_COUNT;
+
+            // Desde la parte llena de la barra
+            float filled = Mathf.Max(1f, Mathf.Clamp01(health) * BAR_STEPS);
+            _fxPos[i] = new Vector2(CONTENT_X + 1 + Random.value * filled, BAR_Y + 1 + Random.value * (BAR_H - 2));
+
+            VfxLibrary library = VfxSystem.Library;
+            Color color = library != null ? library.GetStatusColor(status) : Color.white;
+            switch (status)
+            {
+                case StatusEffectType.Burning:
+                    _fxVel[i] = new Vector2(Random.Range(-3f, 3f), -Random.Range(10f, 18f));
+                    _fxMaxLife[i] = Random.Range(0.5f, 0.8f);
+                    _fxColor[i] = Random.value < 0.4f ? Color.Lerp(color, Color.yellow, 0.6f) : color;
+                    break;
+                case StatusEffectType.Frozen:
+                    _fxVel[i] = new Vector2(Random.Range(-2f, 2f), -Random.Range(1f, 4f));
+                    _fxMaxLife[i] = Random.Range(0.8f, 1.2f);
+                    _fxColor[i] = Random.value < 0.4f ? Color.white : color;
+                    break;
+                default:
+                    _fxVel[i] = new Vector2(Random.Range(-25f, 25f), Random.Range(-12f, 4f));
+                    _fxMaxLife[i] = Random.Range(0.25f, 0.4f);
+                    _fxColor[i] = Random.value < 0.3f ? Color.white : color;
+                    break;
+            }
+
+            _fxLife[i] = _fxMaxLife[i];
+            _fx[i].color = _fxColor[i];
+            _fx[i].enabled = true;
         }
 
         private static int Quantize(float value, int steps)

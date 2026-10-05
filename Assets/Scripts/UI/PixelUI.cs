@@ -207,18 +207,37 @@ namespace FakeBlade.UI
             return sprite;
         }
 
-        private static Sprite FromPattern(string name, string[] rows)
+        /// <summary>
+        /// Sprite pixel desde un patrón de texto: '#' = blanco (se tiñe con el color),
+        /// 'o' = contorno negro (no se tiñe), cualquier otro = transparente. Se centra en un
+        /// cuadrado si el patrón no lo es. pixelsPerUnit define su tamaño en el mundo.
+        /// </summary>
+        public static Sprite FromPattern(string name, string[] rows, float pixelsPerUnit = 100f)
         {
             int h = rows.Length;
-            int w = rows[0].Length;
-            var tex = NewTexture(w, h);
+            int w = 0;
+            for (int i = 0; i < h; i++) w = Mathf.Max(w, rows[i].Length);
+            int size = Mathf.Max(w, h);
+            int offsetX = (size - w) / 2;
+            int offsetY = (size - h) / 2;
 
+            var tex = NewTexture(size, size);
+            var pixels = new Color32[size * size];
             for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                    tex.SetPixel(x, h - 1 - y, rows[y][x] == '#' ? Color.white : Color.clear);
+            {
+                string row = rows[y];
+                for (int x = 0; x < row.Length; x++)
+                {
+                    char c = row[x];
+                    if (c != '#' && c != 'o') continue;
+                    int py = size - 1 - (offsetY + y);
+                    pixels[py * size + offsetX + x] = c == '#' ? new Color32(255, 255, 255, 255) : new Color32(0, 0, 0, 255);
+                }
+            }
 
+            tex.SetPixels32(pixels);
             tex.Apply(false, true);
-            var sprite = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+            var sprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), pixelsPerUnit);
             sprite.name = name;
             return sprite;
         }

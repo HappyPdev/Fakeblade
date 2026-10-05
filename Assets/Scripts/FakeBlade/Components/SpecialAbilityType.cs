@@ -29,7 +29,7 @@ namespace FakeBlade.Core
         [InspectorName("Rayos")]
         Lightning = 4,
 
-        /// <summary>Los golpes queman (sustituye a Rastro de fuego). Quehaceres C2.</summary>
+        /// <summary>Los golpes queman (sustituye a Rastro de fuego).</summary>
         [InspectorName("Fuego")]
         Fire = 5,
 

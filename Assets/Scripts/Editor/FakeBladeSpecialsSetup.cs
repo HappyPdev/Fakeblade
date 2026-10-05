@@ -30,6 +30,8 @@ namespace FakeBlade.Core.Editor
                 new Color(0.45f, 0.55f, 1f), energy: 1.2f, burst: 1f, log);
             Create<LightningData>("Lightning", "RAYOS", "LIGHTNING",
                 new Color(1f, 0.95f, 0.25f), energy: 0.8f, burst: 1f, log);
+            Create<FireData>("Fire", "FUEGO", "FIRE",
+                new Color(1f, 0.3f, 0.08f), energy: 1f, burst: 1.5f, log);
 
             AssetDatabase.SaveAssets();
             return log.ToString();

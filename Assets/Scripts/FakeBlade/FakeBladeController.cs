@@ -887,6 +887,8 @@ namespace FakeBlade.Core
 
         public void NotifyClash(FakeBladeController other, float damageTaken)
         {
+            // Golpes con efecto (Fuego, Hielo): reacciona el poder de quien ha hecho el daño
+            if (other != null && damageTaken > 0f) other._special.NotifyClashDamageDealt(this, damageTaken);
             OnClash?.Invoke(other, damageTaken);
         }
 

@@ -21,6 +21,7 @@ namespace FakeBlade.Core
         private const float TrailSpeedForFullAlpha = 12f;
         private const float ChargeGatherLife = 0.3f;
         private const float ShockWaveRippleInterval = 0.4f;
+        private static readonly Color FireHotColor = new Color(1f, 0.9f, 0.35f);
 
         private readonly FakeBladeController _blade;
         private readonly Collider _collider;
@@ -264,6 +265,7 @@ namespace FakeBlade.Core
                 case SpecialAbilityType.ShockWave: AuraShockWave(center, tip, color, mul, dt); break;
                 case SpecialAbilityType.Defense: AuraDefense(center, color, mul, dt); break;
                 case SpecialAbilityType.Lightning: AuraLightning(center, color, mul, dt); break;
+                case SpecialAbilityType.Fire: AuraFire(center, tip, color, mul, dt); break;
                 default:
                     VfxSystem.EmitCount(VfxType.SpecialAura, center, color, Accumulate(ref _auraAcc, 40f * mul, dt));
                     break;
@@ -355,6 +357,32 @@ namespace FakeBlade.Core
                 Vector3 dir = RandomFlatDirection();
                 Vector3 v = dir * Random.Range(2f, 4f) + Vector3.up * Random.Range(1f, 3f);
                 VfxSystem.EmitParticle(VfxType.GroundSpark, center + dir * (r * 0.5f), v, color);
+            }
+        }
+
+        /// <summary>Fuego: corona de llamas alrededor de la peonza (rojas y amarillas) y brasas que saltan.</summary>
+        private void AuraFire(Vector3 center, Vector3 tip, Color color, float mul, float dt)
+        {
+            Vector3 ground = new Vector3(center.x, tip.y + 0.05f, center.z);
+            Color hot = Color.Lerp(color, FireHotColor, 0.6f);
+            float r = AuraRadius;
+
+            int flames = Accumulate(ref _auraAcc, 120f * mul, dt);
+            for (int i = 0; i < flames; i++)
+            {
+                // Por fuera del cuerpo y algo hacia dentro al subir, como una hoguera alrededor
+                Vector3 dir = RandomFlatDirection();
+                Vector3 p = ground + dir * (r * Random.Range(0.9f, 1.25f));
+                Vector3 v = Vector3.up * Random.Range(1.8f, 3.2f) - dir * 0.5f;
+                VfxSystem.EmitParticle(VfxType.ChargeFlame, p, v, i % 3 == 0 ? hot : color, Random.Range(0.3f, 0.45f));
+            }
+
+            int embers = Accumulate(ref _auraAcc2, 16f * mul, dt);
+            for (int i = 0; i < embers; i++)
+            {
+                Vector3 dir = RandomFlatDirection();
+                Vector3 v = dir * Random.Range(1f, 2.5f) + Vector3.up * Random.Range(2.5f, 4f);
+                VfxSystem.EmitParticle(VfxType.LowSpinSpark, center + dir * r, v, hot);
             }
         }
         #endregion

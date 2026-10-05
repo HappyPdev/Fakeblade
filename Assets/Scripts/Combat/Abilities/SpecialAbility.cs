@@ -26,6 +26,12 @@ namespace FakeBlade.Core
         /// <summary>Al terminar: se vacía la esfera, la peonza cae o se reinicia.</summary>
         public virtual void OnEnd() { }
 
+        /// <summary>
+        /// Ha quitado RPM a otra peonza en un choque (lo gane o no, también en un parry; el roce
+        /// continuo no cuenta). Para los poderes cuyos golpes tienen efecto (Fuego, Hielo).
+        /// </summary>
+        public virtual void OnClashDamageDealt(FakeBladeController target, float damage) { }
+
         #region Modifiers
         /// <summary>Multiplicador del daño recibido.</summary>
         public virtual float DamageTakenMultiplier => 1f;

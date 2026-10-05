@@ -92,6 +92,13 @@ namespace FakeBlade.Core
             return true;
         }
 
+        /// <summary>Ha quitado RPM a otra peonza en un choque (solo cuenta con el poder activo).</summary>
+        public void NotifyClashDamageDealt(FakeBladeController target, float damage)
+        {
+            if (_isActive && target != null && damage > 0f)
+                _ability.OnClashDamageDealt(target, damage);
+        }
+
         #region Modifiers (solo mientras está activo)
         /// <summary>Multiplicador del daño recibido.</summary>
         public float DamageTakenMultiplier => _isActive ? _ability.DamageTakenMultiplier : 1f;

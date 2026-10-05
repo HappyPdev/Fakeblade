@@ -33,7 +33,7 @@ namespace FakeBlade.Core
         [InspectorName("Fuego")]
         Fire = 5,
 
-        /// <summary>Los golpes congelan. Quehaceres C3.</summary>
+        /// <summary>Los golpes congelan.</summary>
         [InspectorName("Hielo")]
         Ice = 6,
 

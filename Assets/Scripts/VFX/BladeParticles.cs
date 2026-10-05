@@ -266,6 +266,7 @@ namespace FakeBlade.Core
                 case SpecialAbilityType.Defense: AuraDefense(center, color, mul, dt); break;
                 case SpecialAbilityType.Lightning: AuraLightning(center, color, mul, dt); break;
                 case SpecialAbilityType.Fire: AuraFire(center, tip, color, mul, dt); break;
+                case SpecialAbilityType.Ice: AuraIce(center, tip, color, mul, dt); break;
                 default:
                     VfxSystem.EmitCount(VfxType.SpecialAura, center, color, Accumulate(ref _auraAcc, 40f * mul, dt));
                     break;
@@ -383,6 +384,31 @@ namespace FakeBlade.Core
                 Vector3 dir = RandomFlatDirection();
                 Vector3 v = dir * Random.Range(1f, 2.5f) + Vector3.up * Random.Range(2.5f, 4f);
                 VfxSystem.EmitParticle(VfxType.LowSpinSpark, center + dir * r, v, hot);
+            }
+        }
+
+        /// <summary>Hielo: cristales que flotan alrededor de la peonza y humo blanco de frío que se arrastra por el suelo.</summary>
+        private void AuraIce(Vector3 center, Vector3 tip, Color color, float mul, float dt)
+        {
+            float r = AuraRadius;
+
+            int crystals = Accumulate(ref _auraAcc, 40f * mul, dt);
+            for (int i = 0; i < crystals; i++)
+            {
+                Vector3 dir = RandomFlatDirection();
+                Vector3 p = center + dir * (r * Random.Range(0.8f, 1.2f)) + Vector3.up * Random.Range(-0.1f, 0.5f);
+                Color c = (i & 1) == 0 ? color : Color.white;
+                VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.up * 0.25f, c, Random.Range(0.16f, 0.26f), 0.45f);
+            }
+
+            int mist = Accumulate(ref _auraAcc2, 14f * mul, dt);
+            for (int i = 0; i < mist; i++)
+            {
+                Vector3 dir = RandomFlatDirection();
+                Color c = Color.Lerp(Color.white, color, 0.2f);
+                c.a = 0.6f;
+                VfxSystem.EmitParticle(VfxType.LowSpinSmoke, tip + Vector3.up * 0.08f + dir * (r * 0.7f),
+                    dir * Random.Range(0.4f, 0.9f) + Vector3.down * 0.05f, c, Random.Range(0.26f, 0.38f));
             }
         }
         #endregion

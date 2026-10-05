@@ -233,6 +233,13 @@ namespace FakeBlade.Core
             if (_charges >= _maxCharges) _rechargeTimer = 0f;
         }
 
+        /// <summary>Rellena todas las cargas de ataque (efecto común de los especiales).</summary>
+        public void RefillCharges()
+        {
+            _charges = _maxCharges;
+            _rechargeTimer = 0f;
+        }
+
         /// <summary>Llamar cuando un ataque de esta peonza gana un choque.</summary>
         public void RegisterHit()
         {

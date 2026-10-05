@@ -190,10 +190,7 @@ namespace FakeBlade.Core
             ["ARCHETYPE_ATTACK"] = new[] { "ATAQUE", "ATTACK" },
             ["ARCHETYPE_DEFENSE"] = new[] { "DEFENSA", "DEFENSE" },
             ["ARCHETYPE_AGILITY"] = new[] { "AGILIDAD", "AGILITY" },
-            ["SPECIAL_SPINBOOST"] = new[] { "SPIN BOOST", "SPIN BOOST" },
-            ["SPECIAL_SHOCKWAVE"] = new[] { "ONDA DE CHOQUE", "SHOCKWAVE" },
-            ["SPECIAL_SHIELD"] = new[] { "STORM BREAKER", "STORM BREAKER" },
-            ["SPECIAL_DASH"] = new[] { "DASH ELÉCTRICO", "ELECTRIC DASH" },
+            // Los nombres de los poderes están en su asset (SpecialAbilityData.nameEs / nameEn)
             ["STAT_ATTACK"] = new[] { "ATAQUE", "ATTACK" },
             ["STAT_DEFENSE"] = new[] { "DEFENSA", "DEFENSE" },
             ["STAT_SPEED"] = new[] { "VELOCIDAD", "SPEED" },

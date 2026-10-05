@@ -76,10 +76,6 @@ MonoBehaviour:
   - type: 20
     prefab: {fileID: 8859113551543651562, guid: 5ead5788400569b4a9860b22cb709d63, type: 3}
     burstCount: 14
-  spinBoostColor: {r: 0.3, g: 1, b: 0.6, a: 1}
-  shockWaveColor: {r: 1, g: 0.55, b: 0.15, a: 1}
-  stormBreakerColor: {r: 0.45, g: 0.55, b: 1, a: 1}
-  electricDashColor: {r: 1, g: 0.95, b: 0.25, a: 1}
   parryColor: {r: 0.55, g: 0.95, b: 1, a: 1}
   chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
   chargeGatherRate: 30

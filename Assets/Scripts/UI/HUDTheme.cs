@@ -60,21 +60,7 @@ namespace FakeBlade.UI
         [Header("=== ESFERA DE ESPECIAL ===")]
         public Color sphereOutline = new Color(0.02f, 0.02f, 0.05f);
         public Color sphereEmpty = new Color(0.1f, 0.1f, 0.18f);
-        public Color spinBoostColor = new Color(0.3f, 1f, 0.6f);
-        public Color shockWaveColor = new Color(1f, 0.55f, 0.15f);
-        public Color stormBreakerColor = new Color(0.45f, 0.55f, 1f);
-        public Color electricDashColor = new Color(1f, 0.95f, 0.25f);
-
-        public Color GetAbilityColor(SpecialAbilityType type)
-        {
-            switch (type)
-            {
-                case SpecialAbilityType.ShockWave: return shockWaveColor;
-                case SpecialAbilityType.Shield: return stormBreakerColor;
-                case SpecialAbilityType.Dash: return electricDashColor;
-                default: return spinBoostColor;
-            }
-        }
+        // El color de relleno es el del poder equipado (SpecialAbilityData.color)
 
         /// <summary>Color por tramos (sin degradado) para mantener la estética pixel.</summary>
         public Color GetHealthColor(float t)

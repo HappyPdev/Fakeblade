@@ -244,7 +244,7 @@ namespace FakeBlade.Core
                 return;
             }
 
-            Color color = lib.GetAbilityColor(special.Type);
+            Color color = special.Color;
             switch (special.Type)
             {
                 case SpecialAbilityType.SpinBoost: AuraSpinBoost(center, tip, color, mul, dt); break;

@@ -5,87 +5,104 @@ namespace FakeBlade.Core
     /// <summary>
     /// Poder especial (GDD 5). Clase C# pura que posee FakeBladeController.
     ///
-    /// - La energía (0-1) se carga al golpear con éxito o con powerups.
-    /// - Con la energía llena se puede activar; mientras está activo se vacía
-    ///   durante specialDuration y al llegar a 0 termina.
-    /// - Los efectos continuos se exponen como multiplicadores que consultan
-    ///   el movimiento y el combate. Los instantáneos (onda de choque) los ejecuta el controller.
+    /// - La energía (0-1, relleno de la esfera) se carga al golpear con éxito o con powerups.
+    ///   Lo ganado se divide por la energía que necesita el poder: los fuertes tardan más.
+    /// - Con la esfera llena se puede activar. Efecto común de todos los poderes: recupera RPM y
+    ///   rellena las cargas de ataque. Después se vacía durante la duración del poder y termina.
+    /// - Lo propio de cada poder vive en su <see cref="SpecialAbility"/> (datos en un asset
+    ///   <see cref="SpecialAbilityData"/>); aquí solo se expone a través de los modificadores.
     /// </summary>
     public sealed class SpecialAbilitySystem
     {
+        private FakeBladeController _owner;
+        private SpecialAbility _ability;
         private float _energy;
         private bool _isActive;
 
-        public SpecialAbilityType Type { get; private set; } = SpecialAbilityType.SpinBoost;
+        /// <summary>Datos del poder equipado (null hasta el primer Reset).</summary>
+        public SpecialAbilityData Data => _ability?.Data;
+        public SpecialAbilityType Type => _ability != null ? _ability.Data.Type : SpecialAbilityType.SpinBoost;
+        /// <summary>Color del poder (aura, partículas y esfera del HUD).</summary>
+        public Color Color => _ability != null ? _ability.Data.color : Color.white;
 
         /// <summary>Energía 0-1 (relleno de la esfera del HUD).</summary>
         public float Energy => _energy;
         public bool IsActive => _isActive;
         public bool IsReady => !_isActive && _energy >= 1f;
 
-        public void Reset(SpecialAbilityType type)
+        /// <summary>Equipa un poder (o lo mantiene) y vacía la energía.</summary>
+        public void Reset(FakeBladeController owner, SpecialAbilityType type)
         {
-            Type = type == SpecialAbilityType.None ? SpecialAbilityType.SpinBoost : type;
+            Stop();
+            _owner = owner;
+
+            SpecialAbilityData data = SpecialAbilities.Get(type);
+            if (_ability == null || _ability.Data != data)
+                _ability = data.CreateRuntime(owner);
+
             _energy = 0f;
-            _isActive = false;
         }
 
+        /// <summary>Energía en unidades de la barra estándar (1 = llenar un poder de energía 1).</summary>
         public void AddEnergy(float amount)
         {
-            if (_isActive || amount <= 0f) return;
-            _energy = Mathf.Min(1f, _energy + amount);
+            if (_isActive || amount <= 0f || _ability == null) return;
+            _energy = Mathf.Min(1f, _energy + amount / Mathf.Max(0.1f, _ability.Data.energyRequired));
+        }
+
+        /// <summary>Llena la esfera al instante (sandbox, trucos y pruebas).</summary>
+        public void FillEnergy()
+        {
+            if (!_isActive) _energy = 1f;
         }
 
         public bool TryActivate()
         {
-            if (!IsReady) return false;
+            if (!IsReady || _owner == null) return false;
             _isActive = true;
+
+            // Efecto común de todos los poderes (GDD 5)
+            _owner.AddSpin(_owner.MaxSpinSpeed * CombatConfig.Active.specialActivationSpinPct);
+            _owner.Attack.RefillCharges();
+
+            _ability.OnActivate();
             return true;
         }
 
-        /// <summary>Avanza el drenaje. Devuelve true el frame en que el poder termina.</summary>
+        /// <summary>Avanza el poder activo. Devuelve true el frame en que termina.</summary>
         public bool Tick(float dt)
         {
             if (!_isActive) return false;
 
-            float duration = Mathf.Max(0.1f, CombatConfig.Active.specialDuration);
-            _energy -= dt / duration;
+            _ability.Tick(dt);
+            _energy -= dt / Mathf.Max(0.1f, _ability.Data.duration);
             if (_energy > 0f) return false;
 
-            _energy = 0f;
-            _isActive = false;
+            Stop();
             return true;
         }
 
-        #region Modifiers
-        private bool Is(SpecialAbilityType t) => _isActive && Type == t;
+        /// <summary>Corta el poder activo (K.O. o reinicio). Devuelve true si estaba activo.</summary>
+        public bool Stop()
+        {
+            if (!_isActive) return false;
+            _isActive = false;
+            _energy = 0f;
+            _ability.OnEnd();
+            return true;
+        }
 
-        /// <summary>Multiplicador del daño recibido (Storm Breaker).</summary>
-        public float DamageTakenMultiplier =>
-            Is(SpecialAbilityType.Shield) ? 1f - CombatConfig.Active.stormBreakerDamageReduction : 1f;
-
-        /// <summary>Multiplicador del empuje recibido (Storm Breaker).</summary>
-        public float KnockbackTakenMultiplier =>
-            Is(SpecialAbilityType.Shield) ? 1f - CombatConfig.Active.stormBreakerKnockbackResistance : 1f;
-
-        public float MoveSpeedMultiplier =>
-            Is(SpecialAbilityType.Shield) ? 1f + CombatConfig.Active.stormBreakerMoveBonus : 1f;
-
-        /// <summary>Storm Breaker: los ataques rápidos cuentan como cargados de nivel 1.</summary>
-        public int MinAttackLevel => Is(SpecialAbilityType.Shield) ? 1 : 0;
-
-        public float DashCooldownMultiplier =>
-            Is(SpecialAbilityType.Dash) ? CombatConfig.Active.electricDashCooldownMultiplier : 1f;
-
-        public float DashImpulseMultiplier =>
-            Is(SpecialAbilityType.Dash) ? CombatConfig.Active.electricDashImpulseMultiplier : 1f;
-
-        public float ChargeSpeedMultiplier =>
-            Is(SpecialAbilityType.Dash) ? CombatConfig.Active.electricChargeSpeedMultiplier : 1f;
-
-        /// <summary>Fracción de RPM máximas recuperada por segundo (Spin Boost).</summary>
-        public float SpinRegenPctPerSecond =>
-            Is(SpecialAbilityType.SpinBoost) ? CombatConfig.Active.spinBoostPctPerSecond : 0f;
+        #region Modifiers (solo mientras está activo)
+        /// <summary>Multiplicador del daño recibido.</summary>
+        public float DamageTakenMultiplier => _isActive ? _ability.DamageTakenMultiplier : 1f;
+        /// <summary>Multiplicador del empuje recibido.</summary>
+        public float KnockbackTakenMultiplier => _isActive ? _ability.KnockbackTakenMultiplier : 1f;
+        public float MoveSpeedMultiplier => _isActive ? _ability.MoveSpeedMultiplier : 1f;
+        /// <summary>Nivel mínimo con el que cuentan los ataques.</summary>
+        public int MinAttackLevel => _isActive ? _ability.MinAttackLevel : 0;
+        public float DashCooldownMultiplier => _isActive ? _ability.DashCooldownMultiplier : 1f;
+        public float DashImpulseMultiplier => _isActive ? _ability.DashImpulseMultiplier : 1f;
+        public float ChargeSpeedMultiplier => _isActive ? _ability.ChargeSpeedMultiplier : 1f;
         #endregion
     }
 }

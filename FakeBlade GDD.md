@@ -163,7 +163,7 @@ El poder especial lo define el **Núcleo** montado: para cambiar de especial se 
 - **Activación:** cuando la carga está llena, se pulsa Especial. Mientras está activo, la carga se va vaciando con el tiempo. Todos duran **5 s**. Cuando se vacía, el poder termina. Excepción: Rayos dura hasta 6 s o hasta que da su golpe fuerte (ver tabla).
 - **Nombres:** simples, en español e inglés: Defensa / Defense, Fuego / Fire, Hielo / Ice, Rayos / Lightning, Fantasma / Ghost. Spin Boost y Onda de choque mantienen los suyos.
 
-**Efecto común a todos los poderes (al activarse):**
+**Efecto común a todos los poderes (al activarse)** *(implementado)*:
 
 - Recupera el **25% de las RPM máximas** (mismo valor para todos, ajustable en `CombatConfig`).
 - **Rellena todas las cargas de ataque** disponibles en ese momento.
@@ -298,7 +298,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   - `HUDTheme`: colores, fuente y tamaños del HUD.
 - **Input System** para teclado y mandos, con esquemas de teclado J1/J2 y asignación de mando por jugador. Los controles se pueden reasignar y se guardan.
 - **Fuentes de control intercambiables:** cada peonza recibe sus órdenes de una fuente (jugador humano, dummy o, en el futuro, IA).
-- **Poderes como datos + comportamiento** *(pendiente)*: cada poder tendrá un asset con sus valores comunes (energía necesaria, duración, color, núcleo) y una clase con su efecto propio. Así, añadir un poder es crear su asset y su clase, sin tocar un `switch` central. Los estados alterados (quemadura, congelación, lanzada) serán un sistema común de la peonza.
+- **Poderes como datos + comportamiento** *(implementado)*: cada poder es un asset en `Resources/SpecialAbilities` (`SpecialAbilityData`) con sus valores comunes (nombre ES/EN, color, icono, energía necesaria, duración, intensidad del estallido) y los propios del poder (radio de la onda, regeneración...). Cada asset crea su clase de comportamiento (`SpecialAbility`), con ganchos al activarse, cada frame y al terminar, y con modificadores de daño, empuje, movimiento, dash y carga. `SpecialAbilitySystem` aplica el efecto común y la energía. Añadir un poder: un valor en `SpecialAbilityType`, su clase de datos con su comportamiento y su asset (menú *FakeBlade → Setup Specials*). Los colores y nombres de los poderes ya no están repetidos en `VfxLibrary`, `HUDTheme` ni `Loc`, ni sus valores en `CombatConfig`. Los estados alterados (quemadura, congelación, lanzada) serán un sistema común de la peonza.
 - **Escenas:** `MainMenu` (menú principal, opciones, controles e información, con la arena de fondo), `Assembly` (unirse, montar peonzas y parámetros de partida) y `BattleArena` (combate). La configuración pasa de una escena a otra en `MatchSetup`.
 - **Catálogo** (`FakeBladeCatalog`): piezas, presets, paleta de colores, arenas y prefab de jugador. Añadir contenido es añadir entradas al catálogo.
 - **HUD dirigido por eventos:** no busca objetos en la escena ni formatea strings cada frame.
@@ -531,9 +531,9 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 **Fase A. Base común de los especiales**
 
-- [ ] A1. Efecto común al activar: +25% de RPM máximas y rellenar todas las cargas de ataque (`CombatConfig` + `AttackSystem`).
-- [ ] A2. Poderes como datos + comportamiento: un asset por poder (energía necesaria, duración, color, icono, nombre ES/EN) y una clase con su efecto. Migrar Spin Boost y Onda de choque.
-- [ ] A3. Energía necesaria por poder (Spin Boost 1, Onda 1, Fuego 1, Hielo 1, Defensa 1,2, Fantasma 1,3, Rayos 0,8) y esfera del HUD según ese valor.
+- [x] A1. Efecto común al activar: +25% de RPM máximas y rellenar todas las cargas de ataque (`CombatConfig.specialActivationSpinPct` + `AttackSystem.RefillCharges`).
+- [x] A2. Poderes como datos + comportamiento: un asset por poder (energía necesaria, duración, color, icono, nombre ES/EN) y una clase con su efecto. Migrados los 4 actuales (Spin Boost, Onda de choque, Storm Breaker y Dash eléctrico).
+- [x] A3. Energía necesaria por poder (Spin Boost 1, Onda 1, Fuego 1, Hielo 1, Defensa 1,2, Fantasma 1,3, Rayos 0,8) y esfera del HUD según ese valor. Storm Breaker y Dash eléctrico ya usan la de Defensa (1,2) y Rayos (0,8). Fuego, Hielo y Fantasma la tendrán al crear su asset.
 - [ ] A4. Estados alterados en la peonza (quemadura, congelación, lanzada): uno a la vez, sustitución, triángulo de bloqueos (Fuego > Hielo > Rayos > Fuego), partículas que salen del panel del jugador, partículas sobre la peonza e icono encima de ella.
 - [ ] A5. Fusión: Storm Breaker → Defensa, Dash eléctrico → Rayos, Rastro de fuego → Fuego. Actualizar enum, núcleos, textos (Defensa/Defense, Fuego/Fire, Hielo/Ice, Rayos/Lightning, Fantasma/Ghost) y auras.
 

@@ -19,6 +19,11 @@ MonoBehaviour:
   linearDamping: 0.5
   angularDamping: 0.1
   burstRecoverTime: 0.45
+  visualSpinDegreesPerRpm: 6
+  visualSpinKnee: 0.08
+  lowSpinThreshold: 0.3
+  lowSpinWobbleAngle: 12
+  lowSpinWobbleFrequency: {x: 3.5, y: 1.6}
   wallDamagePerSpeed: 0.5
   wallMinDamageSpeed: 3
   grindDamagePerSecond: 8
@@ -36,13 +41,21 @@ MonoBehaviour:
   chargedKnockbackPerLevel: 0.4
   chargedAttackCooldown: 0.8
   moveMultiplierWhileCharging: 0.6
+  parryWindow: 0.12
+  parryKnockback: 10
+  parryStagger: 0.3
+  parryDefenderKnockbackFraction: 0.1
+  parryEnergy: 0.2
+  parryHitStop: 0.08
   comboWindow: 1
   comboBonusPerHit: 0.1
   maxComboHits: 3
   dashCooldown: 1.5
   dashSpinCostPct: 0.06
   dashAttackWindow: 0.35
+  dashHitRefundFraction: 0.5
   minCollisionSpeed: 1.5
+  clashCooldown: 0.15
   damagePerImpactSpeed: 1
   damagePerSpeedDiff: 2.5
   fasterDamageFraction: 0.25
@@ -52,18 +65,8 @@ MonoBehaviour:
   winnerKnockbackFraction: 0.35
   maxKnockback: 18
   killCreditWindow: 5
+  specialActivationSpinPct: 0.25
   specialEnergyPerDamage: 0.006
   passiveHitEnergyMultiplier: 0.5
-  specialDuration: 5
-  spinBoostPctPerSecond: 0.06
-  shockWaveRadius: 5
-  shockWaveForce: 12
-  shockWaveDamagePct: 0.1
-  stormBreakerDamageReduction: 0.6
-  stormBreakerKnockbackResistance: 0.8
-  stormBreakerMoveBonus: 0.15
-  electricDashCooldownMultiplier: 0.3
-  electricDashImpulseMultiplier: 1.5
-  electricChargeSpeedMultiplier: 2
   cameraShake: 1
   gamepadVibration: 1

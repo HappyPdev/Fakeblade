@@ -510,7 +510,7 @@ namespace FakeBlade.UI
 
             BladeStatBlock stats = FakeBladeStats.Calculate(catalog.GetBaseStats(), s.Tip, s.Body, s.Blade, s.Core);
             column.SetArchetype(Loc.Get("ARCHETYPE_" + stats.Archetype.ToString().ToUpperInvariant()),
-                Loc.Format("LOBBY_SPECIAL_LINE", Loc.Get("SPECIAL_" + stats.Special.ToString().ToUpperInvariant()), stats.AttackCharges));
+                Loc.Format("LOBBY_SPECIAL_LINE", SpecialAbilities.Get(stats.Special).DisplayName, stats.AttackCharges));
             column.SetStat(0, Loc.Get("STAT_ATTACK"), stats.AttackPower / 40f);
             column.SetStat(1, Loc.Get("STAT_DEFENSE"), stats.Defense / 60f);
             column.SetStat(2, Loc.Get("STAT_SPEED"), stats.MoveSpeed / 16f);

@@ -142,12 +142,6 @@ namespace FakeBlade.Core
                 return library != null ? library.parryColor : Color.cyan;
             }
         }
-
-        public static Color AbilityColor(SpecialAbilityType type)
-        {
-            VfxLibrary library = Library;
-            return library != null ? library.GetAbilityColor(type) : Color.white;
-        }
         #endregion
 
         private int ScaledCount(VfxType type, float intensity)

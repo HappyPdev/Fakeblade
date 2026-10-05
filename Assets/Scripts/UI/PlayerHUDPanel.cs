@@ -361,7 +361,7 @@ namespace FakeBlade.UI
             _lastInvulnerableBlink = false;
             for (int i = 0; i < _pipPop.Length; i++) _pipPop[i] = 0f;
 
-            _abilityColor = _theme.GetAbilityColor(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost);
+            _abilityColor = SpecialAbilities.Get(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost).color;
             _sphereGlow.color = new Color(_abilityColor.r, _abilityColor.g, _abilityColor.b, 0.35f);
             for (int i = 0; i < _orbit.Length; i++) _orbit[i].color = Color.Lerp(_abilityColor, Color.white, 0.4f);
 

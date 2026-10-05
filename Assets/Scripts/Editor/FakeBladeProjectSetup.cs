@@ -43,6 +43,7 @@ namespace FakeBlade.Core.Editor
             FakeBladeAssetsMenu.CreateDefaultAssets();
 
             log.AppendLine(FakeBladeVfxSetup.Run());
+            log.AppendLine(FakeBladeSpecialsSetup.Run());
 
             var floorMat = PhysicsMaterialAsset("Arena_Floor", 0.1f, 0f);
             var wallMat = PhysicsMaterialAsset("Arena_Wall", 0.05f, 0.5f);

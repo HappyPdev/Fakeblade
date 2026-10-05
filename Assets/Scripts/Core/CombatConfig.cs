@@ -176,24 +176,15 @@ namespace FakeBlade.Core
         public float killCreditWindow = 5f;
 
         [Header("=== ESPECIAL (GDD 5) ===")]
-        [Tooltip("Energía ganada por punto de daño infligido (1 = barra llena)")]
+        [Tooltip("Efecto común de todos los poderes al activarse: RPM recuperadas (fracción de las RPM máximas). " +
+                 "Además se rellenan todas las cargas de ataque.")]
+        [Range(0f, 1f)] public float specialActivationSpinPct = 0.25f;
+        [Tooltip("Energía ganada por punto de daño infligido (1 = barra estándar llena; cada poder pide la suya)")]
         public float specialEnergyPerDamage = 0.006f;
         [Tooltip("Multiplicador de energía si el golpe no fue con ataque o dash")]
         [Range(0f, 1f)] public float passiveHitEnergyMultiplier = 0.5f;
-        [Tooltip("Duración del poder activo (la esfera se vacía en este tiempo)")]
-        public float specialDuration = 5f;
-        [Tooltip("Spin Boost: RPM recuperadas por segundo (fracción del máximo)")]
-        public float spinBoostPctPerSecond = 0.06f;
-        public float shockWaveRadius = 5f;
-        public float shockWaveForce = 12f;
-        [Tooltip("Onda de choque: daño (fracción de RPM máx. del objetivo)")]
-        public float shockWaveDamagePct = 0.1f;
-        [Range(0f, 1f)] public float stormBreakerDamageReduction = 0.6f;
-        [Range(0f, 1f)] public float stormBreakerKnockbackResistance = 0.8f;
-        public float stormBreakerMoveBonus = 0.15f;
-        [Range(0f, 1f)] public float electricDashCooldownMultiplier = 0.3f;
-        public float electricDashImpulseMultiplier = 1.5f;
-        public float electricChargeSpeedMultiplier = 2f;
+        // Duración, energía necesaria y valores propios de cada poder: en su asset de
+        // Resources/SpecialAbilities (SpecialAbilityData)
 
         [Header("=== FEEDBACK ===")]
         public bool cameraShake = true;

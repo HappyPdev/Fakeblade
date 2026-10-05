@@ -40,7 +40,3 @@ MonoBehaviour:
   dashCooldown: {r: 0.35, g: 0.3, b: 0.12, a: 1}
   sphereOutline: {r: 0.02, g: 0.02, b: 0.05, a: 1}
   sphereEmpty: {r: 0.1, g: 0.1, b: 0.18, a: 1}
-  spinBoostColor: {r: 0.3, g: 1, b: 0.6, a: 1}
-  shockWaveColor: {r: 1, g: 0.55, b: 0.15, a: 1}
-  stormBreakerColor: {r: 0.45, g: 0.55, b: 1, a: 1}
-  electricDashColor: {r: 1, g: 0.95, b: 0.25, a: 1}

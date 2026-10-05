@@ -186,6 +186,8 @@ namespace FakeBlade.Core
         }
 
         public Vector3 Position => _transform.position;
+        /// <summary>Última dirección horizontal hacia la que se movió o atacó.</summary>
+        public Vector3 Facing => _lastFacing;
         public Vector3 Velocity => _rb != null ? _rb.linearVelocity : Vector3.zero;
         /// <summary>Velocidad justo antes del último paso de física (para comparar choques).</summary>
         public Vector3 PreImpactVelocity => _preImpactVelocity;
@@ -439,8 +441,7 @@ namespace FakeBlade.Core
         private void UpdateSpin(float dt)
         {
             float decay = _stats != null ? _stats.SpinDecay : 2f;
-            float regen = _special.SpinRegenPctPerSecond * _maxSpin;
-            _currentSpin = Mathf.Clamp(_currentSpin + (regen - decay) * dt, 0f, _maxSpin);
+            _currentSpin = Mathf.Clamp(_currentSpin - decay * dt, 0f, _maxSpin);
 
             if (_currentSpin <= MIN_SPIN_THRESHOLD)
                 HandleSpinOut();
@@ -500,6 +501,8 @@ namespace FakeBlade.Core
             _moveInput = Vector3.zero;
             _attackHeld = false;
             _attack.CancelCharge();
+            if (_special.Stop())
+                OnSpecialEnded?.Invoke(_special.Type);
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
@@ -599,13 +602,10 @@ namespace FakeBlade.Core
         private bool TryActivateSpecial()
         {
             if (_isDestroyed || !_simulationActive) return false;
+            // Efecto común (RPM y cargas) + efecto propio del poder: SpecialAbilitySystem
             if (!_special.TryActivate()) return false;
 
-            if (_special.Type == SpecialAbilityType.ShockWave)
-                DoShockWave();
-
-            float burst = _special.Type == SpecialAbilityType.ShockWave ? 2.5f : 1f;
-            VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, VfxSystem.AbilityColor(_special.Type), burst);
+            VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, _special.Color, _special.Data.activationBurst);
 
             CameraShake.Shake(0.1f, 0.08f);
             PlaySound(specialSound);
@@ -613,33 +613,6 @@ namespace FakeBlade.Core
 
             if (showDebugInfo) Debug.Log($"[FakeBlade] {name} special {_special.Type}", this);
             return true;
-        }
-
-        private void DoShockWave()
-        {
-            var cfg = CombatConfig.Active;
-            float radius = cfg.shockWaveRadius;
-            float radiusSqr = radius * radius;
-            Vector3 origin = _transform.position;
-
-            for (int i = 0; i < s_active.Count; i++)
-            {
-                FakeBladeController other = s_active[i];
-                if (other == this || other._isDestroyed) continue;
-                if (IsAllyOf(other) && !FriendlyFire) continue;
-
-                Vector3 offset = other.Position - origin;
-                offset.y = 0f;
-                float distSqr = offset.sqrMagnitude;
-                if (distSqr > radiusSqr) continue;
-
-                float distance = Mathf.Sqrt(distSqr);
-                float falloff = 1f - distance / radius;
-                Vector3 dir = distance > 0.001f ? offset / distance : _lastFacing;
-
-                other.ApplyKnockback(dir * cfg.shockWaveForce * falloff * other.KnockbackResistance);
-                other.ApplyDamage(other.MaxSpinSpeed * cfg.shockWaveDamagePct * falloff, this);
-            }
         }
 
         /// <summary>
@@ -870,6 +843,9 @@ namespace FakeBlade.Core
             return gm != null && gm.Rules.teams && _owner.TeamID == other._owner.TeamID;
         }
 
+        /// <summary>¿Puede quitarle RPM a esa peonza? (no es aliada, o el fuego amigo está activo)</summary>
+        public bool CanHarm(FakeBladeController other) => other != null && other != this && (!IsAllyOf(other) || FriendlyFire);
+
         private static bool FriendlyFire
         {
             get
@@ -1058,7 +1034,7 @@ namespace FakeBlade.Core
             LastDamageTime = float.NegativeInfinity;
 
             _attack.Reset(_stats != null ? _stats.AttackCharges : 3);
-            _special.Reset(_stats != null ? _stats.SpecialAbility : SpecialAbilityType.SpinBoost);
+            _special.Reset(this, _stats != null ? _stats.SpecialAbility : SpecialAbilityType.SpinBoost);
             _particles?.Reset();
             _wobblePhase = 0f;
 
@@ -1106,10 +1082,10 @@ namespace FakeBlade.Core
             Gizmos.color = Color.Lerp(Color.red, Color.green, SpinSpeedPercentage);
             Gizmos.DrawWireSphere(transform.position + Vector3.up * 1.5f, 0.3f);
 
-            if (_special.Type == SpecialAbilityType.ShockWave)
+            if (_special.Data is ShockWaveData shockWave)
             {
                 Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
-                Gizmos.DrawWireSphere(transform.position, CombatConfig.Active.shockWaveRadius);
+                Gizmos.DrawWireSphere(transform.position, shockWave.radius);
             }
         }
         #endregion

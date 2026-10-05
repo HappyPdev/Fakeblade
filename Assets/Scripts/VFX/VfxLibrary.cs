@@ -60,11 +60,7 @@ namespace FakeBlade.Core
 
         public List<Entry> entries = new List<Entry>();
 
-        [Header("Colores de los poderes")]
-        public Color spinBoostColor = new Color(0.3f, 1f, 0.6f);
-        public Color shockWaveColor = new Color(1f, 0.55f, 0.15f);
-        public Color stormBreakerColor = new Color(0.45f, 0.55f, 1f);
-        public Color electricDashColor = new Color(1f, 0.95f, 0.25f);
+        // Los colores de los poderes están en su asset (SpecialAbilityData.color)
 
         [Header("Parry")]
         public Color parryColor = new Color(0.55f, 0.95f, 1f);
@@ -105,17 +101,6 @@ namespace FakeBlade.Core
             for (int i = 0; i < entries.Count; i++)
                 if (entries[i] != null && entries[i].type == type) return entries[i];
             return null;
-        }
-
-        public Color GetAbilityColor(SpecialAbilityType type)
-        {
-            switch (type)
-            {
-                case SpecialAbilityType.ShockWave: return shockWaveColor;
-                case SpecialAbilityType.Shield: return stormBreakerColor;
-                case SpecialAbilityType.Dash: return electricDashColor;
-                default: return spinBoostColor;
-            }
         }
     }
 }

@@ -287,6 +287,8 @@ namespace FakeBlade.Core
                     Debug.Log($"[FakeBlade] ENTER {name}↔{other.name} f{Time.frameCount} t{Time.time:F3} " +
                               $"lower:{GetInstanceID() < other.GetInstanceID()} cd:{IsClashOnCooldown(other)}", this);
 
+                DampContactPush();
+
                 // Se resuelve una sola vez por pareja y se ignoran los rebotes inmediatos
                 if (!other._isDestroyed && GetInstanceID() < other.GetInstanceID() && !IsClashOnCooldown(other))
                 {
@@ -310,6 +312,21 @@ namespace FakeBlade.Core
 
             // Roce continuo entre peonzas
             ApplyDamage(CombatConfig.Active.grindDamagePerSecond * Time.fixedDeltaTime, other);
+        }
+
+        /// <summary>
+        /// Un poder que reduce el empuje (Defensa) también reduce el que da la propia física al
+        /// separar las dos peonzas: se escala el cambio de velocidad horizontal del choque.
+        /// </summary>
+        private void DampContactPush()
+        {
+            float multiplier = _special.KnockbackTakenMultiplier;
+            if (multiplier >= 1f) return;
+
+            Vector3 velocity = _rb.linearVelocity;
+            Vector3 contactChange = velocity - _preImpactVelocity;
+            contactChange.y = 0f;
+            _rb.linearVelocity = velocity - contactChange * (1f - multiplier);
         }
         #endregion
 
@@ -450,7 +467,7 @@ namespace FakeBlade.Core
         #region Spin (RPM)
         private void UpdateSpin(float dt)
         {
-            float decay = _stats != null ? _stats.SpinDecay : 2f;
+            float decay = (_stats != null ? _stats.SpinDecay : 2f) * _special.SpinDecayMultiplier;
             _currentSpin = Mathf.Clamp(_currentSpin - decay * dt, 0f, _maxSpin);
 
             if (_currentSpin <= MIN_SPIN_THRESHOLD)
@@ -597,9 +614,10 @@ namespace FakeBlade.Core
             UpdateStatus(dt);
             if (_isDestroyed) return;
 
-            // Aturdida tras un parry: el botón de ataque no cuenta. Congelada: recarga más lenta
+            // Aturdida tras un parry: el botón de ataque no cuenta. La recarga depende del poder
+            // (Defensa, más rápida) y del estado (congelada, más lenta)
             int launch = _attack.Tick(dt, _attackHeld && !IsStaggered, _special.ChargeSpeedMultiplier,
-                _status.AttackRechargeMultiplier);
+                _special.AttackRechargeMultiplier * _status.AttackRechargeMultiplier);
             if (launch != AttackSystem.NoLaunch)
                 LaunchAttack(launch);
         }
@@ -637,7 +655,7 @@ namespace FakeBlade.Core
             if (!CanDash || IsStaggered) return false;
 
             var cfg = CombatConfig.Active;
-            float cost = _maxSpin * cfg.dashSpinCostPct;
+            float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier;
             if (_currentSpin <= cost * 1.5f) return false;
 
             Vector3 direction = ResolveActionDirection();

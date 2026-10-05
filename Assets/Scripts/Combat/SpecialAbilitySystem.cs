@@ -97,11 +97,17 @@ namespace FakeBlade.Core
         public float DamageTakenMultiplier => _isActive ? _ability.DamageTakenMultiplier : 1f;
         /// <summary>Multiplicador del empuje recibido.</summary>
         public float KnockbackTakenMultiplier => _isActive ? _ability.KnockbackTakenMultiplier : 1f;
+        /// <summary>Multiplicador del desgaste de RPM con el tiempo.</summary>
+        public float SpinDecayMultiplier => _isActive ? _ability.SpinDecayMultiplier : 1f;
         public float MoveSpeedMultiplier => _isActive ? _ability.MoveSpeedMultiplier : 1f;
         /// <summary>Nivel mínimo con el que cuentan los ataques.</summary>
         public int MinAttackLevel => _isActive ? _ability.MinAttackLevel : 0;
+        /// <summary>Velocidad de recarga de las cargas de ataque.</summary>
+        public float AttackRechargeMultiplier => _isActive ? _ability.AttackRechargeMultiplier : 1f;
         public float DashCooldownMultiplier => _isActive ? _ability.DashCooldownMultiplier : 1f;
         public float DashImpulseMultiplier => _isActive ? _ability.DashImpulseMultiplier : 1f;
+        /// <summary>Multiplicador del coste en RPM del dash.</summary>
+        public float DashCostMultiplier => _isActive ? _ability.DashCostMultiplier : 1f;
         public float ChargeSpeedMultiplier => _isActive ? _ability.ChargeSpeedMultiplier : 1f;
         #endregion
     }

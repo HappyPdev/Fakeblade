@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa703f876cdb6b2439e3cbf5e51eeb2a, type: 3}
   m_Name: Defense
-  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.StormBreakerData
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.DefenseData
   nameEs: DEFENSA
   nameEn: DEFENSE
   color: {r: 0.45, g: 0.55, b: 1, a: 1}
@@ -19,7 +19,9 @@ MonoBehaviour:
   energyRequired: 1.2
   duration: 5
   activationBurst: 1
-  damageReduction: 0.6
-  knockbackResistance: 0.8
-  moveBonus: 0.15
-  quickAttacksAsCharged: 1
+  spinLossReduction: 1
+  knockbackResistance: 0.9
+  attackRechargeMultiplier: 1.5
+  moveMultiplier: 0.85
+  dashCostMultiplier: 0.1
+  dashRangeMultiplier: 0.6

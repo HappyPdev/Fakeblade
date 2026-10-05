@@ -31,11 +31,18 @@ namespace FakeBlade.Core
         public virtual float DamageTakenMultiplier => 1f;
         /// <summary>Multiplicador del empuje recibido.</summary>
         public virtual float KnockbackTakenMultiplier => 1f;
+        /// <summary>Multiplicador del desgaste de RPM con el tiempo.</summary>
+        public virtual float SpinDecayMultiplier => 1f;
         public virtual float MoveSpeedMultiplier => 1f;
         /// <summary>Nivel mínimo con el que cuentan los ataques (1 = los rápidos cuentan como cargados).</summary>
         public virtual int MinAttackLevel => 0;
+        /// <summary>Velocidad de recarga de las cargas de ataque.</summary>
+        public virtual float AttackRechargeMultiplier => 1f;
         public virtual float DashCooldownMultiplier => 1f;
+        /// <summary>Multiplicador del impulso del dash (y con él, de su alcance).</summary>
         public virtual float DashImpulseMultiplier => 1f;
+        /// <summary>Multiplicador del coste en RPM del dash.</summary>
+        public virtual float DashCostMultiplier => 1f;
         /// <summary>Velocidad de carga del ataque cargado.</summary>
         public virtual float ChargeSpeedMultiplier => 1f;
         #endregion

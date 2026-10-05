@@ -3,24 +3,28 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Defensa (GDD 5; sustituye a Storm Breaker).
-    /// De momento conserva el efecto de Storm Breaker: menos daño, gran resistencia al empuje,
-    /// algo más de velocidad y los ataques rápidos cuentan como cargados.
-    /// Su efecto propio (sin pérdida de RPM, recarga x1,5, movimiento −15%, dash barato y corto)
-    /// llega en Quehaceres C1.
+    /// Defensa (GDD 5; sustituye a Storm Breaker). Defensa casi al 100%: no pierde RPM por golpes,
+    /// paredes, quemadura ni desgaste, y el empuje que recibe es casi nulo. Además recarga los ataques
+    /// más rápido, se mueve más lento y su dash es barato pero corto. Atacar sí cuesta RPM.
     /// </summary>
     [CreateAssetMenu(fileName = "Defense", menuName = "FakeBlade/Specials/Defensa")]
     public class DefenseData : SpecialAbilityData
     {
         [Header("Defensa")]
-        [Tooltip("Fracción del daño que se evita")]
-        [Range(0f, 1f)] public float damageReduction = 0.6f;
+        [Tooltip("Fracción de la pérdida de RPM que se evita (golpes, paredes, quemadura y desgaste)")]
+        [Range(0f, 1f)] public float spinLossReduction = 1f;
         [Tooltip("Fracción del empuje que se evita")]
-        [Range(0f, 1f)] public float knockbackResistance = 0.8f;
-        [Tooltip("Velocidad de movimiento extra (0,15 = +15%)")]
-        public float moveBonus = 0.15f;
-        [Tooltip("Los ataques rápidos cuentan como cargados de nivel 1")]
-        public bool quickAttacksAsCharged = true;
+        [Range(0f, 1f)] public float knockbackResistance = 0.9f;
+        [Tooltip("Velocidad de recarga de las cargas de ataque (1,5 = x1,5)")]
+        public float attackRechargeMultiplier = 1.5f;
+        [Tooltip("Velocidad de movimiento (0,85 = −15%)")]
+        public float moveMultiplier = 0.85f;
+
+        [Header("Dash")]
+        [Tooltip("Coste en RPM del dash (0,1 = 10% de lo normal)")]
+        public float dashCostMultiplier = 0.1f;
+        [Tooltip("Impulso del dash, y con él su alcance (0,6 = −40%)")]
+        public float dashRangeMultiplier = 0.6f;
 
         public override SpecialAbilityType Type => SpecialAbilityType.Defense;
 
@@ -31,9 +35,12 @@ namespace FakeBlade.Core
     {
         public DefenseAbility(DefenseData data, FakeBladeController owner) : base(data, owner) { }
 
-        public override float DamageTakenMultiplier => 1f - Config.damageReduction;
+        public override float DamageTakenMultiplier => 1f - Config.spinLossReduction;
+        public override float SpinDecayMultiplier => 1f - Config.spinLossReduction;
         public override float KnockbackTakenMultiplier => 1f - Config.knockbackResistance;
-        public override float MoveSpeedMultiplier => 1f + Config.moveBonus;
-        public override int MinAttackLevel => Config.quickAttacksAsCharged ? 1 : 0;
+        public override float AttackRechargeMultiplier => Config.attackRechargeMultiplier;
+        public override float MoveSpeedMultiplier => Config.moveMultiplier;
+        public override float DashCostMultiplier => Config.dashCostMultiplier;
+        public override float DashImpulseMultiplier => Config.dashRangeMultiplier;
     }
 }

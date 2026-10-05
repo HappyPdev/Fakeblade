@@ -177,7 +177,7 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
 |---|---|---|---|
 | Spin Boost | Implementado (se rehará más adelante) | 1 | Recupera RPM progresivamente mientras está activo. |
 | Onda de choque | Implementado (se rehará más adelante) | 1 | Al activarse empuja y quita RPM a las peonzas cercanas. |
-| Defensa *(sustituye a Storm Breaker)* | Renombrado (A5); conserva el efecto de Storm Breaker hasta C1 | 1,2 | Defensa casi al 100%: no pierde RPM por golpes, paredes ni desgaste, y el empuje que recibe es casi nulo. Además, sus ataques se recargan **1,5 veces más rápido**, pero se mueve un **15% más lento**. El dash solo cuesta el **10% de lo normal**, pero su alcance baja un **40%**. Atacar sí cuesta RPM. |
+| Defensa *(sustituye a Storm Breaker)* | Implementado (C1) | 1,2 | Defensa casi al 100%: no pierde RPM por golpes, paredes, quemadura ni desgaste, y el empuje que recibe es casi nulo (**10%**, también el del choque físico). Además, sus ataques se recargan **1,5 veces más rápido**, pero se mueve un **15% más lento**. El dash solo cuesta el **10% de lo normal**, pero su impulso (alcance) baja un **40%**. Atacar sí cuesta RPM. Valores en el asset `Defense`. |
 | Fuego *(sustituye a Rastro de fuego)* | En el enum (A5); asset y efecto en C2 | 1 | Sus golpes **queman** al enemigo: 1,5% de sus RPM máximas cada 0,5 s durante 3 s (9% en total). Un golpe nuevo reinicia la duración; no se acumula. |
 | Hielo | En el enum (A5); asset y efecto en C3 | 1 | Aura de hielo y humo blanco de frío. A los enemigos que golpea los **congela** durante 3 s: −35% de velocidad de movimiento y recarga de ataques a la mitad. Un golpe nuevo reinicia la duración; no se acumula. |
 | Rayos *(sustituye a Dash eléctrico)* | Renombrado (A5); conserva el efecto de Dash eléctrico hasta C4 | 0,8 | Entra en modo cargado hasta 6 s, con sus partículas. **Choques pequeños:** empujan fuerte al enemigo, pero no gastan el poder. **Choque fuerte** (por encima de una velocidad mínima): golpe con +20% de daño y empuje x2,5, deja al rival **lanzado** 0,5 s y gasta el poder. |
@@ -589,6 +589,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Sandbox: dummies | Un comportamiento para todos (Quieto, Moverse, Atacar, Dash hacia ti, Especial) y un intervalo (0,5 / 1 / 2 / 3 s). |
 | 2026-10-06 | Sandbox: panel | Lo navega cualquiera (mando, teclado o ratón), como la pausa. Al cerrarlo no hay cuenta atrás. |
 | 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
+| 2026-10-06 | Defensa: alcance del dash | "−40% de alcance" es −40% de impulso: el acelerón llega al 60% de la velocidad normal. La distancia total baja algo menos (~20% sin tocar el stick), porque después sigue deslizando. Se revisa en C7. |
+| 2026-10-06 | Defensa: empuje | Recibe el 10% del empuje, también el que da la física al separar las dos peonzas. Ya no tiene los extras de Storm Breaker (ataques rápidos como cargados, +15% de velocidad). |
 
 12. # Pendiente de definir
 
@@ -606,6 +608,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Nuevo diseño de Spin Boost y Onda de choque (se rehacen más adelante; mientras tanto se quedan como están).
 - Rayos: velocidad mínima del choque fuerte (velocidad de cierre de 6 m/s) y empuje de los choques pequeños (x1,8, sin daño extra ni lanzada).
 - Rayos: si más adelante cualquiera que toque a la peonza (atacando o en movimiento normal) sale impulsado (por ahora, solo sus propios choques).
+- Defensa: golpear a una peonza con Defensa activa no da energía de especial, porque no le quita RPM (se queda así; si se ve injusto, que el golpe dé la energía que habría dado sin Defensa).
 - Fantasma: agresividad del clon (busca al rival más cercano y ataca en cuanto puede, como mucho una vez por segundo).
 
 **Efectos de UI y sonido:**
@@ -645,7 +648,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 **Fase C. Poderes, uno a uno** (cada uno con su aura, sus textos y su prueba en el sandbox)
 
-- [ ] C1. Defensa: sin pérdida de RPM por golpes, paredes ni desgaste; empuje casi nulo; recarga de ataques x1,5; movimiento −15%; dash al 10% de coste y −40% de alcance.
+- [x] C1. Defensa: sin pérdida de RPM por golpes, paredes ni desgaste; empuje casi nulo; recarga de ataques x1,5; movimiento −15%; dash al 10% de coste y −40% de alcance. Hecho con modificadores nuevos en `SpecialAbility` (desgaste, recarga de ataques, coste del dash) y amortiguación del choque físico. Probado en el sandbox: desgaste 0, daño 0, empuje 14,7 → 1,5 m/s, recarga 1,5 → 1,0 s, dash 22 → 2,2 RPM y 22 → 13 m/s.
 - [ ] C2. Fuego: quemadura (1,5% cada 0,5 s durante 3 s) + llamas.
 - [ ] C3. Hielo: congelación (−35% de movimiento, recarga a la mitad, 3 s) + cristales y humo blanco.
 - [ ] C4. Rayos: modo cargado hasta 6 s; choques pequeños empujan fuerte sin gastar; choque fuerte con +20% de daño, empuje x2,5 y lanzada 0,5 s, que gasta el poder; contra una peonza congelada, choque normal sin gastar; regla de daño de la peonza lanzada + destello del golpe.

@@ -3,13 +3,16 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Storm Breaker (GDD 5): menos daño, gran resistencia al empuje, algo más de velocidad y
-    /// los ataques rápidos cuentan como cargados. Lo sustituirá el poder Defensa (Quehaceres A5/C1).
+    /// Defensa (GDD 5; sustituye a Storm Breaker).
+    /// De momento conserva el efecto de Storm Breaker: menos daño, gran resistencia al empuje,
+    /// algo más de velocidad y los ataques rápidos cuentan como cargados.
+    /// Su efecto propio (sin pérdida de RPM, recarga x1,5, movimiento −15%, dash barato y corto)
+    /// llega en Quehaceres C1.
     /// </summary>
-    [CreateAssetMenu(fileName = "StormBreaker", menuName = "FakeBlade/Specials/Storm Breaker")]
-    public class StormBreakerData : SpecialAbilityData
+    [CreateAssetMenu(fileName = "Defense", menuName = "FakeBlade/Specials/Defensa")]
+    public class DefenseData : SpecialAbilityData
     {
-        [Header("Storm Breaker")]
+        [Header("Defensa")]
         [Tooltip("Fracción del daño que se evita")]
         [Range(0f, 1f)] public float damageReduction = 0.6f;
         [Tooltip("Fracción del empuje que se evita")]
@@ -19,14 +22,14 @@ namespace FakeBlade.Core
         [Tooltip("Los ataques rápidos cuentan como cargados de nivel 1")]
         public bool quickAttacksAsCharged = true;
 
-        public override SpecialAbilityType Type => SpecialAbilityType.Shield;
+        public override SpecialAbilityType Type => SpecialAbilityType.Defense;
 
-        public override SpecialAbility CreateRuntime(FakeBladeController owner) => new StormBreakerAbility(this, owner);
+        public override SpecialAbility CreateRuntime(FakeBladeController owner) => new DefenseAbility(this, owner);
     }
 
-    public sealed class StormBreakerAbility : SpecialAbility<StormBreakerData>
+    public sealed class DefenseAbility : SpecialAbility<DefenseData>
     {
-        public StormBreakerAbility(StormBreakerData data, FakeBladeController owner) : base(data, owner) { }
+        public DefenseAbility(DefenseData data, FakeBladeController owner) : base(data, owner) { }
 
         public override float DamageTakenMultiplier => 1f - Config.damageReduction;
         public override float KnockbackTakenMultiplier => 1f - Config.knockbackResistance;

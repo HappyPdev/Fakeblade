@@ -213,9 +213,9 @@ namespace FakeBlade.Core.Editor
                     SpeedMin = 1f, SpeedMax = 2f, LifeMin = 0.55f, LifeMax = 0.65f, SizeMin = 0.09f, SizeMax = 0.13f, Burst = 1, Max = 300 },
                 new Spec { Type = VfxType.AuraShockWave, Sprite = PixelSprite.Ring, Render = Flat, Size = SizeCurve.Grow, Fade = true,
                     Shape = Sphere, Radius = 0.01f, LifeMin = 0.45f, LifeMax = 0.5f, SizeMin = 1.6f, SizeMax = 1.6f, Burst = 1, Max = 30 },
-                new Spec { Type = VfxType.AuraStormBreaker, Sprite = PixelSprite.Pixel, Shape = Circle, Radius = 0.6f,
+                new Spec { Type = VfxType.AuraDefense, Sprite = PixelSprite.Pixel, Shape = Circle, Radius = 0.6f,
                     LifeMin = 0.2f, LifeMax = 0.26f, SizeMin = 0.09f, SizeMax = 0.11f, Burst = 1, Max = 400 },
-                new Spec { Type = VfxType.AuraElectric, Sprite = PixelSprite.Bolt, Size = SizeCurve.Constant, Shape = Sphere, Radius = 0.5f,
+                new Spec { Type = VfxType.AuraLightning, Sprite = PixelSprite.Bolt, Size = SizeCurve.Constant, Shape = Sphere, Radius = 0.5f,
                     LifeMin = 0.07f, LifeMax = 0.12f, SizeMin = 0.25f, SizeMax = 0.4f, Burst = 2, Max = 80 },
 
                 // --- Ataque cargado ---

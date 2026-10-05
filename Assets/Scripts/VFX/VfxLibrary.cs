@@ -21,8 +21,8 @@ namespace FakeBlade.Core
         // Aura de cada poder mientras está activo (GDD 5)
         AuraSpinBoost = 9,
         AuraShockWave = 10,
-        AuraStormBreaker = 11,
-        AuraElectric = 12,
+        AuraDefense = 11,
+        AuraLightning = 12,
 
         // Ataque cargado (GDD 2.3)
         ChargeGather = 13,

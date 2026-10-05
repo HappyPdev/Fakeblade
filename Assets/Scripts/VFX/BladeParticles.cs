@@ -262,8 +262,8 @@ namespace FakeBlade.Core
             {
                 case SpecialAbilityType.SpinBoost: AuraSpinBoost(center, tip, color, mul, dt); break;
                 case SpecialAbilityType.ShockWave: AuraShockWave(center, tip, color, mul, dt); break;
-                case SpecialAbilityType.Shield: AuraStormBreaker(center, color, mul, dt); break;
-                case SpecialAbilityType.Dash: AuraElectric(center, color, mul, dt); break;
+                case SpecialAbilityType.Defense: AuraDefense(center, color, mul, dt); break;
+                case SpecialAbilityType.Lightning: AuraLightning(center, color, mul, dt); break;
                 default:
                     VfxSystem.EmitCount(VfxType.SpecialAura, center, color, Accumulate(ref _auraAcc, 40f * mul, dt));
                     break;
@@ -307,8 +307,8 @@ namespace FakeBlade.Core
             }
         }
 
-        /// <summary>Storm Breaker: anillo protector azul que gira alrededor y destellos en una cúpula.</summary>
-        private void AuraStormBreaker(Vector3 center, Color color, float mul, float dt)
+        /// <summary>Defensa: anillo protector azul que gira alrededor y destellos en una cúpula.</summary>
+        private void AuraDefense(Vector3 center, Color color, float mul, float dt)
         {
             const float angularSpeed = 900f * Mathf.Deg2Rad;
             _auraAngle = Mathf.Repeat(_auraAngle + dt * angularSpeed, Mathf.PI * 2f);
@@ -321,7 +321,7 @@ namespace FakeBlade.Core
                 _auraIndex++;
                 float a = _auraAngle + (_auraIndex % 3) * (Mathf.PI * 2f / 3f) - Random.value * dt * angularSpeed;
                 Vector3 p = new Vector3(center.x + Mathf.Cos(a) * r, center.y, center.z + Mathf.Sin(a) * r);
-                VfxSystem.EmitParticle(VfxType.AuraStormBreaker, p, Vector3.zero, color);
+                VfxSystem.EmitParticle(VfxType.AuraDefense, p, Vector3.zero, color);
             }
 
             int shimmer = Accumulate(ref _auraAcc2, 10f * mul, dt);
@@ -333,8 +333,8 @@ namespace FakeBlade.Core
             }
         }
 
-        /// <summary>Dash eléctrico: rayos amarillos que chisporrotean alrededor y chispas que saltan.</summary>
-        private void AuraElectric(Vector3 center, Color color, float mul, float dt)
+        /// <summary>Rayos: rayos amarillos que chisporrotean alrededor y chispas que saltan.</summary>
+        private void AuraLightning(Vector3 center, Color color, float mul, float dt)
         {
             float r = AuraRadius;
             if (Random.value < 22f * mul * dt)
@@ -344,7 +344,7 @@ namespace FakeBlade.Core
                 {
                     Vector3 p = center + RandomFlatDirection() * (r * Random.Range(0.5f, 1.1f)) + Vector3.up * Random.Range(-0.15f, 0.35f);
                     // Giros de 90º para que el rayo pixel no se deforme
-                    VfxSystem.EmitParticle(VfxType.AuraElectric, p, Vector3.zero, color,
+                    VfxSystem.EmitParticle(VfxType.AuraLightning, p, Vector3.zero, color,
                         Random.Range(0.35f, 0.5f), 0f, 90f * Random.Range(0, 4));
                 }
             }
@@ -405,7 +405,7 @@ namespace FakeBlade.Core
                         if (i % 3 == 0)
                         {
                             Vector3 p = center + dir * (_radius * Random.Range(0.6f, 1.1f)) + Vector3.up * Random.Range(-0.1f, 0.3f);
-                            VfxSystem.EmitParticle(VfxType.AuraElectric, p, Vector3.zero, color, 0.3f, 0f, 90f * Random.Range(0, 4));
+                            VfxSystem.EmitParticle(VfxType.AuraLightning, p, Vector3.zero, color, 0.3f, 0f, 90f * Random.Range(0, 4));
                         }
                         else
                         {

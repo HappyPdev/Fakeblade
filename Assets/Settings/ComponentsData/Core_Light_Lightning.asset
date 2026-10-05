@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Core_Heavy_StormBreaker
+  m_Name: Core_Light_Lightning
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Fortress Core
-  description: "N\xFAcleo defensivo. Poder: Storm Breaker (resistencia masiva al
-    empuje)."
+  componentName: Velocity Core
+  description: "N\xFAcleo de velocidad. Poder: Rayos."
   componentType: 3
-  weightClass: 2
+  weightClass: 0
   icon: {fileID: 0}
-  maxSpinModifier: 50
-  spinDecayModifier: 0
-  moveSpeedModifier: -1
-  weightModifier: 0.4
-  attackPowerModifier: 5
-  defenseModifier: 5
-  dashForceModifier: 0
+  maxSpinModifier: 100
+  spinDecayModifier: 0.5
+  moveSpeedModifier: 2
+  weightModifier: -0.1
+  attackPowerModifier: 0
+  defenseModifier: 0
+  dashForceModifier: 5
   attackChargesModifier: 0
-  specialAbility: 3
+  parryWindowModifier: 0
+  specialAbility: 4

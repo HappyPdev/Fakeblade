@@ -67,7 +67,7 @@ namespace FakeBlade.Core
         public int AttackLevel => _attackLevel;
 
         /// <summary>
-        /// Parry (GDD 2.5): el ataque en curso es un ataque RÁPIDO (pulsación, aunque Storm Breaker
+        /// Parry (GDD 2.5): el ataque en curso es un ataque RÁPIDO (pulsación, aunque un poder
         /// lo haga contar como cargado) y se lanzó hace como mucho <paramref name="window"/> segundos.
         /// </summary>
         public bool IsInParryWindow(float window) => IsAttacking && _launchedAsQuick && Time.time - _attackStartTime <= window;

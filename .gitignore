@@ -88,6 +88,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Tt]hird[Pp]arty/*
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree.meta
+/[Aa]ssets/JMO Assets/
+/[Aa]ssets/JMO Assets.meta
 /[Aa]ssets/[Pp]lugins/AllIn1SpriteShader/
 /[Aa]ssets/[Pp]lugins/AllIn1SpriteShader.meta
 # Plugins solo contiene paquetes de terceros (cada uno ignorado arriba)

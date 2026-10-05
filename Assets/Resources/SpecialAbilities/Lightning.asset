@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c88fd9fe4ce4dc04aa22bacb64e29a04, type: 3}
-  m_Name: ElectricDash
+  m_Name: Lightning
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.ElectricDashData
-  nameEs: "DASH EL\xC9CTRICO"
-  nameEn: ELECTRIC DASH
+  nameEs: RAYOS
+  nameEn: LIGHTNING
   color: {r: 1, g: 0.95, b: 0.25, a: 1}
   icon: {fileID: 0}
   energyRequired: 0.8

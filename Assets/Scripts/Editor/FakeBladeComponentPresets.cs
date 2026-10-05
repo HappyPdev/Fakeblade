@@ -81,12 +81,12 @@ namespace FakeBlade.Core.Editor
                 attack: 15f, defense: 10f, dash: 2f);
 
             // === NÚCLEOS ===
-            CreateComponent("Core_Light_ElectricDash", "Velocity Core",
-                "Núcleo de velocidad. Poder: Dash eléctrico.",
+            CreateComponent("Core_Light_Lightning", "Velocity Core",
+                "Núcleo de velocidad. Poder: Rayos.",
                 ComponentSlot.Core, WeightClass.Light,
                 maxSpin: 100, spinDecay: 0.5f, moveSpeed: 2f, weight: -0.1f,
                 attack: 0, defense: 0, dash: 5f,
-                ability: SpecialAbilityType.Dash);
+                ability: SpecialAbilityType.Lightning);
 
             CreateComponent("Core_Medium_SpinBoost", "Endurance Core",
                 "Núcleo de resistencia. Poder: Spin Boost (recupera RPM).",
@@ -95,12 +95,12 @@ namespace FakeBlade.Core.Editor
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.SpinBoost);
 
-            CreateComponent("Core_Heavy_StormBreaker", "Fortress Core",
-                "Núcleo defensivo. Poder: Storm Breaker (resistencia masiva al empuje).",
+            CreateComponent("Core_Heavy_Defense", "Fortress Core",
+                "Núcleo defensivo. Poder: Defensa.",
                 ComponentSlot.Core, WeightClass.Heavy,
                 maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.4f,
                 attack: 5f, defense: 5f, dash: 0,
-                ability: SpecialAbilityType.Shield);
+                ability: SpecialAbilityType.Defense);
 
             CreateComponent("Core_Heavy_ShockWave", "Impact Core",
                 "Núcleo de impacto. Poder: Onda de choque que empuja enemigos.",
@@ -155,7 +155,7 @@ namespace FakeBlade.Core.Editor
         public static void QuickEquipAllLight()
         {
             QuickEquipPreset("Light", "Tip_Light_NeedlePoint", "Body_Light_AeroShell",
-                "Blade_Light_RazorEdge", "Core_Light_ElectricDash");
+                "Blade_Light_RazorEdge", "Core_Light_Lightning");
         }
 
         [MenuItem("FakeBlade/Quick Equip/All Medium (Balanceada)")]
@@ -169,7 +169,7 @@ namespace FakeBlade.Core.Editor
         public static void QuickEquipAllHeavy()
         {
             QuickEquipPreset("Heavy", "Tip_Heavy_WideBall", "Body_Heavy_IronFortress",
-                "Blade_Heavy_CrushWheel", "Core_Heavy_StormBreaker");
+                "Blade_Heavy_CrushWheel", "Core_Heavy_Defense");
         }
 
         [MenuItem("FakeBlade/Quick Equip/Attack Build (Ataque)")]

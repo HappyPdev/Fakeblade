@@ -178,7 +178,7 @@ namespace FakeBlade.Core
         public float OutgoingKnockbackMultiplier =>
             _attack.KnockbackMultiplier * (IsAttacking ? _attack.ComboMultiplier : 1f);
 
-        /// <summary>Fracción del empuje que realmente recibe (defensa y Storm Breaker).</summary>
+        /// <summary>Fracción del empuje que realmente recibe (defensa y poder Defensa).</summary>
         public float KnockbackResistance
         {
             get

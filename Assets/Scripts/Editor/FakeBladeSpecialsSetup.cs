@@ -20,15 +20,15 @@ namespace FakeBlade.Core.Editor
             var log = new StringBuilder("Poderes: ");
             FakeBladeAssetsMenu.EnsureFolder(Folder);
 
-            // Energía necesaria según GDD 5: Storm Breaker y Dash eléctrico ya llevan la de
-            // Defensa (1,2) y Rayos (0,8), los poderes que los sustituyen
+            // Energía necesaria según GDD 5. Defensa y Rayos conservan de momento el efecto de
+            // Storm Breaker y Dash eléctrico, a los que sustituyen (Quehaceres C1 y C4)
             Create<SpinBoostData>("SpinBoost", "SPIN BOOST", "SPIN BOOST",
                 new Color(0.3f, 1f, 0.6f), energy: 1f, burst: 1f, log);
             Create<ShockWaveData>("ShockWave", "ONDA DE CHOQUE", "SHOCKWAVE",
                 new Color(1f, 0.55f, 0.15f), energy: 1f, burst: 2.5f, log);
-            Create<StormBreakerData>("StormBreaker", "STORM BREAKER", "STORM BREAKER",
+            Create<DefenseData>("Defense", "DEFENSA", "DEFENSE",
                 new Color(0.45f, 0.55f, 1f), energy: 1.2f, burst: 1f, log);
-            Create<ElectricDashData>("ElectricDash", "DASH ELÉCTRICO", "ELECTRIC DASH",
+            Create<LightningData>("Lightning", "RAYOS", "LIGHTNING",
                 new Color(1f, 0.95f, 0.25f), energy: 0.8f, burst: 1f, log);
 
             AssetDatabase.SaveAssets();

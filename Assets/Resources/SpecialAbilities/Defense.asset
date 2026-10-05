@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa703f876cdb6b2439e3cbf5e51eeb2a, type: 3}
-  m_Name: StormBreaker
+  m_Name: Defense
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.StormBreakerData
-  nameEs: STORM BREAKER
-  nameEn: STORM BREAKER
+  nameEs: DEFENSA
+  nameEn: DEFENSE
   color: {r: 0.45, g: 0.55, b: 1, a: 1}
   icon: {fileID: 0}
   energyRequired: 1.2

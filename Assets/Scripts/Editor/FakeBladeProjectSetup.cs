@@ -22,6 +22,7 @@ namespace FakeBlade.Core.Editor
         private const string CatalogPath = "Assets/Settings/FakeBladeCatalog.asset";
         private const string PlayerPrefabPath = "Assets/Prefabs/FakeBlades/Player_0_Player 1 Variant.prefab";
         private const string TestScenePath = "Assets/Scenes/TestScene.unity";
+        private const string SandboxScenePath = "Assets/Scenes/Sandbox.unity";
 
         /// <summary>Radio interior jugable de las arenas (metros).</summary>
         private const float TargetArenaRadius = 7f;
@@ -57,25 +58,28 @@ namespace FakeBlade.Core.Editor
             var arena00Data = ArenaDataAsset("Arena_00", "ARENA_00", arena00);
             var arenaTestData = ArenaDataAsset("Arena_Test", "ARENA_TEST", arenaTest);
 
-            MatchRules practice = RulesAsset("Practice", "MODE_PRACTICE", WinCondition.Practice);
+            MatchRules sandbox = RulesAsset("Sandbox", "MODE_SANDBOX", WinCondition.Sandbox);
             CreditsData credits = LoadOrCreate<CreditsData>("Assets/Settings/Credits.asset");
 
-            FakeBladeCatalog catalog = BuildCatalog(new List<ArenaData> { arena00Data, arenaTestData }, practice, credits, log);
+            FakeBladeCatalog catalog = BuildCatalog(new List<ArenaData> { arena00Data, arenaTestData }, sandbox, credits, log);
             // Guardar antes de abrir escenas (abrir una escena puede descargar assets sin usar)
             AssetDatabase.SaveAssets();
 
             SetupScene("Assets/Scenes/MainMenu.unity", "[MainMenu]", catalog, typeof(MainMenuController), typeof(MenuArenaBackground));
             SetupScene("Assets/Scenes/Assembly.unity", "[Lobby]", catalog, typeof(LobbyController));
             SetupScene("Assets/Scenes/BattleArena.unity", "[Battle]", catalog, typeof(BattleBootstrap));
+            EnsureSceneFrom(SandboxScenePath, "Assets/Scenes/BattleArena.unity");
+            SetupScene(SandboxScenePath, "[Battle]", catalog, typeof(BattleBootstrap), typeof(SandboxController));
 
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/Scenes/MainMenu.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/Assembly.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/BattleArena.unity", true),
+                new EditorBuildSettingsScene(SandboxScenePath, true),
                 new EditorBuildSettingsScene(TestScenePath, true)
             };
-            log.AppendLine("Build Settings: MainMenu, Assembly, BattleArena, TestScene");
+            log.AppendLine("Build Settings: MainMenu, Assembly, BattleArena, Sandbox, TestScene");
 
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(TestScenePath);
@@ -279,7 +283,7 @@ namespace FakeBlade.Core.Editor
             return rules;
         }
 
-        private static FakeBladeCatalog BuildCatalog(List<ArenaData> arenas, MatchRules practice, CreditsData credits, StringBuilder log)
+        private static FakeBladeCatalog BuildCatalog(List<ArenaData> arenas, MatchRules sandbox, CreditsData credits, StringBuilder log)
         {
             if (AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(FakeBladeComponentPresets.SAVE_PATH + "Tip_Medium_FlatBase.asset") == null)
                 FakeBladeComponentPresets.CreateAllPresets();
@@ -323,7 +327,7 @@ namespace FakeBlade.Core.Editor
             catalog.stocks = AssetDatabase.LoadAssetAtPath<MatchRules>("Assets/Settings/GameModes/Stocks_3.asset");
             catalog.points = AssetDatabase.LoadAssetAtPath<MatchRules>("Assets/Settings/GameModes/FreeForAll_Points.asset");
             catalog.teams = AssetDatabase.LoadAssetAtPath<MatchRules>("Assets/Settings/GameModes/Teams_2v2.asset");
-            catalog.practice = practice;
+            catalog.sandbox = sandbox;
 
             EditorUtility.SetDirty(catalog);
             log.AppendLine($"Catálogo: {catalog.tips.Count} puntas, {catalog.bodies.Count} cuerpos, {catalog.blades.Count} discos, " +
@@ -360,6 +364,13 @@ namespace FakeBlade.Core.Editor
         #endregion
 
         #region Scenes
+        /// <summary>Crea una escena copiando otra si todavía no existe (la Sandbox parte de BattleArena).</summary>
+        private static void EnsureSceneFrom(string scenePath, string templatePath)
+        {
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) != null) return;
+            AssetDatabase.CopyAsset(templatePath, scenePath);
+        }
+
         private static void SetupScene(string scenePath, string rootName, FakeBladeCatalog catalog, params System.Type[] components)
         {
             var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);

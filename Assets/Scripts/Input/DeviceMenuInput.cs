@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace FakeBlade.Core
 {
@@ -214,6 +215,25 @@ namespace FakeBlade.Core
             var pads = Gamepad.all;
             for (int i = 0; i < pads.Count; i++)
                 if (pads[i].buttonEast.wasPressedThisFrame) return true;
+            return false;
+        }
+
+        /// <summary>Botón del panel del sandbox (reasignable) en cualquier teclado o mando.</summary>
+        public static bool AnySandboxPanelPressed()
+        {
+            Keyboard kb = Keyboard.current;
+            if (kb != null)
+            {
+                Key left = InputBindings.Left.sandboxPanel;
+                Key right = InputBindings.Right.sandboxPanel;
+                if ((left != Key.None && kb[left].wasPressedThisFrame) || (right != Key.None && kb[right].wasPressedThisFrame))
+                    return true;
+            }
+
+            GamepadButton button = InputBindings.Pad.sandboxPanel;
+            var pads = Gamepad.all;
+            for (int i = 0; i < pads.Count; i++)
+                if (pads[i][button].wasPressedThisFrame) return true;
             return false;
         }
     }

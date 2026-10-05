@@ -115,6 +115,8 @@ namespace FakeBlade.Core
         /// <summary>Segundos restantes o -1 si no hay límite.</summary>
         public float RemainingTime => rules.HasTimeLimit ? Mathf.Max(0f, rules.timeLimit - _matchTime) : -1f;
         public bool IsMatchActive => _state == GameState.InMatch;
+        /// <summary>Peonzas como máximo en la partida (humanos + dummies o CPU).</summary>
+        public int MaxPlayers => maxPlayers;
         public bool IsPaused => _state == GameState.Paused;
         public MatchResult LastResult => _lastResult;
         #endregion
@@ -317,7 +319,7 @@ namespace FakeBlade.Core
             switch (rules.winCondition)
             {
                 case WinCondition.Points:
-                case WinCondition.Practice:
+                case WinCondition.Sandbox:
                     eliminated = false;
                     break;
                 case WinCondition.Stocks:
@@ -388,7 +390,7 @@ namespace FakeBlade.Core
         private void CheckWinCondition()
         {
             if (_state != GameState.InMatch || _players.Count == 0) return;
-            if (rules.IsPractice) return; // la práctica no termina sola
+            if (rules.IsSandbox) return; // el sandbox no termina solo
 
             if (rules.winCondition == WinCondition.Points)
             {
@@ -582,6 +584,26 @@ namespace FakeBlade.Core
             Time.timeScale = 0f;
             ChangeState(GameState.Paused);
             OnPauseChanged?.Invoke(true);
+        }
+
+        /// <summary>
+        /// Pausa del panel del sandbox (GDD 6.3): congela la partida sin abrir el menú de pausa,
+        /// y al cerrarlo sigue al momento, sin cuenta atrás. Las peonzas sueltan sus botones.
+        /// </summary>
+        public void SetPanelPause(bool open)
+        {
+            if (open)
+            {
+                if (_state != GameState.InMatch) return;
+                Time.timeScale = 0f;
+                ChangeState(GameState.Paused);
+            }
+            else
+            {
+                if (_state != GameState.Paused) return;
+                Time.timeScale = 1f;
+                ChangeState(GameState.InMatch);
+            }
         }
 
         /// <summary>Reanuda con una cuenta atrás corta para que todos empiecen igual.</summary>

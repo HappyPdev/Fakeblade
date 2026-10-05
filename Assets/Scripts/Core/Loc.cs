@@ -103,7 +103,7 @@ namespace FakeBlade.Core
             ["MODE_STOCKS"] = new[] { "VIDAS", "STOCKS" },
             ["MODE_POINTS"] = new[] { "TODOS CONTRA TODOS", "FREE FOR ALL" },
             ["MODE_TEAMS"] = new[] { "POR EQUIPOS", "TEAMS" },
-            ["MODE_PRACTICE"] = new[] { "PRÁCTICA", "PRACTICE" },
+            ["MODE_SANDBOX"] = new[] { "SANDBOX", "SANDBOX" },
 
             // Menú principal
             ["SUBTITLE"] = new[] { "BATALLA DE PEONZAS", "SPINNING TOP BATTLES" },
@@ -156,6 +156,22 @@ namespace FakeBlade.Core
             ["ACTION_DASHALT"] = new[] { "DASH (ALT.)", "DASH (ALT)" },
             ["ACTION_SPECIAL"] = new[] { "ESPECIAL", "SPECIAL" },
             ["ACTION_SPECIALALT"] = new[] { "ESPECIAL (ALT.)", "SPECIAL (ALT)" },
+            ["ACTION_SANDBOXPANEL"] = new[] { "PANEL SANDBOX", "SANDBOX PANEL" },
+
+            // Sandbox (GDD 6.3)
+            ["SANDBOX_TITLE"] = new[] { "SANDBOX", "SANDBOX" },
+            ["SANDBOX_RIVALS"] = new[] { "RIVALES", "RIVALS" },
+            ["SANDBOX_BEHAVIOUR"] = new[] { "DUMMIES", "DUMMIES" },
+            ["SANDBOX_INTERVAL"] = new[] { "CADA", "EVERY" },
+            ["SANDBOX_NONE"] = new[] { "NINGUNO", "NONE" },
+            ["SANDBOX_MAX_HINT"] = new[] { "MÁXIMO 4 PEONZAS", "4 TOPS MAX" },
+            ["SANDBOX_HINT"] = new[] { "{0} · PANEL", "{0} · PANEL" },
+            ["DUMMY_NAME"] = new[] { "DUMMY {0}", "DUMMY {0}" },
+            ["DUMMY_IDLE"] = new[] { "QUIETOS", "IDLE" },
+            ["DUMMY_MOVE"] = new[] { "SE MUEVEN", "MOVE" },
+            ["DUMMY_ATTACK"] = new[] { "ATACAN", "ATTACK" },
+            ["DUMMY_DASH"] = new[] { "DASH HACIA TI", "DASH AT YOU" },
+            ["DUMMY_SPECIAL"] = new[] { "ESPECIAL", "SPECIAL" },
             ["DEVICE_KB_LEFT"] = new[] { "TECLADO J1", "KEYBOARD P1" },
             ["DEVICE_KB_RIGHT"] = new[] { "TECLADO J2", "KEYBOARD P2" },
             ["DEVICE_PAD"] = new[] { "MANDO {0}", "GAMEPAD {0}" },

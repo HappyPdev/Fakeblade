@@ -434,7 +434,12 @@ namespace FakeBlade.Core
         public void SetSimulationActive(bool active)
         {
             _simulationActive = active;
-            if (active) return;
+            if (active)
+            {
+                // El botón con el que se cerró un menú no debe acabar en un ataque al soltarlo
+                _attack.IgnoreHeldUntilReleased();
+                return;
+            }
 
             _moveInput = Vector3.zero;
             _attackHeld = false;

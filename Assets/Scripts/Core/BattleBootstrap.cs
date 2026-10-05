@@ -6,11 +6,15 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Arranque de la escena BattleArena: construye la partida a partir de MatchSetup
-    /// (arena, jugadores con su dispositivo/piezas/color/equipo y el dummy en práctica),
-    /// prepara cámara, GameManager y HUD, y lanza la cuenta atrás.
+    /// Arranque de las escenas de combate (BattleArena y Sandbox): construye la partida a partir de
+    /// MatchSetup (arena y jugadores con su dispositivo/piezas/color/equipo), prepara cámara,
+    /// GameManager y HUD, y lanza la cuenta atrás.
     ///
-    /// Si se abre la escena directamente desde el editor, crea una partida por defecto de 2 jugadores.
+    /// En la escena Sandbox (con SandboxController) crea los puntos de aparición de todas las plazas
+    /// y deja los dummies al SandboxController, que los crea y los quita en ejecución.
+    ///
+    /// Si se abre la escena directamente desde el editor, crea una partida por defecto
+    /// (2 jugadores, o 1 en el sandbox).
     /// </summary>
     [DefaultExecutionOrder(-200)]
     public class BattleBootstrap : MonoBehaviour
@@ -20,6 +24,9 @@ namespace FakeBlade.Core
         private GameManager _gm;
         private ArenaDefinition _arena;
         private readonly List<GameObject> _spawned = new List<GameObject>(5);
+        private bool _sandbox;
+
+        public FakeBladeCatalog Catalog => catalog;
 
         private void Awake()
         {
@@ -32,7 +39,12 @@ namespace FakeBlade.Core
 
             MenuStack.Reset();
             CombatConfig.SetActive(catalog.combatConfig);
-            if (!MatchSetup.HasPlayers) MatchSetup.CreateDefault(catalog);
+            _sandbox = GetComponent<SandboxController>() != null;
+            if (!MatchSetup.HasPlayers)
+            {
+                if (_sandbox) MatchSetup.CreateDefaultSandbox(catalog);
+                else MatchSetup.CreateDefault(catalog);
+            }
 
             _gm = GameManager.Instance;
             if (_gm == null) _gm = new GameObject("[GameManager]").AddComponent<GameManager>();
@@ -45,16 +57,13 @@ namespace FakeBlade.Core
 
             BuildArena();
 
-            bool practice = MatchSetup.IsPractice;
-            int total = MatchSetup.Players.Count + (practice ? 1 : 0);
+            // En el sandbox, una plaza por peonza posible (los dummies entran y salen en ejecución)
+            int total = _sandbox ? Mathf.Max(_gm.MaxPlayers, MatchSetup.Players.Count) : MatchSetup.Players.Count;
             Transform[] spawns = _arena.CreateSpawnPoints(total);
             _gm.SetSpawnPoints(spawns);
 
             for (int i = 0; i < MatchSetup.Players.Count; i++)
                 SpawnPlayer(MatchSetup.Players[i], spawns[i].position);
-
-            if (practice)
-                SpawnDummy(MatchSetup.Players.Count, spawns[total - 1].position);
 
             SetupCamera();
 
@@ -90,23 +99,47 @@ namespace FakeBlade.Core
             _spawned.Add(go);
         }
 
-        private void SpawnDummy(int playerIndex, Vector3 position)
+        #region Sandbox
+        /// <summary>
+        /// Crea un dummy del sandbox en la plaza playerIndex (después de los humanos), con el preset
+        /// balanceado y el cerebro de dummy. Se registra solo en el GameManager (en su Start).
+        /// </summary>
+        public PlayerController SpawnDummy(int playerIndex, int dummyNumber)
         {
+            Vector3 position = _gm.GetSpawnPoint(playerIndex).position;
             GameObject go = Instantiate(catalog.playerPrefab, position, Quaternion.identity);
             var player = go.GetComponent<PlayerController>();
 
             player.SetPlayerID(playerIndex);
-            player.SetPlayerName("Dummy");
+            player.SetPlayerName(Loc.Format("DUMMY_NAME", dummyNumber));
             player.SetPlayerColor(catalog.dummyColor);
             player.SetTeamID(1);
-            player.SetInputSource(go.AddComponent<DummyBrain>());
+            player.SetInputSource(go.AddComponent<SandboxDummyBrain>());
 
             var setup = new PlayerSetup();
             setup.ApplyPreset(catalog.GetPreset(catalog.presets.Count - 1));
             setup.EquipOn(go.GetComponent<FakeBladeStats>());
 
             _spawned.Add(go);
+            return player;
         }
+
+        /// <summary>Quita una peonza de la partida (se da de baja sola del GameManager al destruirse).</summary>
+        public void Despawn(PlayerController player)
+        {
+            if (player == null) return;
+            _spawned.Remove(player.gameObject);
+            Destroy(player.gameObject);
+        }
+
+        /// <summary>La cámara vuelve a encuadrar a todas las peonzas actuales.</summary>
+        public void RefreshCameraTargets()
+        {
+            Camera cam = Camera.main;
+            if (cam != null && cam.TryGetComponent(out SimpleCameraFollow follow))
+                follow.SetTargets(_spawned.ToArray());
+        }
+        #endregion
 
         private void SetupCamera()
         {

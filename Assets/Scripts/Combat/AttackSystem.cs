@@ -121,6 +121,16 @@ namespace FakeBlade.Core
             _charges = Mathf.Min(_charges, _maxCharges);
         }
 
+        /// <summary>
+        /// Un botón que ya estaba pulsado al reanudar (p. ej. el que cerró un menú) no cuenta como
+        /// pulsación nueva: al soltarlo no lanza un ataque. Hay que volver a pulsarlo.
+        /// </summary>
+        public void IgnoreHeldUntilReleased()
+        {
+            _wasHeld = true;
+            _pressing = false;
+        }
+
         public void CancelCharge()
         {
             _pressing = false;

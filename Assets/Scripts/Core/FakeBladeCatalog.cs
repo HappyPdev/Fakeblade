@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FakeBlade.UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FakeBlade.Core
 {
@@ -63,7 +64,8 @@ namespace FakeBlade.Core
         public MatchRules stocks;
         public MatchRules points;
         public MatchRules teams;
-        public MatchRules practice;
+        [Tooltip("Reglas del sandbox (GDD 6.3)")]
+        [FormerlySerializedAs("practice")] public MatchRules sandbox;
 
         public List<FakeBladeComponentData> GetParts(ComponentSlot slot)
         {

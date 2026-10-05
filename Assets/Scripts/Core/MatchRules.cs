@@ -11,8 +11,9 @@ namespace FakeBlade.Core
         Stocks = 1,
         /// <summary>Todos contra todos por puntos: cada K.O. da un punto al último que golpeó. Reaparición infinita.</summary>
         Points = 2,
-        /// <summary>Práctica (1 jugador + dummy): reaparición infinita y la partida no termina sola.</summary>
-        Practice = 3
+        /// <summary>Sandbox (campo de pruebas, GDD 6.3): reaparición infinita y la partida no termina sola.
+        /// Antes se llamaba Practice (mismo valor).</summary>
+        Sandbox = 3
     }
 
     /// <summary>
@@ -60,7 +61,7 @@ namespace FakeBlade.Core
             _ => 0
         };
 
-        public bool IsPractice => winCondition == WinCondition.Practice;
+        public bool IsSandbox => winCondition == WinCondition.Sandbox;
 
         public static MatchRules CreateDefault()
         {

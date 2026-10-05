@@ -11,7 +11,9 @@ namespace FakeBlade.Core
         Up, Down, Left, Right,
         Attack, AttackAlt,
         Dash, DashAlt,
-        Special, SpecialAlt
+        Special, SpecialAlt,
+        /// <summary>Abre el panel del sandbox (GDD 6.3). Añadida al final: no cambia los valores guardados.</summary>
+        SandboxPanel
     }
 
     /// <summary>Teclas de un esquema de teclado. Cada acción de combate admite una tecla alternativa.</summary>
@@ -28,6 +30,7 @@ namespace FakeBlade.Core
         public Key dashAlt = Key.None;
         public Key special = Key.E;
         public Key specialAlt = Key.None;
+        public Key sandboxPanel = Key.Tab;
 
         public static KeyboardScheme CreateLeft() => new KeyboardScheme();
 
@@ -42,7 +45,8 @@ namespace FakeBlade.Core
             dash = Key.RightShift,
             dashAlt = Key.Numpad1,
             special = Key.Enter,
-            specialAlt = Key.Numpad2
+            specialAlt = Key.Numpad2,
+            sandboxPanel = Key.None // el mismo teclado: Tab ya lo tiene J1
         };
 
         public Key Get(BindingAction action)
@@ -58,7 +62,9 @@ namespace FakeBlade.Core
                 case BindingAction.Dash: return dash;
                 case BindingAction.DashAlt: return dashAlt;
                 case BindingAction.Special: return special;
-                default: return specialAlt;
+                case BindingAction.SpecialAlt: return specialAlt;
+                case BindingAction.SandboxPanel: return sandboxPanel;
+                default: return Key.None;
             }
         }
 
@@ -75,7 +81,8 @@ namespace FakeBlade.Core
                 case BindingAction.Dash: dash = key; break;
                 case BindingAction.DashAlt: dashAlt = key; break;
                 case BindingAction.Special: special = key; break;
-                default: specialAlt = key; break;
+                case BindingAction.SpecialAlt: specialAlt = key; break;
+                case BindingAction.SandboxPanel: sandboxPanel = key; break;
             }
         }
     }
@@ -90,6 +97,7 @@ namespace FakeBlade.Core
         public GamepadButton dashAlt = GamepadButton.RightTrigger;
         public GamepadButton special = GamepadButton.North;
         public GamepadButton specialAlt = GamepadButton.LeftTrigger;
+        public GamepadButton sandboxPanel = GamepadButton.Select;
 
         public GamepadButton Get(BindingAction action)
         {
@@ -100,6 +108,7 @@ namespace FakeBlade.Core
                 case BindingAction.Dash: return dash;
                 case BindingAction.DashAlt: return dashAlt;
                 case BindingAction.Special: return special;
+                case BindingAction.SandboxPanel: return sandboxPanel;
                 default: return specialAlt;
             }
         }
@@ -114,6 +123,7 @@ namespace FakeBlade.Core
                 case BindingAction.DashAlt: dashAlt = button; break;
                 case BindingAction.Special: special = button; break;
                 case BindingAction.SpecialAlt: specialAlt = button; break;
+                case BindingAction.SandboxPanel: sandboxPanel = button; break;
             }
         }
     }
@@ -133,7 +143,8 @@ namespace FakeBlade.Core
         {
             BindingAction.Attack, BindingAction.AttackAlt,
             BindingAction.Dash, BindingAction.DashAlt,
-            BindingAction.Special, BindingAction.SpecialAlt
+            BindingAction.Special, BindingAction.SpecialAlt,
+            BindingAction.SandboxPanel
         };
 
         /// <summary>Botones que se aceptan al reasignar un mando (sin Start, reservado para pausa).</summary>
@@ -221,6 +232,10 @@ namespace FakeBlade.Core
                 catch (Exception e) { Debug.LogWarning($"[InputBindings] No se pudieron leer los controles: {e.Message}"); }
             }
             if (_data == null) _data = new Data();
+
+            // Controles guardados antes de existir el panel del sandbox: los dos teclados heredan Tab
+            if (_data.left.sandboxPanel != Key.None && _data.left.sandboxPanel == _data.right.sandboxPanel)
+                _data.right.sandboxPanel = Key.None;
         }
 
         public static void Save()

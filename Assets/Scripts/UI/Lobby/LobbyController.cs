@@ -28,7 +28,7 @@ namespace FakeBlade.UI
 
         private enum Phase { Columns, Settings }
 
-        private enum ModeOption { LastStanding, Stocks, Points, Teams, Practice }
+        private enum ModeOption { LastStanding, Stocks, Points, Teams, Sandbox }
 
         private sealed class Slot
         {
@@ -539,17 +539,15 @@ namespace FakeBlade.UI
             _allReadyTimer = 0f;
 
             _modes.Clear();
-            if (_slots.Count == 1)
-            {
-                _modes.Add(ModeOption.Practice);
-            }
-            else
+            // Con 1 jugador solo hay sandbox; con 2-4, los modos normales y el sandbox (GDD 6.3)
+            if (_slots.Count > 1)
             {
                 _modes.Add(ModeOption.LastStanding);
                 _modes.Add(ModeOption.Stocks);
                 _modes.Add(ModeOption.Points);
                 _modes.Add(ModeOption.Teams);
             }
+            _modes.Add(ModeOption.Sandbox);
 
             RefreshSettingsLabels();
             _settingsWarning.text = string.Empty;
@@ -623,7 +621,7 @@ namespace FakeBlade.UI
             _ffRow.SetOptions(YesNo(), s_friendlyFire ? 1 : 0);
             _arenaRow.SetOptions(ArenaLabels(), Mathf.Clamp(s_arena, 0, Mathf.Max(0, catalog.arenas.Count - 1)));
 
-            // Con un solo modo (práctica) no tiene sentido cambiarlo
+            // Con un solo modo (sandbox con 1 jugador) no tiene sentido cambiarlo
             _modeRow.SetInteractable(_modes.Count > 1);
             UpdateSettingsVisibility();
         }
@@ -634,7 +632,7 @@ namespace FakeBlade.UI
             _livesRow.gameObject.SetActive(mode == ModeOption.Stocks);
             _pointsRow.gameObject.SetActive(mode == ModeOption.Points);
             _ffRow.gameObject.SetActive(mode == ModeOption.Teams);
-            _timeRow.gameObject.SetActive(mode != ModeOption.Practice);
+            _timeRow.gameObject.SetActive(mode != ModeOption.Sandbox);
             _settingsWarning.text = string.Empty;
             _settings.EnsureValidFocus();
         }
@@ -669,7 +667,7 @@ namespace FakeBlade.UI
             MatchSetup.Rules = rules;
             MatchSetup.Arena = catalog.arenas.Count > 0 ? catalog.arenas[Mathf.Clamp(s_arena, 0, catalog.arenas.Count - 1)] : null;
 
-            SceneFlow.Load(SceneFlow.Battle);
+            SceneFlow.Load(mode == ModeOption.Sandbox ? SceneFlow.Sandbox : SceneFlow.Battle);
         }
 
         private MatchRules BuildRules(ModeOption mode)
@@ -680,7 +678,7 @@ namespace FakeBlade.UI
                 case ModeOption.Stocks: template = catalog.stocks; break;
                 case ModeOption.Points: template = catalog.points; break;
                 case ModeOption.Teams: template = catalog.teams; break;
-                case ModeOption.Practice: template = catalog.practice; break;
+                case ModeOption.Sandbox: template = catalog.sandbox; break;
                 default: template = catalog.lastStanding; break;
             }
 
@@ -689,10 +687,10 @@ namespace FakeBlade.UI
 
             switch (mode)
             {
-                case ModeOption.Practice:
-                    rules.winCondition = WinCondition.Practice;
+                case ModeOption.Sandbox:
+                    rules.winCondition = WinCondition.Sandbox;
                     rules.timeLimit = 0f;
-                    rules.displayNameKey = "MODE_PRACTICE";
+                    rules.displayNameKey = "MODE_SANDBOX";
                     return rules;
                 case ModeOption.Stocks:
                     rules.winCondition = WinCondition.Stocks;
@@ -762,7 +760,7 @@ namespace FakeBlade.UI
                 case ModeOption.Stocks: return "MODE_STOCKS";
                 case ModeOption.Points: return "MODE_POINTS";
                 case ModeOption.Teams: return "MODE_TEAMS";
-                case ModeOption.Practice: return "MODE_PRACTICE";
+                case ModeOption.Sandbox: return "MODE_SANDBOX";
                 default: return "MODE_LAST_STANDING";
             }
         }

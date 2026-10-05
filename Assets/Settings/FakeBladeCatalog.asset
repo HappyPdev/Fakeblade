@@ -74,4 +74,4 @@ MonoBehaviour:
   stocks: {fileID: 11400000, guid: d3d6c00df9b71a647a2fbc2df098b44f, type: 2}
   points: {fileID: 11400000, guid: 0a424468e6c192a43ae3484e9c7b6a68, type: 2}
   teams: {fileID: 11400000, guid: 5b85429176e1a8a4892b4c663f1a4b8b, type: 2}
-  practice: {fileID: 11400000, guid: 3858904a18091644aa9ba83f2064ad44, type: 2}
+  sandbox: {fileID: 11400000, guid: 3858904a18091644aa9ba83f2064ad44, type: 2}

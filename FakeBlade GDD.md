@@ -57,6 +57,7 @@ Controles por defecto (reasignables desde el menú Controles):
 | Dash | Shift izquierdo | Shift derecho / Num 1 | B (Este) / RT |
 | Especial | E | Enter / Num 2 | Y (Norte) / LT |
 | Pausa | Esc | Esc | Start |
+| Panel del sandbox (solo en el sandbox) | Tab | — | Select |
 
 Hasta **2 jugadores pueden compartir el teclado** (J1 con WASD y J2 con las flechas). El resto usa mando.
 
@@ -226,7 +227,7 @@ Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y h
 - **Último en pie:** sin reaparición. Gana la última peonza (o equipo) con RPM. Sirve tanto para duelos 1vs1 como para batallas de 2-4 jugadores.
 - **Todos contra todos (por puntos):** partida con tiempo límite. Cada eliminación da un punto al último jugador que golpeó a la peonza eliminada, y la peonza eliminada **reaparece**. Si una peonza se queda sin RPM **sin que nadie la haya golpeado** en los últimos segundos (desgaste o paredes), **pierde 1 punto** (autoeliminación). Gana quien tenga más puntos al acabar el tiempo o quien llegue antes a los puntos objetivo.
 - **Por equipos (2vs2):** los equipos se enfrentan con las mismas reglas. El **fuego amigo es configurable**. Cada jugador elige su equipo en su columna de la pantalla de selección.
-- **Sandbox (campo de pruebas):** sustituye al modo Práctica. Tiene **escena propia** y se usa tanto para practicar como de **entorno de debug**. Ver 6.3. *(Ahora mismo sigue existiendo la Práctica simple contra un dummy, dentro de la escena de batalla, hasta que se haga el sandbox.)*
+- **Sandbox (campo de pruebas):** sustituye al modo Práctica. Tiene **escena propia** y se usa tanto para practicar como de **entorno de debug**. Ver 6.3. *(Implementado en su primera versión, fase B.)*
 - **Contra la IA:** la arquitectura separa quién controla la peonza (jugador, dummy o IA). La IA se usará primero en el sandbox y después como rival CPU en partidas normales. Ver 6.4.
 
 ## 6.2 Reglas personalizables
@@ -244,11 +245,12 @@ Como en Super Smash Bros, cada modo tiene reglas por defecto y el jugador puede 
 
 Escena propia (`Sandbox`) para probar mecánicas sin salir de la partida: parrys, especiales, piezas, etc. Todo se puede cambiar **en ejecución**.
 
-- **Jugadores:** pueden entrar **hasta 4 jugadores humanos**, que se unen manteniendo pulsado ataque, como en la selección de peonzas. Sirve, por ejemplo, para practicar parrys entre dos personas con mando.
-- **Panel del sandbox:** se abre con un **botón propio** (Select/Back en mando, Tab en teclado; reasignable), que **pausa** el juego. Se navega con mando y con ratón. Al cerrarlo, el juego sigue con los cambios aplicados.
+- **Cómo se entra:** por JUGAR, como cualquier partida. Los jugadores se unen y eligen peonza en la selección, y **Sandbox** es un modo más (sustituye a Práctica): con 1 jugador es el único modo; con 2-4 se puede elegir. Cambiar de peonza dentro del sandbox llega en la fase E.
+- **Jugadores:** pueden entrar **hasta 4 jugadores humanos**, que se unen manteniendo pulsado ataque en la selección de peonzas. Sirve, por ejemplo, para practicar parrys entre dos personas con mando. **Máximo 4 peonzas en total** (humanos + dummies), como las CPU en partidas normales; se ampliará con F2.
+- **Panel del sandbox:** se abre con un **botón propio** (Select/Back en mando, Tab en teclado; reasignable), que **pausa** el juego. Lo puede navegar **cualquiera** (mando, teclado o ratón), como el menú de pausa. Al cerrarlo, el juego sigue al momento (sin cuenta atrás) con los cambios aplicados.
 - **Primera versión del panel:**
-  - **Rivales:** ninguno, dummy o IA (nivel y arquetipo), de 1 a 3 rivales.
-  - **Comportamiento del dummy:** quieto, moverse, **atacar cada X segundos** (para practicar parry), hacer dash hacia el jugador, usar el especial.
+  - **Rivales:** ninguno o de 1 a 3 dummies (hasta completar 4 peonzas). La IA se añade aquí en la fase D.
+  - **Comportamiento de los dummies:** un selector para todos a la vez (**Quieto, Moverse, Atacar, Dash hacia ti, Especial**) y otro de **cada cuántos segundos** (0,5 / 1 / 2 / 3). Con *Atacar* lanzan un ataque rápido hacia el jugador más cercano (para practicar parry).
 - **Más adelante** (se irá ampliando):
   - **Mi peonza:** cambiar piezas y **núcleo (especial)** en caliente.
   - **Trucos:** RPM infinitas (mías o del rival), especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable.
@@ -300,7 +302,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 - **Input System** para teclado y mandos, con esquemas de teclado J1/J2 y asignación de mando por jugador. Los controles se pueden reasignar y se guardan.
 - **Fuentes de control intercambiables:** cada peonza recibe sus órdenes de una fuente (jugador humano, dummy o, en el futuro, IA).
 - **Poderes como datos + comportamiento** *(implementado)*: cada poder es un asset en `Resources/SpecialAbilities` (`SpecialAbilityData`) con sus valores comunes (nombre ES/EN, color, icono, energía necesaria, duración, intensidad del estallido) y los propios del poder (radio de la onda, regeneración...). Cada asset crea su clase de comportamiento (`SpecialAbility`), con ganchos al activarse, cada frame y al terminar, y con modificadores de daño, empuje, movimiento, dash y carga. `SpecialAbilitySystem` aplica el efecto común y la energía. Añadir un poder: un valor en `SpecialAbilityType`, su clase de datos con su comportamiento y su asset (menú *FakeBlade → Setup Specials*). Los colores y nombres de los poderes ya no están repetidos en `VfxLibrary`, `HUDTheme` ni `Loc`, ni sus valores en `CombatConfig`. Los estados alterados (quemadura, congelación, lanzada) serán un sistema común de la peonza.
-- **Escenas:** `MainMenu` (menú principal, opciones, controles e información, con la arena de fondo), `Assembly` (unirse, montar peonzas y parámetros de partida) y `BattleArena` (combate). La configuración pasa de una escena a otra en `MatchSetup`.
+- **Escenas:** `MainMenu` (menú principal, opciones, controles e información, con la arena de fondo), `Assembly` (unirse, montar peonzas y parámetros de partida), `BattleArena` (combate) y `Sandbox` (campo de pruebas: `BattleBootstrap` + `SandboxController` con su panel y sus dummies). La configuración pasa de una escena a otra en `MatchSetup`.
 - **Catálogo** (`FakeBladeCatalog`): piezas, presets, paleta de colores, arenas y prefab de jugador. Añadir contenido es añadir entradas al catálogo.
 - **HUD dirigido por eventos:** no busca objetos en la escena ni formatea strings cada frame.
 - **Assembly definitions** (`FakeBlade.Runtime` y `FakeBlade.Editor`) para compilar más rápido y separar el código de editor.
@@ -582,6 +584,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-05 | Lanzada: efecto bolos | Todo el daño que provoca una peonza lanzada (el suyo y el de la peonza contra la que choca) cuenta para el usuario de Rayos. |
 | 2026-10-05 | Estados e invulnerabilidad | Las peonzas invulnerables (recién reaparecidas) no reciben estados alterados. |
 | 2026-10-05 | Sonido al moverse por menús | DM-CGS-01 (pack Casual de Dustyroom) es el sonido básico al pasar de un botón a otro. El de pulsar un botón se elegirá más adelante. |
+| 2026-10-06 | Entrada al sandbox | Por JUGAR: Sandbox es un modo del lobby (sustituye a Práctica); con 1 jugador es el único modo. |
+| 2026-10-06 | Sandbox: máximo | 4 peonzas en total (humanos + dummies). |
+| 2026-10-06 | Sandbox: dummies | Un comportamiento para todos (Quieto, Moverse, Atacar, Dash hacia ti, Especial) y un intervalo (0,5 / 1 / 2 / 3 s). |
+| 2026-10-06 | Sandbox: panel | Lo navega cualquiera (mando, teclado o ratón), como la pausa. Al cerrarlo no hay cuenta atrás. |
 | 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
 
 12. # Pendiente de definir
@@ -613,7 +619,6 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Parámetros exactos de cada nivel de IA (tabla orientativa en 6.4).
 - Desde dónde se añaden las CPU en las partidas normales (en una columna libre de la selección de peonzas, eligiendo nivel y peonza).
-- Con varios jugadores en el sandbox, quién maneja el panel (cualquiera puede abrirlo; lo controla quien lo abre).
 
 13. # Quehaceres
 
@@ -631,12 +636,12 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 **Fase B. Sandbox básico** (sustituye a Práctica)
 
-- [ ] B1. Escena `Sandbox`; la opción de practicar del menú lleva aquí.
-- [ ] B2. Botón propio del sandbox (Select/Back y Tab, reasignable) que pausa y abre el panel. 🎮
-- [ ] B3. Panel navegable con mando y ratón (reutilizando los widgets pixel del menú). 🎮
-- [ ] B4. Rivales: ninguno o dummy, de 1 a 3 (la IA se añade al panel en D6).
-- [ ] B5. Comportamientos del dummy: quieto, moverse, atacar cada X s (practicar parry), dash hacia el jugador, usar especial.
-- [ ] B6. Hasta 4 jugadores humanos, que se unen manteniendo ataque. 🎮
+- [x] B1. Escena `Sandbox` (copia de BattleArena con `SandboxController`); se entra con el modo Sandbox del lobby, que sustituye a Práctica.
+- [x] B2. Botón propio del sandbox (Select/Back y Tab, reasignable en Controles) que pausa y abre el panel. Probado con teclado; falta con mando. 🎮
+- [x] B3. Panel navegable con mando y ratón (reutilizando los widgets pixel del menú). Probado con teclado; falta con mando y ratón. 🎮
+- [x] B4. Rivales: ninguno o dummy, de 1 a 3, hasta 4 peonzas en total (la IA se añade al panel en D6).
+- [x] B5. Comportamientos del dummy: quieto, moverse, atacar cada X s (practicar parry), dash hacia el jugador, usar especial. Si la acción no está disponible (cooldown del dash, sin cargas, poder activo) esperan a poder hacerla.
+- [x] B6. Hasta 4 jugadores humanos, que se unen manteniendo ataque en la selección de peonzas. Probado con teclado; falta con varios mandos. 🎮
 
 **Fase C. Poderes, uno a uno** (cada uno con su aura, sus textos y su prueba en el sandbox)
 

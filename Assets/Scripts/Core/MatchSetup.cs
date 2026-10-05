@@ -85,7 +85,7 @@ namespace FakeBlade.Core
         public static ArenaData Arena;
 
         public static bool HasPlayers => Players.Count > 0;
-        public static bool IsPractice => Rules != null && Rules.IsPractice;
+        public static bool IsSandbox => Rules != null && Rules.IsSandbox;
 
         public static void Clear()
         {
@@ -120,6 +120,19 @@ namespace FakeBlade.Core
 
             Rules = catalog.lastStanding != null ? catalog.lastStanding.CloneRuntime() : MatchRules.CreateDefault();
             Arena = catalog.arenas.Count > 0 ? catalog.arenas[0] : null;
+        }
+
+        /// <summary>Sandbox por defecto para abrir la escena Sandbox directamente: J1 con el primer preset.</summary>
+        public static void CreateDefaultSandbox(FakeBladeCatalog catalog)
+        {
+            CreateDefault(catalog);
+            Players.RemoveRange(1, Players.Count - 1);
+
+            Rules = catalog.sandbox != null ? catalog.sandbox.CloneRuntime() : MatchRules.CreateDefault();
+            Rules.winCondition = WinCondition.Sandbox;
+            Rules.displayNameKey = "MODE_SANDBOX";
+            Rules.teams = false;
+            Rules.timeLimit = 0f;
         }
     }
 }

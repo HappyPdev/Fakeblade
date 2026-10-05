@@ -12,6 +12,7 @@ namespace FakeBlade.Core
         public const string MainMenu = "MainMenu";
         public const string Lobby = "Assembly";
         public const string Battle = "BattleArena";
+        public const string Sandbox = "Sandbox";
 
         public static bool CanLoad(string scene) =>
             !string.IsNullOrEmpty(scene) && Application.CanStreamedLevelBeLoaded(scene);

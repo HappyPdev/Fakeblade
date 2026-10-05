@@ -80,10 +80,15 @@ crashlytics-build.properties
 
 # Assets de la Asset Store (de pago o con licencia EULA): no se pueden redistribuir
 # y este repositorio es público, así que no se suben. Ver GDD 7.4.
-# - Arte y audio de terceros: dentro de Assets/ThirdParty/.
+# - Todo lo que no es nuestro va en Assets/ThirdParty/ (ignorado)...
+# - ...salvo los paquetes con licencia libre (CC0, MIT...), que van en
+#   Assets/ThirdParty/Free/ y sí se suben.
 # - Paquetes de código o shaders que se quedan en su carpeta original: añadir aquí
 #   su carpeta (y su .meta) al importarlos.
-/[Aa]ssets/[Tt]hird[Pp]arty/
-/[Aa]ssets/[Tt]hird[Pp]arty.meta
+/[Aa]ssets/[Tt]hird[Pp]arty/*
+!/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/
+!/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree.meta
 /[Aa]ssets/[Pp]lugins/AllIn1SpriteShader/
 /[Aa]ssets/[Pp]lugins/AllIn1SpriteShader.meta
+# Plugins solo contiene paquetes de terceros (cada uno ignorado arriba)
+/[Aa]ssets/[Pp]lugins.meta

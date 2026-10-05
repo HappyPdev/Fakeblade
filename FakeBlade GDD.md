@@ -342,9 +342,13 @@ Medición en editor (4 peonzas con IA y efectos): física ~0,3 ms por paso y ren
 **Reglas de uso:**
 
 - Se importa **solo lo que se va a usar**, desmarcando el resto en la ventana de importación, y sin escenas de demo.
-- Arte y audio van en `Assets/ThirdParty/`. Los paquetes de código o shaders se quedan en su carpeta original (para poder actualizarlos), y esa carpeta se añade al `.gitignore`.
-- **Excepción:** los paquetes con licencia libre (CC0, MIT...) sí se pueden subir al repo. Se comprueba en el archivo de licencia del propio paquete.
-- **Importados hasta ahora:** All In 1 Sprite Shader en `Assets/Plugins/AllIn1SpriteShader/` (sin demos; en `.gitignore`) y FREE Casual Game SFX de Dustyroom en `Assets/Casual Game Sounds U6/` (CC0, sí va en el repo).
+- **Todo lo que no es nuestro va en `Assets/ThirdParty/`**, que está en `.gitignore`. Los paquetes de código o shaders son la excepción: se quedan en su carpeta original (para poder actualizarlos desde la Asset Store sin duplicarlos), y esa carpeta se añade al `.gitignore`.
+- **Paquetes con licencia libre** (CC0, MIT...): van en `Assets/ThirdParty/Free/`, que **sí se sube** al repo. La licencia se comprueba en el archivo del propio paquete.
+- **Organización actual:**
+  - `Assets/ThirdParty/Free/Audio/Casual Game Sounds U6/`: FREE Casual Game SFX de Dustyroom (CC0, comprobado en su `license.pdf`). Sí va en el repo.
+  - `Assets/ThirdParty/UnityTemplate/`: el readme de la plantilla URP de Unity (`TutorialInfo` y `Readme.asset`). No lo usa nada; no se sube.
+  - `Assets/Plugins/AllIn1SpriteShader/`: All In 1 Sprite Shader (sin demos). En su carpeta original y en `.gitignore`.
+  - Se quedan en su sitio aunque no sean nuestros: `TextMesh Pro` (recursos de Unity que usa el HUD; hacen falta para que el repo funcione al clonarlo) e `InputSystem_Actions` (registrado como acciones globales del proyecto en la configuración de Input System).
 - El código del juego **no depende de clases de paquetes de pago**: los shaders se usan a través de materiales y las herramientas solo en el editor. Así el repo compila aunque falten.
 - **Qué entra en la build:** lo que usan las escenas de la build (y sus dependencias), todo lo que esté en carpetas `Resources` y todo el código de runtime. Lo que no se usa no entra, pero hay que vigilar las carpetas `Resources` y los scripts de cada paquete (se compilan siempre, también en WebGL).
 
@@ -478,9 +482,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | Zumbido de giro en bucle (tono según las RPM, 7.1) | — | Pendiente (G5) |
 | Estados: quemar, congelar, lanzada | — | Pendiente |
 | **Menús y flujo** | | |
-| Moverse por un menú | — | Casual SFX (cortos) |
+| Moverse entre botones de un menú | — | **DM-CGS-01** (decidido). Es el sonido básico de la UI; se copiará como `ui_move` |
+| Pulsar un botón (confirmar) | — | Pendiente de elegir (Casual SFX cortos) |
+| Atrás | — | Pendiente (Casual SFX cortos) |
 | Cambiar un valor (izquierda/derecha) | — | Casual SFX (cortos) |
-| Confirmar / Atrás | — | Casual SFX (cortos) |
 | Unirse en el lobby (mantener → completado) | — | Casual SFX |
 | Jugador listo | — | Casual SFX |
 | Cuenta atrás (3, 2, 1) y ¡Ya! | — | Casual SFX |
@@ -576,6 +581,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-05 | Lanzada contra la pared | La pared la golpea como una peonza parada con la fuerza del usuario de Rayos (daño base + diferencia de velocidad). |
 | 2026-10-05 | Lanzada: efecto bolos | Todo el daño que provoca una peonza lanzada (el suyo y el de la peonza contra la que choca) cuenta para el usuario de Rayos. |
 | 2026-10-05 | Estados e invulnerabilidad | Las peonzas invulnerables (recién reaparecidas) no reciben estados alterados. |
+| 2026-10-05 | Sonido al moverse por menús | DM-CGS-01 (pack Casual de Dustyroom) es el sonido básico al pasar de un botón a otro. El de pulsar un botón se elegirá más adelante. |
+| 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
 
 12. # Pendiente de definir
 
@@ -585,6 +592,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - Modelos o skins distintos por pieza. Ahora las piezas solo cambian estadísticas y el color.
+- Sonido al pulsar un botón (confirmar) y al volver atrás en los menús (alguno de los cortos del pack Casual, distinto de DM-CGS-01, que es el de moverse entre botones).
 - Autoeliminación: cuántos segundos sin recibir golpes hacen que cuente como autoeliminación (los mismos 5 s que dan el punto de K.O.).
 
 **Poderes:**

@@ -23,6 +23,8 @@ namespace FakeBlade.Core.Editor
         {
             FakeBladeAssetsMenu.EnsureFolder(SAVE_PATH.TrimEnd('/'));
 
+            // Los rasgos (lista Rasgos) no se tocan aquí: se ponen en cada asset (GDD 3)
+
             // === PUNTAS ===
             CreateComponent("Tip_Light_NeedlePoint", "Needle Point",
                 "Punta ultrafina. Mínima fricción, máxima velocidad. Estabilidad reducida.",
@@ -47,7 +49,7 @@ namespace FakeBlade.Core.Editor
                 "Cuerpo ultraligero. Se mueve como el viento pero sale volando en los choques.",
                 ComponentSlot.Body, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: -50, spinDecay: 0.5f, moveSpeed: 3f, weight: -0.4f,
-                attack: -3f, defense: -5f, dash: 2f, charges: 1);
+                attack: 0, defense: -5f, dash: 2f, charges: 1);
 
             CreateComponent("Body_Medium_StandardFrame", "Standard Frame",
                 "Cuerpo estándar bien balanceado. Sin sorpresas.",
@@ -59,14 +61,14 @@ namespace FakeBlade.Core.Editor
                 "Cuerpo macizo de hierro. Imparable una vez en movimiento. Cuesta arrancar.",
                 ComponentSlot.Body, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: -0.3f, moveSpeed: -4f, weight: 1.2f,
-                attack: 5f, defense: 15f, dash: -4f, charges: -1);
+                attack: 0, defense: 15f, dash: -4f, charges: -1);
 
             // === DISCOS ===
             CreateComponent("Blade_Light_RazorEdge", "Razor Edge",
                 "Disco afilado y ligero. Muchos ataques rápidos pero poco empuje.",
                 ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.3f, moveSpeed: 1f, weight: -0.1f,
-                attack: 8f, defense: -5f, dash: 1f, charges: 1);
+                attack: 12f, defense: -5f, dash: 1f, charges: 1);
 
             CreateComponent("Blade_Medium_BalancedRing", "Balanced Ring",
                 "Anillo equilibrado. Buen ataque y defensa decente.",
@@ -78,7 +80,7 @@ namespace FakeBlade.Core.Editor
                 "Disco de demolición. Impactos devastadores. Muy pesado.",
                 ComponentSlot.Blade, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: -30, spinDecay: 0.5f, moveSpeed: -2f, weight: 0.6f,
-                attack: 15f, defense: 10f, dash: 2f);
+                attack: 6f, defense: 10f, dash: 2f);
 
             // === NÚCLEOS (GDD 3) ===
             // Uno por poder. Todos +50 RPM máx. y una ventaja y un coste del mismo tamaño (2 puntos;

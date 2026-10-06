@@ -31,7 +31,7 @@ namespace FakeBlade.Core
 
         public static BladeBaseStats Default => new BladeBaseStats
         {
-            maxSpin = 350f, spinDecay = 1f, moveSpeed = 4f, weight = 1f,
+            maxSpin = 400f, spinDecay = 1f, moveSpeed = 4f, weight = 1f,
             attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3
         };
     }
@@ -51,6 +51,8 @@ namespace FakeBlade.Core
         public float ParryWindowBonus;
         public SpecialAbilityType Special;
         public BladeArchetype Archetype;
+        /// <summary>Rasgos sumados de las piezas (multiplicadores sobre valores del combate).</summary>
+        public PartTraits Traits;
     }
 
     /// <summary>
@@ -106,6 +108,9 @@ namespace FakeBlade.Core
         public float ParryWindowBonus => _stats.ParryWindowBonus;
         public SpecialAbilityType SpecialAbility => _stats.Special;
         public BladeArchetype Archetype => _stats.Archetype;
+        /// <summary>Multiplicador de un rasgo de las piezas (1 si ninguna lo tiene).</summary>
+        public float Trait(PartTraitType type) => _stats.Traits != null ? _stats.Traits.Multiplier(type) : 1f;
+        public PartTraits Traits => _stats.Traits ?? PartTraits.None;
         public BladeStatBlock Block => _stats;
 
         public BladeBaseStats BaseStats => new BladeBaseStats
@@ -166,6 +171,12 @@ namespace FakeBlade.Core
             Apply(ref s, blade);
             Apply(ref s, core);
 
+            s.Traits = new PartTraits();
+            AddTraits(s.Traits, tip);
+            AddTraits(s.Traits, body);
+            AddTraits(s.Traits, blade);
+            AddTraits(s.Traits, core);
+
             s.MaxSpin = Mathf.Max(100f, s.MaxSpin);
             s.SpinDecay = Mathf.Max(0.5f, s.SpinDecay);
             s.MoveSpeed = Mathf.Max(2f, s.MoveSpeed);
@@ -180,6 +191,12 @@ namespace FakeBlade.Core
                 : SpecialAbilityType.SpinBoost;
             s.Archetype = ComputeArchetype(s);
             return s;
+        }
+
+        private static void AddTraits(PartTraits traits, FakeBladeComponentData c)
+        {
+            if (c == null) return;
+            for (int i = 0; i < c.Traits.Count; i++) traits.Add(c.Traits[i]);
         }
 
         private static void Apply(ref BladeStatBlock s, FakeBladeComponentData c)

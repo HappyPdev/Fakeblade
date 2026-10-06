@@ -24,9 +24,12 @@ MonoBehaviour:
   spinDecayModifier: 0.5
   moveSpeedModifier: 3
   weightModifier: -0.4
-  attackPowerModifier: -3
+  attackPowerModifier: 0
   defenseModifier: -5
   dashForceModifier: 2
   attackChargesModifier: 1
   parryWindowModifier: 0
   specialAbility: 0
+  traits:
+  - type: 7
+    percent: -0.2

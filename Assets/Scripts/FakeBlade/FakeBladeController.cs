@@ -52,6 +52,14 @@ namespace FakeBlade.Core
         public event Action<StatusEffectType> OnStatusEffectChanged;
         /// <summary>Choque con otra peonza: (otra, RPM perdidas por esta).</summary>
         public event Action<FakeBladeController, float> OnClash;
+        /// <summary>Choque en el que esta ha quitado RPM a otra: (otra, RPM que ha perdido la otra).</summary>
+        public event Action<FakeBladeController, float> OnClashDealt;
+        /// <summary>Golpe contra una pared que hace daño (0-1 según la velocidad).</summary>
+        public event Action<float> OnWallHit;
+        /// <summary>Un golpe de ataque enemigo ha cortado la curación del poder.</summary>
+        public event Action OnHealCut;
+        /// <summary>Ha perdido RPM por daño (cantidad real, quién lo ha causado o null). Golpes, paredes y quemadura.</summary>
+        public event Action<float, FakeBladeController> OnDamaged;
         public event Action OnSpinOut;
         #endregion
 
@@ -117,6 +125,8 @@ namespace FakeBlade.Core
         private float _burstCap;
         private float _burstCapStart;
         private float _burstHold;
+        /// <summary>Estela mientras dura el acelerón de un ataque o dash (se nota el impulso aunque ya vaya rápida).</summary>
+        private TrailRenderer _burstTrail;
 
         // Choques
         private Vector3 _preImpactVelocity;
@@ -158,6 +168,27 @@ namespace FakeBlade.Core
         /// <summary>Ataque con botón o dash en curso (cuenta como ataque en los choques).</summary>
         public bool IsAttacking => _attack.IsAttacking || IsDashAttacking;
 
+        /// <summary>Nivel de carga del ataque en curso (0 = rápido, dash o sin atacar).</summary>
+        public int ChargeLevel => _attack.IsAttacking ? _attack.AttackLevel : 0;
+
+        /// <summary>
+        /// Velocidad que la carga ha sumado al acelerón (por encima de la de un ataque rápido).
+        /// El daño del choque se calcula sin ella: el cargado da alcance y empuje, no daño extra.
+        /// </summary>
+        public float ChargeExtraSpeed
+        {
+            get
+            {
+                int level = ChargeLevel;
+                if (level <= 0) return 0f;
+                var cfg = CombatConfig.Active;
+                return cfg.quickAttackImpulse * cfg.chargedImpulsePerLevel * level * WeightSpeedFactor;
+            }
+        }
+
+        /// <summary>Daño del ataque cargado sobre el de uno rápido: 1 + chargedDamagePerLevel × nivel.</summary>
+        public float ChargeDamageMultiplier => 1f + CombatConfig.Active.chargedDamagePerLevel * ChargeLevel;
+
         public bool CanDash => _dashTimer <= 0f && !_isDestroyed && _simulationActive;
         /// <summary>0 = recién usado, 1 = listo.</summary>
         public float DashCooldownProgress => _dashTimer <= 0f ? 1f : 1f - _dashTimer / _dashCooldownTotal;
@@ -173,7 +204,24 @@ namespace FakeBlade.Core
             {
                 float attackPower = _stats != null ? _stats.AttackPower : 10f;
                 float combo = IsAttacking ? _attack.ComboMultiplier : 1f;
-                return attackPower / Mathf.Max(1f, CombatConfig.Active.referenceAttackPower) * combo;
+                // Las diferencias de ataque de las piezas cuentan solo en parte (attackSpread)
+                var cfg = CombatConfig.Active;
+                float attack = Mathf.Lerp(1f, attackPower / Mathf.Max(1f, cfg.referenceAttackPower), cfg.attackSpread);
+                return attack * combo;
+            }
+        }
+
+        /// <summary>
+        /// Daño según el tipo de golpe: con ataque (rápido o cargado) un poco más que sin atacar; con
+        /// dash, menos (ya llega mucho más rápido, y la velocidad es la base del daño).
+        /// </summary>
+        public float HitTypeDamageMultiplier
+        {
+            get
+            {
+                var cfg = CombatConfig.Active;
+                if (_attack.IsAttacking) return cfg.attackHitDamageMultiplier;
+                return IsDashAttacking ? cfg.dashHitDamageMultiplier : 1f;
             }
         }
 
@@ -220,6 +268,7 @@ namespace FakeBlade.Core
             _particles = new BladeParticles(this);
 
             SetupVisualRoot();
+            SetupBurstTrail();
         }
 
         private void OnEnable()
@@ -314,7 +363,18 @@ namespace FakeBlade.Core
             if (other._isDestroyed || (IsAllyOf(other) && !FriendlyFire)) return;
 
             // Roce continuo entre peonzas
-            ApplyDamage(CombatConfig.Active.grindDamagePerSecond * Time.fixedDeltaTime, other);
+            var cfg = CombatConfig.Active;
+            ApplyDamage(cfg.grindDamagePerSecond * Time.fixedDeltaTime, other);
+
+            // Pegadas sin choque nuevo (sin velocidad no hay choque): se separan con un empuje y
+            // un choque parejo pequeño. Lo resuelve una sola de las dos.
+            if (!other._isDestroyed && GetInstanceID() < other.GetInstanceID() &&
+                TimeSinceClash(other) >= cfg.stuckRepelDelay)
+            {
+                MarkClash(other);
+                other.MarkClash(this);
+                CollisionResolver.ResolveStuck(this, other, collision.GetContact(0).point);
+            }
         }
 
         /// <summary>
@@ -399,11 +459,15 @@ namespace FakeBlade.Core
 
             _weightNormalized = Mathf.InverseLerp(0.5f, 3f, weight);
 
+            // Ligeras y pesadas, más parecidas que lo que dicen sus piezas (speedSpread, turnByWeight y
+            // accelerationByWeight en CombatConfig): las ágiles giran algo más pesadas y las lentas no lo son tanto
             _effectiveAcceleration = Mathf.Clamp(
-                cfg.accelerationForce * Mathf.Max(moveSpeed * 0.1f, 1f) * Mathf.Lerp(1.5f, 0.5f, _weightNormalized),
+                cfg.accelerationForce * Mathf.Max(moveSpeed * 0.1f, 1f) *
+                Mathf.Lerp(cfg.accelerationByWeight.x, cfg.accelerationByWeight.y, _weightNormalized),
                 5f, 120f);
-            _effectiveMaxSpeed = Mathf.Clamp(cfg.maxVelocity + moveSpeed * Mathf.Lerp(0.8f, 0.4f, _weightNormalized), 3f, 25f);
-            _effectiveTurnSpeed = cfg.turnResponsiveness * Mathf.Lerp(2.5f, 0.5f, _weightNormalized);
+            float rawMaxSpeed = cfg.maxVelocity + moveSpeed * Mathf.Lerp(0.8f, 0.4f, _weightNormalized);
+            _effectiveMaxSpeed = Mathf.Clamp(Mathf.Lerp(cfg.referenceMaxSpeed, rawMaxSpeed, cfg.speedSpread), 3f, 25f);
+            _effectiveTurnSpeed = cfg.turnResponsiveness * Mathf.Lerp(cfg.turnByWeight.x, cfg.turnByWeight.y, _weightNormalized);
             _effectiveDrag = cfg.stoppingFriction * Mathf.Lerp(1.5f, 0.4f, _weightNormalized);
 
             _attack.SetMaxCharges(_stats.AttackCharges);
@@ -426,7 +490,7 @@ namespace FakeBlade.Core
             if (_rb == null) return;
             var cfg = CombatConfig.Active;
 
-            _rb.mass = Weight;
+            _rb.mass = Mathf.Max(cfg.minPhysicalMass, Weight);
             _rb.linearDamping = cfg.linearDamping;
             _rb.angularDamping = cfg.angularDamping;
             _rb.useGravity = true;
@@ -510,10 +574,13 @@ namespace FakeBlade.Core
             if (_isDestroyed || amount <= 0f || _invulnerableTimer > 0f) return 0f;
 
             float defense = _stats != null && !ignoreDefense ? _stats.Defense : 0f;
-            float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier;
+            // Multiplicador global (combates más largos); la quemadura va aparte, por porcentaje
+            float global = ignoreDefense ? 1f : CombatConfig.Active.damageMultiplier;
+            float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier * global;
             if (damage <= 0f) return 0f;
 
             _currentSpin = Mathf.Max(0f, _currentSpin - damage);
+            OnDamaged?.Invoke(damage, source);
 
             if (source != null && source != this)
             {
@@ -598,6 +665,7 @@ namespace FakeBlade.Core
             if (_special.Stop())
                 OnSpecialEnded?.Invoke(_special.Type);
             ClearStatus();
+            if (_burstTrail != null) _burstTrail.emitting = false;
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
@@ -635,9 +703,10 @@ namespace FakeBlade.Core
             if (_isDestroyed) return;
 
             // Aturdida tras un parry: el botón de ataque no cuenta. La recarga depende del poder
-            // (Defensa, más rápida) y del estado (congelada, más lenta)
-            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered, _special.ChargeSpeedMultiplier,
-                _special.AttackRechargeMultiplier * _status.AttackRechargeMultiplier);
+            // (Defensa, más rápida), del estado (congelada, más lenta) y de los rasgos de las piezas
+            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered,
+                _special.ChargeSpeedMultiplier / Trait(PartTraitType.ChargeTime),
+                _special.AttackRechargeMultiplier * _status.AttackRechargeMultiplier / Trait(PartTraitType.AttackRechargeTime));
             if (launch != AttackSystem.NoLaunch)
                 LaunchAttack(launch);
         }
@@ -645,7 +714,7 @@ namespace FakeBlade.Core
         private void LaunchAttack(int level)
         {
             var cfg = CombatConfig.Active;
-            float cost = _maxSpin * cfg.quickAttackSpinCostPct * AttackSystem.ChargeCost(level);
+            float cost = _maxSpin * cfg.quickAttackSpinCostPct * AttackSystem.ChargeCost(level) * Trait(PartTraitType.AttackCost);
 
             if (_currentSpin <= cost * 1.5f || !_attack.CanAfford(level))
             {
@@ -675,7 +744,7 @@ namespace FakeBlade.Core
             if (!CanDash || IsStaggered) return false;
 
             var cfg = CombatConfig.Active;
-            float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier;
+            float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier * Trait(PartTraitType.DashCost);
             if (_currentSpin <= cost * 1.5f) return false;
 
             Vector3 direction = ResolveActionDirection();
@@ -684,7 +753,7 @@ namespace FakeBlade.Core
             ApplyBurst(direction, speedGain * WeightSpeedFactor, cfg.dashAttackWindow);
             ConsumeSpin(cost);
 
-            _dashCooldownTotal = Mathf.Max(0.05f, cfg.dashCooldown * _special.DashCooldownMultiplier);
+            _dashCooldownTotal = Mathf.Max(0.05f, cfg.dashCooldown * _special.DashCooldownMultiplier * Trait(PartTraitType.DashCooldown));
             _dashTimer = _dashCooldownTotal;
             _dashAttackEndTime = Time.time + cfg.dashAttackWindow;
             _dashRefundableCost = cost;
@@ -805,16 +874,37 @@ namespace FakeBlade.Core
         }
 
         /// <summary>Llamado por CollisionResolver cuando esta peonza inflige daño.</summary>
-        public void RegisterSuccessfulHit(float damageDealt)
+        /// <summary>
+        /// Llamado por CollisionResolver cuando esta peonza gana un choque (even = choque parejo).
+        /// La energía del especial depende del tipo de golpe, no del daño: los cargados, que cuestan
+        /// más cargas, dan más (y golpear a una Defensa activa también cuenta).
+        /// </summary>
+        public void RegisterSuccessfulHit(bool even)
         {
-            if (damageDealt <= 0f) return;
             var cfg = CombatConfig.Active;
+            float energy;
+            if (_attack.IsAttacking)
+            {
+                int level = ChargeLevel;
+                energy = level > 0
+                    ? (cfg.specialEnergyChargedHit + cfg.specialEnergyPerChargeLevel * level) * Trait(PartTraitType.SpecialEnergyChargedHit)
+                    : cfg.specialEnergyQuickHit * Trait(PartTraitType.SpecialEnergyQuickHit);
+            }
+            else if (IsDashAttacking) energy = cfg.specialEnergyDashHit * Trait(PartTraitType.SpecialEnergyDashHit);
+            else energy = cfg.specialEnergyPassiveHit;
 
-            float multiplier = IsAttacking ? 1f : cfg.passiveHitEnergyMultiplier;
-            _special.AddEnergy(damageDealt * cfg.specialEnergyPerDamage * multiplier);
+            if (even) energy *= 0.5f;
+            AddSpecialEnergy(energy);
 
             if (IsAttacking) _attack.RegisterHit();
         }
+
+        /// <summary>Energía del especial con el ritmo general y el rasgo de energía de las piezas.</summary>
+        private void AddSpecialEnergy(float energy) =>
+            _special.AddEnergy(energy * CombatConfig.Active.specialEnergyMultiplier * Trait(PartTraitType.SpecialEnergyAll));
+
+        /// <summary>Multiplicador de un rasgo de las piezas equipadas (1 si ninguna lo tiene).</summary>
+        private float Trait(PartTraitType type) => _stats != null ? _stats.Trait(type) : 1f;
 
         /// <summary>¿Ya se resolvió un choque con este rival hace menos de clashCooldown? (memoria por rival)</summary>
         private bool IsClashOnCooldown(FakeBladeController other)
@@ -823,6 +913,14 @@ namespace FakeBlade.Core
             for (int i = 0; i < ClashMemory; i++)
                 if (_clashPartners[i] == other) return Time.time - _clashTimes[i] < cooldown;
             return false;
+        }
+
+        /// <summary>Segundos desde el último choque resuelto con este rival (infinito si no lo recuerda).</summary>
+        private float TimeSinceClash(FakeBladeController other)
+        {
+            for (int i = 0; i < ClashMemory; i++)
+                if (_clashPartners[i] == other) return Time.time - _clashTimes[i];
+            return float.PositiveInfinity;
         }
 
         private void MarkClash(FakeBladeController other)
@@ -892,7 +990,7 @@ namespace FakeBlade.Core
         public void RegisterParry()
         {
             _attack.RefundCharge();
-            _special.AddEnergy(CombatConfig.Active.parryEnergy);
+            AddSpecialEnergy(CombatConfig.Active.parryEnergy * Trait(PartTraitType.SpecialEnergyParry));
 
             if (showDebugInfo) Debug.Log($"[FakeBlade] {name} PARRY", this);
         }
@@ -910,6 +1008,22 @@ namespace FakeBlade.Core
             // Golpes con efecto (Fuego, Hielo): reacciona el poder de quien ha hecho el daño
             if (other != null && damageTaken > 0f) other._special.NotifyClashDamageDealt(this, damageTaken);
             OnClash?.Invoke(other, damageTaken);
+            if (other != null) other.OnClashDealt?.Invoke(this, damageTaken);
+        }
+
+        /// <summary>
+        /// Golpe de ataque enemigo: corta la curación del poder que quede (GDD 5). Paredes, roce,
+        /// estados y daño de poderes no la cortan: solo lo llama CollisionResolver.
+        /// </summary>
+        public void InterruptHeal()
+        {
+            if (_isDestroyed || !_special.CutHeal()) return;
+
+            VfxLibrary vfx = VfxSystem.Library;
+            if (vfx != null) VfxSystem.Play(VfxType.LowSpinSmoke, _transform.position, Vector3.up, vfx.smokeColor, 0.6f);
+            OnHealCut?.Invoke();
+
+            if (showDebugInfo) Debug.Log($"[FakeBlade] {name} curación cortada", this);
         }
 
         public void PlayClashFeedback(Vector3 point, float intensity)
@@ -941,11 +1055,14 @@ namespace FakeBlade.Core
                 float offense = thrower != null ? thrower.OffenseMultiplier : 1f;
                 ApplyDamage(impactSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense, thrower);
                 PlayClashFeedback(contact.point, Mathf.Clamp01(impactSpeed / 15f));
+                OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
                 return;
             }
 
-            ApplyDamage(impactSpeed * cfg.wallDamagePerSpeed, null);
+            // Como un choque parejo contra una peonza a esa velocidad (wallDamageScale = 1)
+            ApplyDamage(impactSpeed * cfg.damagePerImpactSpeed * cfg.wallDamageScale, null);
             VfxSystem.Play(VfxType.WallHit, contact.point, contact.normal, Color.white, Mathf.Clamp01(impactSpeed / 15f) + 0.3f);
+            OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
         }
 
         public bool IsAllyOf(FakeBladeController other)
@@ -1107,6 +1224,35 @@ namespace FakeBlade.Core
 
             // null solo tras recompilar en Play (no se serializa)
             _particles?.Tick(dt);
+
+            if (_burstTrail != null)
+            {
+                bool emit = _burstHold > 0f && IsAttacking;
+                if (emit && !_burstTrail.emitting)
+                {
+                    Color color = OwnerColor;
+                    _burstTrail.startColor = new Color(color.r, color.g, color.b, 0.7f);
+                    _burstTrail.endColor = new Color(color.r, color.g, color.b, 0f);
+                }
+                _burstTrail.emitting = emit;
+            }
+        }
+
+        private void SetupBurstTrail()
+        {
+            var go = new GameObject("BurstTrail");
+            go.transform.SetParent(_transform, false);
+            go.transform.localPosition = new Vector3(0f, 0.25f, 0f);
+
+            _burstTrail = go.AddComponent<TrailRenderer>();
+            _burstTrail.time = 0.2f;
+            _burstTrail.minVertexDistance = 0.1f;
+            _burstTrail.widthMultiplier = 0.8f;
+            _burstTrail.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
+            _burstTrail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _burstTrail.receiveShadows = false;
+            _burstTrail.material = new Material(Shader.Find("Sprites/Default"));
+            _burstTrail.emitting = false;
         }
 
         /// <summary>Color del jugador (efectos y HUD).</summary>

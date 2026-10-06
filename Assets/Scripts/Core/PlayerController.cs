@@ -43,6 +43,8 @@ namespace FakeBlade.Core
         private BladeColorScheme _scheme;
         private bool _hasScheme;
         private bool _registered;
+        /// <summary>Último nivel de carga que ya ha dado su pulso de vibración.</summary>
+        private int _vibratedChargeLevel;
         private bool _inputAssignedExternally;
         #endregion
 
@@ -90,6 +92,10 @@ namespace FakeBlade.Core
             _blade.OnSpinOut += HandleSpinOut;
             _blade.OnDashExecuted += HandleDash;
             _blade.OnClash += HandleClash;
+            _blade.OnClashDealt += HandleClashDealt;
+            _blade.OnAttackLaunched += HandleAttackLaunched;
+            _blade.OnWallHit += HandleWallHit;
+            _blade.OnHealCut += HandleHealCut;
 
             var gm = GameManager.Instance;
             if (gm != null) _registered = gm.RegisterPlayer(this);
@@ -105,6 +111,10 @@ namespace FakeBlade.Core
                 _blade.OnSpinOut -= HandleSpinOut;
                 _blade.OnDashExecuted -= HandleDash;
                 _blade.OnClash -= HandleClash;
+                _blade.OnClashDealt -= HandleClashDealt;
+                _blade.OnAttackLaunched -= HandleAttackLaunched;
+                _blade.OnWallHit -= HandleWallHit;
+                _blade.OnHealCut -= HandleHealCut;
             }
             if (_stats != null) _stats.OnStatsChanged -= RebuildModel;
 
@@ -127,6 +137,7 @@ namespace FakeBlade.Core
 
             _blade.HandleMovement(_source.MovementInput);
             _blade.SetAttackHeld(_source.AttackHeld);
+            VibrateCharge();
 
             if (_source.ConsumeDash()) _blade.ExecuteDash();
             if (_source.ConsumeSpecial()) _blade.ExecuteSpecial();
@@ -141,12 +152,46 @@ namespace FakeBlade.Core
             OnPlayerDefeated?.Invoke(playerID);
         }
 
-        private void HandleDash() => _source.Vibrate(0.2f, 0.4f, 0.1f);
+        // Vibración: motor grave = golpes recibidos y peso; agudo = impulsos y golpes dados
+        private void HandleDash() => _source.Vibrate(0.45f, 0.75f, 0.18f);
+
+        private void HandleAttackLaunched(int level) =>
+            _source.Vibrate(Mathf.Min(1f, 0.25f + 0.12f * level), Mathf.Min(1f, 0.5f + 0.1f * level), 0.1f + 0.04f * level);
 
         private void HandleClash(FakeBladeController other, float damageTaken)
         {
             float intensity = Mathf.Clamp01(damageTaken / Mathf.Max(1f, _blade.MaxSpinSpeed * 0.1f));
-            _source.Vibrate(0.15f + intensity * 0.35f, 0.3f + intensity * 0.6f, 0.15f);
+            _source.Vibrate(0.25f + intensity * 0.6f, 0.3f + intensity * 0.5f, 0.15f + intensity * 0.1f);
+        }
+
+        private void HandleClashDealt(FakeBladeController other, float damageDealt)
+        {
+            float intensity = Mathf.Clamp01(damageDealt / Mathf.Max(1f, other.MaxSpinSpeed * 0.1f));
+            _source.Vibrate(0.15f + intensity * 0.35f, 0.4f + intensity * 0.6f, 0.12f + intensity * 0.08f);
+        }
+
+        private void HandleWallHit(float intensity) =>
+            _source.Vibrate(0.2f + intensity * 0.5f, 0.15f + intensity * 0.3f, 0.12f);
+
+        private void HandleHealCut() => _source.Vibrate(0.6f, 0.15f, 0.25f);
+
+        /// <summary>Mientras carga: zumbido suave que crece con el nivel y un pulso al subir de nivel.</summary>
+        private void VibrateCharge()
+        {
+            AttackSystem attack = _blade.Attack;
+            if (!attack.IsCharging)
+            {
+                _vibratedChargeLevel = 0;
+                return;
+            }
+
+            int level = attack.ChargeLevel;
+            if (level > _vibratedChargeLevel)
+            {
+                _vibratedChargeLevel = level;
+                _source.Vibrate(Mathf.Min(1f, 0.3f + 0.12f * level), Mathf.Min(1f, 0.35f + 0.12f * level), 0.1f);
+            }
+            else _source.Vibrate(0.04f + 0.04f * level, 0.08f + 0.05f * level, 0.06f);
         }
         #endregion
 

@@ -30,3 +30,6 @@ MonoBehaviour:
   attackChargesModifier: 0
   parryWindowModifier: 0
   specialAbility: 0
+  traits:
+  - type: 8
+    percent: -0.25

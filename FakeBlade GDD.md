@@ -34,14 +34,14 @@ Audiencia: a partir de 8 años.
 
 ## 2.1 Sistema de Física de la peonza
 
-- **Velocidad angular (RPM):** cada peonza tiene unas revoluciones máximas distintas según sus piezas.
+- **Velocidad angular (RPM):** cada peonza tiene unas revoluciones máximas distintas según sus piezas, sobre una base de **400 RPM** (antes 350, subida para que los combates duren más).
 - **Masa e inercia:** dependen de las piezas montadas.
 - **Fricción dinámica:** superficie + colisiones.
 - **Giroscopio:** efecto de estabilización. Internamente, la peonza se mantiene estable sola hasta que se le termina la "estamina" (RPM).
 - **Precisión:** bamboleo cuando pierde velocidad. Por debajo del **30% de RPM** la peonza se bambolea: su inclinación da vueltas (precesión) y crece hasta 12° cerca de 0 RPM. Además echa **humo** y **chispas sueltas**, cada vez más cuanto menos RPM le quedan. Por ahora el bamboleo es solo visual y no afecta al control. Se ajusta en `CombatConfig` → `lowSpinThreshold`, `lowSpinWobbleAngle` y `lowSpinWobbleFrequency`.
-- **Estela y chispas:** al moverse deja una estela de píxeles de su color (más grande y opaca durante ataques y dash). Si va rápido con muchas RPM, la punta saca chispas contra el suelo.
+- **Estela y chispas:** al moverse deja una estela de píxeles de su color (más grande y opaca durante ataques y dash). Además, mientras dura el acelerón de un ataque o un dash deja una **estela continua** de su color, para que el impulso se note aunque ya fuera rápida. Si va rápido con muchas RPM, la punta saca chispas contra el suelo.
 - **Giro visual:** la velocidad a la que se ve girar la peonza no es proporcional a las RPM. Sigue una curva de forma logarítmica: se mantiene casi al máximo durante casi toda la vida y solo se frena de golpe cuando las RPM están muy cerca de 0. Por defecto gira al 90% con un 8% de RPM y al 94% con un 10%. Solo por debajo del 5% se nota que frena. El punto de frenado se ajusta en `CombatConfig` → `visualSpinKnee`.
-- **Control:** según la velocidad y la masa, cada peonza tiene un control más o menos estable.
+- **Control:** según la velocidad y la masa, cada peonza tiene un control más o menos estable. Las diferencias entre ligeras y pesadas están **suavizadas** para que ninguna sea incómoda: las velocidades máximas se acercan a una de referencia (`speedSpread` 0,5 y `referenceMaxSpeed` 15,5), el giro y la aceleración se reparten por peso entre `turnByWeight` y `accelerationByWeight`, y la masa física tiene un mínimo (`minPhysicalMass` 0,6) para que las ligeras no se sientan flotantes ni aceleren de golpe. Resultado medido por preset: velocidad Agilidad 19 · Ataque 15,8 · Balanceada 15,4 · Defensa 14,2; giro Agilidad 0,195 · Defensa 0,12; aceleración real Agilidad 173 m/s² (antes ~400) · Defensa 18.
 - **Movimiento:** se aplica una fuerza en la dirección indicada con el mando. Al hacer un ataque o un dash, la peonza acelera en la dirección en la que avanza. Si no se está moviendo, lo hace hacia el enemigo más cercano.
 
 ## 2.2 Controles
@@ -61,13 +61,16 @@ Controles por defecto (reasignables desde el menú Controles):
 
 Hasta **2 jugadores pueden compartir el teclado** (J1 con WASD y J2 con las flechas). El resto usa mando.
 
+**Vibración del mando** (se apaga en Opciones → Juego): pulso al lanzar un ataque (más fuerte cuanto más cargado), zumbido suave mientras se carga que sube con el nivel y un pulso al subir cada nivel, pulso fuerte en el dash, golpes dados (motor agudo) y recibidos (motor grave) según el daño, golpes contra la pared, K.O. y un aviso grave cuando un golpe corta la curación del poder. Un aviso flojo no corta a uno más fuerte que aún dura.
+
 ## 2.3 Sistema de Ataque
 
 - **Ataque rápido:** al pulsar el botón, la peonza hace una pequeña aceleración en la dirección del joystick. Gana menos velocidad que un dash o un ataque cargado, pero durante el ataque tiene una **bonificación de masa**. Si no hay dirección marcada, ataca hacia el enemigo más cercano.
 - **Cargas de ataque:** cada peonza tiene un número de cargas que se gastan al atacar y se recuperan con el tiempo. La media es **3 cargas**. Las piezas ligeras dan más cargas y las pesadas menos. Se muestran como puntos debajo de la barra de vida.
 - **Ataques rápidos seguidos (combos):** pulsando repetidamente se encadenan varios ataques, cada uno con su coste en cargas y RPM. Los golpes consecutivos acumulan una pequeña bonificación de daño y de empuje.
-- **Ataque cargado:** al mantener pulsado el botón de ataque, aumentan la potencia, la velocidad máxima del acelerón y la bonificación de masa. El nivel máximo de carga depende de las cargas restantes, y el ataque gasta tantas cargas como niveles se hayan cargado. Si se mantiene en el máximo un tiempo, el ataque se lanza solo. Los ataques cargados empujan más al objetivo.
+- **Ataque cargado:** al mantener pulsado el botón de ataque, sube el nivel de carga. Cada nivel da **más alcance** (acelerón +60%) y **más empuje** (+40%), y **+10% de daño** sobre el de un ataque rápido: el daño se calcula como el de un ataque rápido (sin la velocidad extra de la carga) y se multiplica por 1 + 0,10 × nivel (nivel 3 = ×1,3; antes llegaba a ×3,7 porque velocidad y masa se multiplicaban). Se ajusta con `chargedDamagePerLevel` en `CombatConfig`. El nivel máximo de carga depende de las cargas restantes, y el ataque gasta tantas cargas como niveles se hayan cargado. Si se mantiene en el máximo un tiempo, el ataque se lanza solo.
 - **Efecto de la carga:** mientras se carga, unas partículas convergen hacia la peonza. En cada nivel son más, más grandes y pasan del color del jugador a un blanco dorado, y sale un anillo en el suelo. Al llegar al máximo hay un destello de estrellas y salen llamas de la base hasta que se lanza.
+- **Daño de los ataques:** un golpe con ataque (rápido o cargado) hace un **20% más** que un choque sin atacar (`attackHitDamageMultiplier` 1,2), para que atacar compense frente al dash.
 - **Coste:** los ataques cuestan RPM, igual que el dash.
 - **Cooldown:** entre ataques cargados hay un tiempo de enfriamiento.
 
@@ -78,7 +81,7 @@ El dash es un acelerón **mayor que el de los ataques** que se hace con un botó
 - **Esquivar o reposicionarse:** para salir de un ataque o buscar una posición mejor contra el objetivo.
 - **Atacar:** si durante el dash la peonza choca contra otra, **cuenta como un ataque** y tiene la misma prioridad que un ataque, aplicando la regla de velocidad del sistema de choque (2.5).
 
-Cuesta RPM y tiene cooldown. **No tiene bonificación de masa ni parámetros extra** (ni armadura ni bonus de daño): su ventaja es solo la velocidad que da.
+Cuesta **8% de las RPM máximas** y tiene **1,8 s** de espera (antes 6% y 1,5 s). **No tiene bonificación de masa ni armadura**, y sus golpes hacen un **25% menos de daño** (`dashHitDamageMultiplier` 0,75): llega mucho más rápido que un ataque y el daño sale de la velocidad, así que sin esa rebaja era el mejor golpe para todos los arquetipos. Ahora sirve para moverse, esquivar y rematar; el golpe principal es el ataque. Las piezas pesadas (Defensa) alargan su espera (ver rasgos en 3).
 
 **Dash acertado:** si durante la ventana del dash la peonza **gana un choque contra un enemigo** (llega más rápida, según la regla de 2.5), recupera el **50% de las RPM que le costó el dash**. Solo una vez por dash. Si pierde el choque, choca con un compañero o no toca a nadie, no recupera nada. La fracción se ajusta en `CombatConfig` → `dashHitRefundFraction`.
 
@@ -93,7 +96,10 @@ Cuando dos peonzas chocan, se comparan sus velocidades en el momento del choque 
 - **Impacto directo:** se transmite la energía entre las peonzas.
 - **Impacto oblicuo:** desvía la trayectoria y hace perder velocidad. Hace menos daño porque la velocidad de aproximación es menor.
 - **Defensa:** sincronizar bien los ataques para llegar con más velocidad que el rival es la forma de defenderse ("timing").
-- **Paredes:** chocar contra el borde quita muy pocas RPM. Solo cuenta la velocidad perpendicular a la pared, así que rozarla no quita RPM. El suelo nunca quita RPM.
+- **Daño global:** todo el daño de golpes, paredes y roce se multiplica por `damageMultiplier` (0,8: un 20% menos, para combates más largos). La quemadura va aparte, por porcentaje.
+- **Peso y ataque en el daño:** la relación de masas que multiplica el daño está limitada a ×0,8-×1,3 (`massRatioRange`; antes ×0,75-×1,5 y al principio ×0,5-×2) y las diferencias de ataque de las piezas cuentan un 60% (`attackSpread`). Así las ligeras no pegan tan poco y el peso no lo decide todo. Golpe contra un dummy Balanceada (580 RPM), rápido / cargado nivel 3 / dash: Ataque 34 / 46 / 37, Defensa 24 / — / 19, Balanceada 25 / 33 / 25, Agilidad 27 / 35 / 47 (antes, rápido: Ataque 34, Defensa 36, Balanceada 24, Agilidad 16).
+- **Paredes:** chocar contra el borde hace el daño de un **choque parejo contra una peonza** a esa velocidad: velocidad perpendicular × `damagePerImpactSpeed` × `wallDamageScale` (1); antes era la mitad. Solo cuenta la velocidad perpendicular (rozarla no quita RPM) y desde 3 m/s. El suelo nunca quita RPM.
+- **Peonzas pegadas:** si dos peonzas siguen en contacto **0,3 s** después de un choque (sin velocidad no hay choque nuevo), se separan con un empuje de **7 m/s** (la más pesada empuja más; la resistencia al empuje lo frena como mucho a la mitad) y reciben el daño de un choque parejo a 5 m/s, con su chispazo. No da energía ni corta curaciones. El roce continuo (8 RPM/s) sigue aparte. Valores en `CombatConfig` → `stuckRepel*` y `stuckImpactSpeed`.
 
 ### Parry
 
@@ -151,6 +157,24 @@ Cada pieza tiene una clase de peso (Ligera / Media / Pesada) y **un arquetipo** 
 - **Agilidad:** cargas medias, masa baja y velocidad alta.
 - **Balanceada:** todo medio.
 
+**Rasgos de las piezas** *(implementados; primeras piezas con rasgos el 2026-10-07)*. Además de sus estadísticas, una pieza puede tener **rasgos**: efectos propios sobre el combate en porcentaje, que hacen piezas con personalidad y con contrapartidas. Por ejemplo:
+
+- Un disco que da **+30% de energía del especial con los ataques cargados**.
+- Una punta con **dash con un 25% menos de espera pero un 15% más caro**.
+- Un cuerpo que **recarga los ataques más rápido** pero **los encarece**.
+
+Tipos disponibles (`PartTraitType`): energía del especial por golpe rápido, por dash, por cargado, por parry y total; espera y coste del dash; tiempo de recarga y coste de los ataques; y tiempo de carga del ataque cargado. Se ponen en el asset de la pieza (lista *Rasgos*, en tanto por uno: 0,25 = +25%) y se suman entre piezas. Añadir un tipo nuevo es añadirlo al enum y aplicarlo donde toque. Pendiente: más piezas con rasgos y mostrarlos en la selección (ver Quehaceres H8).
+
+Rasgos actuales (equilibrio del 2026-10-07):
+
+| Pieza | Rasgo | Por qué |
+|---|---|---|
+| Wide Ball, Iron Fortress, Crush Wheel (pesadas) | Espera del dash **+20%** cada una (las tres: +60%, 2,9 s) | La Defensa aguanta y contraataca; no debe vivir del dash. |
+| Needle Point | Coste de los ataques **−25%** | La Agilidad ataca mucho y barato. |
+| Aero Shell | Recarga de los ataques **−20%** | Ídem: más ataques rápidos, en vez de dashes. |
+
+**Ataque de las piezas** (mismo ajuste): Crush Wheel 15 → **6**, Iron Fortress 5 → **0** (la Defensa pegaba más que el Ataque), Razor Edge 8 → **12** (el disco de Ataque es el que más pega) y Aero Shell −3 → **0**.
+
 **Núcleos** (uno por poder). Deben notarse, pero sin decidir la partida: todos dan **+50 RPM máximas** y, además, una **ventaja y un coste del mismo tamaño** (2 puntos), a juego con su poder. Los poderes más fuertes ya pagan con la energía que necesitan. 1 punto = 25 RPM = 0,5 de velocidad = 0,1 de peso = 2 de ataque = 3 de defensa = 1 de dash = 0,2 de desgaste.
 
 | Núcleo | Poder | Clase | Ventaja | Coste |
@@ -194,14 +218,16 @@ Cuando todo funcione, se añadirán **hazards**: suelos con distintas fricciones
 
 El poder especial lo define el **Núcleo** montado: para cambiar de especial se cambia el núcleo de la peonza. Habrá un núcleo por poder.
 
-- **Carga:** el poder se carga al **golpear a los enemigos con éxito** (sobre todo al ganar choques) o al recoger powerups del escenario. **Cada poder necesita una cantidad distinta de energía** para llenarse: los más fuertes tardan más (columna *Energía* de la tabla; 1 = la barra actual). Mientras el poder está activo **no se gana energía**: al terminar, la barra empieza de 0.
+- **Carga:** el poder se carga con cada **golpe acertado** (ganar el choque) según el **tipo de golpe**, no según el daño: ataque rápido 8%, dash **6%** (antes 10%: el dash ya no es la vía para cargarlo), **ataque cargado 12% + 5% por nivel** (nivel 3 = 27%: gastar cargas se recompensa), ganar un choque sin atacar 3%, parry 20%; en un choque parejo, la mitad. Todo × `specialEnergyMultiplier` (**1,2**; antes 1,5, con el que salía cada 20-30 s), para que el especial llegue hacia la mitad del combate sin repetirse demasiado (efectivo: rápido ~10%, dash ~7%, cargado nivel 3 ≈ 32%). Golpear a una Defensa activa también cuenta; golpear a un aliado, no. También se carga al recoger powerups del escenario. **Cada poder necesita una cantidad distinta de energía** para llenarse: los más fuertes tardan más (columna *Energía* de la tabla; 1 = la barra actual). Mientras el poder está activo **no se gana energía**: al terminar, la barra empieza de 0. Valores en `CombatConfig` → `specialEnergy*`.
 - **Activación:** cuando la carga está llena, se pulsa Especial. Mientras está activo, la carga se va vaciando con el tiempo. Todos duran **5 s**. Cuando se vacía, el poder termina. Excepción: Rayos dura hasta 6 s o hasta que da su golpe fuerte (ver tabla).
 - **Nombres:** simples, en español e inglés: Defensa / Defense, Fuego / Fire, Hielo / Ice, Rayos / Lightning, Fantasma / Ghost. Spin Boost y Onda de choque mantienen los suyos.
 
 **Efecto común a todos los poderes (al activarse)** *(implementado)*:
 
-- Recupera el **25% de las RPM máximas** (mismo valor para todos, ajustable en `CombatConfig`).
+- Recupera el **25% de las RPM máximas** (mismo valor para todos, ajustable en `CombatConfig`), **poco a poco en 2 s** (`specialHealTime`), no al momento.
 - **Rellena todas las cargas de ataque** disponibles en ese momento.
+
+**Curaciones de los poderes:** todas se aplican con el tiempo (la del efecto común y la de Spin Boost). Si mientras tanto la peonza recibe un **golpe de ataque enemigo** que le quita RPM (ataque rápido, cargado o dash; también en un parry), **se corta lo que quede de curación** hasta el próximo poder: sale un humo, vibra el mando y el sandbox lo apunta ("CURACIÓN CORTADA"). **No la cortan** las paredes, el roce, las peonzas pegadas, la quemadura ni el daño de poderes, ni los choques en los que el rival no atacaba.
 
 Después, durante el tiempo activo, cada poder tiene su efecto propio.
 
@@ -209,7 +235,7 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
 
 | Poder | Estado | Energía | Efecto propio |
 |---|---|---|---|
-| Spin Boost | Implementado (se rehará más adelante) | 1 | Recupera RPM progresivamente mientras está activo. |
+| Spin Boost | Implementado (se rehará más adelante) | 1 | Recupera RPM progresivamente mientras está activo: **4% de las RPM máximas por segundo** (antes 6%; con el efecto común, 45% en total en vez de 55%). Un golpe de ataque enemigo la corta. |
 | Onda de choque | Implementado (se rehará más adelante) | 1 | Al activarse empuja y quita RPM a las peonzas cercanas. |
 | Defensa *(sustituye a Storm Breaker)* | Implementado (C1) | 1,2 | Defensa casi al 100%: no pierde RPM por golpes, paredes, quemadura ni desgaste, y el empuje que recibe es casi nulo (**10%**, también el del choque físico). Además, sus ataques se recargan **1,5 veces más rápido**, pero se mueve un **15% más lento**. El dash solo cuesta el **10% de lo normal**, pero su impulso (alcance) baja un **40%**. Atacar sí cuesta RPM. Valores en el asset `Defense`. |
 | Fuego *(sustituye a Rastro de fuego)* | Implementado (C2) | 1 | Sus golpes **queman** al enemigo: 1,5% de sus RPM máximas cada 0,5 s durante 3 s (9% en total). Un golpe nuevo reinicia la duración; no se acumula. Cuenta como golpe **cualquier choque en el que le quite RPM al rival**: lo gane o no, también si es el rival quien la embiste, y en un parry. El roce continuo no quema. Valores en el asset `Fire`. |
@@ -285,14 +311,16 @@ Escena propia (`Sandbox`) para probar mecánicas sin salir de la partida: parrys
 - **Primera versión del panel:**
   - **Rivales:** ninguno o de 1 a 3 dummies (hasta completar 4 peonzas). La IA se añade aquí en la fase D.
   - **Comportamiento de los dummies:** un selector para todos a la vez (**Quieto, Moverse, Atacar, Dash hacia ti, Especial**) y otro de **cada cuántos segundos** (0,5 / 1 / 2 / 3). Con *Atacar* lanzan un ataque rápido hacia el jugador más cercano (para practicar parry).
-- **Panel por secciones** *(implementado, E1-E3)*: el panel principal tiene **Rivales**, **Mi peonza**, **Trucos** y **Reiniciar todo**; cada sección abre su subpanel y Atrás vuelve al principal (desde el principal, cierra). El botón del sandbox cierra el panel desde cualquier sección.
+- **Panel por secciones** *(implementado, E1-E7)*: el panel principal tiene **Rivales**, **Mi peonza**, **Trucos**, **Debug**, **Ajustes**, la **Velocidad** y **Reiniciar todo**; cada sección abre su subpanel y Atrás vuelve al principal (desde el principal, cierra). El botón del sandbox cierra el panel desde cualquier sección.
   - **Mi peonza:** un selector de jugador (J1-J4, solo si hay más de uno) y punta, cuerpo, disco y núcleo de ese jugador, con su arquetipo debajo y el núcleo con el color de su poder. El cambio es **en caliente**: modelo, estadísticas, cargas y poder (al cambiar de núcleo, el poder es el nuevo y la esfera empieza vacía; el HUD cambia de color). Se mantiene al reiniciar la partida.
   - **Trucos:** RPM infinitas, especial lleno, cargas infinitas, dash sin espera e invulnerable. Cada uno se aplica a **nadie, los jugadores, los dummies o todos**. Se mantienen durante la sesión.
   - **Reiniciar todo:** todas las peonzas vuelven a su punto de salida con RPM y cargas llenas, energía a 0 y sin estados alterados; el panel se cierra y se sigue jugando.
+  - **Debug** *(E4, E5)*: un Sí/No para cada cosa, todo apagado al empezar: **ventana de parry** (anillo cian alrededor de la peonza mientras su ataque puede hacer parry), **velocidades** (flecha con lo que recorrerá en 0,25 s), **números de daño** (lo que pierde cada peonza, flotando; blanco, naranja desde 10 y rojo desde 30), **estados** (estado alterado o invulnerabilidad con el tiempo que le queda, bajo la peonza), **FPS** y **registro** (últimos 6 eventos abajo a la izquierda, con fondo: choques con lo que pierde cada uno en una sola línea, parrys, especiales, estados y K.O.; cada jugador con su color; se desvanecen a los 6 s). Usa tiempo real: se lee igual a cámara lenta.
+  - **Guardar datos** *(en Debug, activado por defecto)*: cada sesión de sandbox escribe un CSV en `Logs/Sandbox/` (en la carpeta del proyecto, fuera del repositorio; en una build, en la carpeta de datos del juego) con las peonzas de cada jugador, la configuración de combate, todos los choques (velocidades, daño y empuje de cada una, nivel de carga, dash), daños, ataques, dashes, especiales, estados, K.O. y una foto por segundo de RPM, velocidad, energía y cargas. Sirve para analizar el equilibrio. Cómo leerlo: **Guía del Sandbox.md**.
+  - **Velocidad** *(E6, en el panel principal)*: x1, x0,5, x0,25 o PAUSA. Con PAUSA el juego se congela al cerrar el panel y **«.» o el clic del stick derecho avanzan un frame** (la ayuda de abajo lo recuerda). La pausa normal, la cuenta atrás y el hit-stop vuelven a esta velocidad (`GameTime`).
+  - **Ajustes** *(E7)*: **arena** (al cerrar el panel se recarga el sandbox en ella, con todo lo demás igual) y **valores de combate**: daño global, daño por nivel de carga, ventana de parry, coste del ataque rápido, coste del dash, daño por velocidad de choque, empuje base y energía del especial por daño, cada uno x0,5 / x0,75 / x1 / x1,25 / x1,5 / x2 sobre su valor. Son **temporales**: el sandbox juega con una copia de `CombatConfig`, el asset no se toca y **al salir del sandbox se pierden** (también la velocidad). "Restaurar valores" vuelve a x1.
 - **Más adelante** (se irá ampliando):
-  - **Tiempo:** cámara lenta (x0,25 / x0,5 / x1) y avance frame a frame.
-  - **Debug visual:** indicador de la ventana de parry, vectores de velocidad, números de daño, estados alterados, info de choques, FPS y un registro de eventos (choques, parrys, especiales).
-  - Cambiar de arena y retocar valores clave de `CombatConfig` (ventana de parry, costes...) sin salir.
+  - Otros valores de `CombatConfig` en Ajustes, si hacen falta.
 
 ## 6.4 IA rival
 
@@ -630,6 +658,15 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Arquetipo de cada pieza | Toda pieza sigue un arquetipo, que se muestra en pequeño bajo su nombre en la selección. El número de piezas no importa; lo importante es identificarlas. |
 | 2026-10-06 | Barras por tramos | Las barras de la selección muestran lo que aporta cada pieza (base + un tramo por pieza, lo que resta en rojo) y parpadea el tramo de la fila seleccionada. |
 | 2026-10-06 | Tipos de modelo | Cada pieza tiene 4 tipos de modelo, uno por arquetipo: A = Ataque, B = Balanceada, C = Defensa, D = Agilidad. |
+| 2026-10-06 | Combates más largos | Daño global x0,8 (`damageMultiplier`; la quemadura va aparte) y RPM base 350 → 400: combates ≈ 1,45 veces más largos. |
+| 2026-10-06 | Ataque cargado | Daño = el de un ataque rápido × (1 + 0,10 × nivel) (`chargedDamagePerLevel`); la carga sigue dando alcance (+60%/nivel) y empuje (+40%/nivel). Sin bonus de masa por nivel. |
+| 2026-10-06 | Movimiento más parejo | Ágiles algo más lentas y con giro más pesado; lentas algo más rápidas (`speedSpread`, `referenceMaxSpeed`, `turnByWeight`, `accelerationByWeight`). |
+| 2026-10-07 | Más peso a las ágiles | Tras probarlo: `speedSpread` 0,5, giro de las ligeras −25%, aceleración −20% y masa física mínima 0,6. |
+| 2026-10-07 | Daño de las ágiles | Relación de masas limitada a ×0,75-×1,5 y diferencias de ataque al 60%: las ligeras pegan más y las pesadas algo menos. |
+| 2026-10-07 | Rasgos de piezas | Las piezas podrán tener rasgos (porcentajes sobre valores del combate, con contrapartidas). Base hecha en el código; el diseño de piezas con rasgos queda para más adelante. |
+| 2026-10-07 | Carga del especial | Por tipo de golpe acertado, no por daño: rápido 8%, dash 10%, cargado 12% + 5% por nivel, sin atacar 3%, parry 20%, parejo la mitad; × 1,5 para tenerlo a mitad de combate. Golpear a una Defensa activa da energía; a un aliado, no. |
+| 2026-10-06 | Datos del sandbox | Se guardan en un CSV por sesión (Debug → Guardar datos, activado por defecto) para analizar el equilibrio. |
+| 2026-10-06 | Sandbox: debug, tiempo y ajustes | Debug con un Sí/No por cosa (todo apagado al empezar); velocidad con PAUSA y avance de frame con «.» / clic del stick derecho; valores de combate temporales sobre una copia de `CombatConfig`, con restaurar. |
 | 2026-10-06 | Panel del sandbox | Por secciones en subpaneles (Rivales, Mi peonza, Trucos, Reiniciar todo). Trucos con destino por truco (nadie, jugadores, dummies, todos). Mi peonza con selector de jugador. |
 | 2026-10-06 | Icono del núcleo | Se queda, en modo calcomanía, como opción en Opciones → Juego (desactivada por defecto). |
 | 2026-10-06 | Colores por pieza | El color del jugador es el protagonista: anillas de ese color, cuerpo blanco, punta negra y núcleo en otro tono del mismo color. Personalizable por color de la paleta en Opciones y guardado. |
@@ -643,12 +680,21 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Fuego y Hielo: qué es un golpe | Cualquier choque en el que le quite RPM al rival (gane o pierda el choque, la embistan o haga parry). El roce continuo no cuenta. Contra una Defensa activa no quema ni congela, porque no le quita RPM. |
 | 2026-10-06 | Defensa: alcance del dash | "−40% de alcance" es −40% de impulso: el acelerón llega al 60% de la velocidad normal. La distancia total baja algo menos (~20% sin tocar el stick), porque después sigue deslizando. Se revisa en C7. |
 | 2026-10-06 | Defensa: empuje | Recibe el 10% del empuje, también el que da la física al separar las dos peonzas. Ya no tiene los extras de Storm Breaker (ataques rápidos como cargados, +15% de velocidad). |
+| 2026-10-07 | Dash frente a ataques | El dash hacía 2-3 veces el daño de un ataque rápido en todos los arquetipos (registro del sandbox), así que todo se reducía a dashear. Golpe con dash ×0,75 y golpe con ataque ×1,2; dash 8% de RPM y 1,8 s de espera; energía por dash 6%. Solo la Agilidad (la más rápida) saca más con el dash que con el ataque. |
+| 2026-10-07 | Defensa demasiado fuerte | Pegaba más que el Ataque (Crush Wheel +15 de ataque y peso ×1,5). Crush Wheel 6 de ataque, Iron Fortress 0, relación de masas ×0,8-×1,3 y espera del dash +20% por pieza pesada. |
+| 2026-10-07 | Agilidad débil | Ataques rápidos más baratos (Needle Point −25%) y que recargan antes (Aero Shell −20%), Aero Shell sin penalización de ataque y Razor Edge 12 de ataque. Golpe rápido contra el dummy: 16 → 27. |
+| 2026-10-07 | Ritmo del especial | Salía cada 20-30 s: multiplicador 1,5 → 1,2 y dash 10% → 6%. |
+| 2026-10-07 | Curaciones de los poderes | Con el tiempo, no al momento: el 25% común en 2 s y Spin Boost 4%/s (antes 6%/s). Un golpe de ataque enemigo corta lo que quede; paredes, roce, estados y poderes no. |
+| 2026-10-07 | Paredes | Mismo daño que un choque parejo contra una peonza a esa velocidad (el doble que antes). Interpretación de "el mismo daño que chocar con una": se confirma o se cambia al probarlo. |
+| 2026-10-07 | Peonzas pegadas | Si siguen en contacto 0,3 s tras un choque, se separan con un empuje de 7 m/s y un choque parejo pequeño (5 m/s), con chispazo. |
+| 2026-10-07 | Sensación de los ataques | Estela continua durante el acelerón y vibración en ataques, carga, dash, golpes dados y recibidos, paredes y corte de curación. |
 
 12. # Pendiente de definir
 
 Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
+- **Ataque, picos de daño** (registro del 2026-10-07): con Razor Edge (ataque 22) un ataque rápido lanzado ya en marcha (14-16 m/s) contra una peonza parada quita **61-71 RPM** (12% de una de 580). La cuenta: 4,5 RPM por m/s = ataque ×1,28 · masas ×1,3 (el bonus de masa del ataque rápido, +50%, la lleva siempre al tope) · golpe con ataque ×1,2 · daño global y defensa. De media no es exagerado (rápido 18, cargado 2 ≈ 29, cargado 3 ≈ 47), son los picos. Propuesta: que el bonus de masa del ataque rápido cuente para el empuje pero no para el daño (como ya pasa con el cargado); alternativas: Razor Edge 12 → 10 o golpe con ataque ×1,2 → ×1,1.
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - Piezas sin usar: los modelos de Ataque de punta y cuerpo (`Punta_Type_A`, `Body_Type_A`) no los usa ninguna pieza todavía, porque no hay punta ni cuerpo de Ataque en el catálogo (propuesta: crear una de cada).
 - Collider por pieza: hoy es una esfera fija de 0,6 m para todas; las anillas más anchas sobresalen un poco (propuesta: dejarlo así; si en partida se nota, que el radio dependa del disco).
@@ -659,8 +705,8 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Nuevo diseño de Spin Boost y Onda de choque (se rehacen más adelante; mientras tanto se quedan como están).
 - Lanzada en arenas con forma de cuenco: la peonza lanzada sube por la pendiente (cuenta como suelo) y casi nunca llega a golpear una pared, así que el daño de pared de la lanzada apenas sale en la arena actual (se revisa con las arenas y en C7).
+- Rayos: daño real del golpe fuerte (registro del 2026-10-07, 10 golpes contra un dummy de 580 RPM): el golpe en sí quita ~38 (+20%), pero con los choques contra la pared de la lanzada el total sale en **~105 RPM de media (62-161)**, ~18% de la vida. Se nota poco porque casi todo llega después, por la pared. Además, a veces la pared cuenta **dos golpes en el mismo fotograma** (p. ej. 44 + 67 a la vez), seguramente al dar en la unión de dos tramos de pared (propuesta: un solo golpe de pared por peonza cada 0,1 s; después, valorar si el golpe directo necesita más bonus o si se muestra el total en el registro).
 - Rayos: si más adelante cualquiera que toque a la peonza (atacando o en movimiento normal) sale impulsado (por ahora, solo sus propios choques).
-- Defensa: golpear a una peonza con Defensa activa no da energía de especial, porque no le quita RPM (se queda así; si se ve injusto, que el golpe dé la energía que habría dado sin Defensa).
 - Fantasma: agresividad del clon (busca al rival más cercano y ataca en cuanto puede, como mucho una vez por segundo).
 
 **Efectos de UI y sonido:**
@@ -707,6 +753,8 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] C5. Fantasma: un clon invulnerable que persigue (necesita la persecución básica de D1), 10% de daño, empuja y corta cargas, sin parry + aspecto translúcido. **Aplazada:** se hace al empezar D1, reutilizando su persecución. Incluye crear su núcleo (Phantom Core, tabla en 3) y añadirlo al catálogo.
 - [x] C6. Núcleos en el catálogo: uno por poder, con estadísticas. Hecho: 6 núcleos (Fantasma, con C5) con los valores de la tabla de 3, nuevos `Core_Medium_Fire` y `Core_Medium_Ice`, preset Ataque con Fuego y nombre del núcleo con el color de su poder en la selección. Los 4 presets siguen dando su arquetipo. Falta verlo en la selección con mandos. 🎮
 - [ ] C7. Equilibrio de valores de cada poder en partida. 🎮
+- [x] C8. Ajuste tras las pruebas del sandbox (2026-10-07): dash con menos daño, más caro y más espera; ataques con más daño; Defensa con menos ataque y dash más lento (rasgos); Agilidad con ataques baratos y rápidos (rasgos); especial más lento; curaciones con el tiempo y cortadas por golpes de ataque; paredes como un choque parejo; peonzas pegadas que se separan; estela del acelerón y vibración. Probado con un probe en el sandbox: daños por preset (tabla en 2.5), 2 separaciones en 2 s con dos peonzas empujándose, curación de 62% a 70% en 0,5 s, cortada por un ataque del dummy (se queda en 69%) y sin golpes llega al 100%. Probado con mando por el usuario (2026-10-07): el dash está bien equilibrado y ya no se abusa, la vibración al atacar se siente muy bien y la Agilidad ya no es débil.
+- [ ] C9. Siguiente ajuste: picos de daño del Ataque y golpe de Rayos (ver "Pendiente de definir": un solo golpe de pared cada 0,1 s y decidir el bonus de masa del ataque rápido). 🎮
 
 **Fase D. IA**
 
@@ -724,10 +772,10 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] E1. Cambiar núcleo (especial) y piezas en caliente. Hecho en Mi peonza (selector de jugador). Probado: de Blaze a Endurance Core el poder pasa de Fuego a Spin Boost, el disco Razor Edge cambia el modelo y las RPM máximas, y el HUD actualiza cargas y color de la esfera. Probado también con mando por el usuario (2026-10-06).
 - [x] E2. Trucos: RPM infinitas, especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable. Cada uno para nadie, jugadores, dummies o todos. Probado: RPM llenas tras un golpe, especial lleno, dos dashes seguidos, cargas al máximo y dummy invulnerable (0 de daño). Probado con mando.
 - [x] E3. Reiniciar posiciones, RPM, cargas y energía. Reiniciar todo: además quita los estados alterados y cierra el panel. Probado. Probado con mando.
-- [ ] E4. Debug visual: ventana de parry, vectores de velocidad, números de daño, estados y FPS.
-- [ ] E5. Registro de eventos en pantalla (choques, parrys, especiales).
-- [ ] E6. Cámara lenta (x0,25 / x0,5) y avance frame a frame.
-- [ ] E7. Cambiar de arena y retocar valores clave de `CombatConfig` sin salir.
+- [x] E4. Debug visual: ventana de parry, vectores de velocidad, números de daño, estados y FPS. Sección Debug (`SandboxDebugView`). Probado (capturas).
+- [x] E5. Registro de eventos en pantalla (choques, parrys, especiales). También estados y K.O.; cada choque en una línea. Probado.
+- [x] E6. Cámara lenta (x0,25 / x0,5) y avance frame a frame. Velocidad en el panel principal; PAUSA + «.» / clic del stick derecho. Probado (el avance con teclas reales, pendiente). 🎮
+- [x] E7. Cambiar de arena y retocar valores clave de `CombatConfig` sin salir. Sección Ajustes; valores temporales sobre una copia (el asset no se toca). Probado: arena con recarga, ventana de parry x2 y vuelta a los valores originales al salir.
 
 **Fase H. Aspecto de las peonzas** (modelos por pieza y colores)
 
@@ -735,6 +783,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] H2. Opciones → Colores de peonza: lista de 24 colores retro por pieza, vista previa 3D, restaurar y guardado. Probado con teclado; falta con mando. 🎮
 - [x] H5. Selección de peonzas: arquetipo de cada pieza bajo su nombre, barras de stats por tramos con parpadeo de la pieza seleccionada y vista previa centrada y más de frente. Probado con 4 jugadores (captura); falta con mandos. 🎮
 - [x] H3. Modelo genérico del núcleo en la peonza: todos los núcleos usan `Nucleo_Generico` con `BladeCoreMaterial` (lo pone `BladeModel` desde los ajustes del prefab).
+- [ ] H8. Rasgos de las piezas (ver 3): la base está hecha (`PartTrait`, lista *Rasgos* en cada pieza, aplicados en energía del especial, dash, recarga, costes y carga). Primeros rasgos puestos el 2026-10-07 (dash de las pesadas, ataques de las ágiles; tabla en 3). Falta diseñar más piezas con rasgos, mostrarlos en la selección (bajo el arquetipo, o al tener la pieza seleccionada) y probarlos en el sandbox.
 - [ ] H7. Selección de piezas: al tener el foco en una fila de pieza (punta, cuerpo, disco o núcleo), la vista previa mueve la cámara o el modelo para enseñar esa pieza (por ejemplo, de lado para la punta, desde arriba para el núcleo).
 - [x] H6. Imagen del núcleo (plano `Imagen de Nucleo` con el icono pixel del poder, teñido con su color). **Aplicada para probarla (2026-10-06)**: `CoreImage`, creada por `BladeModel` con el núcleo; va en el pivote de inclinación (se inclina con la peonza pero no gira) y se orienta a la cámara cada frame. Dos modos en el prefab (`FakeBladeController` → Model Settings → Core Image Mode): **calcomanía** (tumbada sobre el núcleo, por defecto) y **cartel** (de pie, de frente a la cámara). La orientación de la textura sale de las UV de la malla (el FBX del plano necesita Read/Write activado, ya puesto). Iconos en `PowerIcons` (Fuego, Hielo y Rayos usan los de su estado; flecha, ondas, escudo y fantasma para el resto; el icono del asset del poder tiene prioridad). **Se queda como opción**: Opciones → Juego → Icono del núcleo, desactivada por defecto. Falta verla con mandos y a pantalla completa. 🎮
 - [x] H4a. Script de Blender para exportar cada pieza a su FBX (`Tools/Blender/export_blade_parts.py`). Probado con Blender 5.0: en Unity llegan con rotación 0, escala 1, Y arriba y montadas en su sitio (la punta, con escala negativa en Blender, sin caras invertidas). No exporta los tipos 0 (modelos base). Exportadas al proyecto el 2026-10-06: 15 piezas en `Assets/3D Models/Bayblade 01/Parts/`.
@@ -799,7 +848,7 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [ ] Asignar sonidos (choque, ataque, dash, especial, parry, K.O.) y música (ver G4 y G5).
 - [ ] Fuente pixel para los textos. Candidatas gratis con licencia OFL: Press Start 2P, Silkscreen o Pixelify Sans.
 - [ ] Pixelar la escena 3D de batalla y el fondo del menú (pilar 1.2). Ahora solo lo tiene la vista previa del lobby (`BladePreviewStage`). Renderizar a una RenderTexture de baja resolución con escala entera y filtro Point; prueba rápida: Render Scale de URP entre 0,33 y 0,5 con filtro Nearest-Neighbor. El HUD (Overlay) no se ve afectado.
-- [ ] Equilibrio general (el ataque cargado de nivel 3 quita ~29%, quizá demasiado; una peonza lanzada que choca a 12 m/s contra una peonza de ataque fuerte perdió un 42%). 🎮
+- [ ] Equilibrio general. Primer ajuste hecho (2026-10-06): daño x0,8, RPM base 400, cargado = rápido × (1 + 10% por nivel) y movimiento más parejo. Siguiente: jugar con mandos y revisar los CSV del sandbox (`Logs/Sandbox/`). Antes, una peonza lanzada que chocaba a 12 m/s contra una de ataque fuerte perdía un 42%. 🎮
 - [ ] Probar menús, lobby y combate con mandos reales. 🎮
 - [ ] Probar builds de PC y WebGL.
 - [ ] Probar el ratón en las columnas del lobby.

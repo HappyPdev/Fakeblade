@@ -50,6 +50,7 @@ namespace FakeBlade.Core
         private float _dashBuffer;
         private float _specialBuffer;
         private float _vibrationEndTime = -1f;
+        private float _vibrationLow, _vibrationHigh;
         #endregion
 
         #region Properties
@@ -263,13 +264,20 @@ namespace FakeBlade.Core
         {
             if (_gamepad == null || !CombatConfig.Active.gamepadVibration || !SettingsService.Current.vibration) return;
 
+            // Un aviso más flojo no corta uno más fuerte que aún dura (p. ej. la carga durante un golpe)
+            float now = Time.unscaledTime;
+            if (_vibrationEndTime > now && lowFreq + highFreq < _vibrationLow + _vibrationHigh) return;
+
+            _vibrationLow = lowFreq;
+            _vibrationHigh = highFreq;
             _gamepad.SetMotorSpeeds(lowFreq, highFreq);
-            _vibrationEndTime = Time.unscaledTime + duration;
+            _vibrationEndTime = now + duration;
         }
 
         public void StopVibration()
         {
             _vibrationEndTime = -1f;
+            _vibrationLow = _vibrationHigh = 0f;
             _gamepad?.SetMotorSpeeds(0f, 0f);
         }
         #endregion

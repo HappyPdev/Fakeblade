@@ -36,6 +36,39 @@ namespace FakeBlade.Core
         public static bool Applies(CheatTarget target, bool isDummy) =>
             target == CheatTarget.All || (isDummy ? target == CheatTarget.Dummies : target == CheatTarget.Players);
 
+        // Debug visual (E4) y registro (E5): todo apagado al empezar
+        public static bool ShowParryWindow;
+        public static bool ShowVelocity;
+        public static bool ShowDamageNumbers;
+        public static bool ShowStatus;
+        public static bool ShowFps;
+        public static bool ShowEventLog;
+        /// <summary>Guardar los datos de la sesión en un CSV (SandboxRecorder). Activado por defecto.</summary>
+        public static bool RecordData = true;
+
+        // Tiempo (E6): x1, x0,5, x0,25 y pausa (avance frame a frame)
+        public static readonly float[] Speeds = { 1f, 0.5f, 0.25f, 0f };
+        public static int SpeedIndex;
+        public static float Speed => Speeds[UnityEngine.Mathf.Clamp(SpeedIndex, 0, Speeds.Length - 1)];
+
+        // Ajustes (E7): multiplicadores temporales de valores de CombatConfig (índice en TuningFactors)
+        public static readonly float[] TuningFactors = { 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f };
+        public const int NeutralFactor = 2;
+        public static readonly int[] Tuning = { NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor, NeutralFactor };
+        /// <summary>Copia de CombatConfig que usa el sandbox (los retoques no tocan el asset).</summary>
+        public static CombatConfig TunedConfig;
+        public static CombatConfig OriginalConfig;
+
+        /// <summary>Al salir del sandbox: velocidad normal, valores originales y sin debug de tiempo.</summary>
+        public static void ResetSession()
+        {
+            SpeedIndex = 0;
+            for (int i = 0; i < Tuning.Length; i++) Tuning[i] = NeutralFactor;
+            if (TunedConfig != null) UnityEngine.Object.Destroy(TunedConfig);
+            TunedConfig = null;
+            OriginalConfig = null;
+        }
+
         public static readonly float[] Intervals = { 0.5f, 1f, 2f, 3f };
 
         public static int DummyCount = 1;

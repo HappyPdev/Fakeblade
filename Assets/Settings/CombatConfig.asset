@@ -16,6 +16,11 @@ MonoBehaviour:
   maxVelocity: 12
   stoppingFriction: 3
   turnResponsiveness: 0.15
+  speedSpread: 0.5
+  referenceMaxSpeed: 15.5
+  turnByWeight: {x: 1.3, y: 0.8}
+  accelerationByWeight: {x: 1, y: 0.7}
+  minPhysicalMass: 0.6
   linearDamping: 0.5
   angularDamping: 0.1
   burstRecoverTime: 0.45
@@ -24,9 +29,12 @@ MonoBehaviour:
   lowSpinThreshold: 0.3
   lowSpinWobbleAngle: 12
   lowSpinWobbleFrequency: {x: 3.5, y: 1.6}
-  wallDamagePerSpeed: 0.5
+  wallDamageScale: 1
   wallMinDamageSpeed: 3
   grindDamagePerSecond: 8
+  stuckRepelDelay: 0.3
+  stuckRepelSpeed: 7
+  stuckImpactSpeed: 5
   referenceAttackPower: 15
   attackRechargeTime: 1.5
   quickAttackImpulse: 9
@@ -37,7 +45,8 @@ MonoBehaviour:
   chargeTimePerLevel: 0.4
   chargedAutoReleaseTime: 0.6
   chargedImpulsePerLevel: 0.6
-  chargedMassBonusPerLevel: 0.35
+  chargedDamagePerLevel: 0.1
+  chargedMassBonusPerLevel: 0
   chargedKnockbackPerLevel: 0.4
   chargedAttackCooldown: 0.8
   moveMultiplierWhileCharging: 0.6
@@ -50,14 +59,19 @@ MonoBehaviour:
   comboWindow: 1
   comboBonusPerHit: 0.1
   maxComboHits: 3
-  dashCooldown: 1.5
-  dashSpinCostPct: 0.06
+  dashCooldown: 1.8
+  dashSpinCostPct: 0.08
   dashAttackWindow: 0.35
   dashHitRefundFraction: 0.5
+  damageMultiplier: 0.8
+  massRatioRange: {x: 0.8, y: 1.3}
+  attackSpread: 0.6
   minCollisionSpeed: 1.5
   clashCooldown: 0.15
   damagePerImpactSpeed: 1
   damagePerSpeedDiff: 2.5
+  attackHitDamageMultiplier: 1.2
+  dashHitDamageMultiplier: 0.75
   fasterDamageFraction: 0.25
   equalSpeedTolerance: 0.5
   knockbackBase: 5
@@ -66,7 +80,12 @@ MonoBehaviour:
   maxKnockback: 18
   killCreditWindow: 5
   specialActivationSpinPct: 0.25
-  specialEnergyPerDamage: 0.006
-  passiveHitEnergyMultiplier: 0.5
+  specialHealTime: 2
+  specialEnergyQuickHit: 0.08
+  specialEnergyDashHit: 0.06
+  specialEnergyChargedHit: 0.12
+  specialEnergyPerChargeLevel: 0.05
+  specialEnergyPassiveHit: 0.03
+  specialEnergyMultiplier: 1.2
   cameraShake: 1
   gamepadVibration: 1

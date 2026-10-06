@@ -62,6 +62,9 @@ namespace FakeBlade.Core
         /// <summary>Después de aplicar el daño y el empuje de un choque con bonus.</summary>
         public virtual void OnClashBonusApplied(FakeBladeController target, ClashBonus bonus, Vector3 contactPoint) { }
 
+        /// <summary>Cura mientras está activo (se corta con un golpe de ataque enemigo).</summary>
+        public virtual bool Heals => false;
+
         #region Modifiers
         /// <summary>Multiplicador del daño recibido.</summary>
         public virtual float DamageTakenMultiplier => 1f;

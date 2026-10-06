@@ -275,7 +275,7 @@ namespace FakeBlade.Core
 
             if (_countdownTimer <= 0f)
             {
-                Time.timeScale = 1f;
+                GameTime.Resume();
                 ChangeState(GameState.InMatch);
             }
         }
@@ -601,7 +601,7 @@ namespace FakeBlade.Core
             else
             {
                 if (_state != GameState.Paused) return;
-                Time.timeScale = 1f;
+                GameTime.Resume();
                 ChangeState(GameState.InMatch);
             }
         }

@@ -46,6 +46,8 @@ namespace FakeBlade.Core
         public FakeBladeController Source => _source;
         /// <summary>0-1: lo que queda del estado (el icono parpadea al acabar).</summary>
         public float RemainingFraction => _duration > 0f ? Mathf.Clamp01(1f - _elapsed / _duration) : 0f;
+        /// <summary>Segundos que le quedan al estado (0 si no hay).</summary>
+        public float RemainingTime => _current != StatusEffectType.None ? Mathf.Max(0f, _duration - _elapsed) : 0f;
 
         public bool IsBurning => _current == StatusEffectType.Burning;
         public bool IsFrozen => _current == StatusEffectType.Frozen;

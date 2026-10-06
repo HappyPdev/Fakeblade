@@ -26,11 +26,41 @@ namespace FakeBlade.Core
     /// </summary>
     public static class CollisionResolver
     {
-        private const float MinMassRatio = 0.5f;
-        private const float MaxMassRatio = 2f;
-
         /// <summary>Parry: (quien hace el parry, atacante, doble parry). Lo escucha el HUD.</summary>
         public static event System.Action<FakeBladeController, FakeBladeController, bool> OnParry;
+
+        /// <summary>Stuck: dos peonzas pegadas sin velocidad que se separan.</summary>
+        public enum ClashKind { Normal, Even, Parry, DoubleParry, Launched, Stuck }
+
+        /// <summary>Todo lo de un choque resuelto, para la grabación de datos del sandbox.</summary>
+        public struct ClashReport
+        {
+            public ClashKind Kind;
+            public FakeBladeController A, B;
+            /// <summary>Velocidad de cada una hacia la otra justo antes del choque (m/s).</summary>
+            public float ApproachA, ApproachB;
+            /// <summary>RPM que ha perdido cada una.</summary>
+            public float DamageToA, DamageToB;
+            /// <summary>Empuje que ha recibido cada una (m/s).</summary>
+            public float KnockbackToA, KnockbackToB;
+            public int ChargeA, ChargeB;
+            public bool DashA, DashB;
+        }
+
+        /// <summary>Choque resuelto (normal, parejo, parry o con una peonza lanzada).</summary>
+        public static event System.Action<ClashReport> OnClashResolved;
+
+        private static void Report(ClashKind kind, FakeBladeController a, FakeBladeController b,
+            float approachA, float approachB, float damageToA, float damageToB, float knockbackToA, float knockbackToB,
+            int chargeA, int chargeB, bool dashA, bool dashB)
+        {
+            OnClashResolved?.Invoke(new ClashReport
+            {
+                Kind = kind, A = a, B = b, ApproachA = approachA, ApproachB = approachB,
+                DamageToA = damageToA, DamageToB = damageToB, KnockbackToA = knockbackToA, KnockbackToB = knockbackToB,
+                ChargeA = chargeA, ChargeB = chargeB, DashA = dashA, DashB = dashB
+            });
+        }
 
         public static void Resolve(FakeBladeController a, FakeBladeController b, Vector3 contactPoint)
         {
@@ -63,7 +93,7 @@ namespace FakeBlade.Core
             bool bParries = b.IsInParryWindow && a.IsAttacking;
             if (aParries || bParries)
             {
-                ResolveParry(a, b, toB, closing, aParries, bParries, contactPoint);
+                ResolveParry(a, b, toB, approachA, approachB, aParries, bParries, contactPoint);
                 return;
             }
 
@@ -88,7 +118,13 @@ namespace FakeBlade.Core
             float diff = Mathf.Abs(approachA - approachB);
             bool neutral = diff <= cfg.equalSpeedTolerance;
 
-            float baseDamage = closing * cfg.damagePerImpactSpeed;
+            // Daño: sin la velocidad extra de la carga (el cargado hace el daño de uno rápido × su
+            // multiplicador de nivel). Quién gana el choque y el empuje sí usan la velocidad real.
+            float fastDamageSpeed = Mathf.Max(0f, (aIsFaster ? approachA : approachB) - fast.ChargeExtraSpeed);
+            float slowDamageSpeed = Mathf.Max(0f, (aIsFaster ? approachB : approachA) - slow.ChargeExtraSpeed);
+            float damageDiff = Mathf.Max(0f, fastDamageSpeed - slowDamageSpeed);
+
+            float baseDamage = (fastDamageSpeed + slowDamageSpeed) * cfg.damagePerImpactSpeed;
             float ratioFastOverSlow = MassRatio(fast, slow);
             float ratioSlowOverFast = 1f / ratioFastOverSlow;
 
@@ -102,12 +138,17 @@ namespace FakeBlade.Core
             }
             else
             {
-                damageToSlow = (baseDamage + diff * cfg.damagePerSpeedDiff) * fast.OffenseMultiplier * ratioFastOverSlow;
+                damageToSlow = (baseDamage + damageDiff * cfg.damagePerSpeedDiff) * fast.OffenseMultiplier * ratioFastOverSlow;
                 damageToFast = baseDamage * cfg.fasterDamageFraction * slow.OffenseMultiplier * ratioSlowOverFast;
             }
+            // Nivel de carga y tipo de golpe (ataque, dash o sin atacar)
+            damageToSlow *= fast.ChargeDamageMultiplier * fast.HitTypeDamageMultiplier;
+            damageToFast *= slow.ChargeDamageMultiplier * slow.HitTypeDamageMultiplier;
 
             float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier, fast);
             float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier, slow);
+            CutHealIfAttacked(slow, fast, dealtToSlow);
+            CutHealIfAttacked(fast, slow, dealtToFast);
 
             // Empuje: velocidad instantánea (m/s), escalada por masas, cargas y resistencias
             float knockback = (cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff)
@@ -125,28 +166,39 @@ namespace FakeBlade.Core
             fast.Special.NotifyClashBonusApplied(slow, fastBonus, contactPoint);
             slow.Special.NotifyClashBonusApplied(fast, slowBonus, contactPoint);
 
-            // Energía del especial y combos: premia al que gana el choque
+            // Energía del especial (por tipo de golpe) y combos: premia al que gana el choque.
+            // Golpear a un aliado (fuego amigo) no da energía
+            bool allies = fast.IsAllyOf(slow);
             if (!neutral)
             {
-                fast.RegisterSuccessfulHit(dealtToSlow);
-                // Dash acertado contra un enemigo: recupera parte de su coste
-                if (!fast.IsAllyOf(slow)) fast.RegisterClashWon();
+                if (!allies)
+                {
+                    fast.RegisterSuccessfulHit(false);
+                    // Dash acertado contra un enemigo: recupera parte de su coste
+                    fast.RegisterClashWon();
+                }
             }
-            else
+            else if (!allies)
             {
-                fast.RegisterSuccessfulHit(dealtToSlow * 0.5f);
-                slow.RegisterSuccessfulHit(dealtToFast * 0.5f);
+                fast.RegisterSuccessfulHit(true);
+                slow.RegisterSuccessfulHit(true);
             }
 
             a.PlayClashFeedback(contactPoint, intensity);
             fast.NotifyClash(slow, dealtToFast);
             slow.NotifyClash(fast, dealtToSlow);
+
+            Report(neutral ? ClashKind.Even : ClashKind.Normal, a, b, approachA, approachB,
+                aIsFaster ? dealtToFast : dealtToSlow, aIsFaster ? dealtToSlow : dealtToFast,
+                aIsFaster ? fastKnockback : slowKnockback, aIsFaster ? slowKnockback : fastKnockback,
+                a.ChargeLevel, b.ChargeLevel, a.IsDashAttacking, b.IsDashAttacking);
         }
 
-        private static void ResolveParry(FakeBladeController a, FakeBladeController b, Vector3 toB, float closing,
-            bool aParries, bool bParries, Vector3 contactPoint)
+        private static void ResolveParry(FakeBladeController a, FakeBladeController b, Vector3 toB, float approachA,
+            float approachB, bool aParries, bool bParries, Vector3 contactPoint)
         {
             var cfg = CombatConfig.Active;
+            float closing = approachA + approachB;
 
             // Doble parry: se anulan, sin daño ni recompensas; ambos rebotan y cortan su ataque
             if (aParries && bParries)
@@ -158,6 +210,8 @@ namespace FakeBlade.Core
                 a.NotifyClash(b, 0f);
                 b.NotifyClash(a, 0f);
                 OnParry?.Invoke(a, b, true);
+                Report(ClashKind.DoubleParry, a, b, approachA, approachB, 0f, 0f, bounce * a.KnockbackResistance,
+                    bounce * b.KnockbackResistance, 0, 0, false, false);
                 return;
             }
 
@@ -170,6 +224,10 @@ namespace FakeBlade.Core
             float baseDamage = closing * cfg.damagePerImpactSpeed;
             float damage = baseDamage * cfg.fasterDamageFraction * parrier.OffenseMultiplier * MassRatio(parrier, attacker);
             float dealt = attacker.ApplyDamage(damage, parrier);
+            CutHealIfAttacked(attacker, parrier, dealt);
+
+            int attackerCharge = attacker.ChargeLevel; // el rebote corta el ataque
+            bool attackerDash = attacker.IsDashAttacking;
 
             // Rebote: el atacante sale despedido y su ataque/dash queda cortado (no puede volver
             // a golpear con él); quien hace el parry frena su embestida y casi no se mueve.
@@ -181,6 +239,9 @@ namespace FakeBlade.Core
             parrier.NotifyClash(attacker, 0f);
             attacker.NotifyClash(parrier, dealt);
             OnParry?.Invoke(parrier, attacker, false);
+            Report(ClashKind.Parry, parrier, attacker, aParries ? approachA : approachB, aParries ? approachB : approachA,
+                0f, dealt, cfg.parryKnockback * cfg.parryDefenderKnockbackFraction, cfg.parryKnockback * attacker.KnockbackResistance,
+                0, attackerCharge, false, attackerDash);
         }
 
         /// <summary>
@@ -206,6 +267,8 @@ namespace FakeBlade.Core
             FakeBladeController otherSource = thrower != null && thrower != other ? thrower : launched;
             float dealtToLaunched = launched.ApplyDamage(damageToLaunched, launchedSource);
             float dealtToOther = other.ApplyDamage(damageToOther, otherSource);
+            CutHealIfAttacked(launched, other, dealtToLaunched);
+            CutHealIfAttacked(other, launched, dealtToOther);
 
             float knockback = Mathf.Min(cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff, cfg.maxKnockback);
             launched.ApplyKnockback(-launchedToOther * knockback * launched.KnockbackResistance);
@@ -214,12 +277,56 @@ namespace FakeBlade.Core
             other.PlayClashFeedback(contactPoint, Mathf.Clamp01(closing / 15f));
             launched.NotifyClash(other, dealtToLaunched);
             other.NotifyClash(launched, dealtToOther);
+            Report(ClashKind.Launched, launched, other, approachLaunched, approachOther, dealtToLaunched, dealtToOther,
+                knockback * launched.KnockbackResistance, knockback * other.KnockbackResistance,
+                launched.ChargeLevel, other.ChargeLevel, launched.IsDashAttacking, other.IsDashAttacking);
+        }
+
+        /// <summary>
+        /// Dos peonzas que siguen pegadas tras un choque (sin velocidad no hay choque nuevo): se
+        /// separan con un empuje fijo, la más pesada empuja más, y reciben el daño de un choque
+        /// parejo a stuckImpactSpeed. No da energía ni corta curaciones (nadie está atacando).
+        /// </summary>
+        public static void ResolveStuck(FakeBladeController a, FakeBladeController b, Vector3 contactPoint)
+        {
+            var cfg = CombatConfig.Active;
+
+            Vector3 toB = b.Position - a.Position;
+            toB.y = 0f;
+            toB = toB.sqrMagnitude > 0.0001f ? toB.normalized : Vector3.right;
+
+            float ratioAOverB = MassRatio(a, b);
+            float baseDamage = cfg.stuckImpactSpeed * cfg.damagePerImpactSpeed;
+            float dealtToB = b.ApplyDamage(baseDamage * a.OffenseMultiplier * ratioAOverB, a);
+            float dealtToA = a.ApplyDamage(baseDamage * b.OffenseMultiplier / ratioAOverB, b);
+
+            // Las resistencias (Defensa) frenan el empuje, pero no tanto como para seguir pegadas
+            float knockToA = cfg.stuckRepelSpeed / ratioAOverB * Mathf.Max(0.5f, a.KnockbackResistance);
+            float knockToB = cfg.stuckRepelSpeed * ratioAOverB * Mathf.Max(0.5f, b.KnockbackResistance);
+            a.ApplyKnockback(-toB * knockToA);
+            b.ApplyKnockback(toB * knockToB);
+
+            a.PlayClashFeedback(contactPoint, 0.25f);
+            a.NotifyClash(b, dealtToA);
+            b.NotifyClash(a, dealtToB);
+            Report(ClashKind.Stuck, a, b, 0f, 0f, dealtToA, dealtToB, knockToA, knockToB, 0, 0, false, false);
+        }
+
+        /// <summary>
+        /// Golpe de ataque enemigo (rápido, cargado o dash) que quita RPM: corta la curación del
+        /// poder de quien lo recibe. Paredes, roce, estados y poderes no la cortan.
+        /// </summary>
+        private static void CutHealIfAttacked(FakeBladeController victim, FakeBladeController hitter, float dealt)
+        {
+            if (dealt > 0f && hitter.IsAttacking && !victim.IsAllyOf(hitter)) victim.InterruptHeal();
         }
 
         private static float MassRatio(FakeBladeController a, FakeBladeController b)
         {
+            // Límites en CombatConfig.massRatioRange: el peso cuenta, pero no lo decide todo
+            Vector2 range = CombatConfig.Active.massRatioRange;
             float ratio = a.EffectiveMass / Mathf.Max(0.01f, b.EffectiveMass);
-            return Mathf.Clamp(ratio, MinMassRatio, MaxMassRatio);
+            return Mathf.Clamp(ratio, range.x, range.y);
         }
 
         private static bool FriendlyFireEnabled()

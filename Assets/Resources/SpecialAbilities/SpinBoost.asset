@@ -19,4 +19,4 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 1
-  regenPctPerSecond: 0.06
+  regenPctPerSecond: 0.04

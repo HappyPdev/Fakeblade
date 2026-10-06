@@ -18,6 +18,10 @@ namespace FakeBlade.Core
         private SpecialAbility _ability;
         private float _energy;
         private bool _isActive;
+        // Curación del efecto común: se reparte en specialHealTime; un golpe de ataque enemigo la corta
+        private float _pendingHeal;
+        private float _healRate;
+        private bool _healCut;
 
         /// <summary>Datos del poder equipado (null hasta el primer Reset).</summary>
         public SpecialAbilityData Data => _ability?.Data;
@@ -41,6 +45,8 @@ namespace FakeBlade.Core
                 _ability = data.CreateRuntime(owner);
 
             _energy = 0f;
+            _pendingHeal = 0f;
+            _healCut = false;
         }
 
         /// <summary>Energía en unidades de la barra estándar (1 = llenar un poder de energía 1).</summary>
@@ -61,17 +67,51 @@ namespace FakeBlade.Core
             if (!IsReady || _owner == null) return false;
             _isActive = true;
 
-            // Efecto común de todos los poderes (GDD 5)
-            _owner.AddSpin(_owner.MaxSpinSpeed * CombatConfig.Active.specialActivationSpinPct);
+            // Efecto común de todos los poderes (GDD 5): RPM poco a poco y cargas al momento
+            var cfg = CombatConfig.Active;
+            _healCut = false;
+            _pendingHeal = _owner.MaxSpinSpeed * cfg.specialActivationSpinPct;
+            _healRate = _pendingHeal / Mathf.Max(0.05f, cfg.specialHealTime);
             _owner.Attack.RefillCharges();
 
             _ability.OnActivate();
             return true;
         }
 
+        /// <summary>
+        /// Curación de un poder (regeneración): solo si ningún golpe de ataque enemigo la ha cortado
+        /// desde que se activó.
+        /// </summary>
+        public void Heal(float amount)
+        {
+            if (!_healCut && amount > 0f) _owner.AddSpin(amount);
+        }
+
+        /// <summary>Hay curación del poder en curso (la de activación o la de un poder que regenera).</summary>
+        public bool IsHealing => !_healCut && (_pendingHeal > 0f || (_isActive && _ability.Heals));
+
+        /// <summary>
+        /// Un golpe de ataque enemigo corta la curación que falte hasta el próximo poder.
+        /// Devuelve true si había algo que cortar.
+        /// </summary>
+        public bool CutHeal()
+        {
+            if (!IsHealing) return false;
+            _healCut = true;
+            _pendingHeal = 0f;
+            return true;
+        }
+
         /// <summary>Avanza el poder activo. Devuelve true el frame en que termina.</summary>
         public bool Tick(float dt)
         {
+            if (_pendingHeal > 0f)
+            {
+                float heal = Mathf.Min(_pendingHeal, _healRate * dt);
+                _pendingHeal -= heal;
+                _owner.AddSpin(heal);
+            }
+
             if (!_isActive) return false;
 
             _ability.Tick(dt);

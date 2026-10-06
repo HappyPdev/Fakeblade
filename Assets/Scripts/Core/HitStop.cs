@@ -39,14 +39,14 @@ namespace FakeBlade.Core
 
             _active = false;
             // Si mientras tanto se ha pausado la partida, la pausa manda
-            if (Time.timeScale > 0f) Time.timeScale = 1f;
+            if (Time.timeScale > 0f) GameTime.Resume();
         }
 
         private void OnDestroy()
         {
             if (_instance != this) return;
             _instance = null;
-            if (_active && Time.timeScale > 0f) Time.timeScale = 1f;
+            if (_active && Time.timeScale > 0f) GameTime.Resume();
         }
     }
 }

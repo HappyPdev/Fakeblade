@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59fc9befd7e8c948a1e9a61f1ce3282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeStats
-  baseMaxSpin: 350
+  baseMaxSpin: 400
   baseSpinDecay: 1
   baseMoveSpeed: 4
   baseWeight: 1

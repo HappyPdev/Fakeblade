@@ -72,6 +72,10 @@ namespace FakeBlade.Core
                  "agilidad la amplíen y las de defensa la reduzcan (base en CombatConfig).")]
         [SerializeField] private float parryWindowModifier = 0f;
 
+        [Header("=== RASGOS (GDD 3) ===")]
+        [Tooltip("Efectos propios de la pieza sobre el combate, en porcentaje (p. ej. más energía del especial con los cargados, o dash con menos espera pero más caro)")]
+        [SerializeField] private System.Collections.Generic.List<PartTrait> traits = new System.Collections.Generic.List<PartTrait>();
+
         [Header("=== SPECIAL (solo Núcleo) ===")]
         [Tooltip("Poder especial que otorga este Núcleo")]
         [SerializeField] private SpecialAbilityType specialAbility = SpecialAbilityType.None;
@@ -94,6 +98,7 @@ namespace FakeBlade.Core
         public float DashForceModifier => dashForceModifier;
         public int AttackChargesModifier => attackChargesModifier;
         public float ParryWindowModifier => parryWindowModifier;
+        public System.Collections.Generic.IReadOnlyList<PartTrait> Traits => traits;
 
         public SpecialAbilityType SpecialAbility => specialAbility;
         #endregion

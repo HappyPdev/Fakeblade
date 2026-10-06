@@ -44,6 +44,18 @@ namespace FakeBlade.Core
         [Tooltip("Frenado cuando no hay input")]
         public float stoppingFriction = 3f;
         [Range(0.01f, 1f)] public float turnResponsiveness = 0.15f;
+        [Tooltip("Cuánto se separan las velocidades máximas de las peonzas de la de referencia " +
+                 "(1 = lo que dicen sus piezas; menos = más parecidas entre sí)")]
+        [Range(0f, 1f)] public float speedSpread = 0.5f;
+        [Tooltip("Velocidad máxima de referencia (más o menos la de una peonza media)")]
+        public float referenceMaxSpeed = 15.5f;
+        [Tooltip("Respuesta del giro según el peso: x = la más ligera, y = la más pesada")]
+        public Vector2 turnByWeight = new Vector2(1.3f, 0.8f);
+        [Tooltip("Aceleración según el peso: x = la más ligera, y = la más pesada")]
+        public Vector2 accelerationByWeight = new Vector2(1f, 0.7f);
+        [Tooltip("Masa física mínima del Rigidbody: las muy ligeras no se sienten flotantes ni aceleran " +
+                 "de golpe (el peso de sus piezas sigue contando para el daño)")]
+        public float minPhysicalMass = 0.6f;
         public float linearDamping = 0.5f;
         public float angularDamping = 0.1f;
         [Tooltip("Tiempo que tarda en volver a la velocidad normal tras un ataque o dash")]
@@ -82,12 +94,19 @@ namespace FakeBlade.Core
         }
 
         [Header("=== RPM (VIDA) ===")]
-        [Tooltip("RPM perdidas por unidad de velocidad al chocar contra paredes")]
-        public float wallDamagePerSpeed = 0.5f;
+        [Tooltip("Daño de la pared respecto a un choque parejo contra una peonza a la misma velocidad " +
+                 "(1 = igual: velocidad perpendicular × daño por velocidad de choque)")]
+        public float wallDamageScale = 1f;
         [Tooltip("Velocidad mínima contra paredes para que haga daño")]
         public float wallMinDamageSpeed = 3f;
         [Tooltip("RPM por segundo que se pierden al rozar con otra peonza")]
         public float grindDamagePerSecond = 8f;
+        [Tooltip("Segundos pegadas a otra peonza (sin choque nuevo) antes de que se repelan")]
+        public float stuckRepelDelay = 0.3f;
+        [Tooltip("Empuje (m/s) con el que se separan dos peonzas pegadas")]
+        public float stuckRepelSpeed = 7f;
+        [Tooltip("Velocidad de cierre con la que cuenta el daño al separarse (como un choque parejo a esa velocidad)")]
+        public float stuckImpactSpeed = 5f;
         [Tooltip("Potencia de ataque de referencia (ataque = referencia → multiplicador x1)")]
         public float referenceAttackPower = 15f;
 
@@ -110,10 +129,13 @@ namespace FakeBlade.Core
         public float chargeTimePerLevel = 0.4f;
         [Tooltip("Segundos en carga máxima antes de lanzarse solo")]
         public float chargedAutoReleaseTime = 0.6f;
-        [Tooltip("Impulso extra por nivel de carga (0.6 = +60% por nivel)")]
+        [Tooltip("Impulso extra por nivel de carga (0.6 = +60% por nivel): más alcance y más empuje, no más daño")]
         public float chargedImpulsePerLevel = 0.6f;
-        [Tooltip("Bonus de masa extra por nivel de carga")]
-        public float chargedMassBonusPerLevel = 0.35f;
+        [Tooltip("Daño extra por nivel de carga sobre el de un ataque rápido (0,1 = +10% por nivel; nivel 3 = x1,3). " +
+                 "El daño del cargado se calcula sin la velocidad extra de la carga")]
+        public float chargedDamagePerLevel = 0.1f;
+        [Tooltip("Bonus de masa extra por nivel de carga (la masa multiplica el daño: mejor dejarlo a 0 y usar chargedDamagePerLevel)")]
+        public float chargedMassBonusPerLevel = 0f;
         [Tooltip("Empuje extra al objetivo por nivel de carga")]
         public float chargedKnockbackPerLevel = 0.4f;
         [Tooltip("Enfriamiento tras un ataque cargado antes de poder cargar otro")]
@@ -144,14 +166,24 @@ namespace FakeBlade.Core
         public int maxComboHits = 3;
 
         [Header("=== DASH ===")]
-        public float dashCooldown = 1.5f;
+        public float dashCooldown = 1.8f;
         [Tooltip("Coste en RPM del dash (fracción de las RPM máximas)")]
-        [Range(0f, 0.3f)] public float dashSpinCostPct = 0.06f;
+        [Range(0f, 0.3f)] public float dashSpinCostPct = 0.08f;
         [Tooltip("Ventana en la que un choque tras el dash cuenta como ataque")]
         public float dashAttackWindow = 0.35f;
         [Tooltip("Fracción de las RPM gastadas en el dash que se recuperan si el dash gana un choque " +
                  "contra un enemigo (una vez por dash)")]
         [Range(0f, 1f)] public float dashHitRefundFraction = 0.5f;
+
+        [Header("=== DAÑO GLOBAL ===")]
+        [Tooltip("Multiplica todo el daño de golpes, paredes y roce (la quemadura va aparte, por porcentaje). " +
+                 "Menos = combates más largos")]
+        public float damageMultiplier = 0.8f;
+        [Tooltip("Límites de la relación de masas en el daño y el empuje (x = mínimo, y = máximo). " +
+                 "Más estrecho = el peso decide menos y las ligeras no pegan tan poco")]
+        public Vector2 massRatioRange = new Vector2(0.8f, 1.3f);
+        [Tooltip("Cuánto cuentan las diferencias de ataque de las piezas en el daño (1 = todo; 0 = nada)")]
+        [Range(0f, 1f)] public float attackSpread = 0.6f;
 
         [Header("=== CHOQUE (GDD 2.5) ===")]
         [Tooltip("Velocidad de cierre mínima para que un choque cuente")]
@@ -162,6 +194,11 @@ namespace FakeBlade.Core
         public float damagePerImpactSpeed = 1f;
         [Tooltip("Daño extra al más lento por unidad de diferencia de velocidad")]
         public float damagePerSpeedDiff = 2.5f;
+        [Tooltip("Daño de los golpes con ataque (rápido o cargado) sobre el de un choque sin atacar")]
+        public float attackHitDamageMultiplier = 1.2f;
+        [Tooltip("Daño de los golpes con dash. Menos de 1: el dash sirve para moverse y rematar, no para " +
+                 "ser el golpe principal (llega mucho más rápido que un ataque)")]
+        public float dashHitDamageMultiplier = 0.75f;
         [Tooltip("Fracción del daño base que recibe la peonza más rápida")]
         [Range(0f, 1f)] public float fasterDamageFraction = 0.25f;
         [Tooltip("Diferencia de velocidad por debajo de la cual el choque es neutro")]
@@ -179,10 +216,22 @@ namespace FakeBlade.Core
         [Tooltip("Efecto común de todos los poderes al activarse: RPM recuperadas (fracción de las RPM máximas). " +
                  "Además se rellenan todas las cargas de ataque.")]
         [Range(0f, 1f)] public float specialActivationSpinPct = 0.25f;
-        [Tooltip("Energía ganada por punto de daño infligido (1 = barra estándar llena; cada poder pide la suya)")]
-        public float specialEnergyPerDamage = 0.006f;
-        [Tooltip("Multiplicador de energía si el golpe no fue con ataque o dash")]
-        [Range(0f, 1f)] public float passiveHitEnergyMultiplier = 0.5f;
+        [Tooltip("Segundos en los que se recuperan esas RPM (no es al momento). Un golpe de ataque enemigo " +
+                 "corta lo que falte, también la regeneración del poder")]
+        public float specialHealTime = 2f;
+        // Energía por golpe acertado (ganar el choque), según el tipo de golpe; no depende del daño.
+        // 1 = barra estándar llena (cada poder pide la suya). Choque parejo: la mitad. Parry: parryEnergy.
+        [Tooltip("Energía por golpe acertado con ataque rápido")]
+        public float specialEnergyQuickHit = 0.08f;
+        [Tooltip("Energía por golpe acertado con dash")]
+        public float specialEnergyDashHit = 0.06f;
+        [Tooltip("Energía por golpe acertado con ataque cargado: base + por nivel (nivel 3 = 0,12 + 3 × 0,05 = 0,27)")]
+        public float specialEnergyChargedHit = 0.12f;
+        public float specialEnergyPerChargeLevel = 0.05f;
+        [Tooltip("Energía por ganar un choque sin atacar ni hacer dash")]
+        public float specialEnergyPassiveHit = 0.03f;
+        [Tooltip("Multiplica toda la energía ganada (ritmo general del especial)")]
+        public float specialEnergyMultiplier = 1.2f;
         // Duración, energía necesaria y valores propios de cada poder: en su asset de
         // Resources/SpecialAbilities (SpecialAbilityData)
 

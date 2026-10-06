@@ -8,7 +8,7 @@ namespace FakeBlade.Core
     {
         [Header("Spin Boost")]
         [Tooltip("RPM recuperadas por segundo mientras está activo (fracción de las RPM máximas)")]
-        [Range(0f, 0.5f)] public float regenPctPerSecond = 0.06f;
+        [Range(0f, 0.5f)] public float regenPctPerSecond = 0.04f;
 
         public override SpecialAbilityType Type => SpecialAbilityType.SpinBoost;
 
@@ -19,6 +19,9 @@ namespace FakeBlade.Core
     {
         public SpinBoostAbility(SpinBoostData data, FakeBladeController owner) : base(data, owner) { }
 
-        public override void Tick(float dt) => Owner.AddSpin(Owner.MaxSpinSpeed * Config.regenPctPerSecond * dt);
+        public override bool Heals => true;
+
+        // Por el sistema de poderes: un golpe de ataque enemigo corta la regeneración
+        public override void Tick(float dt) => Owner.Special.Heal(Owner.MaxSpinSpeed * Config.regenPctPerSecond * dt);
     }
 }

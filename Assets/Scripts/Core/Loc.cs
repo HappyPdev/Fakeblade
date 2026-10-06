@@ -131,6 +131,7 @@ namespace FakeBlade.Core
             ["OPT_LANGUAGE"] = new[] { "IDIOMA", "LANGUAGE" },
             ["OPT_VIBRATION"] = new[] { "VIBRACIÓN MANDO", "GAMEPAD RUMBLE" },
             ["OPT_SHAKE"] = new[] { "SACUDIDA CÁMARA", "CAMERA SHAKE" },
+            ["OPT_CORE_IMAGE"] = new[] { "ICONO DEL NÚCLEO", "CORE ICON" },
             ["OPT_BLADE_COLORS"] = new[] { "COLORES DE PEONZA", "BLADE COLORS" },
             ["BLADE_COLORS"] = new[] { "COLORES DE PEONZA", "BLADE COLORS" },
             ["BLADE_COLORS_PALETTE"] = new[] { "COLOR", "COLOR" },

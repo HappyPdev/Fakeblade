@@ -156,7 +156,7 @@ namespace FakeBlade.UI
             _blade = blade;
             _core = core;
 
-            BladeModel.Build(_model, _modelSettings, tip, body, blade, core);
+            BladeModel.Build(_model, _tilt, _modelSettings, tip, body, blade, core, _camera);
             _paint = new BladePaint(_model);
             if (_hasScheme) _paint.Apply(_scheme);
             _paint.SetCoreGlow(_glowColor, _glowIntensity);

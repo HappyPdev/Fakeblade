@@ -259,7 +259,8 @@ namespace FakeBlade.Core
         /// <summary>Monta el modelo con los modelos de las piezas equipadas y lo vuelve a pintar.</summary>
         private void RebuildModel()
         {
-            BladeModel.Build(_blade.VisualRoot, _blade.ModelSettings,
+            // La imagen del núcleo va en el pivote de inclinación (no gira con la peonza)
+            BladeModel.Build(_blade.VisualRoot, _blade.VisualRoot.parent, _blade.ModelSettings,
                 _stats.EquippedTip, _stats.EquippedBody, _stats.EquippedBlade, _stats.EquippedCore);
             _paint = null; // hay renderers nuevos
             ApplyPlayerColor();

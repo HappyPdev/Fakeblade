@@ -15,6 +15,13 @@ namespace FakeBlade.Core
         [Tooltip("Material del núcleo: necesita la emisión activada para brillar (BladeCoreMaterial)")]
         public Material coreMaterial;
 
+        [Header("Imagen del núcleo (H6, en pruebas)")]
+        [Tooltip("Plano con el icono del poder sobre el núcleo (Imagen_de_Nucleo). Vacío = sin imagen")]
+        public GameObject coreImage;
+        [Tooltip("Material del plano (sprite: textura y color por MaterialPropertyBlock)")]
+        public Material coreImageMaterial;
+        public CoreImageMode coreImageMode;
+
         public static BladeModelSettings Default => new BladeModelSettings { worldScale = 1f };
     }
 
@@ -29,20 +36,19 @@ namespace FakeBlade.Core
     {
         public const string ContainerName = "PartModels";
 
-        /// <summary>Monta (o vuelve a montar) el modelo. Devuelve el contenedor, o null si se usa el antiguo.</summary>
-        public static Transform Build(Transform visualRoot, BladeModelSettings settings, FakeBladeComponentData tip,
-            FakeBladeComponentData body, FakeBladeComponentData blade, FakeBladeComponentData core)
+        /// <summary>
+        /// Monta (o vuelve a montar) el modelo. Devuelve el contenedor, o null si se usa el antiguo.
+        /// imageParent = lo que no gira (pivote de inclinación) para la imagen del núcleo;
+        /// imageCamera = cámara a la que mira (null = Camera.main).
+        /// </summary>
+        public static Transform Build(Transform visualRoot, Transform imageParent, BladeModelSettings settings,
+            FakeBladeComponentData tip, FakeBladeComponentData body, FakeBladeComponentData blade,
+            FakeBladeComponentData core, Camera imageCamera = null)
         {
             if (visualRoot == null) return null;
 
-            Transform previous = visualRoot.Find(ContainerName);
-            if (previous != null)
-            {
-                // Fuera de la jerarquía ya, para que nadie lo recoja este frame
-                previous.SetParent(null, false);
-                if (Application.isPlaying) Object.Destroy(previous.gameObject);
-                else Object.DestroyImmediate(previous.gameObject);
-            }
+            Remove(visualRoot.Find(ContainerName));
+            if (imageParent != null) Remove(imageParent.Find(CoreImage.ObjectName));
 
             Transform container = null;
             Add(ref container, visualRoot, settings, ComponentSlot.Tip, tip);
@@ -51,7 +57,23 @@ namespace FakeBlade.Core
             Add(ref container, visualRoot, settings, ComponentSlot.Core, core);
 
             SetLegacyVisible(visualRoot, container == null);
+
+            if (container != null && core != null && core.Model != null && settings.coreImage != null && imageParent != null)
+            {
+                SpecialAbilityType power = core.SpecialAbility != SpecialAbilityType.None ? core.SpecialAbility : SpecialAbilityType.SpinBoost;
+                CoreImage.Create(imageParent, settings.coreImage, settings.coreImageMaterial, settings.worldScale,
+                    settings.coreImageMode, imageCamera, PowerIcons.Get(power), SpecialAbilities.Get(power).color);
+            }
             return container;
+        }
+
+        private static void Remove(Transform previous)
+        {
+            if (previous == null) return;
+            // Fuera de la jerarquía ya, para que nadie lo recoja este frame
+            previous.SetParent(null, false);
+            if (Application.isPlaying) Object.Destroy(previous.gameObject);
+            else Object.DestroyImmediate(previous.gameObject);
         }
 
         private static void Add(ref Transform container, Transform visualRoot, BladeModelSettings settings,

@@ -196,6 +196,9 @@ MonoBehaviour:
     worldScale: 1
     partMaterial: {fileID: 0}
     coreMaterial: {fileID: 2100000, guid: c58a4a2f1470dbe46977c8a583522cad, type: 2}
+    coreImage: {fileID: 919132149155446097, guid: e0f1ee88bc7f2d04abb300db91bddac3, type: 3}
+    coreImageMaterial: {fileID: 2100000, guid: 7e35475b3dc246e4384568cc7564819e, type: 2}
+    coreImageMode: 0
   audioSource: {fileID: 0}
   collisionSound: {fileID: 0}
   attackSound: {fileID: 0}

@@ -15,8 +15,15 @@ namespace FakeBlade.UI
         private RenderTexture _texture;
         private Transform _tilt;
         private Transform _spin;
-        private Renderer[] _renderers;
+        private Transform _model;
+        private BladeModelSettings _modelSettings = BladeModelSettings.Default;
         private BladePaint _paint;
+        private BladeColorScheme _scheme;
+        private bool _hasScheme;
+        private Color _glowColor;
+        private float _glowIntensity;
+        private FakeBladeComponentData _tip, _body, _blade, _core;
+        private bool _hasParts;
         /// <summary>Altura de la cámara respecto a su distancia (0 = de frente; antes 0,55).</summary>
         private const float CameraHeight = 0.32f;
         private float _angle;
@@ -41,8 +48,6 @@ namespace FakeBlade.UI
             _spin = new GameObject("Spin").transform;
             _spin.SetParent(_tilt, false);
 
-            float size = 1f;
-            float centerHeight = 0f;
             if (playerPrefab != null)
             {
                 Transform source = FindVisualRoot(playerPrefab.transform);
@@ -59,13 +64,11 @@ namespace FakeBlade.UI
                     foreach (var p in model.GetComponentsInChildren<ParticleSystem>(true)) Destroy(p.gameObject);
                     foreach (var mb in model.GetComponentsInChildren<MonoBehaviour>(true)) Destroy(mb);
 
-                    _renderers = model.GetComponentsInChildren<Renderer>(true);
-                    _paint = new BladePaint(model.transform);
-                    size = MeasureSize(_renderers);
-                    centerHeight = MeasureCenterHeight(_renderers);
+                    _model = model.transform;
+                    _paint = new BladePaint(_model);
+                    if (playerPrefab.TryGetComponent(out FakeBladeController blade)) _modelSettings = blade.ModelSettings;
                 }
             }
-            if (_renderers == null) _renderers = new Renderer[0];
 
             _texture = new RenderTexture(resolution, resolution, 16, RenderTextureFormat.ARGB32)
             {
@@ -77,21 +80,16 @@ namespace FakeBlade.UI
 
             var camObj = new GameObject("PreviewCamera");
             camObj.transform.SetParent(transform, false);
-            float distance = Mathf.Max(0.5f, size * 2.4f);
-            // Apunta al centro de la peonza (no a su base) y desde poco por encima, para verla casi de frente
-            Vector3 focus = transform.position + Vector3.up * centerHeight;
-            camObj.transform.position = focus + new Vector3(0f, distance * CameraHeight, -distance);
-            camObj.transform.LookAt(focus);
 
             _camera = camObj.AddComponent<Camera>();
             _camera.clearFlags = CameraClearFlags.SolidColor;
             _camera.backgroundColor = background;
             _camera.fieldOfView = 30f;
             _camera.nearClipPlane = 0.05f;
-            _camera.farClipPlane = distance * 4f;
             _camera.targetTexture = _texture;
             _camera.allowMSAA = false;
             SettingsService.ConfigureCamera(_camera, false);
+            Frame();
         }
 
         private static Transform FindVisualRoot(Transform prefab)
@@ -107,27 +105,79 @@ namespace FakeBlade.UI
             return null;
         }
 
-        private float MeasureCenterHeight(Renderer[] renderers)
+        /// <summary>
+        /// Encuadra la peonza: la cámara apunta a su centro (no a su base) desde poco por encima,
+        /// para verla casi de frente. Se mide sin giro ni bamboleo, con lo que se ve (renderers activos).
+        /// </summary>
+        private void Frame()
         {
-            if (renderers.Length == 0) return 0f;
-            Bounds b = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
-            return b.center.y - transform.position.y;
+            if (_camera == null) return;
+
+            Quaternion tilt = _tilt.localRotation, spin = _spin.localRotation;
+            _tilt.localRotation = _spin.localRotation = Quaternion.identity;
+
+            float size = 1f, centerHeight = 0f;
+            bool any = false;
+            Bounds b = default;
+            if (_model != null)
+            {
+                foreach (MeshRenderer r in _model.GetComponentsInChildren<MeshRenderer>())
+                {
+                    if (!r.enabled) continue;
+                    if (!any) b = r.bounds; else b.Encapsulate(r.bounds);
+                    any = true;
+                }
+            }
+            if (any)
+            {
+                size = Mathf.Max(b.size.x, b.size.z, 0.1f);
+                centerHeight = b.center.y - transform.position.y;
+            }
+            _tilt.localRotation = tilt;
+            _spin.localRotation = spin;
+
+            float distance = Mathf.Max(0.5f, size * 2.4f);
+            Vector3 focus = transform.position + Vector3.up * centerHeight;
+            Transform cam = _camera.transform;
+            cam.position = focus + new Vector3(0f, distance * CameraHeight, -distance);
+            cam.LookAt(focus);
+            _camera.farClipPlane = distance * 4f;
         }
 
-        private float MeasureSize(Renderer[] renderers)
+        /// <summary>Monta el modelo con estas piezas (solo si han cambiado) y lo vuelve a pintar y encuadrar.</summary>
+        public void SetParts(FakeBladeComponentData tip, FakeBladeComponentData body,
+            FakeBladeComponentData blade, FakeBladeComponentData core)
         {
-            if (renderers.Length == 0) return 1f;
-            Bounds b = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
-            return Mathf.Max(b.size.x, b.size.z, 0.1f);
+            if (_model == null) return;
+            if (_hasParts && tip == _tip && body == _body && blade == _blade && core == _core) return;
+            _hasParts = true;
+            _tip = tip;
+            _body = body;
+            _blade = blade;
+            _core = core;
+
+            BladeModel.Build(_model, _modelSettings, tip, body, blade, core);
+            _paint = new BladePaint(_model);
+            if (_hasScheme) _paint.Apply(_scheme);
+            _paint.SetCoreGlow(_glowColor, _glowIntensity);
+            Frame();
         }
 
         /// <summary>Colores de cada pieza (paleta del color elegido).</summary>
-        public void SetScheme(BladeColorScheme scheme) => _paint?.Apply(scheme);
+        public void SetScheme(BladeColorScheme scheme)
+        {
+            _scheme = scheme;
+            _hasScheme = true;
+            _paint?.Apply(scheme);
+        }
 
         /// <summary>Brillo del núcleo (color del poder), como en partida.</summary>
-        public void SetCoreGlow(Color color, float intensity) => _paint?.SetCoreGlow(color, intensity);
+        public void SetCoreGlow(Color color, float intensity)
+        {
+            _glowColor = color;
+            _glowIntensity = intensity;
+            _paint?.SetCoreGlow(color, intensity);
+        }
 
         /// <summary>Velocidad de giro visual (grados/s), p. ej. según las RPM máximas.</summary>
         public void SetSpinSpeed(float degreesPerSecond) => _spinSpeed = degreesPerSecond;

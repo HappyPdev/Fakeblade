@@ -60,6 +60,9 @@ namespace FakeBlade.UI
             {
                 _stage = BladePreviewStage.Create(PreviewStageSlot, _catalog.playerPrefab, Theme.barBackground);
                 _preview.texture = _stage.Texture;
+                // Se previsualiza con las piezas de la peonza balanceada
+                BladePreset preset = _catalog.presets.Find(p => p.nameKey == "PRESET_BALANCED") ?? _catalog.GetPreset(0);
+                if (preset != null) _stage.SetParts(preset.tip, preset.body, preset.blade, preset.core);
             }
             if (_stage != null) _stage.gameObject.SetActive(true);
             Refresh();

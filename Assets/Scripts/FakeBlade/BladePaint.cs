@@ -33,8 +33,10 @@ namespace FakeBlade.Core
 
             foreach (Renderer r in root.GetComponentsInChildren<Renderer>(true))
             {
-                // Solo mallas: fuera partículas, estelas e iconos (sprites)
+                // Solo mallas: fuera partículas, estelas e iconos (sprites), y los planos con
+                // imagen (p. ej. "Imagen de Nucleo"), que llevan su propio material
                 if (!(r is MeshRenderer) && !(r is SkinnedMeshRenderer)) continue;
+                if (IsImagePlane(r.name)) continue;
 
                 ComponentSlot slot = SlotOf(r.transform, root);
                 _slots[(int)slot].Add(r);
@@ -90,6 +92,12 @@ namespace FakeBlade.Core
             if (active) return 1.6f + 0.4f * Mathf.Sin(time * 12f);
             if (ready) return 1f + 0.25f * Mathf.Sin(time * 5f);
             return Mathf.Clamp01(energy) * 0.7f;
+        }
+
+        public static bool IsImagePlane(string objectName)
+        {
+            string n = objectName.ToLowerInvariant();
+            return n.Contains("imagen") || n.Contains("image") || n.Contains("sprite") || n.Contains("icon");
         }
 
         private static ComponentSlot SlotOf(Transform t, Transform root)

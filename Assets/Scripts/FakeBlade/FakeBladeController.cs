@@ -61,6 +61,9 @@ namespace FakeBlade.Core
                  "NUNCA debe ser el propio root.")]
         [SerializeField] private Transform visualRoot;
 
+        [Tooltip("Cómo se monta el modelo con los modelos de las piezas equipadas (BladeModel)")]
+        [SerializeField] private BladeModelSettings modelSettings = BladeModelSettings.Default;
+
         [Header("=== AUDIO ===")]
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip collisionSound;
@@ -1098,6 +1101,11 @@ namespace FakeBlade.Core
 
         /// <summary>Color del jugador (efectos y HUD).</summary>
         public Color OwnerColor => _owner != null ? _owner.PlayerColor : Color.white;
+
+        /// <summary>Pivote que gira (donde va el modelo).</summary>
+        public Transform VisualRoot => visualRoot;
+        /// <summary>Cómo se monta el modelo con los de las piezas (también lo usan las vistas previas).</summary>
+        public BladeModelSettings ModelSettings => modelSettings;
 
         private static readonly Color ClashColor = new Color(1f, 0.92f, 0.55f);
 

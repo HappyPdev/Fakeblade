@@ -18,6 +18,7 @@ MonoBehaviour:
   weightClass: 2
   archetype: 2
   icon: {fileID: 0}
+  model: {fileID: 919132149155446097, guid: f3f64f53573893a4d84003eeb88874dc, type: 3}
   maxSpinModifier: 100
   spinDecayModifier: -1.5
   moveSpeedModifier: -3

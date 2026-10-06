@@ -83,7 +83,9 @@ namespace FakeBlade.Core
                 _input.SetDevice(kind, pad);
             }
 
-            ApplyPlayerColor();
+            // Modelo con las piezas equipadas (y de nuevo si se cambian en caliente)
+            RebuildModel();
+            _stats.OnStatsChanged += RebuildModel;
 
             _blade.OnSpinOut += HandleSpinOut;
             _blade.OnDashExecuted += HandleDash;
@@ -104,6 +106,7 @@ namespace FakeBlade.Core
                 _blade.OnDashExecuted -= HandleDash;
                 _blade.OnClash -= HandleClash;
             }
+            if (_stats != null) _stats.OnStatsChanged -= RebuildModel;
 
             if (_registered && GameManager.HasInstance)
                 GameManager.Instance.UnregisterPlayer(this);
@@ -251,6 +254,15 @@ namespace FakeBlade.Core
             if (!_hasScheme) _scheme = BladeColors.Derive(playerColor);
             if (_paint == null) _paint = new BladePaint(transform);
             _paint.Apply(_scheme);
+        }
+
+        /// <summary>Monta el modelo con los modelos de las piezas equipadas y lo vuelve a pintar.</summary>
+        private void RebuildModel()
+        {
+            BladeModel.Build(_blade.VisualRoot, _blade.ModelSettings,
+                _stats.EquippedTip, _stats.EquippedBody, _stats.EquippedBlade, _stats.EquippedCore);
+            _paint = null; // hay renderers nuevos
+            ApplyPlayerColor();
         }
 
         /// <summary>El núcleo brilla con el color de su poder según la carga de la esfera.</summary>

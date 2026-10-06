@@ -132,6 +132,35 @@ namespace FakeBlade.Core.Editor
             Debug.Log($"=== FakeBlade: piezas preset creadas/actualizadas en {SAVE_PATH} ===");
         }
 
+        /// <summary>Piezas exportadas desde Blender (Tools/Blender/export_blade_parts.py).</summary>
+        public const string MODELS_PATH = "Assets/3D Models/Bayblade 01/Parts/";
+
+        /// <summary>
+        /// Modelo de una pieza: el del tipo de su arquetipo (A Ataque, B Balanceada, C Defensa,
+        /// D Agilidad, GDD 3). Todos los núcleos usan el genérico. Null si no se ha exportado.
+        /// </summary>
+        private static GameObject LoadModel(ComponentSlot slot, BladeArchetype archetype)
+        {
+            string type;
+            switch (archetype)
+            {
+                case BladeArchetype.Attack: type = "A"; break;
+                case BladeArchetype.Defense: type = "C"; break;
+                case BladeArchetype.Agility: type = "D"; break;
+                default: type = "B"; break;
+            }
+
+            string file;
+            switch (slot)
+            {
+                case ComponentSlot.Tip: file = $"Punta/Punta_Type_{type}"; break;
+                case ComponentSlot.Body: file = $"Body/Body_Type_{type}"; break;
+                case ComponentSlot.Blade: file = $"Rings/Ring_Type_{type}"; break;
+                default: file = "Nucleo/Nucleo_Generico"; break;
+            }
+            return AssetDatabase.LoadAssetAtPath<GameObject>($"{MODELS_PATH}{file}.fbx");
+        }
+
         private static void CreateComponent(
             string fileName, string displayName, string description,
             ComponentSlot slot, WeightClass weightClass, BladeArchetype archetype,
@@ -152,6 +181,7 @@ namespace FakeBlade.Core.Editor
             so.FindProperty("componentType").enumValueIndex = (int)slot;
             so.FindProperty("weightClass").enumValueIndex = (int)weightClass;
             so.FindProperty("archetype").enumValueIndex = (int)archetype;
+            so.FindProperty("model").objectReferenceValue = LoadModel(slot, archetype);
             so.FindProperty("maxSpinModifier").floatValue = maxSpin;
             so.FindProperty("spinDecayModifier").floatValue = spinDecay;
             so.FindProperty("moveSpeedModifier").floatValue = moveSpeed;

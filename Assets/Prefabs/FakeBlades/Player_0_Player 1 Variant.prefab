@@ -192,6 +192,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeController
   visualRoot: {fileID: 5524399954143691228}
+  modelSettings:
+    worldScale: 1
+    partMaterial: {fileID: 0}
+    coreMaterial: {fileID: 2100000, guid: c58a4a2f1470dbe46977c8a583522cad, type: 2}
   audioSource: {fileID: 0}
   collisionSound: {fileID: 0}
   attackSound: {fileID: 0}
@@ -234,9 +238,6 @@ MonoBehaviour:
   playerColor: {r: 0.2, g: 0.5, b: 1, a: 1}
   teamID: 0
   autoAssignInput: 1
-  coloredRenderers:
-  - {fileID: 5675707249420467591}
-  - {fileID: 5785517998429369443}
   debugMode: 0
 --- !u!135 &9111698540839128479
 SphereCollider:

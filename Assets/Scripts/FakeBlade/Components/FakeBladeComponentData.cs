@@ -40,6 +40,8 @@ namespace FakeBlade.Core
         [Tooltip("Arquetipo al que pertenece la pieza (se muestra en la selección). Coincide con el tipo de modelo: A Ataque, B Balanceada, C Defensa, D Agilidad")]
         [SerializeField] private BladeArchetype archetype = BladeArchetype.Balanced;
         [SerializeField] private Sprite icon;
+        [Tooltip("Modelo 3D de la pieza (FBX de Assets/3D Models/.../Parts). Todas las piezas comparten el origen: se montan solas. Vacío = modelo antiguo del prefab")]
+        [SerializeField] private GameObject model;
 
         [Header("=== STAT MODIFIERS ===")]
         [Tooltip("Modifica las RPM máximas (+/-)")]
@@ -81,6 +83,7 @@ namespace FakeBlade.Core
         public WeightClass WeightClass => weightClass;
         public BladeArchetype Archetype => archetype;
         public Sprite Icon => icon;
+        public GameObject Model => model;
 
         public float MaxSpinModifier => maxSpinModifier;
         public float SpinDecayModifier => spinDecayModifier;

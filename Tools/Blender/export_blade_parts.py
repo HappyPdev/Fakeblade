@@ -29,7 +29,12 @@ import bpy
 # === Ajustes ===
 ROOT_COLLECTION = "BayBlade 01"
 OUTPUT_FOLDER = "//Parts"  # "//" = carpeta del .blend
-SKIP_NAMES = set()         # nombres de objetos que no se exportan, p. ej. {"Ring", "Body Type 0"}
+SKIP_NAMES = set()           # nombres exactos que no se exportan, p. ej. {"Ring"}
+SKIP_CONTAINS = ("Type 0",)  # tampoco los que contienen esto (los tipos 0 son los modelos base)
+
+
+def is_skipped(name):
+    return name in SKIP_NAMES or any(part in name for part in SKIP_CONTAINS)
 
 
 def safe_file_name(name):
@@ -103,7 +108,7 @@ def main():
         os.makedirs(folder, exist_ok=True)
 
         # Lista cerrada antes de empezar: crear y borrar las copias invalida el iterador de Blender
-        sources = [o for o in collection.all_objects if o.type == "MESH" and o.name not in SKIP_NAMES]
+        sources = [o for o in collection.all_objects if o.type == "MESH" and not is_skipped(o.name)]
         for source in sources:
             # La copia lleva el nombre original (el que lee Unity); el original se aparta un momento
             original_name = source.name

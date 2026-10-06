@@ -279,16 +279,17 @@ Como en Super Smash Bros, cada modo tiene reglas por defecto y el jugador puede 
 
 Escena propia (`Sandbox`) para probar mecánicas sin salir de la partida: parrys, especiales, piezas, etc. Todo se puede cambiar **en ejecución**.
 
-- **Cómo se entra:** por JUGAR, como cualquier partida. Los jugadores se unen y eligen peonza en la selección, y **Sandbox** es un modo más (sustituye a Práctica): con 1 jugador es el único modo; con 2-4 se puede elegir. Cambiar de peonza dentro del sandbox llega en la fase E.
+- **Cómo se entra:** por JUGAR, como cualquier partida. Los jugadores se unen y eligen peonza en la selección, y **Sandbox** es un modo más (sustituye a Práctica): con 1 jugador es el único modo; con 2-4 se puede elegir. Dentro del sandbox se cambia de piezas en Mi peonza (E1).
 - **Jugadores:** pueden entrar **hasta 4 jugadores humanos**, que se unen manteniendo pulsado ataque en la selección de peonzas. Sirve, por ejemplo, para practicar parrys entre dos personas con mando. **Máximo 4 peonzas en total** (humanos + dummies), como las CPU en partidas normales; se ampliará con F2.
 - **Panel del sandbox:** se abre con un **botón propio** (Select/Back en mando, Tab en teclado; reasignable), que **pausa** el juego. Lo puede navegar **cualquiera** (mando, teclado o ratón), como el menú de pausa. Al cerrarlo, el juego sigue al momento (sin cuenta atrás) con los cambios aplicados.
 - **Primera versión del panel:**
   - **Rivales:** ninguno o de 1 a 3 dummies (hasta completar 4 peonzas). La IA se añade aquí en la fase D.
   - **Comportamiento de los dummies:** un selector para todos a la vez (**Quieto, Moverse, Atacar, Dash hacia ti, Especial**) y otro de **cada cuántos segundos** (0,5 / 1 / 2 / 3). Con *Atacar* lanzan un ataque rápido hacia el jugador más cercano (para practicar parry).
+- **Panel por secciones** *(implementado, E1-E3)*: el panel principal tiene **Rivales**, **Mi peonza**, **Trucos** y **Reiniciar todo**; cada sección abre su subpanel y Atrás vuelve al principal (desde el principal, cierra). El botón del sandbox cierra el panel desde cualquier sección.
+  - **Mi peonza:** un selector de jugador (J1-J4, solo si hay más de uno) y punta, cuerpo, disco y núcleo de ese jugador, con su arquetipo debajo y el núcleo con el color de su poder. El cambio es **en caliente**: modelo, estadísticas, cargas y poder (al cambiar de núcleo, el poder es el nuevo y la esfera empieza vacía; el HUD cambia de color). Se mantiene al reiniciar la partida.
+  - **Trucos:** RPM infinitas, especial lleno, cargas infinitas, dash sin espera e invulnerable. Cada uno se aplica a **nadie, los jugadores, los dummies o todos**. Se mantienen durante la sesión.
+  - **Reiniciar todo:** todas las peonzas vuelven a su punto de salida con RPM y cargas llenas, energía a 0 y sin estados alterados; el panel se cierra y se sigue jugando.
 - **Más adelante** (se irá ampliando):
-  - **Mi peonza:** cambiar piezas y **núcleo (especial)** en caliente.
-  - **Trucos:** RPM infinitas (mías o del rival), especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable.
-  - **Reiniciar:** posiciones, RPM, cargas y energía.
   - **Tiempo:** cámara lenta (x0,25 / x0,5 / x1) y avance frame a frame.
   - **Debug visual:** indicador de la ventana de parry, vectores de velocidad, números de daño, estados alterados, info de choques, FPS y un registro de eventos (choques, parrys, especiales).
   - Cambiar de arena y retocar valores clave de `CombatConfig` (ventana de parry, costes...) sin salir.
@@ -629,6 +630,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Arquetipo de cada pieza | Toda pieza sigue un arquetipo, que se muestra en pequeño bajo su nombre en la selección. El número de piezas no importa; lo importante es identificarlas. |
 | 2026-10-06 | Barras por tramos | Las barras de la selección muestran lo que aporta cada pieza (base + un tramo por pieza, lo que resta en rojo) y parpadea el tramo de la fila seleccionada. |
 | 2026-10-06 | Tipos de modelo | Cada pieza tiene 4 tipos de modelo, uno por arquetipo: A = Ataque, B = Balanceada, C = Defensa, D = Agilidad. |
+| 2026-10-06 | Panel del sandbox | Por secciones en subpaneles (Rivales, Mi peonza, Trucos, Reiniciar todo). Trucos con destino por truco (nadie, jugadores, dummies, todos). Mi peonza con selector de jugador. |
 | 2026-10-06 | Icono del núcleo | Se queda, en modo calcomanía, como opción en Opciones → Juego (desactivada por defecto). |
 | 2026-10-06 | Colores por pieza | El color del jugador es el protagonista: anillas de ese color, cuerpo blanco, punta negra y núcleo en otro tono del mismo color. Personalizable por color de la paleta en Opciones y guardado. |
 | 2026-10-06 | Núcleo genérico | Un único modelo de núcleo que cambia de color: tono de la paleta + brillo del color de su poder que crece con la carga de la esfera. |
@@ -690,8 +692,8 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 **Fase B. Sandbox básico** (sustituye a Práctica)
 
 - [x] B1. Escena `Sandbox` (copia de BattleArena con `SandboxController`); se entra con el modo Sandbox del lobby, que sustituye a Práctica.
-- [x] B2. Botón propio del sandbox (Select/Back y Tab, reasignable en Controles) que pausa y abre el panel. Probado con teclado; falta con mando. 🎮
-- [x] B3. Panel navegable con mando y ratón (reutilizando los widgets pixel del menú). Probado con teclado; falta con mando y ratón. 🎮
+- [x] B2. Botón propio del sandbox (Select/Back y Tab, reasignable en Controles) que pausa y abre el panel. Probado con teclado y con mando (2026-10-06).
+- [x] B3. Panel navegable con mando y ratón (reutilizando los widgets pixel del menú). Probado con teclado y con mando (2026-10-06); falta con ratón.
 - [x] B4. Rivales: ninguno o dummy, de 1 a 3, hasta 4 peonzas en total (la IA se añade al panel en D6).
 - [x] B5. Comportamientos del dummy: quieto, moverse, atacar cada X s (practicar parry), dash hacia el jugador, usar especial. Si la acción no está disponible (cooldown del dash, sin cargas, poder activo) esperan a poder hacerla.
 - [x] B6. Hasta 4 jugadores humanos, que se unen manteniendo ataque en la selección de peonzas. Probado con teclado; falta con varios mandos. 🎮
@@ -719,9 +721,9 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 **Fase E. Sandbox completo**
 
-- [ ] E1. Cambiar núcleo (especial) y piezas en caliente.
-- [ ] E2. Trucos: RPM infinitas, especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable.
-- [ ] E3. Reiniciar posiciones, RPM, cargas y energía.
+- [x] E1. Cambiar núcleo (especial) y piezas en caliente. Hecho en Mi peonza (selector de jugador). Probado: de Blaze a Endurance Core el poder pasa de Fuego a Spin Boost, el disco Razor Edge cambia el modelo y las RPM máximas, y el HUD actualiza cargas y color de la esfera. Probado también con mando por el usuario (2026-10-06).
+- [x] E2. Trucos: RPM infinitas, especial siempre lleno, cargas infinitas, dash sin cooldown, invulnerable. Cada uno para nadie, jugadores, dummies o todos. Probado: RPM llenas tras un golpe, especial lleno, dos dashes seguidos, cargas al máximo y dummy invulnerable (0 de daño). Probado con mando.
+- [x] E3. Reiniciar posiciones, RPM, cargas y energía. Reiniciar todo: además quita los estados alterados y cierra el panel. Probado. Probado con mando.
 - [ ] E4. Debug visual: ventana de parry, vectores de velocidad, números de daño, estados y FPS.
 - [ ] E5. Registro de eventos en pantalla (choques, parrys, especiales).
 - [ ] E6. Cámara lenta (x0,25 / x0,5) y avance frame a frame.

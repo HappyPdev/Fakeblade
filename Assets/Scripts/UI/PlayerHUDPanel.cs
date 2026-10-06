@@ -392,12 +392,17 @@ namespace FakeBlade.UI
             }
             _fxAccumulator = 0f;
 
-            _abilityColor = SpecialAbilities.Get(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost).color;
-            _sphereGlow.color = new Color(_abilityColor.r, _abilityColor.g, _abilityColor.b, 0.35f);
-            for (int i = 0; i < _orbit.Length; i++) _orbit[i].color = Color.Lerp(_abilityColor, Color.white, 0.4f);
+            SetAbilityColor(SpecialAbilities.Get(_player.Stats != null ? _player.Stats.SpecialAbility : SpecialAbilityType.SpinBoost).color);
 
             HideKO();
             _contentGroup.alpha = 1f;
+        }
+
+        private void SetAbilityColor(Color color)
+        {
+            _abilityColor = color;
+            _sphereGlow.color = new Color(color.r, color.g, color.b, 0.35f);
+            for (int i = 0; i < _orbit.Length; i++) _orbit[i].color = Color.Lerp(color, Color.white, 0.4f);
         }
 
         private void RefreshTexts()
@@ -631,6 +636,9 @@ namespace FakeBlade.UI
         {
             bool ready = special.IsReady;
             bool active = special.IsActive;
+
+            // El núcleo puede cambiar en caliente (sandbox): la esfera toma el color del poder nuevo
+            if (special.Data != null && special.Color != _abilityColor) SetAbilityColor(special.Color);
 
             int step = Quantize(special.Energy, SPHERE_STEPS);
             if (step != _lastSphereStep)

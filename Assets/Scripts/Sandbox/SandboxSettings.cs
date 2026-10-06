@@ -11,12 +11,31 @@ namespace FakeBlade.Core
         Special = 4
     }
 
+    /// <summary>A quién se aplica un truco del sandbox (GDD 6.3). Los valores se muestran en ese orden.</summary>
+    public enum CheatTarget
+    {
+        Off = 0,
+        Players = 1,
+        Dummies = 2,
+        All = 3
+    }
+
     /// <summary>
     /// Ajustes del sandbox elegidos en su panel. Estáticos a propósito: se mantienen al reiniciar
     /// la partida o volver a entrar al sandbox durante la sesión.
     /// </summary>
     public static class SandboxSettings
     {
+        // Trucos (E2)
+        public static CheatTarget InfiniteSpin = CheatTarget.Off;
+        public static CheatTarget FullSpecial = CheatTarget.Off;
+        public static CheatTarget InfiniteCharges = CheatTarget.Off;
+        public static CheatTarget NoDashCooldown = CheatTarget.Off;
+        public static CheatTarget Invulnerable = CheatTarget.Off;
+
+        public static bool Applies(CheatTarget target, bool isDummy) =>
+            target == CheatTarget.All || (isDummy ? target == CheatTarget.Dummies : target == CheatTarget.Players);
+
         public static readonly float[] Intervals = { 0.5f, 1f, 2f, 3f };
 
         public static int DummyCount = 1;

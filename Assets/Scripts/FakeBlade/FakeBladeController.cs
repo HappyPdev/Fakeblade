@@ -407,6 +407,16 @@ namespace FakeBlade.Core
             _effectiveDrag = cfg.stoppingFriction * Mathf.Lerp(1.5f, 0.4f, _weightNormalized);
 
             _attack.SetMaxCharges(_stats.AttackCharges);
+
+            // Núcleo cambiado en caliente (sandbox): el poder pasa a ser el nuevo, con la esfera vacía
+            if (_special.Data != null && _special.Type != _stats.SpecialAbility)
+            {
+                bool wasActive = _special.IsActive;
+                SpecialAbilityType previous = _special.Type;
+                _special.Reset(this, _stats.SpecialAbility);
+                if (wasActive) OnSpecialEnded?.Invoke(previous);
+            }
+
             ConfigureRigidbody();
             _particles?.Reset(); // las piezas pueden cambiar el tamaño de la peonza
         }
@@ -1176,6 +1186,9 @@ namespace FakeBlade.Core
         {
             _invulnerableTimer = Mathf.Max(_invulnerableTimer, seconds);
         }
+
+        /// <summary>El dash vuelve a estar disponible ya (truco del sandbox).</summary>
+        public void ClearDashCooldown() => _dashTimer = 0f;
         #endregion
 
         #region Debug

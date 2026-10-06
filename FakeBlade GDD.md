@@ -158,6 +158,17 @@ Cada pieza tiene una clase de peso (Ligera / Media / Pesada).
 
 Valores en `FakeBlade/Create All Component Presets` (`FakeBladeComponentPresets`).
 
+**Colores de la peonza** *(implementado; falta conectar los modelos nuevos)*. El color que elige el jugador es el protagonista y cada pieza lleva el suyo:
+
+- Por defecto: **disco (anillas) del color elegido, cuerpo blanco, punta negra y núcleo en un tono más profundo del color elegido** (por ejemplo, con rojo: anillas rojas, cuerpo blanco, punta negra y núcleo rojo oscuro).
+- Cada color de la paleta se puede personalizar en **Opciones → Colores de peonza** (ver 9.2.3) y se guarda.
+- **Núcleo:** un modelo genérico para todos los poderes, que solo cambia de color. Lleva el tono de la paleta y además **brilla con el color de su poder según la carga de la esfera**: apagado al empezar, sube poco a poco hasta un 70%, late suave con la esfera llena y late fuerte mientras el poder está activo. En la selección de peonzas brilla como con la esfera llena, para que se vea el poder.
+- **Requisitos del modelo** (para Blender): cada pieza es un objeto separado y su nombre (o el de su padre) dice qué es: `Tip`/`Punta`, `Body`/`Cuerpo`, `Ring`/`Blade`/`Disco`/`Anilla` y `Core`/`Nucleo`. Lo que no se reconoce se pinta como disco. El núcleo usa el material `BladeCoreMaterial` (URP Lit con emisión activada). Se pinta con `BladePaint`.
+
+**Modelos de las piezas** (en `Assets/3D Models/Bayblade 01/bayblade_01.blend`, colección `BayBlade 01`). Cada pieza (Body, Rings, Punta) tiene **4 tipos, uno por arquetipo**: **A = Ataque, B = Balanceada, C = Defensa, D = Agilidad** (más un tipo 0 de base). El núcleo es uno genérico (`Nucleo`). Todas las piezas comparten el origen (0, 0, 0): puestas en el mismo punto quedan montadas.
+
+- **Exportar a Unity:** script `Tools/Blender/export_blade_parts.py` (en Blender: Scripting → abrir → Run Script). Crea un FBX por pieza en `Parts/<Colección>/<Nombre>.fbx`, junto al .blend, con la rotación y la escala aplicadas (también las escalas negativas) y los ejes de Unity: en Unity llegan con rotación 0 y escala 1, sin ajustar nada. No toca el .blend. Los objetos sueltos de `BayBlade 01` (la arena) no se exportan.
+
 El resto de valores se irán probando y equilibrando. El sistema es modular y ampliable: añadir una pieza nueva es crear un asset de datos.
 
 4. # Diseño de Arenas
@@ -440,6 +451,7 @@ Los ajustes se guardan entre sesiones.
 - **Gráficos:** resolución, pantalla completa, calidad (preset), sombras, antialiasing, bloom, cantidad de partículas, VSync y mostrar FPS. Más adelante se añadirán otros efectos de postprocesado.
 - **Audio:** volumen general, de la música y de los efectos.
 - **Juego:** idioma, vibración del mando y sacudida de cámara.
+- **Colores de peonza** (submenú, solo desde el menú principal): se elige un color de la paleta (1 a 8) y, para él, el color del disco, el cuerpo, la punta y el núcleo de una **lista fija de 24 colores retro** (`paintColors` del catálogo), con flechas y vista previa 3D. "Restaurar colores" vuelve a los de por defecto de ese color. Se guarda al momento y se usa en la selección, en partida y en el fondo del menú.
 
 ### 9.2.4 Controles
 
@@ -604,6 +616,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Sandbox: dummies | Un comportamiento para todos (Quieto, Moverse, Atacar, Dash hacia ti, Especial) y un intervalo (0,5 / 1 / 2 / 3 s). |
 | 2026-10-06 | Sandbox: panel | Lo navega cualquiera (mando, teclado o ratón), como la pausa. Al cerrarlo no hay cuenta atrás. |
 | 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
+| 2026-10-06 | Tipos de modelo | Cada pieza tiene 4 tipos de modelo, uno por arquetipo: A = Ataque, B = Balanceada, C = Defensa, D = Agilidad. |
+| 2026-10-06 | Colores por pieza | El color del jugador es el protagonista: anillas de ese color, cuerpo blanco, punta negra y núcleo en otro tono del mismo color. Personalizable por color de la paleta en Opciones y guardado. |
+| 2026-10-06 | Núcleo genérico | Un único modelo de núcleo que cambia de color: tono de la paleta + brillo del color de su poder que crece con la carga de la esfera. |
+| 2026-10-06 | Personalizar colores | Lista fija de colores retro (24), con flechas y vista previa; no color libre. |
 | 2026-10-06 | Estadísticas de los núcleos | Poco diferenciadores pero equilibrados: todos +50 RPM máx. y una ventaja y un coste de 2 puntos cada uno, a juego con su poder (tabla en 3). |
 | 2026-10-06 | Núcleos de los presets | Ataque → Fuego, Defensa → Defensa, Agilidad → Rayos, Balanceada → Spin Boost. Onda de choque e Hielo, solo en Personalizar. |
 | 2026-10-06 | Color del núcleo en la selección | El nombre del núcleo se muestra con el color de su poder. |
@@ -619,7 +635,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 - Qué otros efectos de postprocesado se añaden a Opciones.
-- Modelos o skins distintos por pieza. Ahora las piezas solo cambian estadísticas y el color.
+- Modelos por pieza: hay 4 tipos por pieza, uno por arquetipo (ver 3), pero el catálogo tiene 3 piezas por hueco (Ligera, Media y Pesada). Falta decidir cómo encajan (propuesta: pasar a 4 piezas por hueco, una por tipo, cada una apuntando a su modelo, con las estadísticas del arquetipo).
 - Sonido al pulsar un botón (confirmar) y al volver atrás en los menús (alguno de los cortos del pack Casual, distinto de DM-CGS-01, que es el de moverse entre botones).
 - Autoeliminación: cuántos segundos sin recibir golpes hacen que cuente como autoeliminación (los mismos 5 s que dan el punto de K.O.).
 
@@ -696,6 +712,14 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] E5. Registro de eventos en pantalla (choques, parrys, especiales).
 - [ ] E6. Cámara lenta (x0,25 / x0,5) y avance frame a frame.
 - [ ] E7. Cambiar de arena y retocar valores clave de `CombatConfig` sin salir.
+
+**Fase H. Aspecto de las peonzas** (modelos por pieza y colores)
+
+- [x] H1. Colores por pieza: paleta por color del jugador (disco del color elegido, cuerpo blanco, punta negra, núcleo en tono profundo), pintado por nombre de pieza (`BladePaint`) en partida, selección y fondo del menú, y brillo del núcleo con el color de su poder según la carga. Probado con un núcleo provisional: el brillo sube con la carga y late con el poder activo.
+- [x] H2. Opciones → Colores de peonza: lista de 24 colores retro por pieza, vista previa 3D, restaurar y guardado. Probado con teclado; falta con mando. 🎮
+- [ ] H3. Modelo genérico del núcleo (objeto `Core`, material `BladeCoreMaterial`) en el prefab de la peonza.
+- [x] H4a. Script de Blender para exportar cada pieza a su FBX (`Tools/Blender/export_blade_parts.py`). Probado con Blender 5.0: 17 piezas; en Unity llegan con rotación 0, escala 1, Y arriba y montadas en su sitio (la punta, con escala negativa en Blender, sin caras invertidas).
+- [ ] H4b. Importar los modelos de las piezas (tipos A = Ataque, B = Balanceada, C = Defensa, D = Agilidad) y decidir cómo se eligen (ver "Pendiente de definir").
 
 **Fase F. Más adelante**
 

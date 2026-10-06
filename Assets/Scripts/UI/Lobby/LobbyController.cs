@@ -518,7 +518,9 @@ namespace FakeBlade.UI
             column.SetStat(3, Loc.Get("STAT_RPM"), stats.MaxSpin / 900f);
             column.SetStat(4, Loc.Get("STAT_WEIGHT"), stats.Weight / 4f);
 
-            slot.Stage.SetColor(s.Color);
+            slot.Stage.SetScheme(BladeColors.Get(catalog, s.ColorIndex));
+            // El núcleo brilla con el color de su poder, como con la esfera llena
+            slot.Stage.SetCoreGlow(SpecialAbilities.Get(stats.Special).color, 1f);
             slot.Stage.SetSpinSpeed(300f + stats.MaxSpin);
         }
 

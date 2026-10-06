@@ -11,15 +11,12 @@ namespace FakeBlade.UI
     /// </summary>
     public class BladePreviewStage : MonoBehaviour
     {
-        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-
         private Camera _camera;
         private RenderTexture _texture;
         private Transform _tilt;
         private Transform _spin;
         private Renderer[] _renderers;
-        private MaterialPropertyBlock _block;
+        private BladePaint _paint;
         private float _angle;
         private float _time;
         private float _spinSpeed = 540f;
@@ -37,8 +34,6 @@ namespace FakeBlade.UI
 
         private void Build(GameObject playerPrefab, Color background, int resolution)
         {
-            _block = new MaterialPropertyBlock();
-
             _tilt = new GameObject("Tilt").transform;
             _tilt.SetParent(transform, false);
             _spin = new GameObject("Spin").transform;
@@ -62,6 +57,7 @@ namespace FakeBlade.UI
                     foreach (var mb in model.GetComponentsInChildren<MonoBehaviour>(true)) Destroy(mb);
 
                     _renderers = model.GetComponentsInChildren<Renderer>(true);
+                    _paint = new BladePaint(model.transform);
                     size = MeasureSize(_renderers);
                 }
             }
@@ -113,18 +109,11 @@ namespace FakeBlade.UI
             return Mathf.Max(b.size.x, b.size.z, 0.1f);
         }
 
-        public void SetColor(Color color)
-        {
-            for (int i = 0; i < _renderers.Length; i++)
-            {
-                Renderer r = _renderers[i];
-                if (r == null) continue;
-                r.GetPropertyBlock(_block);
-                _block.SetColor(BaseColorId, color);
-                _block.SetColor(EmissionColorId, color * 0.2f);
-                r.SetPropertyBlock(_block);
-            }
-        }
+        /// <summary>Colores de cada pieza (paleta del color elegido).</summary>
+        public void SetScheme(BladeColorScheme scheme) => _paint?.Apply(scheme);
+
+        /// <summary>Brillo del núcleo (color del poder), como en partida.</summary>
+        public void SetCoreGlow(Color color, float intensity) => _paint?.SetCoreGlow(color, intensity);
 
         /// <summary>Velocidad de giro visual (grados/s), p. ej. según las RPM máximas.</summary>
         public void SetSpinSpeed(float degreesPerSecond) => _spinSpeed = degreesPerSecond;

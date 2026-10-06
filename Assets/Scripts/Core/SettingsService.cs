@@ -36,6 +36,10 @@ namespace FakeBlade.Core
         [Header("Juego")]
         public bool vibration = true;
         public bool cameraShake = true;
+
+        [Header("Colores de peonza")]
+        /// <summary>Colores por pieza personalizados (por color de la paleta). Los que no estén usan los de por defecto.</summary>
+        public List<SavedBladeColors> bladeColors = new List<SavedBladeColors>();
     }
 
     /// <summary>

@@ -30,10 +30,6 @@ namespace FakeBlade.Core
         [Tooltip("Asigna el dispositivo por defecto según el ID (J1 teclado, J2 mando/flechas...)")]
         [SerializeField] private bool autoAssignInput = true;
 
-        [Header("Visual")]
-        [Tooltip("Renderers que se tiñen con el color del jugador. Vacío = todos los hijos.")]
-        [SerializeField] private Renderer[] coloredRenderers;
-
         [Header("Debug")]
         [SerializeField] private bool debugMode = false;
         #endregion
@@ -43,12 +39,11 @@ namespace FakeBlade.Core
         private InputHandler _input;
         private IBladeInputSource _source;
         private FakeBladeStats _stats;
-        private MaterialPropertyBlock _propertyBlock;
+        private BladePaint _paint;
+        private BladeColorScheme _scheme;
+        private bool _hasScheme;
         private bool _registered;
         private bool _inputAssignedExternally;
-
-        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
         #endregion
 
         #region Properties
@@ -78,7 +73,6 @@ namespace FakeBlade.Core
             _input = GetComponent<InputHandler>();
             _source = _input;
             _stats = GetComponent<FakeBladeStats>();
-            _propertyBlock = new MaterialPropertyBlock();
         }
 
         private void Start()
@@ -209,6 +203,14 @@ namespace FakeBlade.Core
             ApplyPlayerColor();
         }
 
+        /// <summary>Colores de cada pieza (paleta del color elegido, GDD 3). Sin llamarla, salen del color del jugador.</summary>
+        public void SetColorScheme(BladeColorScheme scheme)
+        {
+            _scheme = scheme;
+            _hasScheme = true;
+            ApplyPlayerColor();
+        }
+
         public void SetTeamID(int team) => teamID = team;
 
         /// <summary>Asigna el dispositivo (menú de selección). Desactiva la asignación automática.</summary>
@@ -243,23 +245,20 @@ namespace FakeBlade.Core
         #endregion
 
         #region Visual
+        /// <summary>Pinta cada pieza (sin paleta propia, la de por defecto del color del jugador).</summary>
         private void ApplyPlayerColor()
         {
-            if (_propertyBlock == null) _propertyBlock = new MaterialPropertyBlock();
+            if (!_hasScheme) _scheme = BladeColors.Derive(playerColor);
+            if (_paint == null) _paint = new BladePaint(transform);
+            _paint.Apply(_scheme);
+        }
 
-            if (coloredRenderers == null || coloredRenderers.Length == 0)
-                coloredRenderers = GetComponentsInChildren<Renderer>(true);
-
-            for (int i = 0; i < coloredRenderers.Length; i++)
-            {
-                Renderer r = coloredRenderers[i];
-                if (r == null) continue;
-
-                r.GetPropertyBlock(_propertyBlock);
-                _propertyBlock.SetColor(BaseColorId, playerColor);
-                _propertyBlock.SetColor(EmissionColorId, playerColor * 0.2f);
-                r.SetPropertyBlock(_propertyBlock);
-            }
+        /// <summary>El núcleo brilla con el color de su poder según la carga de la esfera.</summary>
+        private void LateUpdate()
+        {
+            if (_paint == null || !_paint.HasCore) return;
+            SpecialAbilitySystem special = _blade.Special;
+            _paint.SetCoreGlow(special.Color, BladePaint.CoreGlow(special.Energy, special.IsReady, special.IsActive, Time.time));
         }
         #endregion
 

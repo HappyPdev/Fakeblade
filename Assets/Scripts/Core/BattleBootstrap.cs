@@ -92,6 +92,7 @@ namespace FakeBlade.Core
             player.SetPlayerID(setup.PlayerIndex);
             player.SetPlayerName($"Player {setup.PlayerIndex + 1}");
             player.SetPlayerColor(setup.Color);
+            player.SetColorScheme(BladeColors.Get(catalog, setup.ColorIndex));
             player.SetTeamID(setup.Team);
             player.SetInputDeviceById(setup.Device, setup.GamepadDeviceId);
             setup.EquipOn(go.GetComponent<FakeBladeStats>());

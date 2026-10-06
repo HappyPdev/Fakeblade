@@ -16,9 +16,14 @@ namespace FakeBlade.UI
         private PixelOptionRow _resolution, _fullscreen, _quality, _shadows, _antialiasing, _bloom,
             _particles, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake;
 
-        public static OptionsScreen Create(Transform parent, HUDTheme theme, Action onClose)
+        private FakeBladeCatalog _catalog;
+        private BladeColorsScreen _bladeColors;
+
+        /// <param name="catalog">Con catálogo aparece "Colores de peonza" (necesita la paleta y el prefab).</param>
+        public static OptionsScreen Create(Transform parent, HUDTheme theme, Action onClose, FakeBladeCatalog catalog = null)
         {
             var screen = CreateScreen<OptionsScreen>("OptionsScreen", parent);
+            screen._catalog = catalog;
             screen.Initialize(theme, "OPTIONS", 150, onClose);
             return screen;
         }
@@ -59,8 +64,19 @@ namespace FakeBlade.UI
             _vibration = List.AddSelector("OPT_VIBRATION", YesNo(), s.vibration ? 1 : 0, i => Set(() => s.vibration = i == 1), RowHeight);
             _shake = List.AddSelector("OPT_SHAKE", YesNo(), s.cameraShake ? 1 : 0, i => Set(() => s.cameraShake = i == 1), RowHeight);
 
+            if (_catalog != null) List.AddButton("OPT_BLADE_COLORS", OpenBladeColors, RowHeight);
+
             List.AddSpacer(2);
             List.AddButton("BACK", Close, RowHeight);
+        }
+
+        /// <summary>Submenú Colores de peonza: Opciones se oculta y vuelve al cerrarlo.</summary>
+        private void OpenBladeColors()
+        {
+            if (_bladeColors == null)
+                _bladeColors = BladeColorsScreen.Create(transform.parent, Theme, _catalog, Open);
+            Dismiss();
+            _bladeColors.Open();
         }
 
         private static void Set(Action change)

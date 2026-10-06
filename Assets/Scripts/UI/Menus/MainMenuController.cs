@@ -45,7 +45,7 @@ namespace FakeBlade.UI
             BuildQuitConfirm(root);
             BuildFooter(root);
 
-            _options = OptionsScreen.Create(root, _theme, ShowMain);
+            _options = OptionsScreen.Create(root, _theme, ShowMain, catalog);
             _controls = ControlsScreen.Create(root, _theme, ShowMain);
             _credits = CreditsScreen.Create(root, _theme, catalog != null ? catalog.credits : null, ShowMain);
 

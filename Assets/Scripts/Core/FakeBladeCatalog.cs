@@ -54,6 +54,39 @@ namespace FakeBlade.Core
             new Color(1f, 0.45f, 0.75f)
         };
         public Color dummyColor = new Color(0.55f, 0.55f, 0.6f);
+
+        [Tooltip("Colores retro entre los que se elige el de cada pieza en Opciones → Colores de peonza. " +
+                 "Incluye los de la paleta y el blanco y el negro por defecto (BladeColors)")]
+        public Color[] paintColors =
+        {
+            // Paleta de jugadores
+            new Color(0.2f, 0.5f, 1f),
+            new Color(1f, 0.3f, 0.3f),
+            new Color(0.3f, 1f, 0.35f),
+            new Color(1f, 0.9f, 0.2f),
+            new Color(0.7f, 0.35f, 1f),
+            new Color(1f, 0.55f, 0.15f),
+            new Color(0.2f, 0.95f, 0.95f),
+            new Color(1f, 0.45f, 0.75f),
+            // Tonos profundos
+            new Color(0.11f, 0.17f, 0.33f),
+            new Color(0.55f, 0.1f, 0.15f),
+            new Color(0f, 0.45f, 0.28f),
+            new Color(0.85f, 0.65f, 0.15f),
+            new Color(0.35f, 0.15f, 0.4f),
+            new Color(0.55f, 0.3f, 0.18f),
+            new Color(0.07f, 0.33f, 0.35f),
+            new Color(0.75f, 0.07f, 0.31f),
+            new Color(0.66f, 0.9f, 0.18f),
+            new Color(1f, 0.8f, 0.67f),
+            // Neutros
+            new Color(0.95f, 0.94f, 0.9f),
+            new Color(0.76f, 0.76f, 0.78f),
+            new Color(0.45f, 0.45f, 0.48f),
+            new Color(0.25f, 0.24f, 0.27f),
+            new Color(0.1f, 0.09f, 0.11f),
+            new Color(0.62f, 0.5f, 0.38f)
+        };
         public Color[] teamColors = { new Color(0.25f, 0.55f, 1f), new Color(1f, 0.35f, 0.3f) };
 
         [Header("=== ARENAS ===")]

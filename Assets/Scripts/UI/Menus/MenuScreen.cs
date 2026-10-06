@@ -15,6 +15,7 @@ namespace FakeBlade.UI
         protected PixelMenuList List;
         private Action _onClose;
         private bool _isOpen;
+        private int _openedFrame = -1;
 
         public bool IsOpen => _isOpen;
 
@@ -45,6 +46,7 @@ namespace FakeBlade.UI
         {
             if (_isOpen) return;
             _isOpen = true;
+            _openedFrame = Time.frameCount;
             MenuStack.Push();
             gameObject.SetActive(true);
             OnOpened();
@@ -70,7 +72,8 @@ namespace FakeBlade.UI
 
         protected virtual void Update()
         {
-            if (_isOpen && CanCloseWithBack && MenuInput.AnyBackPressed())
+            // El Atrás que cerró un submenú y reabrió esta pantalla en el mismo frame no la cierra también
+            if (_isOpen && CanCloseWithBack && Time.frameCount != _openedFrame && MenuInput.AnyBackPressed())
                 Close();
         }
 

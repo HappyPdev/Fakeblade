@@ -56,6 +56,7 @@ namespace FakeBlade.UI
             player.SetInputSource(brain);
             player.SetPlayerID(10 + index);
             player.SetPlayerColor(catalog.GetColor(index));
+            player.SetColorScheme(BladeColors.Get(catalog, index));
 
             var preset = catalog.GetPreset(Random.Range(0, Mathf.Max(1, catalog.presets.Count)));
             var setup = new PlayerSetup();

@@ -314,7 +314,7 @@ namespace FakeBlade.Core.Editor
             SortByWeight(catalog.cores);
 
             catalog.presets.Clear();
-            catalog.presets.Add(Preset("PRESET_ATTACK", "Tip_Medium_FlatBase", "Body_Light_AeroShell", "Blade_Heavy_CrushWheel", "Core_Heavy_ShockWave"));
+            catalog.presets.Add(Preset("PRESET_ATTACK", "Tip_Medium_FlatBase", "Body_Light_AeroShell", "Blade_Heavy_CrushWheel", "Core_Medium_Fire"));
             catalog.presets.Add(Preset("PRESET_DEFENSE", "Tip_Heavy_WideBall", "Body_Heavy_IronFortress", "Blade_Heavy_CrushWheel", "Core_Heavy_Defense"));
             catalog.presets.Add(Preset("PRESET_AGILITY", "Tip_Light_NeedlePoint", "Body_Light_AeroShell", "Blade_Light_RazorEdge", "Core_Light_Lightning"));
             catalog.presets.Add(Preset("PRESET_BALANCED", "Tip_Medium_FlatBase", "Body_Medium_StandardFrame", "Blade_Medium_BalancedRing", "Core_Medium_SpinBoost"));

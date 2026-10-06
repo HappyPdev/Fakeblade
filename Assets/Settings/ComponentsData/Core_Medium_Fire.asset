@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Core_Medium_SpinBoost
+  m_Name: Core_Medium_Fire
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Endurance Core
-  description: "N\xFAcleo de resistencia. Poder: Spin Boost (recupera RPM)."
+  componentName: Blaze Core
+  description: "N\xFAcleo ardiente. Poder: Fuego (sus golpes queman)."
   componentType: 3
   weightClass: 1
   icon: {fileID: 0}
-  maxSpinModifier: 100
+  maxSpinModifier: 50
   spinDecayModifier: 0
   moveSpeedModifier: 0
   weightModifier: 0
-  attackPowerModifier: -4
-  defenseModifier: 0
+  attackPowerModifier: 4
+  defenseModifier: -6
   dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
-  specialAbility: 1
+  specialAbility: 5

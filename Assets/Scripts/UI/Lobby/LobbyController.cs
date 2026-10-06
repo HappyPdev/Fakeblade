@@ -501,6 +501,7 @@ namespace FakeBlade.UI
             column.BodyRow.SetValueText(PartName(s.Body));
             column.BladeRow.SetValueText(PartName(s.Blade));
             column.CoreRow.SetValueText(PartName(s.Core));
+            column.CoreRow.SetValueColor(CoreColor(s.Core));
 
             column.ColorRow.SetValueText(Loc.Format("COLOR_N", s.ColorIndex + 1));
             column.ColorRow.SetValueColor(s.Color);
@@ -530,6 +531,10 @@ namespace FakeBlade.UI
 
         private static string PartName(FakeBladeComponentData part) =>
             part != null ? part.ComponentName.ToUpperInvariant() : "—";
+
+        /// <summary>El núcleo se ve con el color de su poder (el de su aura y su esfera), para reconocerlo de un vistazo.</summary>
+        private Color CoreColor(FakeBladeComponentData core) =>
+            core != null ? SpecialAbilities.Get(core.SpecialAbility).color : _theme.chargeReady;
         #endregion
 
         #region Settings phase

@@ -17,13 +17,13 @@ MonoBehaviour:
   componentType: 3
   weightClass: 0
   icon: {fileID: 0}
-  maxSpinModifier: 100
-  spinDecayModifier: 0.5
-  moveSpeedModifier: 2
-  weightModifier: -0.1
+  maxSpinModifier: 50
+  spinDecayModifier: 0
+  moveSpeedModifier: 1
+  weightModifier: -0.2
   attackPowerModifier: 0
   defenseModifier: 0
-  dashForceModifier: 5
+  dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
   specialAbility: 4

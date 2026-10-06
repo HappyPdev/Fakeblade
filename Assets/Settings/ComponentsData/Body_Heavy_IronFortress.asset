@@ -25,4 +25,5 @@ MonoBehaviour:
   defenseModifier: 15
   dashForceModifier: -4
   attackChargesModifier: -1
+  parryWindowModifier: 0
   specialAbility: 0

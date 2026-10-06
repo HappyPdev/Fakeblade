@@ -20,9 +20,10 @@ MonoBehaviour:
   maxSpinModifier: 50
   spinDecayModifier: 0
   moveSpeedModifier: -1
-  weightModifier: 0.4
-  attackPowerModifier: 5
-  defenseModifier: 5
+  weightModifier: 0.2
+  attackPowerModifier: 0
+  defenseModifier: 0
   dashForceModifier: 0
   attackChargesModifier: 0
+  parryWindowModifier: 0
   specialAbility: 2

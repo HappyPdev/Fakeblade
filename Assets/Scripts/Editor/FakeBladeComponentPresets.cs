@@ -6,7 +6,7 @@ namespace FakeBlade.Core.Editor
     /// <summary>
     /// Utilidad de editor para crear las piezas preset de FakeBlade (GDD 3).
     ///
-    /// 4 slots (Punta, Cuerpo, Disco, Núcleo) × 3 clases (Ligera, Media, Pesada) = 12 piezas.
+    /// Puntas, cuerpos y discos: una pieza por clase (Ligera, Media, Pesada). Núcleos: uno por poder.
     ///
     /// - Ligera: rápida, ágil, menos resistente y con más cargas de ataque.
     /// - Media: equilibrada.
@@ -80,34 +80,51 @@ namespace FakeBlade.Core.Editor
                 maxSpin: -30, spinDecay: 0.5f, moveSpeed: -2f, weight: 0.6f,
                 attack: 15f, defense: 10f, dash: 2f);
 
-            // === NÚCLEOS ===
-            CreateComponent("Core_Light_Lightning", "Velocity Core",
-                "Núcleo de velocidad. Poder: Rayos.",
-                ComponentSlot.Core, WeightClass.Light,
-                maxSpin: 100, spinDecay: 0.5f, moveSpeed: 2f, weight: -0.1f,
-                attack: 0, defense: 0, dash: 5f,
-                ability: SpecialAbilityType.Lightning);
-
+            // === NÚCLEOS (GDD 3) ===
+            // Uno por poder. Todos +50 RPM máx. y una ventaja y un coste del mismo tamaño (2 puntos;
+            // 1 punto = 25 RPM = 0,5 velocidad = 0,1 peso = 2 ataque = 3 defensa = 1 dash = 0,2 desgaste).
+            // Fantasma tendrá el suyo con su poder (C5): Ligera, +2 dash, +0,4 desgaste.
             CreateComponent("Core_Medium_SpinBoost", "Endurance Core",
                 "Núcleo de resistencia. Poder: Spin Boost (recupera RPM).",
                 ComponentSlot.Core, WeightClass.Medium,
-                maxSpin: 200, spinDecay: -0.5f, moveSpeed: 0, weight: 0.1f,
-                attack: 0, defense: 0, dash: 0,
+                maxSpin: 100, spinDecay: 0, moveSpeed: 0, weight: 0,
+                attack: -4f, defense: 0, dash: 0,
                 ability: SpecialAbilityType.SpinBoost);
-
-            CreateComponent("Core_Heavy_Defense", "Fortress Core",
-                "Núcleo defensivo. Poder: Defensa.",
-                ComponentSlot.Core, WeightClass.Heavy,
-                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.4f,
-                attack: 5f, defense: 5f, dash: 0,
-                ability: SpecialAbilityType.Defense);
 
             CreateComponent("Core_Heavy_ShockWave", "Impact Core",
                 "Núcleo de impacto. Poder: Onda de choque que empuja enemigos.",
                 ComponentSlot.Core, WeightClass.Heavy,
-                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.4f,
-                attack: 5f, defense: 5f, dash: 0,
+                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.2f,
+                attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.ShockWave);
+
+            CreateComponent("Core_Heavy_Defense", "Fortress Core",
+                "Núcleo defensivo. Poder: Defensa.",
+                ComponentSlot.Core, WeightClass.Heavy,
+                maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
+                attack: 0, defense: 6f, dash: -2f,
+                ability: SpecialAbilityType.Defense);
+
+            CreateComponent("Core_Light_Lightning", "Velocity Core",
+                "Núcleo de velocidad. Poder: Rayos.",
+                ComponentSlot.Core, WeightClass.Light,
+                maxSpin: 50, spinDecay: 0, moveSpeed: 1f, weight: -0.2f,
+                attack: 0, defense: 0, dash: 0,
+                ability: SpecialAbilityType.Lightning);
+
+            CreateComponent("Core_Medium_Fire", "Blaze Core",
+                "Núcleo ardiente. Poder: Fuego (sus golpes queman).",
+                ComponentSlot.Core, WeightClass.Medium,
+                maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
+                attack: 4f, defense: -6f, dash: 0,
+                ability: SpecialAbilityType.Fire);
+
+            CreateComponent("Core_Medium_Ice", "Frost Core",
+                "Núcleo helado. Poder: Hielo (sus golpes congelan).",
+                ComponentSlot.Core, WeightClass.Medium,
+                maxSpin: 0, spinDecay: -0.4f, moveSpeed: 0, weight: 0,
+                attack: 0, defense: 0, dash: 0,
+                ability: SpecialAbilityType.Ice);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

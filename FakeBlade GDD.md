@@ -144,6 +144,20 @@ Cada pieza tiene una clase de peso (Ligera / Media / Pesada).
 - **Agilidad:** cargas medias, masa baja y velocidad alta.
 - **Balanceada:** todo medio.
 
+**Núcleos** (uno por poder). Deben notarse, pero sin decidir la partida: todos dan **+50 RPM máximas** y, además, una **ventaja y un coste del mismo tamaño** (2 puntos), a juego con su poder. Los poderes más fuertes ya pagan con la energía que necesitan. 1 punto = 25 RPM = 0,5 de velocidad = 0,1 de peso = 2 de ataque = 3 de defensa = 1 de dash = 0,2 de desgaste.
+
+| Núcleo | Poder | Clase | Ventaja | Coste |
+|---|---|---|---|---|
+| Endurance Core | Spin Boost | Media | +50 RPM (total +100) | −4 ataque |
+| Impact Core | Onda de choque | Pesada | +0,2 peso | −1 velocidad |
+| Fortress Core | Defensa | Pesada | +6 defensa | −2 dash |
+| Velocity Core | Rayos | Ligera | +1 velocidad | −0,2 peso |
+| Blaze Core | Fuego | Media | +4 ataque | −6 defensa |
+| Frost Core | Hielo | Media | −0,4 desgaste | −50 RPM (total 0) |
+| Phantom Core *(con C5)* | Fantasma | Ligera | +2 dash | +0,4 desgaste |
+
+Valores en `FakeBlade/Create All Component Presets` (`FakeBladeComponentPresets`).
+
 El resto de valores se irán probando y equilibrando. El sistema es modular y ampliable: añadir una pieza nueva es crear un asset de datos.
 
 4. # Diseño de Arenas
@@ -401,7 +415,8 @@ La pantalla se divide en **columnas, una por jugador**:
   - Vista previa 3D de la peonza girando, pixelada.
   - Arquetipo resultante y barras de estadísticas.
   - **Preset** (Ataque, Defensa, Agilidad, Balanceada o Aleatorio).
-  - **Personalizar:** cambiar Punta, Cuerpo, Disco y Núcleo una a una. Al tocar una pieza, el preset pasa a "Personalizada".
+  - **Personalizar:** cambiar Punta, Cuerpo, Disco y Núcleo una a una. Al tocar una pieza, el preset pasa a "Personalizada". El nombre del núcleo se muestra **con el color de su poder** (el de su aura y su esfera) para reconocerlo de un vistazo.
+  - Núcleo de cada preset: Ataque → Fuego, Defensa → Defensa, Agilidad → Rayos, Balanceada → Spin Boost.
   - **Color:** paleta fija de colores retro. Un color elegido por un jugador no lo puede coger otro.
   - **Equipo** (A o B): solo se usa si la partida es por equipos.
   - **Confirmar.**
@@ -589,6 +604,9 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Sandbox: dummies | Un comportamiento para todos (Quieto, Moverse, Atacar, Dash hacia ti, Especial) y un intervalo (0,5 / 1 / 2 / 3 s). |
 | 2026-10-06 | Sandbox: panel | Lo navega cualquiera (mando, teclado o ratón), como la pausa. Al cerrarlo no hay cuenta atrás. |
 | 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
+| 2026-10-06 | Estadísticas de los núcleos | Poco diferenciadores pero equilibrados: todos +50 RPM máx. y una ventaja y un coste de 2 puntos cada uno, a juego con su poder (tabla en 3). |
+| 2026-10-06 | Núcleos de los presets | Ataque → Fuego, Defensa → Defensa, Agilidad → Rayos, Balanceada → Spin Boost. Onda de choque e Hielo, solo en Personalizar. |
+| 2026-10-06 | Color del núcleo en la selección | El nombre del núcleo se muestra con el color de su poder. |
 | 2026-10-06 | Orden: Fantasma | La C5 (Fantasma) se aplaza hasta empezar la D1, para que el clon use la persecución de la IA. |
 | 2026-10-06 | Rayos: qué choques cuentan | Solo cuenta su propia velocidad hacia el rival: 6 m/s o más es choque fuerte; de 1 a 6 m/s, choque pequeño (empuje x1,8, sin daño extra ni lanzada). Si la embisten estando quieta, choque normal. En parrys y choques con peonzas ya lanzadas no hay efecto de Rayos. Ya no tiene los extras de Dash eléctrico. |
 | 2026-10-06 | Fuego y Hielo: qué es un golpe | Cualquier choque en el que le quite RPM al rival (gane o pierda el choque, la embistan o haga parry). El roce continuo no cuenta. Contra una Defensa activa no quema ni congela, porque no le quita RPM. |
@@ -599,7 +617,6 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 
 Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
-- Estadísticas de cada núcleo (uno por poder: RPM máximas, peso...).
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - Modelos o skins distintos por pieza. Ahora las piezas solo cambian estadísticas y el color.
@@ -655,8 +672,8 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] C2. Fuego: quemadura (1,5% cada 0,5 s durante 3 s) + llamas. Hecho: asset `Fire`, gancho `OnClashDamageDealt` en los poderes (lo usará también Hielo) y aura `AuraFire`. Probado en el sandbox: cada tic quita el 1,5% de las RPM máximas cada 0,5 s y un golpe nuevo reinicia los 3 s. Falta núcleo propio (C6): de momento solo se prueba forzando el poder.
 - [x] C3. Hielo: congelación (−35% de movimiento, recarga a la mitad, 3 s) + cristales y humo blanco. Hecho: asset `Ice` (mismo gancho que Fuego) y aura `AuraIce`. Probado en el sandbox: el congelado recarga a la mitad (0,34 frente a 0,67 tras 1 s), un golpe nuevo reinicia los 3 s y una peonza en llamas no se congela. Falta núcleo propio (C6).
 - [x] C4. Rayos: modo cargado hasta 6 s; choques pequeños empujan fuerte sin gastar; choque fuerte con +20% de daño, empuje x2,5 y lanzada 0,5 s, que gasta el poder; contra una peonza congelada, choque normal sin gastar; regla de daño de la peonza lanzada + destello del golpe. Hecho: bonus de choque en los poderes (`GetClashBonus`, aplicado en `CollisionResolver`), `EndSpecial` en el controller y asset `Lightning` con 6 s. La regla de daño de la lanzada ya estaba (A4). Probado en el sandbox: choque lento empuja 6,3 → 10,7 m/s sin gastar; contra congelado, choque igual que sin poder; golpe fuerte +20% de daño, rival a 40 m/s, lanzado 0,5 s y poder gastado.
-- [ ] C5. Fantasma: un clon invulnerable que persigue (necesita la persecución básica de D1), 10% de daño, empuja y corta cargas, sin parry + aspecto translúcido. **Aplazada:** se hace al empezar D1, reutilizando su persecución.
-- [ ] C6. Núcleos en el catálogo: uno por poder, con estadísticas.
+- [ ] C5. Fantasma: un clon invulnerable que persigue (necesita la persecución básica de D1), 10% de daño, empuja y corta cargas, sin parry + aspecto translúcido. **Aplazada:** se hace al empezar D1, reutilizando su persecución. Incluye crear su núcleo (Phantom Core, tabla en 3) y añadirlo al catálogo.
+- [x] C6. Núcleos en el catálogo: uno por poder, con estadísticas. Hecho: 6 núcleos (Fantasma, con C5) con los valores de la tabla de 3, nuevos `Core_Medium_Fire` y `Core_Medium_Ice`, preset Ataque con Fuego y nombre del núcleo con el color de su poder en la selección. Los 4 presets siguen dando su arquetipo. Falta verlo en la selección con mandos. 🎮
 - [ ] C7. Equilibrio de valores de cada poder en partida. 🎮
 
 **Fase D. IA**

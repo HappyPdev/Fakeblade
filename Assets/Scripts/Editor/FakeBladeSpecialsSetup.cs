@@ -20,8 +20,7 @@ namespace FakeBlade.Core.Editor
             var log = new StringBuilder("Poderes: ");
             FakeBladeAssetsMenu.EnsureFolder(Folder);
 
-            // Energía necesaria según GDD 5. Rayos conserva de momento el efecto de Dash eléctrico,
-            // al que sustituye (Quehaceres C4)
+            // Energía necesaria y duración según GDD 5 (todos duran 5 s salvo Rayos, hasta 6 s)
             Create<SpinBoostData>("SpinBoost", "SPIN BOOST", "SPIN BOOST",
                 new Color(0.3f, 1f, 0.6f), energy: 1f, burst: 1f, log);
             Create<ShockWaveData>("ShockWave", "ONDA DE CHOQUE", "SHOCKWAVE",
@@ -29,7 +28,7 @@ namespace FakeBlade.Core.Editor
             Create<DefenseData>("Defense", "DEFENSA", "DEFENSE",
                 new Color(0.45f, 0.55f, 1f), energy: 1.2f, burst: 1f, log);
             Create<LightningData>("Lightning", "RAYOS", "LIGHTNING",
-                new Color(1f, 0.95f, 0.25f), energy: 0.8f, burst: 1f, log);
+                new Color(1f, 0.95f, 0.25f), energy: 0.8f, burst: 1f, log, duration: 6f);
             Create<FireData>("Fire", "FUEGO", "FIRE",
                 new Color(1f, 0.3f, 0.08f), energy: 1f, burst: 1.5f, log);
             Create<IceData>("Ice", "HIELO", "ICE",
@@ -40,7 +39,7 @@ namespace FakeBlade.Core.Editor
         }
 
         private static void Create<T>(string fileName, string nameEs, string nameEn, Color color,
-            float energy, float burst, StringBuilder log) where T : SpecialAbilityData
+            float energy, float burst, StringBuilder log, float duration = 5f) where T : SpecialAbilityData
         {
             string path = $"{Folder}/{fileName}.asset";
             if (AssetDatabase.LoadAssetAtPath<T>(path) != null)
@@ -54,7 +53,7 @@ namespace FakeBlade.Core.Editor
             data.nameEn = nameEn;
             data.color = color;
             data.energyRequired = energy;
-            data.duration = 5f;
+            data.duration = duration;
             data.activationBurst = burst;
             AssetDatabase.CreateAsset(data, path);
             log.Append(fileName).Append(" (creado) ");

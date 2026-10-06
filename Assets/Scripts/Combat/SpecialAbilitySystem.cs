@@ -99,6 +99,16 @@ namespace FakeBlade.Core
                 _ability.OnClashDamageDealt(target, damage);
         }
 
+        /// <summary>Bonus del poder activo en un choque normal (ninguno si no está activo).</summary>
+        public ClashBonus GetClashBonus(FakeBladeController target, float approachSpeed) =>
+            _isActive && target != null ? _ability.GetClashBonus(target, approachSpeed) : ClashBonus.None;
+
+        /// <summary>Después de aplicar un choque con bonus.</summary>
+        public void NotifyClashBonusApplied(FakeBladeController target, ClashBonus bonus, Vector3 contactPoint)
+        {
+            if (_isActive && !bonus.IsNone) _ability.OnClashBonusApplied(target, bonus, contactPoint);
+        }
+
         #region Modifiers (solo mientras está activo)
         /// <summary>Multiplicador del daño recibido.</summary>
         public float DamageTakenMultiplier => _isActive ? _ability.DamageTakenMultiplier : 1f;

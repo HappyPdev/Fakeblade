@@ -11,14 +11,19 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c88fd9fe4ce4dc04aa22bacb64e29a04, type: 3}
   m_Name: Lightning
-  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.ElectricDashData
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.LightningData
   nameEs: RAYOS
   nameEn: LIGHTNING
   color: {r: 1, g: 0.95, b: 0.25, a: 1}
   icon: {fileID: 0}
   energyRequired: 0.8
-  duration: 5
+  duration: 6
   activationBurst: 1
-  dashCooldownMultiplier: 0.3
-  dashImpulseMultiplier: 1.5
-  chargeSpeedMultiplier: 2
+  smallMinSpeed: 1
+  smallKnockbackMultiplier: 1.8
+  strongMinSpeed: 6
+  strongDamageMultiplier: 1.2
+  strongKnockbackMultiplier: 2.5
+  launchDuration: 0.5
+  strikeHitStop: 0.06
+  strikeShake: 0.25

@@ -25,7 +25,7 @@ namespace FakeBlade.Core
         [InspectorName("Defensa")]
         Defense = 3,
 
-        /// <summary>Golpe fuerte que lanza al rival (sustituye a Dash eléctrico; antes se llamaba Dash).</summary>
+        /// <summary>Modo cargado: empuja fuerte y su golpe fuerte lanza al rival (sustituye a Dash eléctrico; antes se llamaba Dash).</summary>
         [InspectorName("Rayos")]
         Lightning = 4,
 

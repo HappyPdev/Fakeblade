@@ -444,6 +444,13 @@ namespace FakeBlade.Core
 
         public bool ExecuteSpecial() => TryActivateSpecial();
 
+        /// <summary>Termina el poder activo antes de tiempo (Rayos, al dar su golpe fuerte).</summary>
+        public void EndSpecial()
+        {
+            if (_special.Stop())
+                OnSpecialEnded?.Invoke(_special.Type);
+        }
+
         /// <summary>
         /// Activa o congela la simulación de juego (desgaste, cargas, input).
         /// La física sigue funcionando. Lo controla el GameManager según el estado.

@@ -81,6 +81,10 @@ namespace FakeBlade.Core
             FakeBladeController slow = aIsFaster ? b : a;
             Vector3 fastToSlow = aIsFaster ? toB : -toB;
 
+            // Bonus de un poder activo (Rayos): más daño y empuje sobre el rival, según su velocidad hacia él
+            ClashBonus fastBonus = fast.Special.GetClashBonus(slow, aIsFaster ? approachA : approachB);
+            ClashBonus slowBonus = slow.Special.GetClashBonus(fast, aIsFaster ? approachB : approachA);
+
             float diff = Mathf.Abs(approachA - approachB);
             bool neutral = diff <= cfg.equalSpeedTolerance;
 
@@ -102,8 +106,8 @@ namespace FakeBlade.Core
                 damageToFast = baseDamage * cfg.fasterDamageFraction * slow.OffenseMultiplier * ratioSlowOverFast;
             }
 
-            float dealtToSlow = slow.ApplyDamage(damageToSlow, fast);
-            float dealtToFast = fast.ApplyDamage(damageToFast, slow);
+            float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier, fast);
+            float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier, slow);
 
             // Empuje: velocidad instantánea (m/s), escalada por masas, cargas y resistencias
             float knockback = (cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff)
@@ -111,11 +115,15 @@ namespace FakeBlade.Core
                               * ratioFastOverSlow;
             knockback = Mathf.Min(knockback, cfg.maxKnockback);
 
-            float slowKnockback = knockback * slow.KnockbackResistance;
-            float fastKnockback = knockback * (neutral ? 1f : cfg.winnerKnockbackFraction) * fast.KnockbackResistance;
+            float slowKnockback = knockback * slow.KnockbackResistance * fastBonus.KnockbackMultiplier;
+            float fastKnockback = knockback * (neutral ? 1f : cfg.winnerKnockbackFraction) * fast.KnockbackResistance
+                                  * slowBonus.KnockbackMultiplier;
 
             slow.ApplyKnockback(fastToSlow * slowKnockback);
             fast.ApplyKnockback(-fastToSlow * fastKnockback);
+
+            fast.Special.NotifyClashBonusApplied(slow, fastBonus, contactPoint);
+            slow.Special.NotifyClashBonusApplied(fast, slowBonus, contactPoint);
 
             // Energía del especial y combos: premia al que gana el choque
             if (!neutral)

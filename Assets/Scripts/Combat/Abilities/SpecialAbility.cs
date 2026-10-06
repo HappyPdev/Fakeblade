@@ -1,5 +1,26 @@
+using UnityEngine;
+
 namespace FakeBlade.Core
 {
+    /// <summary>Bonus de un poder en un choque: daño que hace y empuje que provoca (Rayos).</summary>
+    public readonly struct ClashBonus
+    {
+        public static readonly ClashBonus None = new ClashBonus(1f, 1f, false);
+
+        public ClashBonus(float damageMultiplier, float knockbackMultiplier, bool strong)
+        {
+            DamageMultiplier = damageMultiplier;
+            KnockbackMultiplier = knockbackMultiplier;
+            Strong = strong;
+        }
+
+        public float DamageMultiplier { get; }
+        public float KnockbackMultiplier { get; }
+        /// <summary>Golpe fuerte (Rayos): lanza al rival y gasta el poder.</summary>
+        public bool Strong { get; }
+        public bool IsNone => DamageMultiplier == 1f && KnockbackMultiplier == 1f && !Strong;
+    }
+
     /// <summary>
     /// Comportamiento de un poder para una peonza concreta (lo crea su <see cref="SpecialAbilityData"/>).
     /// <see cref="SpecialAbilitySystem"/> lo activa, lo avanza y lo termina; el controller consulta sus
@@ -31,6 +52,15 @@ namespace FakeBlade.Core
         /// continuo no cuenta). Para los poderes cuyos golpes tienen efecto (Fuego, Hielo).
         /// </summary>
         public virtual void OnClashDamageDealt(FakeBladeController target, float damage) { }
+
+        /// <summary>
+        /// Bonus para un choque normal contra otra peonza (no en parrys ni con peonzas lanzadas),
+        /// antes de calcular el daño y el empuje. approachSpeed: su velocidad hacia el rival (m/s).
+        /// </summary>
+        public virtual ClashBonus GetClashBonus(FakeBladeController target, float approachSpeed) => ClashBonus.None;
+
+        /// <summary>Después de aplicar el daño y el empuje de un choque con bonus.</summary>
+        public virtual void OnClashBonusApplied(FakeBladeController target, ClashBonus bonus, Vector3 contactPoint) { }
 
         #region Modifiers
         /// <summary>Multiplicador del daño recibido.</summary>

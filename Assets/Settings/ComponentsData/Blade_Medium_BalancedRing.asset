@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Anillo equilibrado. Buen ataque y defensa decente.
   componentType: 2
   weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   maxSpinModifier: 30
   spinDecayModifier: 0

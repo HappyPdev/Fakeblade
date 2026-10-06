@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "Disco de demolici\xF3n. Impactos devastadores. Muy pesado."
   componentType: 2
   weightClass: 2
+  archetype: 2
   icon: {fileID: 0}
   maxSpinModifier: -30
   spinDecayModifier: 0.5

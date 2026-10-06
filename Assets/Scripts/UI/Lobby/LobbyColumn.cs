@@ -19,7 +19,13 @@ namespace FakeBlade.UI
     public class LobbyColumn : MonoBehaviour
     {
         private const int RowHeight = 8;
+        /// <summary>Filas de pieza: más altas, con el arquetipo debajo del nombre.</summary>
+        private const int PartRowHeight = 11;
         private const int StatCount = 5;
+        /// <summary>Piezas que aportan a las barras: punta, cuerpo, disco y núcleo (orden de ComponentSlot).</summary>
+        public const int PartCount = 4;
+        /// <summary>Las barras se dibujan por pasos (estética pixel).</summary>
+        private const float StatSteps = 40f;
 
         private HUDTheme _theme;
         private int _px;
@@ -39,7 +45,9 @@ namespace FakeBlade.UI
         private TextMeshProUGUI _archetypeText;
         private TextMeshProUGUI _specialText;
         private readonly TextMeshProUGUI[] _statLabels = new TextMeshProUGUI[StatCount];
-        private readonly Image[] _statFills = new Image[StatCount];
+        private readonly StatBar[] _statBars = new StatBar[StatCount];
+        private int _blinkPart = -1;
+        private bool _blinkOn;
         private TextMeshProUGUI _hintText;
         private Image _leaveFill;
         private TextMeshProUGUI _readyText;
@@ -167,18 +175,16 @@ namespace FakeBlade.UI
                 brt.anchorMin = new Vector2(0.4f, 0.2f);
                 brt.anchorMax = new Vector2(1f, 0.8f);
                 brt.offsetMin = brt.offsetMax = Vector2.zero;
-                _statFills[i] = PixelUI.CreateFilledImage("Fill", barBg.transform, _theme.healthHigh, null,
-                    Image.FillMethod.Horizontal, (int)Image.OriginHorizontal.Left);
-                PixelUI.Stretch(_statFills[i].rectTransform, 0, _px);
+                _statBars[i] = BuildStatBar(barBg.transform);
             }
 
             Fixed("Spacer", view, 1);
 
             PresetRow = AddRow(view, false);
-            TipRow = AddRow(view, false);
-            BodyRow = AddRow(view, false);
-            BladeRow = AddRow(view, false);
-            CoreRow = AddRow(view, false);
+            TipRow = AddRow(view, false, PartRowHeight);
+            BodyRow = AddRow(view, false, PartRowHeight);
+            BladeRow = AddRow(view, false, PartRowHeight);
+            CoreRow = AddRow(view, false, PartRowHeight);
             ColorRow = AddRow(view, false);
             TeamRow = AddRow(view, false);
             ConfirmRow = AddRow(view, true);
@@ -221,9 +227,9 @@ namespace FakeBlade.UI
             return text;
         }
 
-        private PixelOptionRow AddRow(Transform parent, bool isButton)
+        private PixelOptionRow AddRow(Transform parent, bool isButton, int heightPx = RowHeight)
         {
-            var row = PixelOptionRow.Create(parent, _theme, RowHeight, isButton, 4.5f);
+            var row = PixelOptionRow.Create(parent, _theme, heightPx, isButton, 4.5f);
             _rows.Add(row);
             return row;
         }
@@ -275,19 +281,56 @@ namespace FakeBlade.UI
 
         public void SetPreview(Texture texture) => _preview.texture = texture;
 
-        public void SetArchetype(string archetype, string special)
+        public void SetArchetype(string archetype, string special, Color archetypeColor)
         {
             _archetypeText.text = archetype;
+            _archetypeText.color = archetypeColor;
             _specialText.text = special;
         }
 
-        /// <summary>Barra de stat normalizada 0-1 con su etiqueta.</summary>
-        public void SetStat(int index, string label, float normalized)
+        /// <summary>
+        /// Barra de stat por tramos: lo que da la peonza sin piezas y lo que suma cada pieza
+        /// (parts, en el orden de ComponentSlot), uno tras otro. Lo que resta una pieza se ve en
+        /// rojo al final, hasta el valor final (ya limitado). scale = valor que llena la barra.
+        /// </summary>
+        public void SetStat(int index, string label, float baseValue, float[] parts, float finalValue, float scale)
         {
             if (index < 0 || index >= StatCount) return;
             _statLabels[index].text = label;
-            // Cuantizada a 12 pasos: estética pixel
-            _statFills[index].fillAmount = Mathf.Ceil(Mathf.Clamp01(normalized) * 12f) / 12f;
+
+            StatBar bar = _statBars[index];
+            float inv = 1f / Mathf.Max(0.0001f, scale);
+            float x = Snap(baseValue * inv);
+            Place(bar.Base, 0f, x);
+
+            for (int p = 0; p < PartCount; p++)
+            {
+                float v = parts[p] * inv;
+                if (v <= 0f)
+                {
+                    Place(bar.Gain[p], 0f, 0f);
+                    continue;
+                }
+                float end = Snap(x + v);
+                Place(bar.Gain[p], x, end);
+                x = end;
+            }
+
+            // Lo que restan las piezas se come el final de lo sumado, sin pasar del valor final
+            float final = Snap(finalValue * inv);
+            float lossEnd = x;
+            for (int p = 0; p < PartCount; p++)
+            {
+                float v = parts[p] * inv;
+                if (v >= 0f)
+                {
+                    Place(bar.Loss[p], 0f, 0f);
+                    continue;
+                }
+                float start = Snap(lossEnd + v);
+                Place(bar.Loss[p], Mathf.Max(start, final), lossEnd);
+                lossEnd = start;
+            }
         }
 
         public void SetReady(bool ready)
@@ -315,6 +358,105 @@ namespace FakeBlade.UI
             _focus = (_focus + dir + _rows.Count) % _rows.Count;
             _rows[_focus].SetFocused(true);
         }
+
+        /// <summary>Pieza de la fila con el foco (0-3, orden de ComponentSlot) o -1.</summary>
+        private int FocusedPart
+        {
+            get
+            {
+                PixelOptionRow row = FocusedRow;
+                if (row == TipRow) return (int)ComponentSlot.Tip;
+                if (row == BodyRow) return (int)ComponentSlot.Body;
+                if (row == BladeRow) return (int)ComponentSlot.Blade;
+                if (row == CoreRow) return (int)ComponentSlot.Core;
+                return -1;
+            }
+        }
+
+        /// <summary>El tramo de la pieza con el foco parpadea en todas las barras.</summary>
+        private void Update()
+        {
+            if (_playerView == null || !_playerView.activeSelf || _rows.Count == 0) return;
+
+            int part = FocusedPart;
+            bool on = part >= 0 && Mathf.Repeat(Time.unscaledTime * 3f, 1f) < 0.5f;
+            if (part == _blinkPart && on == _blinkOn) return;
+
+            SetPartHighlight(_blinkPart, false);
+            SetPartHighlight(part, on);
+            _blinkPart = part;
+            _blinkOn = on;
+        }
+        #endregion
+
+        #region Stat bars
+        /// <summary>Tramos de una barra: base, lo que suma cada pieza y lo que resta cada pieza (encima).</summary>
+        private sealed class StatBar
+        {
+            public Image Base;
+            public readonly Image[] Gain = new Image[PartCount];
+            public readonly Image[] Loss = new Image[PartCount];
+        }
+
+        private StatBar BuildStatBar(Transform area)
+        {
+            var bar = new StatBar { Base = Segment(area, _theme.statBase) };
+            for (int p = 0; p < PartCount; p++) bar.Gain[p] = Segment(area, GainColor(p));
+            for (int p = 0; p < PartCount; p++) bar.Loss[p] = Segment(area, LossColor(p));
+            return bar;
+        }
+
+        private static Image Segment(Transform area, Color color)
+        {
+            var image = PixelUI.CreateImage("Segment", area, color);
+            image.raycastTarget = false;
+            image.enabled = false;
+            return image;
+        }
+
+        /// <summary>Tonos del verde de la barra, distintos entre piezas vecinas.</summary>
+        private Color GainColor(int part)
+        {
+            Color green = _theme.healthHigh;
+            switch (part)
+            {
+                case 0: return Color.Lerp(green, Color.white, 0.45f);            // punta
+                case 1: return green;                                              // cuerpo
+                case 2: return Color.Lerp(green, Color.black, 0.4f);             // disco
+                default: return Color.Lerp(green, new Color(0.2f, 0.8f, 0.9f), 0.55f); // núcleo
+            }
+        }
+
+        private Color LossColor(int part) =>
+            (part & 1) == 0 ? _theme.statLoss : Color.Lerp(_theme.statLoss, Color.black, 0.3f);
+
+        private void SetPartHighlight(int part, bool on)
+        {
+            if (part < 0 || part >= PartCount) return;
+            Color gain = on ? Color.white : GainColor(part);
+            Color loss = on ? Color.Lerp(_theme.statLoss, Color.white, 0.6f) : LossColor(part);
+            for (int i = 0; i < StatCount; i++)
+            {
+                _statBars[i].Gain[part].color = gain;
+                _statBars[i].Loss[part].color = loss;
+            }
+        }
+
+        /// <summary>Coloca un tramo entre dos posiciones 0-1 de la barra (vacío = oculto).</summary>
+        private static void Place(Image segment, float from, float to)
+        {
+            from = Mathf.Clamp01(from);
+            to = Mathf.Clamp01(to);
+            segment.enabled = to > from;
+            if (!segment.enabled) return;
+
+            RectTransform rt = segment.rectTransform;
+            rt.anchorMin = new Vector2(from, 0f);
+            rt.anchorMax = new Vector2(to, 1f);
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+
+        private static float Snap(float value) => Mathf.Round(value * StatSteps) / StatSteps;
         #endregion
     }
 }

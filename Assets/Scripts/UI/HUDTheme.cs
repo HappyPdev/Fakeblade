@@ -62,6 +62,29 @@ namespace FakeBlade.UI
         public Color sphereEmpty = new Color(0.1f, 0.1f, 0.18f);
         // El color de relleno es el del poder equipado (SpecialAbilityData.color)
 
+        [Header("=== ARQUETIPOS (selección de peonzas) ===")]
+        public Color archetypeAttack = new Color(1f, 0.4f, 0.35f);
+        public Color archetypeBalanced = new Color(0.45f, 0.95f, 0.5f);
+        public Color archetypeDefense = new Color(0.45f, 0.65f, 1f);
+        public Color archetypeAgility = new Color(1f, 0.85f, 0.3f);
+
+        [Header("=== BARRAS DE STATS POR TRAMOS (selección de peonzas) ===")]
+        [Tooltip("Lo que da la peonza sin piezas")]
+        public Color statBase = new Color(0.45f, 0.48f, 0.58f);
+        [Tooltip("Lo que resta una pieza (al final de la barra)")]
+        public Color statLoss = new Color(0.75f, 0.18f, 0.22f);
+
+        public Color GetArchetypeColor(BladeArchetype archetype)
+        {
+            switch (archetype)
+            {
+                case BladeArchetype.Attack: return archetypeAttack;
+                case BladeArchetype.Defense: return archetypeDefense;
+                case BladeArchetype.Agility: return archetypeAgility;
+                default: return archetypeBalanced;
+            }
+        }
+
         /// <summary>Color por tramos (sin degradado) para mantener la estética pixel.</summary>
         public Color GetHealthColor(float t)
         {

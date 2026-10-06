@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "Disco afilado y ligero. Muchos ataques r\xE1pidos pero poco empuje."
   componentType: 2
   weightClass: 0
+  archetype: 1
   icon: {fileID: 0}
   maxSpinModifier: 0
   spinDecayModifier: 0.3

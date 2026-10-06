@@ -26,57 +26,57 @@ namespace FakeBlade.Core.Editor
             // === PUNTAS ===
             CreateComponent("Tip_Light_NeedlePoint", "Needle Point",
                 "Punta ultrafina. Mínima fricción, máxima velocidad. Estabilidad reducida.",
-                ComponentSlot.Tip, WeightClass.Light,
+                ComponentSlot.Tip, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: 0, spinDecay: 1f, moveSpeed: 4f, weight: -0.2f,
                 attack: 0, defense: -5f, dash: 3f);
 
             CreateComponent("Tip_Medium_FlatBase", "Flat Base",
                 "Punta plana equilibrada. Buena estabilidad y velocidad decente.",
-                ComponentSlot.Tip, WeightClass.Medium,
+                ComponentSlot.Tip, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 50, spinDecay: -0.5f, moveSpeed: 1f, weight: 0f,
                 attack: 0, defense: 0, dash: 0);
 
             CreateComponent("Tip_Heavy_WideBall", "Wide Ball",
                 "Punta esférica ancha. Máxima estabilidad, pero lenta.",
-                ComponentSlot.Tip, WeightClass.Heavy,
+                ComponentSlot.Tip, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 100, spinDecay: -1.5f, moveSpeed: -3f, weight: 0.3f,
                 attack: 0, defense: 5f, dash: -3f);
 
             // === CUERPOS ===
             CreateComponent("Body_Light_AeroShell", "Aero Shell",
                 "Cuerpo ultraligero. Se mueve como el viento pero sale volando en los choques.",
-                ComponentSlot.Body, WeightClass.Light,
+                ComponentSlot.Body, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: -50, spinDecay: 0.5f, moveSpeed: 3f, weight: -0.4f,
                 attack: -3f, defense: -5f, dash: 2f, charges: 1);
 
             CreateComponent("Body_Medium_StandardFrame", "Standard Frame",
                 "Cuerpo estándar bien balanceado. Sin sorpresas.",
-                ComponentSlot.Body, WeightClass.Medium,
+                ComponentSlot.Body, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 0, spinDecay: 0, moveSpeed: 0, weight: 0.3f,
                 attack: 0, defense: 5f, dash: 0);
 
             CreateComponent("Body_Heavy_IronFortress", "Iron Fortress",
                 "Cuerpo macizo de hierro. Imparable una vez en movimiento. Cuesta arrancar.",
-                ComponentSlot.Body, WeightClass.Heavy,
+                ComponentSlot.Body, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: -0.3f, moveSpeed: -4f, weight: 1.2f,
                 attack: 5f, defense: 15f, dash: -4f, charges: -1);
 
             // === DISCOS ===
             CreateComponent("Blade_Light_RazorEdge", "Razor Edge",
                 "Disco afilado y ligero. Muchos ataques rápidos pero poco empuje.",
-                ComponentSlot.Blade, WeightClass.Light,
+                ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.3f, moveSpeed: 1f, weight: -0.1f,
                 attack: 8f, defense: -5f, dash: 1f, charges: 1);
 
             CreateComponent("Blade_Medium_BalancedRing", "Balanced Ring",
                 "Anillo equilibrado. Buen ataque y defensa decente.",
-                ComponentSlot.Blade, WeightClass.Medium,
+                ComponentSlot.Blade, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 30, spinDecay: 0, moveSpeed: 0, weight: 0.2f,
                 attack: 5f, defense: 5f, dash: 0);
 
             CreateComponent("Blade_Heavy_CrushWheel", "Crush Wheel",
                 "Disco de demolición. Impactos devastadores. Muy pesado.",
-                ComponentSlot.Blade, WeightClass.Heavy,
+                ComponentSlot.Blade, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: -30, spinDecay: 0.5f, moveSpeed: -2f, weight: 0.6f,
                 attack: 15f, defense: 10f, dash: 2f);
 
@@ -86,42 +86,42 @@ namespace FakeBlade.Core.Editor
             // Fantasma tendrá el suyo con su poder (C5): Ligera, +2 dash, +0,4 desgaste.
             CreateComponent("Core_Medium_SpinBoost", "Endurance Core",
                 "Núcleo de resistencia. Poder: Spin Boost (recupera RPM).",
-                ComponentSlot.Core, WeightClass.Medium,
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 100, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: -4f, defense: 0, dash: 0,
                 ability: SpecialAbilityType.SpinBoost);
 
             CreateComponent("Core_Heavy_ShockWave", "Impact Core",
                 "Núcleo de impacto. Poder: Onda de choque que empuja enemigos.",
-                ComponentSlot.Core, WeightClass.Heavy,
+                ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.2f,
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.ShockWave);
 
             CreateComponent("Core_Heavy_Defense", "Fortress Core",
                 "Núcleo defensivo. Poder: Defensa.",
-                ComponentSlot.Core, WeightClass.Heavy,
+                ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: 0, defense: 6f, dash: -2f,
                 ability: SpecialAbilityType.Defense);
 
             CreateComponent("Core_Light_Lightning", "Velocity Core",
                 "Núcleo de velocidad. Poder: Rayos.",
-                ComponentSlot.Core, WeightClass.Light,
+                ComponentSlot.Core, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 1f, weight: -0.2f,
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.Lightning);
 
             CreateComponent("Core_Medium_Fire", "Blaze Core",
                 "Núcleo ardiente. Poder: Fuego (sus golpes queman).",
-                ComponentSlot.Core, WeightClass.Medium,
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: 4f, defense: -6f, dash: 0,
                 ability: SpecialAbilityType.Fire);
 
             CreateComponent("Core_Medium_Ice", "Frost Core",
                 "Núcleo helado. Poder: Hielo (sus golpes congelan).",
-                ComponentSlot.Core, WeightClass.Medium,
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 0, spinDecay: -0.4f, moveSpeed: 0, weight: 0,
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.Ice);
@@ -134,7 +134,7 @@ namespace FakeBlade.Core.Editor
 
         private static void CreateComponent(
             string fileName, string displayName, string description,
-            ComponentSlot slot, WeightClass weightClass,
+            ComponentSlot slot, WeightClass weightClass, BladeArchetype archetype,
             float maxSpin, float spinDecay, float moveSpeed, float weight,
             float attack, float defense, float dash, int charges = 0,
             SpecialAbilityType ability = SpecialAbilityType.None)
@@ -151,6 +151,7 @@ namespace FakeBlade.Core.Editor
             so.FindProperty("description").stringValue = description;
             so.FindProperty("componentType").enumValueIndex = (int)slot;
             so.FindProperty("weightClass").enumValueIndex = (int)weightClass;
+            so.FindProperty("archetype").enumValueIndex = (int)archetype;
             so.FindProperty("maxSpinModifier").floatValue = maxSpin;
             so.FindProperty("spinDecayModifier").floatValue = spinDecay;
             so.FindProperty("moveSpeedModifier").floatValue = moveSpeed;

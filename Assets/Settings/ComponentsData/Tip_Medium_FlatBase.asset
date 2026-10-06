@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Punta plana equilibrada. Buena estabilidad y velocidad decente.
   componentType: 0
   weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   maxSpinModifier: 50
   spinDecayModifier: -0.5

@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "Cuerpo est\xE1ndar bien balanceado. Sin sorpresas."
   componentType: 1
   weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   maxSpinModifier: 0
   spinDecayModifier: 0

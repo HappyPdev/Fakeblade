@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Cuerpo macizo de hierro. Imparable una vez en movimiento. Cuesta arrancar.
   componentType: 1
   weightClass: 2
+  archetype: 2
   icon: {fileID: 0}
   maxSpinModifier: 50
   spinDecayModifier: -0.3

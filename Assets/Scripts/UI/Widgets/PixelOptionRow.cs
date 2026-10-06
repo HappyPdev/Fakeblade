@@ -22,6 +22,7 @@ namespace FakeBlade.UI
         private Image _accent;
         private TextMeshProUGUI _label;
         private TextMeshProUGUI _value;
+        private TextMeshProUGUI _subValue;
         private TextMeshProUGUI _leftArrow;
         private TextMeshProUGUI _rightArrow;
 
@@ -154,6 +155,29 @@ namespace FakeBlade.UI
         public void SetValueColor(Color color)
         {
             if (_value != null) _value.color = color;
+        }
+
+        /// <summary>
+        /// Segunda línea pequeña bajo el valor (p. ej. el arquetipo de una pieza). La primera vez
+        /// sube el valor a la mitad superior de la fila; conviene que la fila sea más alta.
+        /// </summary>
+        public void SetSubValue(string text, Color color)
+        {
+            if (_value == null) return;
+            if (_subValue == null)
+            {
+                RectTransform valueRt = _value.rectTransform;
+                valueRt.anchorMin = new Vector2(0.5f, 0.42f);
+
+                _subValue = PixelUI.CreateText("SubValue", transform, _theme, _value.fontSize * 0.7f, TextAlignmentOptions.Center, color);
+                var rt = _subValue.rectTransform;
+                rt.anchorMin = new Vector2(0.5f, 0f);
+                rt.anchorMax = new Vector2(1f, 0.48f);
+                rt.offsetMin = new Vector2(8 * _px, _px);
+                rt.offsetMax = new Vector2(-8 * _px, 0f);
+            }
+            _subValue.text = text;
+            _subValue.color = color;
         }
 
         public void SetAccentColor(Color color)

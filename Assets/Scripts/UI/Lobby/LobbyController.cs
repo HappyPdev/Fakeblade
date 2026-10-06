@@ -502,6 +502,10 @@ namespace FakeBlade.UI
             column.BladeRow.SetValueText(PartName(s.Blade));
             column.CoreRow.SetValueText(PartName(s.Core));
             column.CoreRow.SetValueColor(CoreColor(s.Core));
+            SetPartArchetype(column.TipRow, s.Tip);
+            SetPartArchetype(column.BodyRow, s.Body);
+            SetPartArchetype(column.BladeRow, s.Blade);
+            SetPartArchetype(column.CoreRow, s.Core);
 
             column.ColorRow.SetValueText(Loc.Format("COLOR_N", s.ColorIndex + 1));
             column.ColorRow.SetValueColor(s.Color);
@@ -510,13 +514,17 @@ namespace FakeBlade.UI
             column.SetBorderColor(s.Color);
 
             BladeStatBlock stats = FakeBladeStats.Calculate(catalog.GetBaseStats(), s.Tip, s.Body, s.Blade, s.Core);
-            column.SetArchetype(Loc.Get("ARCHETYPE_" + stats.Archetype.ToString().ToUpperInvariant()),
-                Loc.Format("LOBBY_SPECIAL_LINE", SpecialAbilities.Get(stats.Special).DisplayName, stats.AttackCharges));
-            column.SetStat(0, Loc.Get("STAT_ATTACK"), stats.AttackPower / 40f);
-            column.SetStat(1, Loc.Get("STAT_DEFENSE"), stats.Defense / 60f);
-            column.SetStat(2, Loc.Get("STAT_SPEED"), stats.MoveSpeed / 16f);
-            column.SetStat(3, Loc.Get("STAT_RPM"), stats.MaxSpin / 900f);
-            column.SetStat(4, Loc.Get("STAT_WEIGHT"), stats.Weight / 4f);
+            column.SetArchetype(ArchetypeName(stats.Archetype),
+                Loc.Format("LOBBY_SPECIAL_LINE", SpecialAbilities.Get(stats.Special).DisplayName, stats.AttackCharges),
+                _theme.GetArchetypeColor(stats.Archetype));
+
+            // Barras por tramos: base + lo que aporta cada pieza
+            BladeBaseStats b = catalog.GetBaseStats();
+            SetStatBar(column, 0, "STAT_ATTACK", s, b.attackPower, p => p.AttackPowerModifier, stats.AttackPower, 40f);
+            SetStatBar(column, 1, "STAT_DEFENSE", s, b.defense, p => p.DefenseModifier, stats.Defense, 60f);
+            SetStatBar(column, 2, "STAT_SPEED", s, b.moveSpeed, p => p.MoveSpeedModifier, stats.MoveSpeed, 16f);
+            SetStatBar(column, 3, "STAT_RPM", s, b.maxSpin, p => p.MaxSpinModifier, stats.MaxSpin, 900f);
+            SetStatBar(column, 4, "STAT_WEIGHT", s, b.weight, p => p.WeightModifier, stats.Weight, 4f);
 
             slot.Stage.SetScheme(BladeColors.Get(catalog, s.ColorIndex));
             // El núcleo brilla con el color de su poder, como con la esfera llena
@@ -533,6 +541,29 @@ namespace FakeBlade.UI
 
         private static string PartName(FakeBladeComponentData part) =>
             part != null ? part.ComponentName.ToUpperInvariant() : "—";
+
+        private static string ArchetypeName(BladeArchetype archetype) =>
+            Loc.Get("ARCHETYPE_" + archetype.ToString().ToUpperInvariant());
+
+        /// <summary>Arquetipo de la pieza, pequeño y de su color, debajo del nombre (para elegir sin confusiones).</summary>
+        private void SetPartArchetype(PixelOptionRow row, FakeBladeComponentData part)
+        {
+            if (part == null) row.SetSubValue("", _theme.textDimColor);
+            else row.SetSubValue(ArchetypeName(part.Archetype), _theme.GetArchetypeColor(part.Archetype));
+        }
+
+        private readonly float[] _statParts = new float[LobbyColumn.PartCount];
+
+        private void SetStatBar(LobbyColumn column, int index, string labelKey, PlayerSetup s, float baseValue,
+            System.Func<FakeBladeComponentData, float> modifier, float finalValue, float scale)
+        {
+            for (int i = 0; i < _statParts.Length; i++)
+            {
+                FakeBladeComponentData part = s.GetPart((ComponentSlot)i);
+                _statParts[i] = part != null ? modifier(part) : 0f;
+            }
+            column.SetStat(index, Loc.Get(labelKey), baseValue, _statParts, finalValue, scale);
+        }
 
         /// <summary>El núcleo se ve con el color de su poder (el de su aura y su esfera), para reconocerlo de un vistazo.</summary>
         private Color CoreColor(FakeBladeComponentData core) =>

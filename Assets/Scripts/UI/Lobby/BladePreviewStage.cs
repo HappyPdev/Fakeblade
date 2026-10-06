@@ -17,6 +17,8 @@ namespace FakeBlade.UI
         private Transform _spin;
         private Renderer[] _renderers;
         private BladePaint _paint;
+        /// <summary>Altura de la cámara respecto a su distancia (0 = de frente; antes 0,55).</summary>
+        private const float CameraHeight = 0.32f;
         private float _angle;
         private float _time;
         private float _spinSpeed = 540f;
@@ -40,6 +42,7 @@ namespace FakeBlade.UI
             _spin.SetParent(_tilt, false);
 
             float size = 1f;
+            float centerHeight = 0f;
             if (playerPrefab != null)
             {
                 Transform source = FindVisualRoot(playerPrefab.transform);
@@ -59,6 +62,7 @@ namespace FakeBlade.UI
                     _renderers = model.GetComponentsInChildren<Renderer>(true);
                     _paint = new BladePaint(model.transform);
                     size = MeasureSize(_renderers);
+                    centerHeight = MeasureCenterHeight(_renderers);
                 }
             }
             if (_renderers == null) _renderers = new Renderer[0];
@@ -74,8 +78,10 @@ namespace FakeBlade.UI
             var camObj = new GameObject("PreviewCamera");
             camObj.transform.SetParent(transform, false);
             float distance = Mathf.Max(0.5f, size * 2.4f);
-            camObj.transform.localPosition = new Vector3(0f, distance * 0.55f, -distance);
-            camObj.transform.LookAt(transform.position + Vector3.up * size * 0.05f);
+            // Apunta al centro de la peonza (no a su base) y desde poco por encima, para verla casi de frente
+            Vector3 focus = transform.position + Vector3.up * centerHeight;
+            camObj.transform.position = focus + new Vector3(0f, distance * CameraHeight, -distance);
+            camObj.transform.LookAt(focus);
 
             _camera = camObj.AddComponent<Camera>();
             _camera.clearFlags = CameraClearFlags.SolidColor;
@@ -99,6 +105,14 @@ namespace FakeBlade.UI
                     return child;
             }
             return null;
+        }
+
+        private float MeasureCenterHeight(Renderer[] renderers)
+        {
+            if (renderers.Length == 0) return 0f;
+            Bounds b = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
+            return b.center.y - transform.position.y;
         }
 
         private float MeasureSize(Renderer[] renderers)

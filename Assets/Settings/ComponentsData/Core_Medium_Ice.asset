@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "N\xFAcleo helado. Poder: Hielo (sus golpes congelan)."
   componentType: 3
   weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   maxSpinModifier: 0
   spinDecayModifier: -0.4

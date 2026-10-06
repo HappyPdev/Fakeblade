@@ -135,7 +135,14 @@ Cada peonza se compone de **piezas intercambiables** que modifican sus estadíst
 
 Estadísticas que modifican las piezas: velocidad de rotación (RPM máx. y desgaste), peso/inercia, potencia de ataque, resistencia/defensa, velocidad de movimiento, fuerza de dash y número de cargas de ataque.
 
-Cada pieza tiene una clase de peso (Ligera / Media / Pesada).
+Cada pieza tiene una clase de peso (Ligera / Media / Pesada) y **un arquetipo** (Ataque, Balanceada, Defensa o Agilidad: los mismos tipos A, B, C y D de los modelos). El arquetipo dice a qué estilo pertenece la pieza y se muestra en la selección para elegir sin confusiones. El número de piezas no importa: más adelante habrá piezas con cualidades concretas (por ejemplo, dos características equilibradas y otras muy débiles), y cada una llevará su arquetipo.
+
+| Pieza | Arquetipo |
+|---|---|
+| Needle Point, Aero Shell, Velocity Core (Rayos) | Agilidad |
+| Flat Base, Standard Frame, Balanced Ring, Endurance Core (Spin Boost), Frost Core (Hielo) | Balanceada |
+| Wide Ball, Iron Fortress, Crush Wheel, Fortress Core (Defensa), Impact Core (Onda de choque) | Defensa |
+| Razor Edge, Blaze Core (Fuego) | Ataque |
 
 **Arquetipos.** Los arquetipos no son peonzas fijas: son el **resultado de combinar las piezas**. Según las estadísticas finales, la peonza encaja en uno:
 
@@ -423,8 +430,9 @@ La pantalla se divide en **columnas, una por jugador**:
 - **Al entrar hay 2 columnas.** Cada vez que alguien se une aparece una columna nueva para el siguiente jugador, hasta un máximo de 4. Las columnas ocupadas se reparten el ancho de la pantalla.
 - **Unirse:** en una columna libre se muestra "Mantén A / Espacio / Ctrl der. para unirte". El jugador **mantiene pulsado** el botón de ataque de su dispositivo (teclado J1, teclado J2 o un mando) hasta llenar el indicador. El orden de unión fija J1, J2, J3 y J4 y el dispositivo de cada uno.
 - **Montaje en su columna:**
-  - Vista previa 3D de la peonza girando, pixelada.
-  - Arquetipo resultante y barras de estadísticas.
+  - Vista previa 3D de la peonza girando, pixelada, centrada y vista casi de frente.
+  - Arquetipo resultante (con el color de su arquetipo) y barras de estadísticas **por tramos**: lo que da la peonza sin piezas (gris) y, a continuación, lo que suma cada pieza (un tono de verde por pieza). Lo que resta una pieza se ve en rojo al final de la barra. El tramo de la pieza de la fila seleccionada parpadea, para ver qué aporta.
+  - Bajo el nombre de cada pieza, en pequeño y con su color, su **arquetipo**.
   - **Preset** (Ataque, Defensa, Agilidad, Balanceada o Aleatorio).
   - **Personalizar:** cambiar Punta, Cuerpo, Disco y Núcleo una a una. Al tocar una pieza, el preset pasa a "Personalizada". El nombre del núcleo se muestra **con el color de su poder** (el de su aura y su esfera) para reconocerlo de un vistazo.
   - Núcleo de cada preset: Ataque → Fuego, Defensa → Defensa, Agilidad → Rayos, Balanceada → Spin Boost.
@@ -616,6 +624,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-06 | Sandbox: dummies | Un comportamiento para todos (Quieto, Moverse, Atacar, Dash hacia ti, Especial) y un intervalo (0,5 / 1 / 2 / 3 s). |
 | 2026-10-06 | Sandbox: panel | Lo navega cualquiera (mando, teclado o ratón), como la pausa. Al cerrarlo no hay cuenta atrás. |
 | 2026-10-05 | Carpeta ThirdParty | Todo lo que no es nuestro va en `Assets/ThirdParty/` (ignorado); los paquetes libres (CC0, MIT...) en `ThirdParty/Free/`, que sí se sube. Los paquetes de código o shaders se quedan en su carpeta original (ignorada). |
+| 2026-10-06 | Arquetipo de cada pieza | Toda pieza sigue un arquetipo, que se muestra en pequeño bajo su nombre en la selección. El número de piezas no importa; lo importante es identificarlas. |
+| 2026-10-06 | Barras por tramos | Las barras de la selección muestran lo que aporta cada pieza (base + un tramo por pieza, lo que resta en rojo) y parpadea el tramo de la fila seleccionada. |
 | 2026-10-06 | Tipos de modelo | Cada pieza tiene 4 tipos de modelo, uno por arquetipo: A = Ataque, B = Balanceada, C = Defensa, D = Agilidad. |
 | 2026-10-06 | Colores por pieza | El color del jugador es el protagonista: anillas de ese color, cuerpo blanco, punta negra y núcleo en otro tono del mismo color. Personalizable por color de la paleta en Opciones y guardado. |
 | 2026-10-06 | Núcleo genérico | Un único modelo de núcleo que cambia de color: tono de la paleta + brillo del color de su poder que crece con la carga de la esfera. |
@@ -635,7 +645,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 - Qué otros efectos de postprocesado se añaden a Opciones.
-- Modelos por pieza: hay 4 tipos por pieza, uno por arquetipo (ver 3), pero el catálogo tiene 3 piezas por hueco (Ligera, Media y Pesada). Falta decidir cómo encajan (propuesta: pasar a 4 piezas por hueco, una por tipo, cada una apuntando a su modelo, con las estadísticas del arquetipo).
+- Modelos por pieza: qué modelo (tipo A, B, C o D) usa cada pieza del catálogo (propuesta: cada pieza apunta a su modelo; por defecto, el del tipo de su arquetipo). Faltan piezas de Ataque en punta y cuerpo, y una pieza por arquetipo en cada hueco si se quiere que cada modelo tenga su pieza.
 - Sonido al pulsar un botón (confirmar) y al volver atrás en los menús (alguno de los cortos del pack Casual, distinto de DM-CGS-01, que es el de moverse entre botones).
 - Autoeliminación: cuántos segundos sin recibir golpes hacen que cuente como autoeliminación (los mismos 5 s que dan el punto de K.O.).
 
@@ -717,6 +727,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 - [x] H1. Colores por pieza: paleta por color del jugador (disco del color elegido, cuerpo blanco, punta negra, núcleo en tono profundo), pintado por nombre de pieza (`BladePaint`) en partida, selección y fondo del menú, y brillo del núcleo con el color de su poder según la carga. Probado con un núcleo provisional: el brillo sube con la carga y late con el poder activo.
 - [x] H2. Opciones → Colores de peonza: lista de 24 colores retro por pieza, vista previa 3D, restaurar y guardado. Probado con teclado; falta con mando. 🎮
+- [x] H5. Selección de peonzas: arquetipo de cada pieza bajo su nombre, barras de stats por tramos con parpadeo de la pieza seleccionada y vista previa centrada y más de frente. Probado con 4 jugadores (captura); falta con mandos. 🎮
 - [ ] H3. Modelo genérico del núcleo (objeto `Core`, material `BladeCoreMaterial`) en el prefab de la peonza.
 - [x] H4a. Script de Blender para exportar cada pieza a su FBX (`Tools/Blender/export_blade_parts.py`). Probado con Blender 5.0: 17 piezas; en Unity llegan con rotación 0, escala 1, Y arriba y montadas en su sitio (la punta, con escala negativa en Blender, sin caras invertidas).
 - [ ] H4b. Importar los modelos de las piezas (tipos A = Ataque, B = Balanceada, C = Defensa, D = Agilidad) y decidir cómo se eligen (ver "Pendiente de definir").

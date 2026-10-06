@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "N\xFAcleo de impacto. Poder: Onda de choque que empuja enemigos."
   componentType: 3
   weightClass: 2
+  archetype: 2
   icon: {fileID: 0}
   maxSpinModifier: 50
   spinDecayModifier: 0

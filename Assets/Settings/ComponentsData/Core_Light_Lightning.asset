@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "N\xFAcleo de velocidad. Poder: Rayos."
   componentType: 3
   weightClass: 0
+  archetype: 3
   icon: {fileID: 0}
   maxSpinModifier: 50
   spinDecayModifier: 0

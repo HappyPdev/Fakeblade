@@ -17,6 +17,7 @@ MonoBehaviour:
     choques.
   componentType: 1
   weightClass: 0
+  archetype: 3
   icon: {fileID: 0}
   maxSpinModifier: -50
   spinDecayModifier: 0.5

@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "N\xFAcleo de resistencia. Poder: Spin Boost (recupera RPM)."
   componentType: 3
   weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   maxSpinModifier: 100
   spinDecayModifier: 0

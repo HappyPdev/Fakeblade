@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "Punta esf\xE9rica ancha. M\xE1xima estabilidad, pero lenta."
   componentType: 0
   weightClass: 2
+  archetype: 2
   icon: {fileID: 0}
   maxSpinModifier: 100
   spinDecayModifier: -1.5

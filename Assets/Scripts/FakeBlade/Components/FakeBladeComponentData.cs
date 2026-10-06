@@ -37,6 +37,8 @@ namespace FakeBlade.Core
         [SerializeField][TextArea(2, 4)] private string description = "";
         [SerializeField] private ComponentSlot componentType = ComponentSlot.Body;
         [SerializeField] private WeightClass weightClass = WeightClass.Medium;
+        [Tooltip("Arquetipo al que pertenece la pieza (se muestra en la selección). Coincide con el tipo de modelo: A Ataque, B Balanceada, C Defensa, D Agilidad")]
+        [SerializeField] private BladeArchetype archetype = BladeArchetype.Balanced;
         [SerializeField] private Sprite icon;
 
         [Header("=== STAT MODIFIERS ===")]
@@ -77,6 +79,7 @@ namespace FakeBlade.Core
         public string Description => description;
         public ComponentSlot ComponentType => componentType;
         public WeightClass WeightClass => weightClass;
+        public BladeArchetype Archetype => archetype;
         public Sprite Icon => icon;
 
         public float MaxSpinModifier => maxSpinModifier;

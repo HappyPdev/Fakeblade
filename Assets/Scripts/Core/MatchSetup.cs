@@ -101,9 +101,17 @@ namespace FakeBlade.Core
         public static void CreateDefault(FakeBladeCatalog catalog)
         {
             Clear();
+            var used = new List<int>(2);
             for (int i = 0; i < 2; i++)
             {
                 InputAssignment.GetDefault(i, out InputDeviceKind kind, out int padIndex);
+
+                // Sin repetir dispositivo (p. ej. J1 eligió en Controles el mando que J2 tendría por defecto)
+                int option = InputAssignment.ToOption(kind, InputDeviceUtil.GamepadIdAt(padIndex));
+                for (int o = 0; used.Contains(option) && o < InputAssignment.OptionCount; o++) option = o;
+                used.Add(option);
+                InputAssignment.FromOption(option, out kind, out padIndex);
+
                 var setup = new PlayerSetup
                 {
                     PlayerIndex = i,

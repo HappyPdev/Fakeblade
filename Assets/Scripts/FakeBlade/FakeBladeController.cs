@@ -105,6 +105,9 @@ namespace FakeBlade.Core
         private bool _isDestroyed;
         private bool _simulationActive = true;
         private float _invulnerableTimer;
+        /// <summary>Último golpe de pared contado (Time.time) y su velocidad: uno por wallHitCooldown.</summary>
+        private float _wallHitTime = float.NegativeInfinity;
+        private float _wallHitSpeed;
 
         // Input
         private Vector3 _moveInput;
@@ -194,7 +197,8 @@ namespace FakeBlade.Core
         public float DashCooldownProgress => _dashTimer <= 0f ? 1f : 1f - _dashTimer / _dashCooldownTotal;
 
         public float Weight => _stats != null ? _stats.Weight : 1f;
-        /// <summary>Masa usada en los choques: peso + bonus de masa del ataque en curso.</summary>
+        /// <summary>Masa usada en el empuje de los choques: peso + bonus de masa del ataque en curso.
+        /// La masa no cuenta en el daño.</summary>
         public float EffectiveMass => Weight * (1f + _attack.MassBonus);
 
         /// <summary>Multiplicador de daño infligido: ataque de las piezas y combo.</summary>
@@ -1047,20 +1051,30 @@ namespace FakeBlade.Core
             float impactSpeed = Mathf.Abs(Vector3.Dot(collision.relativeVelocity, contact.normal));
             if (impactSpeed < cfg.wallMinDamageSpeed) return;
 
+            // Un solo golpe de pared cada wallHitCooldown: en la unión de dos tramos llegan dos
+            // contactos a la vez. Si el segundo es más fuerte, solo se suma la diferencia, sin efectos
+            bool repeat = Time.time - _wallHitTime < cfg.wallHitCooldown;
+            if (repeat && impactSpeed <= _wallHitSpeed) return;
+            float damageSpeed = repeat ? impactSpeed - _wallHitSpeed : impactSpeed;
+            if (!repeat) _wallHitTime = Time.time;
+            _wallHitSpeed = impactSpeed;
+
             if (_status.IsLaunched)
             {
                 // Lanzada (Rayos, GDD 5): la pared la golpea como una peonza parada con la fuerza de
                 // quien la lanzó (daño base + diferencia de velocidad), y el daño cuenta para él
                 FakeBladeController thrower = _status.Source;
                 float offense = thrower != null ? thrower.OffenseMultiplier : 1f;
-                ApplyDamage(impactSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense, thrower);
+                ApplyDamage(damageSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense, thrower);
+                if (repeat) return;
                 PlayClashFeedback(contact.point, Mathf.Clamp01(impactSpeed / 15f));
                 OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
                 return;
             }
 
             // Como un choque parejo contra una peonza a esa velocidad (wallDamageScale = 1)
-            ApplyDamage(impactSpeed * cfg.damagePerImpactSpeed * cfg.wallDamageScale, null);
+            ApplyDamage(damageSpeed * cfg.damagePerImpactSpeed * cfg.wallDamageScale, null);
+            if (repeat) return;
             VfxSystem.Play(VfxType.WallHit, contact.point, contact.normal, Color.white, Mathf.Clamp01(impactSpeed / 15f) + 0.3f);
             OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
         }
@@ -1120,7 +1134,9 @@ namespace FakeBlade.Core
             }
 
             float maxSpeed = _effectiveMaxSpeed * _special.MoveSpeedMultiplier * _status.MoveSpeedMultiplier;
-            if (_attack.IsCharging) maxSpeed *= cfg.moveMultiplierWhileCharging;
+            // Desactivado en prueba (2026-10-07): el freno al cargar no se notaba jugando, pero hacía que un
+            // ataque rápido a toda velocidad pegara igual o más que uno cargado. Si se recupera, volver a activarlo.
+            // if (_attack.IsCharging) maxSpeed *= cfg.moveMultiplierWhileCharging;
 
             // Recuperación del tope de velocidad tras un burst
             if (_burstHold > 0f)

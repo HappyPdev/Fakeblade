@@ -146,6 +146,7 @@ namespace FakeBlade.Core
             ["QUALITY_PC"] = new[] { "ALTA", "HIGH" },
 
             // Controles
+            ["CTRL_DEVICES"] = new[] { "DISPOSITIVO DE CADA JUGADOR", "EACH PLAYER'S DEVICE" },
             ["CTRL_SCHEME"] = new[] { "ESQUEMA", "SCHEME" },
             ["CTRL_HINT"] = new[] { "ELIGE UNA ACCIÓN Y PULSA LA TECLA NUEVA", "PICK AN ACTION AND PRESS THE NEW KEY" },
             ["CTRL_PRESS_KEY"] = new[] { "PULSA UNA TECLA... (ESC: CANCELAR)", "PRESS A KEY... (ESC: CANCEL)" },

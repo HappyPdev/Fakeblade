@@ -99,6 +99,9 @@ namespace FakeBlade.Core
         public float wallDamageScale = 1f;
         [Tooltip("Velocidad mínima contra paredes para que haga daño")]
         public float wallMinDamageSpeed = 3f;
+        [Tooltip("Segundos en los que una peonza solo recibe un golpe de pared (al dar en la unión de dos " +
+                 "tramos contaba dos). Si llega otro más fuerte, solo se suma la diferencia")]
+        public float wallHitCooldown = 0.1f;
         [Tooltip("RPM por segundo que se pierden al rozar con otra peonza")]
         public float grindDamagePerSecond = 8f;
         [Tooltip("Segundos pegadas a otra peonza (sin choque nuevo) antes de que se repelan")]
@@ -119,7 +122,7 @@ namespace FakeBlade.Core
         [Range(0f, 0.2f)] public float quickAttackSpinCostPct = 0.02f;
         [Tooltip("Duración del estado de ataque (bonus de masa activo)")]
         public float quickAttackDuration = 0.35f;
-        [Tooltip("Bonus de masa durante el ataque rápido (0.5 = +50%)")]
+        [Tooltip("Bonus de masa durante el ataque rápido (0.5 = +50%). Solo empuje: la masa no cuenta en el daño")]
         public float quickAttackMassBonus = 0.5f;
 
         [Header("=== ATAQUE CARGADO ===")]
@@ -131,16 +134,17 @@ namespace FakeBlade.Core
         public float chargedAutoReleaseTime = 0.6f;
         [Tooltip("Impulso extra por nivel de carga (0.6 = +60% por nivel): más alcance y más empuje, no más daño")]
         public float chargedImpulsePerLevel = 0.6f;
-        [Tooltip("Daño extra por nivel de carga sobre el de un ataque rápido (0,1 = +10% por nivel; nivel 3 = x1,3). " +
+        [Tooltip("Daño extra por nivel de carga sobre el de un ataque rápido (0,25 = +25% por nivel; nivel 3 = x1,75). " +
                  "El daño del cargado se calcula sin la velocidad extra de la carga")]
-        public float chargedDamagePerLevel = 0.1f;
-        [Tooltip("Bonus de masa extra por nivel de carga (la masa multiplica el daño: mejor dejarlo a 0 y usar chargedDamagePerLevel)")]
+        public float chargedDamagePerLevel = 0.25f;
+        [Tooltip("Bonus de masa extra por nivel de carga (solo empuje; el daño del cargado sale de chargedDamagePerLevel)")]
         public float chargedMassBonusPerLevel = 0f;
         [Tooltip("Empuje extra al objetivo por nivel de carga")]
         public float chargedKnockbackPerLevel = 0.4f;
         [Tooltip("Enfriamiento tras un ataque cargado antes de poder cargar otro")]
         public float chargedAttackCooldown = 0.8f;
-        [Tooltip("Multiplicador de velocidad mientras se carga")]
+        [Tooltip("Multiplicador de velocidad mientras se carga. SIN USO por ahora: el freno al cargar está " +
+                 "desactivado en FakeBladeController.ApplyMovementPhysics")]
         [Range(0f, 1f)] public float moveMultiplierWhileCharging = 0.6f;
 
         [Header("=== PARRY (GDD 2.5) ===")]
@@ -178,9 +182,9 @@ namespace FakeBlade.Core
         [Header("=== DAÑO GLOBAL ===")]
         [Tooltip("Multiplica todo el daño de golpes, paredes y roce (la quemadura va aparte, por porcentaje). " +
                  "Menos = combates más largos")]
-        public float damageMultiplier = 0.8f;
-        [Tooltip("Límites de la relación de masas en el daño y el empuje (x = mínimo, y = máximo). " +
-                 "Más estrecho = el peso decide menos y las ligeras no pegan tan poco")]
+        public float damageMultiplier = 0.5f;
+        [Tooltip("Límites de la relación de masas en el empuje (x = mínimo, y = máximo); la masa no cuenta en el daño. " +
+                 "Más estrecho = el peso decide menos")]
         public Vector2 massRatioRange = new Vector2(0.8f, 1.3f);
         [Tooltip("Cuánto cuentan las diferencias de ataque de las piezas en el daño (1 = todo; 0 = nada)")]
         [Range(0f, 1f)] public float attackSpread = 0.6f;
@@ -198,7 +202,7 @@ namespace FakeBlade.Core
         public float attackHitDamageMultiplier = 1.2f;
         [Tooltip("Daño de los golpes con dash. Menos de 1: el dash sirve para moverse y rematar, no para " +
                  "ser el golpe principal (llega mucho más rápido que un ataque)")]
-        public float dashHitDamageMultiplier = 0.75f;
+        public float dashHitDamageMultiplier = 0.5f;
         [Tooltip("Fracción del daño base que recibe la peonza más rápida")]
         [Range(0f, 1f)] public float fasterDamageFraction = 0.25f;
         [Tooltip("Diferencia de velocidad por debajo de la cual el choque es neutro")]

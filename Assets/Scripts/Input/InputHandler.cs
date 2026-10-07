@@ -286,11 +286,53 @@ namespace FakeBlade.Core
     /// <summary>
     /// Asignación de dispositivos por defecto para partidas de prueba (sin selección):
     /// J1 = teclado WASD; J2 = primer mando o, si no hay mandos, teclado con flechas; J3-J4 = siguientes mandos.
+    /// Si el jugador eligió otro en Controles (preferencia guardada) y ese dispositivo está conectado, manda ese.
     /// </summary>
     public static class InputAssignment
     {
+        private const string PrefsKey = "FakeBlade.DevicePreference.P";
+
+        /// <summary>
+        /// Opciones de dispositivo en orden: 0 = teclado J1, 1 = teclado J2, 2.. = mandos conectados
+        /// (en el orden de Gamepad.all, como "MANDO 1", "MANDO 2"...).
+        /// </summary>
+        public static int OptionCount => 2 + Gamepad.all.Count;
+
+        public static int ToOption(InputDeviceKind kind, int gamepadDeviceId)
+        {
+            if (kind == InputDeviceKind.KeyboardRight) return 1;
+            if (kind != InputDeviceKind.Gamepad) return 0;
+            var pads = Gamepad.all;
+            for (int i = 0; i < pads.Count; i++)
+                if (pads[i].deviceId == gamepadDeviceId) return 2 + i;
+            return 0;
+        }
+
+        public static void FromOption(int option, out InputDeviceKind kind, out int gamepadIndex)
+        {
+            gamepadIndex = Mathf.Max(0, option - 2);
+            kind = option <= 0 ? InputDeviceKind.KeyboardLeft : option == 1 ? InputDeviceKind.KeyboardRight : InputDeviceKind.Gamepad;
+        }
+
+        /// <summary>Guarda el dispositivo elegido para ese jugador (opción de OptionCount).</summary>
+        public static void SetPreference(int playerIndex, int option)
+        {
+            PlayerPrefs.SetInt(PrefsKey + playerIndex, option);
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>Opción guardada para ese jugador, o -1 si no eligió ninguna.</summary>
+        public static int GetPreference(int playerIndex) => PlayerPrefs.GetInt(PrefsKey + playerIndex, -1);
+
         public static void GetDefault(int playerIndex, out InputDeviceKind kind, out int gamepadIndex)
         {
+            int preference = GetPreference(playerIndex);
+            if (preference >= 0 && preference < OptionCount)
+            {
+                FromOption(preference, out kind, out gamepadIndex);
+                return;
+            }
+
             gamepadIndex = 0;
             if (playerIndex <= 0)
             {

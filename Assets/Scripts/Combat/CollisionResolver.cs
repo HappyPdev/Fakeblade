@@ -10,7 +10,8 @@ namespace FakeBlade.Core
     /// - Ambas reciben un daño base proporcional a la velocidad de cierre.
     /// - La más lenta recibe además daño por la diferencia de velocidad y el empuje principal.
     /// - La más rápida solo recibe una fracción del daño base.
-    /// - Masa efectiva (con bonus de ataque), ataque, defensa y combo escalan el resultado.
+    /// - Ataque, defensa y combo escalan el daño. La masa efectiva (peso + bonus de masa del ataque)
+    ///   solo cuenta para el empuje, no para el daño (así es más fácil equilibrar las piezas).
     /// - El dash no tiene bonus propio: su ventaja es la velocidad (cuenta como ataque).
     ///
     /// PARRY: si una peonza está en los primeros instantes de un ataque rápido (ventana de parry)
@@ -125,21 +126,19 @@ namespace FakeBlade.Core
             float damageDiff = Mathf.Max(0f, fastDamageSpeed - slowDamageSpeed);
 
             float baseDamage = (fastDamageSpeed + slowDamageSpeed) * cfg.damagePerImpactSpeed;
-            float ratioFastOverSlow = MassRatio(fast, slow);
-            float ratioSlowOverFast = 1f / ratioFastOverSlow;
 
             float damageToSlow;
             float damageToFast;
             if (neutral)
             {
-                // Choque parejo: ambos pierden lo mismo en base a masas y ataque
-                damageToSlow = baseDamage * fast.OffenseMultiplier * ratioFastOverSlow;
-                damageToFast = baseDamage * slow.OffenseMultiplier * ratioSlowOverFast;
+                // Choque parejo: ambos pierden lo mismo en base al ataque
+                damageToSlow = baseDamage * fast.OffenseMultiplier;
+                damageToFast = baseDamage * slow.OffenseMultiplier;
             }
             else
             {
-                damageToSlow = (baseDamage + damageDiff * cfg.damagePerSpeedDiff) * fast.OffenseMultiplier * ratioFastOverSlow;
-                damageToFast = baseDamage * cfg.fasterDamageFraction * slow.OffenseMultiplier * ratioSlowOverFast;
+                damageToSlow = (baseDamage + damageDiff * cfg.damagePerSpeedDiff) * fast.OffenseMultiplier;
+                damageToFast = baseDamage * cfg.fasterDamageFraction * slow.OffenseMultiplier;
             }
             // Nivel de carga y tipo de golpe (ataque, dash o sin atacar)
             damageToSlow *= fast.ChargeDamageMultiplier * fast.HitTypeDamageMultiplier;
@@ -153,7 +152,7 @@ namespace FakeBlade.Core
             // Empuje: velocidad instantánea (m/s), escalada por masas, cargas y resistencias
             float knockback = (cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff)
                               * fast.OutgoingKnockbackMultiplier
-                              * ratioFastOverSlow;
+                              * KnockbackMassRatio(fast, slow);
             knockback = Mathf.Min(knockback, cfg.maxKnockback);
 
             float slowKnockback = knockback * slow.KnockbackResistance * fastBonus.KnockbackMultiplier;
@@ -222,7 +221,7 @@ namespace FakeBlade.Core
             // El atacante se sigue llevando su fracción del impacto (la misma que recibe
             // normalmente la peonza más rápida); quien hace el parry no recibe nada.
             float baseDamage = closing * cfg.damagePerImpactSpeed;
-            float damage = baseDamage * cfg.fasterDamageFraction * parrier.OffenseMultiplier * MassRatio(parrier, attacker);
+            float damage = baseDamage * cfg.fasterDamageFraction * parrier.OffenseMultiplier;
             float dealt = attacker.ApplyDamage(damage, parrier);
             CutHealIfAttacked(attacker, parrier, dealt);
 
@@ -257,10 +256,9 @@ namespace FakeBlade.Core
 
             float diff = Mathf.Abs(approachLaunched - approachOther);
             float baseDamage = closing * cfg.damagePerImpactSpeed;
-            float ratioOtherOverLaunched = MassRatio(other, launched);
 
-            float damageToLaunched = (baseDamage + diff * cfg.damagePerSpeedDiff) * other.OffenseMultiplier * ratioOtherOverLaunched;
-            float damageToOther = baseDamage * launched.OffenseMultiplier / ratioOtherOverLaunched;
+            float damageToLaunched = (baseDamage + diff * cfg.damagePerSpeedDiff) * other.OffenseMultiplier;
+            float damageToOther = baseDamage * launched.OffenseMultiplier;
 
             // Si la otra es quien la lanzó, su daño no cuenta como golpe propio
             FakeBladeController launchedSource = thrower != null ? thrower : other;
@@ -295,12 +293,12 @@ namespace FakeBlade.Core
             toB.y = 0f;
             toB = toB.sqrMagnitude > 0.0001f ? toB.normalized : Vector3.right;
 
-            float ratioAOverB = MassRatio(a, b);
             float baseDamage = cfg.stuckImpactSpeed * cfg.damagePerImpactSpeed;
-            float dealtToB = b.ApplyDamage(baseDamage * a.OffenseMultiplier * ratioAOverB, a);
-            float dealtToA = a.ApplyDamage(baseDamage * b.OffenseMultiplier / ratioAOverB, b);
+            float dealtToB = b.ApplyDamage(baseDamage * a.OffenseMultiplier, a);
+            float dealtToA = a.ApplyDamage(baseDamage * b.OffenseMultiplier, b);
 
             // Las resistencias (Defensa) frenan el empuje, pero no tanto como para seguir pegadas
+            float ratioAOverB = KnockbackMassRatio(a, b);
             float knockToA = cfg.stuckRepelSpeed / ratioAOverB * Mathf.Max(0.5f, a.KnockbackResistance);
             float knockToB = cfg.stuckRepelSpeed * ratioAOverB * Mathf.Max(0.5f, b.KnockbackResistance);
             a.ApplyKnockback(-toB * knockToA);
@@ -321,12 +319,12 @@ namespace FakeBlade.Core
             if (dealt > 0f && hitter.IsAttacking && !victim.IsAllyOf(hitter)) victim.InterruptHeal();
         }
 
-        private static float MassRatio(FakeBladeController a, FakeBladeController b)
+        /// <summary>Relación de masas para el empuje (con el bonus de masa del ataque en curso). La masa no
+        /// cuenta en el daño. Límites en CombatConfig.massRatioRange: el peso cuenta, pero no lo decide todo.</summary>
+        private static float KnockbackMassRatio(FakeBladeController a, FakeBladeController b)
         {
-            // Límites en CombatConfig.massRatioRange: el peso cuenta, pero no lo decide todo
             Vector2 range = CombatConfig.Active.massRatioRange;
-            float ratio = a.EffectiveMass / Mathf.Max(0.01f, b.EffectiveMass);
-            return Mathf.Clamp(ratio, range.x, range.y);
+            return Mathf.Clamp(a.EffectiveMass / Mathf.Max(0.01f, b.EffectiveMass), range.x, range.y);
         }
 
         private static bool FriendlyFireEnabled()

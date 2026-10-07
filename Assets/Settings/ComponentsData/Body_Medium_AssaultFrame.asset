@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
+  m_Name: Body_Medium_AssaultFrame
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
+  componentName: Assault Frame
+  description: "Cuerpo de asalto. Reparte el peso hacia delante para golpear m\xE1s,
+    a cambio de defensa."
+  componentType: 1
+  weightClass: 1
+  archetype: 1
+  icon: {fileID: 0}
+  model: {fileID: 919132149155446097, guid: f5ca8d79b21178c4da177060bddd1e1f, type: 3}
+  maxSpinModifier: 0
+  spinDecayModifier: 0.2
+  moveSpeedModifier: 1
+  weightModifier: 0.2
+  attackPowerModifier: 6
+  defenseModifier: -3
+  dashForceModifier: 1
+  attackChargesModifier: 0
+  parryWindowModifier: 0
+  traits: []
+  specialAbility: 0

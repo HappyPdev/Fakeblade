@@ -189,7 +189,7 @@ namespace FakeBlade.Core
             s.Special = core != null && core.SpecialAbility != SpecialAbilityType.None
                 ? core.SpecialAbility
                 : SpecialAbilityType.SpinBoost;
-            s.Archetype = ComputeArchetype(s);
+            s.Archetype = ComputeArchetype(tip, body, blade, core);
             return s;
         }
 
@@ -214,22 +214,33 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Deduce el arquetipo comparando ataque, defensa (peso + defensa) y agilidad
-        /// normalizados respecto a una build "todo Medio". Si ninguno destaca claramente, es Balanceada.
+        /// Arquetipo de la peonza: el que más se repite entre sus piezas (cada pieza tiene el suyo, GDD 3).
+        /// Si hay empate en cabeza, es Balanceada. Antes se deducía de las estadísticas con referencias
+        /// fijas, y al cambiar los valores de las piezas (C10) el preset Ataque salía como Agilidad.
         /// </summary>
-        private static BladeArchetype ComputeArchetype(in BladeStatBlock s)
+        private static BladeArchetype ComputeArchetype(params FakeBladeComponentData[] parts)
         {
-            const float margin = 1.15f;
-            const float refAttack = 15f, refCharges = 3f, refDefense = 20f, refWeight = 1.5f, refSpeed = 5f;
+            var counts = new int[System.Enum.GetValues(typeof(BladeArchetype)).Length];
+            foreach (FakeBladeComponentData part in parts)
+                if (part != null) counts[(int)part.Archetype]++;
 
-            float attack = (s.AttackPower / refAttack + s.AttackCharges / refCharges) * 0.5f;
-            float defense = (s.Defense / refDefense + s.Weight / refWeight) * 0.5f;
-            float agility = s.MoveSpeed / refSpeed;
-
-            if (attack > defense * margin && attack > agility * margin) return BladeArchetype.Attack;
-            if (defense > attack * margin && defense > agility * margin) return BladeArchetype.Defense;
-            if (agility > attack * margin && agility > defense * margin) return BladeArchetype.Agility;
-            return BladeArchetype.Balanced;
+            BladeArchetype best = BladeArchetype.Balanced;
+            int bestCount = 0;
+            bool tie = false;
+            for (int i = 0; i < counts.Length; i++)
+            {
+                if (counts[i] > bestCount)
+                {
+                    best = (BladeArchetype)i;
+                    bestCount = counts[i];
+                    tie = false;
+                }
+                else if (counts[i] == bestCount && bestCount > 0)
+                {
+                    tie = true;
+                }
+            }
+            return tie || bestCount == 0 ? BladeArchetype.Balanced : best;
         }
         #endregion
 

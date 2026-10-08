@@ -25,7 +25,7 @@ MonoBehaviour:
   moveSpeedModifier: 4
   weightModifier: -0.2
   attackPowerModifier: 0
-  defenseModifier: -5
+  defenseModifier: -3
   dashForceModifier: 3
   attackChargesModifier: 0
   parryWindowModifier: 0

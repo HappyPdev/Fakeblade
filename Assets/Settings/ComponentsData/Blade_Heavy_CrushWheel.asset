@@ -23,7 +23,7 @@ MonoBehaviour:
   spinDecayModifier: 0.5
   moveSpeedModifier: -2
   weightModifier: 0.6
-  attackPowerModifier: 6
+  attackPowerModifier: 0
   defenseModifier: 10
   dashForceModifier: 2
   attackChargesModifier: 0

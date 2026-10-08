@@ -194,15 +194,24 @@ namespace FakeBlade.Core
         public float minCollisionSpeed = 1.5f;
         [Tooltip("Tiempo mínimo entre dos choques de la misma pareja (evita contar rebotes como golpes)")]
         public float clashCooldown = 0.15f;
-        [Tooltip("Daño base por unidad de velocidad de cierre (lo reciben ambos)")]
+        [Tooltip("Daño de un golpe entre peonzas antes de ataque, carga, tipo de golpe, defensa y daño global " +
+                 "(GDD 2.7: calibrado para que el rápido de Balanceada contra Balanceada quite ≈ 20)")]
+        public float hitBaseDamage = 42f;
+        [Tooltip("Velocidad de choque (m/s, sin la de la carga) en la que el golpe vale el mínimo (x) y el máximo (y) " +
+                 "de hitSpeedFactor. Por debajo del mínimo baja hasta 0 en proporción (los roces no quitan)")]
+        public Vector2 hitSpeedRange = new Vector2(8f, 24f);
+        [Tooltip("Cuánto cambia el golpe con la velocidad: x en el mínimo de hitSpeedRange, y en el máximo")]
+        public Vector2 hitSpeedFactor = new Vector2(0.75f, 1.25f);
+        [Tooltip("Daño por unidad de velocidad de cierre: lo que recibe la peonza más rápida (con fasterDamageFraction), " +
+                 "el parry, las peonzas lanzadas, las pegadas y las paredes")]
         public float damagePerImpactSpeed = 1f;
-        [Tooltip("Daño extra al más lento por unidad de diferencia de velocidad")]
+        [Tooltip("Daño extra por unidad de diferencia de velocidad (peonzas lanzadas y su golpe contra la pared)")]
         public float damagePerSpeedDiff = 2.5f;
         [Tooltip("Daño de los golpes con ataque (rápido o cargado) sobre el de un choque sin atacar")]
         public float attackHitDamageMultiplier = 1.2f;
         [Tooltip("Daño de los golpes con dash. Menos de 1: el dash sirve para moverse y rematar, no para " +
                  "ser el golpe principal (llega mucho más rápido que un ataque)")]
-        public float dashHitDamageMultiplier = 0.5f;
+        public float dashHitDamageMultiplier = 0.75f;
         [Tooltip("Fracción del daño base que recibe la peonza más rápida")]
         [Range(0f, 1f)] public float fasterDamageFraction = 0.25f;
         [Tooltip("Diferencia de velocidad por debajo de la cual el choque es neutro")]

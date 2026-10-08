@@ -69,10 +69,13 @@ MonoBehaviour:
   attackSpread: 0.6
   minCollisionSpeed: 1.5
   clashCooldown: 0.15
+  hitBaseDamage: 42
+  hitSpeedRange: {x: 8, y: 24}
+  hitSpeedFactor: {x: 0.75, y: 1.25}
   damagePerImpactSpeed: 1
   damagePerSpeedDiff: 2.5
   attackHitDamageMultiplier: 1.2
-  dashHitDamageMultiplier: 0.5
+  dashHitDamageMultiplier: 0.75
   fasterDamageFraction: 0.25
   equalSpeedTolerance: 0.5
   knockbackBase: 5

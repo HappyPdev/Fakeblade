@@ -7,9 +7,10 @@ namespace FakeBlade.Core
     ///
     /// Se comparan las velocidades de aproximación (la componente de la velocidad de cada
     /// peonza dirigida hacia la otra) justo antes del impacto:
-    /// - Ambas reciben un daño base proporcional a la velocidad de cierre.
-    /// - La más lenta recibe además daño por la diferencia de velocidad y el empuje principal.
-    /// - La más rápida solo recibe una fracción del daño base.
+    /// - La más lenta recibe el golpe (daño base por golpe, hitBaseDamage, que la velocidad de choque solo
+    ///   mueve entre ×0,75 y ×1,25, GDD 2.7) y el empuje principal.
+    /// - La más rápida solo recibe una fracción del daño por velocidad de cierre.
+    /// - En un choque parejo ambas reciben el golpe de la otra.
     /// - Ataque, defensa y combo escalan el daño. La masa efectiva (peso + bonus de masa del ataque)
     ///   solo cuenta para el empuje, no para el daño (así es más fácil equilibrar las piezas).
     /// - El dash no tiene bonus propio: su ventaja es la velocidad (cuenta como ataque).
@@ -121,23 +122,25 @@ namespace FakeBlade.Core
 
             // Daño: sin la velocidad extra de la carga (el cargado hace el daño de uno rápido × su
             // multiplicador de nivel). Quién gana el choque y el empuje sí usan la velocidad real.
-            float fastDamageSpeed = Mathf.Max(0f, (aIsFaster ? approachA : approachB) - fast.ChargeExtraSpeed);
-            float slowDamageSpeed = Mathf.Max(0f, (aIsFaster ? approachB : approachA) - slow.ChargeExtraSpeed);
-            float damageDiff = Mathf.Max(0f, fastDamageSpeed - slowDamageSpeed);
+            float fastDamageSpeed = fast.DamageSpeed(aIsFaster ? approachA : approachB);
+            float slowDamageSpeed = slow.DamageSpeed(aIsFaster ? approachB : approachA);
 
             float baseDamage = (fastDamageSpeed + slowDamageSpeed) * cfg.damagePerImpactSpeed;
+            // Golpe (GDD 2.7): daño base por golpe que la velocidad solo mueve entre ×0,75 y ×1,25
+            float hitDamage = cfg.hitBaseDamage * HitSpeedFactor(fastDamageSpeed + slowDamageSpeed);
 
             float damageToSlow;
             float damageToFast;
             if (neutral)
             {
-                // Choque parejo: ambos pierden lo mismo en base al ataque
-                damageToSlow = baseDamage * fast.OffenseMultiplier;
-                damageToFast = baseDamage * slow.OffenseMultiplier;
+                // Choque parejo: ambos reciben el golpe del otro
+                damageToSlow = hitDamage * fast.OffenseMultiplier;
+                damageToFast = hitDamage * slow.OffenseMultiplier;
             }
             else
             {
-                damageToSlow = (baseDamage + damageDiff * cfg.damagePerSpeedDiff) * fast.OffenseMultiplier;
+                // La más lenta recibe el golpe; la más rápida, una fracción del daño por velocidad (como antes)
+                damageToSlow = hitDamage * fast.OffenseMultiplier;
                 damageToFast = baseDamage * cfg.fasterDamageFraction * slow.OffenseMultiplier;
             }
             // Nivel de carga y tipo de golpe (ataque, dash o sin atacar)
@@ -317,6 +320,20 @@ namespace FakeBlade.Core
         private static void CutHealIfAttacked(FakeBladeController victim, FakeBladeController hitter, float dealt)
         {
             if (dealt > 0f && hitter.IsAttacking && !victim.IsAllyOf(hitter)) victim.InterruptHeal();
+        }
+
+        /// <summary>
+        /// Cuánto vale un golpe según la velocidad de choque (sin la de la carga): de hitSpeedFactor.x en
+        /// hitSpeedRange.x a hitSpeedFactor.y en hitSpeedRange.y (y no más). Por debajo del mínimo baja en
+        /// proporción hasta 0, para que un roce lento no quite como un golpe.
+        /// </summary>
+        private static float HitSpeedFactor(float speed)
+        {
+            var cfg = CombatConfig.Active;
+            Vector2 range = cfg.hitSpeedRange;
+            Vector2 factor = cfg.hitSpeedFactor;
+            if (speed < range.x) return factor.x * Mathf.Max(0f, speed) / Mathf.Max(0.01f, range.x);
+            return Mathf.Lerp(factor.x, factor.y, Mathf.InverseLerp(range.x, range.y, speed));
         }
 
         /// <summary>Relación de masas para el empuje (con el bonus de masa del ataque en curso). La masa no

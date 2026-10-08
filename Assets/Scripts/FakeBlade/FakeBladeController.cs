@@ -123,6 +123,8 @@ namespace FakeBlade.Core
         private float _staggerEndTime = float.NegativeInfinity;
         /// <summary>RPM gastadas en el dash en curso (se devuelve una fracción si gana un choque).</summary>
         private float _dashRefundableCost;
+        /// <summary>Ataque cargado en curso: velocidad que tendría uno rápido / velocidad real al lanzarlo.</summary>
+        private float _chargeDamageSpeedScale = 1f;
 
         // Burst: tope de velocidad temporal tras ataque/dash/empuje
         private float _burstCap;
@@ -156,6 +158,8 @@ namespace FakeBlade.Core
         public float SpinSpeedPercentage => _maxSpin > 0f ? _currentSpin / _maxSpin : 0f;
         public float CurrentSpinSpeed => _currentSpin;
         public float MaxSpinSpeed => _maxSpin;
+        /// <summary>Velocidad máxima de movimiento con las piezas montadas (sin poderes ni estados).</summary>
+        public float MaxMoveSpeed => _effectiveMaxSpeed;
 
         public bool IsDestroyed => _isDestroyed;
         public bool IsInvulnerable => _invulnerableTimer > 0f;
@@ -175,19 +179,13 @@ namespace FakeBlade.Core
         public int ChargeLevel => _attack.IsAttacking ? _attack.AttackLevel : 0;
 
         /// <summary>
-        /// Velocidad que la carga ha sumado al acelerón (por encima de la de un ataque rápido).
-        /// El daño del choque se calcula sin ella: el cargado da alcance y empuje, no daño extra.
+        /// Velocidad con la que cuenta el daño de un choque: sin la parte que puso la carga en el acelerón
+        /// (el cargado da alcance y empuje; su daño extra sale de ChargeDamageMultiplier). Se quita en
+        /// proporción (la que tendría un ataque rápido lanzado igual), no una cantidad fija: restar la
+        /// velocidad extra entera dejaba el daño a 0 si el golpe llegaba tarde o frenado, y lo disparaba
+        /// a toda velocidad.
         /// </summary>
-        public float ChargeExtraSpeed
-        {
-            get
-            {
-                int level = ChargeLevel;
-                if (level <= 0) return 0f;
-                var cfg = CombatConfig.Active;
-                return cfg.quickAttackImpulse * cfg.chargedImpulsePerLevel * level * WeightSpeedFactor;
-            }
-        }
+        public float DamageSpeed(float approachSpeed) => ChargeLevel > 0 ? approachSpeed * _chargeDamageSpeedScale : approachSpeed;
 
         /// <summary>Daño del ataque cargado sobre el de uno rápido: 1 + chargedDamagePerLevel × nivel.</summary>
         public float ChargeDamageMultiplier => 1f + CombatConfig.Active.chargedDamagePerLevel * ChargeLevel;
@@ -729,6 +727,13 @@ namespace FakeBlade.Core
             int effectiveLevel = Mathf.Max(level, _special.MinAttackLevel);
             Vector3 direction = ResolveActionDirection();
             float speedGain = cfg.quickAttackImpulse * (1f + cfg.chargedImpulsePerLevel * effectiveLevel);
+
+            // Parte de la velocidad que cuenta para el daño (ver DamageSpeed): la de un ataque rápido
+            // lanzado desde la misma velocidad, sobre la del cargado
+            Vector3 velocity = _rb.linearVelocity;
+            float along = Mathf.Max(0f, velocity.x * direction.x + velocity.z * direction.z);
+            _chargeDamageSpeedScale = (along + cfg.quickAttackImpulse * WeightSpeedFactor)
+                                      / Mathf.Max(0.01f, along + speedGain * WeightSpeedFactor);
 
             _attack.Commit(level, effectiveLevel);
             ApplyBurst(direction, speedGain * WeightSpeedFactor, cfg.quickAttackDuration);

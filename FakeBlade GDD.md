@@ -68,7 +68,7 @@ Hasta **2 jugadores pueden compartir el teclado** (J1 con WASD y J2 con las flec
 - **Ataque rápido:** al pulsar el botón, la peonza hace una pequeña aceleración en la dirección del joystick. Gana menos velocidad que un dash o un ataque cargado, pero durante el ataque tiene una **bonificación de masa**. Si no hay dirección marcada, ataca hacia el enemigo más cercano.
 - **Cargas de ataque:** cada peonza tiene un número de cargas que se gastan al atacar y se recuperan con el tiempo. La media es **3 cargas**. Las piezas ligeras dan más cargas y las pesadas menos. Se muestran como puntos debajo de la barra de vida.
 - **Ataques rápidos seguidos (combos):** pulsando repetidamente se encadenan varios ataques, cada uno con su coste en cargas y RPM. Los golpes consecutivos acumulan una pequeña bonificación de daño y de empuje.
-- **Ataque cargado:** al mantener pulsado el botón de ataque, sube el nivel de carga. Cada nivel da **más alcance** (acelerón +60%) y **más empuje** (+40%), y **+25% de daño** sobre el de un ataque rápido: el daño se calcula como el de un ataque rápido (sin la velocidad extra de la carga) y se multiplica por 1 + 0,25 × nivel (nivel 1 = ×1,25, nivel 2 = ×1,5, nivel 3 = ×1,75; antes +10% por nivel, que jugando apenas se notaba, y al principio llegaba a ×3,7 porque velocidad y masa se multiplicaban). Se ajusta con `chargedDamagePerLevel` en `CombatConfig`. El nivel máximo de carga depende de las cargas restantes, y el ataque gasta tantas cargas como niveles se hayan cargado. Si se mantiene en el máximo un tiempo, el ataque se lanza solo. **Mientras se carga, la peonza se mueve a su velocidad normal** (sin el freno al 60%; probado con mando el 2026-10-07: no se echa de menos, porque para apuntar el cargado ya hay que usar el movimiento o soltarlo un instante para el autoapuntado).
+- **Ataque cargado:** al mantener pulsado el botón de ataque, sube el nivel de carga. Cada nivel da **más alcance** (acelerón +60%) y **más empuje** (+40%), y **+25% de daño** sobre el de un ataque rápido: el daño se calcula como el de un ataque rápido (sin la velocidad extra de la carga, quitada **en proporción**: al soltarlo se guarda qué parte de su velocidad tendría un rápido lanzado igual, y al chocar cuenta esa parte de la velocidad real) y se multiplica por 1 + 0,25 × nivel (nivel 1 = ×1,25, nivel 2 = ×1,5, nivel 3 = ×1,75; antes +10% por nivel, que jugando apenas se notaba, y al principio llegaba a ×3,7 porque velocidad y masa se multiplicaban). Se ajusta con `chargedDamagePerLevel` en `CombatConfig`. El nivel máximo de carga depende de las cargas restantes, y el ataque gasta tantas cargas como niveles se hayan cargado. Si se mantiene en el máximo un tiempo, el ataque se lanza solo. **Mientras se carga, la peonza se mueve a su velocidad normal** (sin el freno al 60%; probado con mando el 2026-10-07: no se echa de menos, porque para apuntar el cargado ya hay que usar el movimiento o soltarlo un instante para el autoapuntado).
 - **Efecto de la carga:** mientras se carga, unas partículas convergen hacia la peonza. En cada nivel son más, más grandes y pasan del color del jugador a un blanco dorado, y sale un anillo en el suelo. Al llegar al máximo hay un destello de estrellas y salen llamas de la base hasta que se lanza.
 - **Daño de los ataques:** un golpe con ataque (rápido o cargado) hace un **20% más** que un choque sin atacar (`attackHitDamageMultiplier` 1,2), para que atacar compense frente al dash.
 - **Coste:** los ataques cuestan RPM, igual que el dash.
@@ -91,14 +91,14 @@ Cuesta **8% de las RPM máximas** y tiene **1,8 s** de espera (antes 6% y 1,5 s)
 
 Cuando dos peonzas chocan, se comparan sus velocidades en el momento del choque (la componente de la velocidad con la que cada una va hacia la otra):
 
-- **La más lenta** recibe la penalización: pierde RPM en función del impacto y de la **diferencia de velocidad**, y sale empujada según la relación de masas (incluida la bonificación de masa del ataque; la masa no cambia el daño).
+- **La más lenta** recibe el **golpe** y sale empujada según la relación de masas (incluida la bonificación de masa del ataque; la masa no cambia el daño). El golpe tiene un **daño base** (`hitBaseDamage` 50) que la velocidad de choque solo mueve entre **×0,75** (8 m/s) y **×1,25** (24 m/s o más), y por debajo de 8 m/s baja hasta 0 (los roces no quitan). Así el daño se equilibra con el ataque de las piezas y no se dispara a toda velocidad (decidido el 2026-10-07 con el banco de pruebas; antes el daño crecía en línea recta con la velocidad y la diferencia de velocidad).
 - **La más rápida** recibe solo una **fracción del daño** (por defecto un 25%, ajustable). Así cualquier choque tiene algún coste.
 - **Impacto directo:** se transmite la energía entre las peonzas.
 - **Impacto oblicuo:** desvía la trayectoria y hace perder velocidad. Hace menos daño porque la velocidad de aproximación es menor.
 - **Defensa:** sincronizar bien los ataques para llegar con más velocidad que el rival es la forma de defenderse ("timing").
 - **Daño global:** todo el daño de golpes, paredes y roce se multiplica por `damageMultiplier` (**0,5**; antes 0,8), para que un golpe normal quite 20-30 RPM y los combates sean más largos. La quemadura va aparte, por porcentaje.
-- **Peso y ataque:** la **masa solo cuenta para el empuje**, no para el daño (ni el peso de las piezas ni el bonus de masa del ataque), para que sea más sencillo equilibrar las estadísticas. En el empuje, la relación de masas está limitada a ×0,8-×1,3 (`massRatioRange`). El daño depende de la velocidad, del ataque (las diferencias de ataque de las piezas cuentan un 60%, `attackSpread`), de la defensa, de la carga y del tipo de golpe (ataque ×1,2, dash ×0,5).
-- **Daños de referencia** (probe del sandbox, contra un dummy Balanceada de 580 RPM). Desde parado (~8 m/s), rápido / cargado nivel 3 / dash: Ataque 18 / 31 / 19, Defensa 12 / — / 6, Balanceada 12 / 21 / 11, Agilidad 21 / 36 / 24 (cargado ×1,75). Saliendo a su velocidad máxima, rápido / cargado 1 / 2 / 3: Balanceada 33 / 41 / 50 / 58, Agilidad 61 / 76 / 91 / 107 (techo teórico; jugando se llega con menos velocidad). Ataque rápido lanzado en marcha (14-16 m/s): 19-36 según el preset. En el registro del 2026-10-07 (178 golpes con los valores anteriores) la media era 38 y la mitad pasaba de 40; con estos valores la media sale ≈ 23.
+- **Peso y ataque:** la **masa solo cuenta para el empuje**, no para el daño (ni el peso de las piezas ni el bonus de masa del ataque), para que sea más sencillo equilibrar las estadísticas. En el empuje, la relación de masas está limitada a ×0,8-×1,3 (`massRatioRange`). El daño depende del golpe base, de la velocidad (±25%), del ataque (las diferencias de ataque de las piezas cuentan un 60%, `attackSpread`), de la defensa, de la carga y del tipo de golpe (ataque ×1,2, dash ×0,5).
+- **Daños de referencia:** los mide el banco de pruebas (2.7). Último informe, contra Balanceada, rápido parado / a tope y cargado 3 parado / a tope: Balanceada 17 / 25 y 27 / 44, Ataque 25 / 35 y 40 / 63, Defensa 18 / 29, Agilidad 30 / 38 y 44 / 67.
 - **Paredes:** chocar contra el borde hace el daño de un **choque parejo contra una peonza** a esa velocidad: velocidad perpendicular × `damagePerImpactSpeed` × `wallDamageScale` (1); antes era la mitad. Solo cuenta la velocidad perpendicular (rozarla no quita RPM) y desde 3 m/s. Un solo golpe de pared por peonza cada **0,1 s** (`wallHitCooldown`): al dar en la unión de dos tramos llegaban dos a la vez; si el segundo es más fuerte, solo se suma la diferencia. El suelo nunca quita RPM.
 - **Peonzas pegadas:** si dos peonzas siguen en contacto **0,3 s** después de un choque (sin velocidad no hay choque nuevo), se separan con un empuje de **7 m/s** (la más pesada empuja más; la resistencia al empuje lo frena como mucho a la mitad) y reciben el daño de un choque parejo a 5 m/s, con su chispazo. No da energía ni corta curaciones. El roce continuo (8 RPM/s) sigue aparte. Valores en `CombatConfig` → `stuckRepel*` y `stuckImpactSpeed`.
 
@@ -125,9 +125,30 @@ Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloque
 
 - **Vida o resistencia (RPM):** la vida de la peonza son sus revoluciones por minuto. Cuantas más RPM, más energía para seguir luchando. Las RPM bajan poco a poco solas (desgaste) y al recibir golpes.
 - **Masa:** resistencia a perder velocidad y a ser empujada.
-- **Ataque:** fuerza de impacto en las colisiones, que depende de la masa de la peonza y de su velocidad al chocar.
+- **Ataque:** fuerza de impacto en las colisiones, que depende de su velocidad al chocar (la masa solo cuenta para el empuje, ver 2.5).
 - **Defensa:** resistencia al daño y al empuje.
 - **Eliminación:** una peonza queda eliminada **únicamente cuando sus RPM llegan a 0**. No hay ring-out: los bordes de la arena impiden salir.
+
+## 2.7 Objetivos de equilibrio (C10)
+
+Lo que tiene que salir, escrito antes de tocar valores (método en el registro de decisiones). El banco de pruebas lo mide y marca lo que se sale (±10%).
+
+| Objetivo | Valor |
+|---|---|
+| Duración, Balanceada contra Balanceada | Se aceptan duelos más largos (**~90-120 s**): con ~20 por golpe, 60 s pediría un golpe cada ~2 s |
+| Dash | ≈ 75% de un ataque rápido |
+| Ataque rápido, Balanceada contra Balanceada | ≈ **20 RPM** |
+| Cargado 1 / 2 / 3 | ×1,25 / ×1,5 / ×1,75 del rápido (≈ 25 / 30 / 35) |
+| Tope de un solo golpe (cualquier arquetipo, a tope, cargado 3) | **60 RPM** (~10% de una Balanceada) |
+
+| Arquetipo (Balanceada = 1) | Daño que hace | Daño que recibe |
+|---|---|---|
+| Ataque | 1,25 | 1,10 |
+| Defensa | 0,75 | 0,65 (aguanta ~1,5 veces más) |
+| Agilidad | 1,10 (y golpea más a menudo) | 1,20 |
+| Balanceada | 1 | 1 |
+
+**Banco de pruebas:** menú *FakeBlade → Banco de equilibrio* con Play en la escena Sandbox (necesita un dummy). Cada preset golpea a cada preset con rápido, cargado 1-3 y dash, desde parado (P), saliendo a su velocidad máxima (T) y llegando tarde (L, a 5 m). Mientras dura (~7 min) los dummies están quietos, sin trucos, a velocidad ×1 y sin grabar la sesión; al acabar todo vuelve a como estaba. Informe en `Logs/Balance/` (.md con las tablas y .csv con cada golpe).
 
 3. # Peonzas Modulares
 
@@ -501,18 +522,18 @@ Reasignación completa de los controles de **Teclado J1**, **Teclado J2** y **Ma
 - Si la tecla ya estaba en uso, se **intercambia** con la acción que la tenía, para que nunca quede un control duplicado ni vacío.
 - "Restablecer" vuelve a los controles por defecto.
 
-### 9.2.5 Información
-
-Créditos del juego con enlaces a las redes del autor. Los datos están en un asset editable (`CreditsData`), sin tocar código.
-
-### 9.2.6 Escena de batalla
-
 **Dispositivo de cada jugador** (arriba del todo; probado con mando el 2026-10-07): una fila por jugador humano con *Teclado J1 / Teclado J2 / Mando 1..N* (los mandos que detecte el juego; la lista se actualiza si se conecta o desconecta uno).
 
 - Desde la **pausa** (partida o sandbox) se aplica al momento a la peonza de ese jugador y se mantiene al reiniciar. Los dummies y la IA no salen.
 - Si otro jugador ya usaba ese dispositivo, se **intercambian**.
 - Se guarda como preferencia: las partidas que se abren sin pasar por la selección (escena abierta desde el editor) empiezan con ese dispositivo, sin repetirlo entre jugadores. En el menú principal salen J1 y J2 para elegir esa preferencia.
 - En la selección de peonzas manda el dispositivo con el que se une cada jugador, como hasta ahora.
+
+### 9.2.5 Información
+
+Créditos del juego con enlaces a las redes del autor. Los datos están en un asset editable (`CreditsData`), sin tocar código.
+
+### 9.2.6 Escena de batalla
 
 - **Pausa:** si cualquier jugador pulsa Start (o Esc), el juego se pausa. El menú de pausa permite reanudar el combate, ir a las opciones gráficas y de controles, o salir al menú principal (con confirmación). Al reanudar hay una cuenta atrás corta para que todos empiecen en las mismas condiciones.
 - **Fin de la batalla:** cuando se cumplen las condiciones de victoria del modo, aparece un panel con los ganadores y tres botones:
@@ -696,21 +717,25 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-07 | Paredes | Mismo daño que un choque parejo contra una peonza a esa velocidad (el doble que antes). Interpretación de "el mismo daño que chocar con una": se confirma o se cambia al probarlo. |
 | 2026-10-07 | Peonzas pegadas | Si siguen en contacto 0,3 s tras un choque, se separan con un empuje de 7 m/s y un choque parejo pequeño (5 m/s), con chispazo. |
 | 2026-10-07 | Sensación de los ataques | Estela continua durante el acelerón y vibración en ataques, carga, dash, golpes dados y recibidos, paredes y corte de curación. |
-
-12. # Pendiente de definir
-
-Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
-
-- Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 | 2026-10-07 | Masa y daño | La masa (peso de las piezas y bonus de masa del ataque) solo cuenta para el empuje, no para el daño, para equilibrar las estadísticas más fácilmente. Sustituye a la prueba de contar el bonus del ataque a la mitad, que seguía dando golpes de 40-60 con mando. |
 | 2026-10-07 | Daño más bajo | Un golpe normal debe quitar 20-30 RPM. Con el registro del sandbox (media 38, la mitad por encima de 40): daño global ×0,8 → ×0,5 y golpe con dash ×0,75 → ×0,5 (sin la masa en el daño, el dash volvía a pegar más que los ataques en el arquetipo Ataque). Media esperada ≈ 23. |
 | 2026-10-07 | Método de equilibrado | 1) Objetivos escritos antes de tocar valores. 2) Referencia: Balanceada contra Balanceada; primero la fórmula común, después los arquetipos con las piezas, luego los rasgos y al final los poderes. 3) Banco de pruebas que se repite igual (C10) para medir, y partidas con mando y el CSV para confirmar la sensación. 4) Un cambio cada vez, anotado con el antes y el después. 5) La Defensa se mide por lo que aguanta (daño recibido, golpes hasta el K.O.); si sigue débil, rasgos en sus piezas. |
 | 2026-10-07 | Duración de los combates | Objetivo: 60 s en Balanceada contra Balanceada. Si se hace corto, se sube a 120 s y se va adaptando. |
 | 2026-10-07 | Moverse cargando | Se quita el freno al 60% mientras se carga (comentado en el código, `moveMultiplierWhileCharging` sin uso): jugando no se notaba y hacía que el rápido pegara igual o más que el cargado. Probado con mando: no se nota nada especial (para apuntar ya hay que moverse o soltar un instante para el autoapuntado), así que se queda sin freno. |
 | 2026-10-07 | Daño del cargado | Objetivo: nivel 3 = ×1,75 del rápido (Balanceada: rápido 20 → 25 / 30 / 35). `chargedDamagePerLevel` 0,10 → 0,25. Con +10% por nivel, jugando el cargado 3 solo pegaba ~50% más que el rápido y no se apreciaba. |
+| 2026-10-07 | Cargado que no hacía daño | El daño del cargado restaba una velocidad fija (toda la que suma la carga, ~16 m/s en nivel 3): si el golpe llegaba tarde o frenado se quedaba en 0 y solo empujaba, y a toda velocidad se disparaba (0-90 RPM en el mismo registro). Ahora se quita en proporción (2.3). |
+| 2026-10-07 | Objetivos de equilibrio | Tabla en 2.7: rápido ≈ 20, cargado ×1,75, tope de 60 por golpe, duelos de 60 s y arquetipos con diferencias moderadas (Ataque hace +25% y recibe +10%; Defensa −25% / −35%; Agilidad +10% / +20%). |
+| 2026-10-07 | Daño por golpe | El daño de un golpe entre peonzas es un daño base (`hitBaseDamage` 50, calibrado para un rápido ≈ 20 en Balanceada contra Balanceada) que la velocidad solo mueve ±25%. Sustituye al daño que crecía en línea recta con la velocidad: los golpes a tope pasaban de 100. El empuje sigue dependiendo de la velocidad igual. |
+| 2026-10-08 | Arquetipo de la peonza | Es el que más se repite entre sus 4 piezas (punta, cuerpo, anilla y núcleo); con empate en cabeza, Balanceada. Antes se deducía de las estadísticas y, con los valores nuevos, el preset Ataque salía como Agilidad. |
 | 2026-10-07 | Dispositivo por jugador | En Controles se elige el dispositivo de cada jugador (Teclado J1, Teclado J2, Mando 1..N), al momento desde la pausa y guardado como preferencia, para probar con mando cómodamente (9.2.4). |
 | 2026-10-07 | Vista previa de piezas | Al enseñar una pieza en la selección, la peonza se queda quieta para ver bien el cambio (H7). |
 | 2026-10-07 | Golpes de pared | Uno por peonza cada 0,1 s; si llega otro más fuerte en ese tiempo, solo se suma la diferencia. El golpe directo de Rayos no se toca hasta volver a medirlo. |
+
+12. # Pendiente de definir
+
+Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
+
+- Valores de equilibrio: coste en RPM de ataque y dash, tiempos de recarga, fracción de daño de la peonza rápida, etc. Se ajustan en el asset `CombatConfig`.
 - Qué otros efectos de postprocesado se añaden a Opciones.
 - **Estadísticas de las piezas nuevas** (H9): Striker Point, Assault Frame y Gale Ring tienen valores provisionales; se fijan en el pase de equilibrio. También queda por decidir si los presets usan las piezas de su arquetipo (hoy el preset Agilidad lleva Razor Edge, la anilla de Ataque, y el preset Ataque lleva Flat Base, Aero Shell y Crush Wheel).
 - **Ataque rápido frente a cargado** (registro del 2026-10-07, Agilidad): el rápido quitaba lo mismo o más que el cargado (rápido 27 de media, hasta 45; cargado 2 ≈ 26; cargado 3 ≈ 30). El daño del cargado no cuenta la velocidad extra de la carga y solo suma +10% por nivel, y mientras se cargaba se iba al 60% de velocidad, así que un rápido lanzado a toda velocidad lo igualaba. **Resuelto:** sin el freno al cargar y con +25% por nivel (nivel 3 = ×1,75, probado en el probe). Queda vigilar los picos: Agilidad con un cargado 3 a velocidad máxima llega a ~107 en el probe; se revisa con el banco de pruebas (C10).
@@ -770,6 +795,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] C5. Fantasma: un clon invulnerable que persigue (necesita la persecución básica de D1), 10% de daño, empuja y corta cargas, sin parry + aspecto translúcido. **Aplazada:** se hace al empezar D1, reutilizando su persecución. Incluye crear su núcleo (Phantom Core, tabla en 3) y añadirlo al catálogo.
 - [x] C6. Núcleos en el catálogo: uno por poder, con estadísticas. Hecho: 6 núcleos (Fantasma, con C5) con los valores de la tabla de 3, nuevos `Core_Medium_Fire` y `Core_Medium_Ice`, preset Ataque con Fuego y nombre del núcleo con el color de su poder en la selección. Los 4 presets siguen dando su arquetipo. Falta verlo en la selección con mandos. 🎮
 - [ ] C7. Equilibrio de valores de cada poder en partida. 🎮
+- [ ] C10. Banco de pruebas de equilibrio (método en el registro de decisiones): herramienta del sandbox o del editor que enfrenta cada preset contra cada preset con golpes de prueba fijos (parado y a velocidad máxima) y saca una tabla de daño dado, daño recibido y golpes hasta el K.O., para compararla con la tabla de objetivos (combate de 60 s en Balanceada contra Balanceada). Hecho: tabla de objetivos (2.7) y banco (`BalanceBench`, menú *FakeBlade → Banco de equilibrio*). Primer informe (2026-10-07, `Logs/Balance/bench_2026-10-07_13-09-31.md`): lo que reciben los arquetipos cumple; lo que hacen no (Ataque 1,5, Defensa 1,02 y Agilidad 1,88, frente a 1,25 / 0,75 / 1,1); 28 golpes pasan de 60 (todos a tope, sobre todo cargados de Agilidad y Ataque, hasta 135); espejo de Balanceada ≈ 86 s. Fórmula común decidida: golpe base + velocidad ±25% (2.5). Segundo informe (`bench_2026-10-07_13-24-37.md`): 11 golpes pasan de 60 (máx. 84, antes 135), Balanceada rápido 17 / 25 y cargado 3 27 / 44 (cumple); lo que hacen los arquetipos sigue alto (Ataque 1,45, Defensa 1,11, Agilidad 1,59) porque sale del ataque de sus piezas (Balanceada tiene el más bajo, 11); el dash ha quedado flojo (Balanceada 9-11) y el espejo de Balanceada sale en ~100 s. Ajustes (decididos con el usuario): dash ×0,5 → ×0,75; duelos más largos aceptados; cada preset con las piezas de su arquetipo (Ataque: Striker Point + Assault Frame + Razor Edge + Blaze Core; Agilidad: Gale Ring en vez de Razor Edge); golpe base 50 → 42; ataque de piezas: Balanced Ring 9, Striker Point 2, Assault Frame 2, Razor Edge 3, Crush Wheel 0, Gale Ring 6; defensa: Striker Point 0, Assault Frame +4, Razor Edge +4, Gale Ring 0, Needle Point −3. El banco además espera a que el ataque salga de verdad antes de medir (antes un rápido a tope a veces salía tarde). Cuarto informe (`bench_2026-10-07_14-00-58.md`): **todos los arquetipos cumplen** (hace / recibe: Ataque 1,28 / 1,1; Defensa 0,71 / 0,67; Agilidad 1,1 / 1,22), Balanceada rápido 17 / 23 y cargado 3 27 / 43, dash ≈ 75% del rápido, espejo de Balanceada ≈ 97 s; solo un golpe pasa de 60 (Ataque cargado 3 a tope contra Agilidad, 67). Falta: probarlo con mando y decidir si se recorta ese último pico.
 - [x] C8. Ajuste tras las pruebas del sandbox (2026-10-07): dash con menos daño, más caro y más espera; ataques con más daño; Defensa con menos ataque y dash más lento (rasgos); Agilidad con ataques baratos y rápidos (rasgos); especial más lento; curaciones con el tiempo y cortadas por golpes de ataque; paredes como un choque parejo; peonzas pegadas que se separan; estela del acelerón y vibración. Probado con un probe en el sandbox: daños por preset (tabla en 2.5), 2 separaciones en 2 s con dos peonzas empujándose, curación de 62% a 70% en 0,5 s, cortada por un ataque del dummy (se queda en 69%) y sin golpes llega al 100%. Probado con mando por el usuario (2026-10-07): el dash está bien equilibrado y ya no se abusa, la vibración al atacar se siente muy bien y la Agilidad ya no es débil.
 - [x] C9. Daño más bajo y golpe de pared de Rayos. Primera prueba (bonus de masa del ataque a la mitad en el daño): con mando seguían saliendo golpes de 40-60. Ahora: la masa solo cuenta para el empuje, daño global ×0,5 y golpe con dash ×0,5; un solo golpe de pared por peonza cada 0,1 s (`wallHitCooldown`). Probado con un probe en el sandbox: daños de referencia en 2.5 (desde parado 6-27, en marcha 19-36; el Ataque pega más con el cargado que con el dash y solo la Agilidad saca más con el dash que con el rápido) y Rayos 39-90 con la pared (antes 115-152). El doble golpe en la unión de dos tramos no se ha podido reproducir en el probe (72 choques contra la pared sin ninguno), así que esa corrección solo se ha comprobado leyendo el código. Probado con mando el 2026-10-07: el daño está bien en general; el cargado se ajustó después (registro de decisiones, «Daño del cargado»).
 
@@ -777,7 +803,6 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 
 - [ ] D1. Base de la IA: percepción (rivales, paredes, ataques enemigos) y decisión por prioridades, sobre `IBladeInputSource` (partiendo de `SimpleAIBrain`).
 - [ ] D2. 4 niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial).
-- [ ] C10. Banco de pruebas de equilibrio (método en el registro de decisiones): herramienta del sandbox o del editor que enfrenta cada preset contra cada preset con golpes de prueba fijos (parado y a velocidad máxima) y saca una tabla de daño dado, daño recibido y golpes hasta el K.O., para compararla con la tabla de objetivos (combate de 60 s en Balanceada contra Balanceada). Primero: escribir la tabla de objetivos.
 - [ ] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta.
 - [ ] D4. Parry de la IA: lanzar un ataque rápido justo cuando el rival ataca.
 - [ ] D5. Uso de los especiales por la IA (cada poder en su buen momento).

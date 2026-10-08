@@ -31,7 +31,7 @@ namespace FakeBlade.Core.Editor
                 "Punta ultrafina. Mínima fricción, máxima velocidad. Estabilidad reducida.",
                 ComponentSlot.Tip, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: 0, spinDecay: 1f, moveSpeed: 4f, weight: -0.2f,
-                attack: 0, defense: -5f, dash: 3f);
+                attack: 0, defense: -3f, dash: 3f);
 
             CreateComponent("Tip_Medium_FlatBase", "Flat Base",
                 "Punta plana equilibrada. Buena estabilidad y velocidad decente.",
@@ -50,7 +50,7 @@ namespace FakeBlade.Core.Editor
                 "Punta de ataque. Agarra el suelo para embestir fuerte, pero se desgasta antes.",
                 ComponentSlot.Tip, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.5f, moveSpeed: 2f, weight: 0f,
-                attack: 4f, defense: -3f, dash: 1f);
+                attack: 2f, defense: 0, dash: 1f);
 
             // === CUERPOS ===
             CreateComponent("Body_Light_AeroShell", "Aero Shell",
@@ -75,32 +75,32 @@ namespace FakeBlade.Core.Editor
                 "Cuerpo de asalto. Reparte el peso hacia delante para golpear más, a cambio de defensa.",
                 ComponentSlot.Body, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.2f, moveSpeed: 1f, weight: 0.2f,
-                attack: 6f, defense: -3f, dash: 1f);
+                attack: 2f, defense: 4f, dash: 1f);
 
             // === DISCOS ===
             CreateComponent("Blade_Light_RazorEdge", "Razor Edge",
                 "Disco afilado y ligero. Muchos ataques rápidos pero poco empuje.",
                 ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.3f, moveSpeed: 1f, weight: -0.1f,
-                attack: 12f, defense: -5f, dash: 1f, charges: 1);
+                attack: 3f, defense: 4f, dash: 1f, charges: 1);
 
             CreateComponent("Blade_Medium_BalancedRing", "Balanced Ring",
                 "Anillo equilibrado. Buen ataque y defensa decente.",
                 ComponentSlot.Blade, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 30, spinDecay: 0, moveSpeed: 0, weight: 0.2f,
-                attack: 5f, defense: 5f, dash: 0);
+                attack: 9f, defense: 5f, dash: 0);
 
             CreateComponent("Blade_Heavy_CrushWheel", "Crush Wheel",
                 "Disco de demolición. Impactos devastadores. Muy pesado.",
                 ComponentSlot.Blade, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: -30, spinDecay: 0.5f, moveSpeed: -2f, weight: 0.6f,
-                attack: 6f, defense: 10f, dash: 2f);
+                attack: 0f, defense: 10f, dash: 2f);
 
             CreateComponent("Blade_Light_GaleRing", "Gale Ring",
                 "Anilla ligera y aerodinámica. Más velocidad y dash, poco aguante.",
                 ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: -20, spinDecay: 0.2f, moveSpeed: 2f, weight: -0.2f,
-                attack: 4f, defense: -5f, dash: 2f, charges: 1);
+                attack: 6f, defense: 0, dash: 2f, charges: 1);
 
             // === NÚCLEOS (GDD 3) ===
             // Uno por poder. Todos +50 RPM máx. y una ventaja y un coste del mismo tamaño (2 puntos;

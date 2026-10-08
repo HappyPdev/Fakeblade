@@ -314,7 +314,7 @@ namespace FakeBlade.Core
             new Tunable { Key = "TUNE_DASH_COST", Get = c => c.dashSpinCostPct, Set = (c, v) => c.dashSpinCostPct = v, Format = v => Decimal(v * 100f, "0.#") + "%" },
             new Tunable { Key = "TUNE_ATTACK_HIT", Get = c => c.attackHitDamageMultiplier, Set = (c, v) => c.attackHitDamageMultiplier = v, Format = v => "X" + Decimal(v, "0.##") },
             new Tunable { Key = "TUNE_DASH_HIT", Get = c => c.dashHitDamageMultiplier, Set = (c, v) => c.dashHitDamageMultiplier = v, Format = v => "X" + Decimal(v, "0.##") },
-            new Tunable { Key = "TUNE_DAMAGE", Get = c => c.damagePerImpactSpeed, Set = (c, v) => c.damagePerImpactSpeed = v, Format = v => Decimal(v, "0.##") },
+            new Tunable { Key = "TUNE_DAMAGE", Get = c => c.hitBaseDamage, Set = (c, v) => c.hitBaseDamage = v, Format = v => Decimal(v, "0.#") },
             new Tunable { Key = "TUNE_KNOCKBACK", Get = c => c.knockbackBase, Set = (c, v) => c.knockbackBase = v, Format = v => Decimal(v, "0.#") },
             new Tunable { Key = "TUNE_ENERGY", Get = c => c.specialEnergyMultiplier, Set = (c, v) => c.specialEnergyMultiplier = v, Format = v => "X" + Decimal(v, "0.##") },
         };

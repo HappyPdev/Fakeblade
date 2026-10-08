@@ -165,10 +165,12 @@ namespace FakeBlade.Core
             return string.Format(Inv,
                 "speed={0}|damageMultiplier={1}|chargedDamagePerLevel={2}|parryWindow={3}|quickAttackCost={4}|dashCost={5}|" +
                 "damagePerImpactSpeed={6}|damagePerSpeedDiff={7}|knockbackBase={8}|specialEnergyMultiplier={9}|" +
-                "speedSpread={10}|referenceMaxSpeed={11}|attackHitDamage={12}|dashHitDamage={13}|dashCooldown={14}",
+                "speedSpread={10}|referenceMaxSpeed={11}|attackHitDamage={12}|dashHitDamage={13}|dashCooldown={14}|" +
+                "hitBaseDamage={15}|hitSpeedFactor={16}-{17}",
                 SandboxSettings.Speed, c.damageMultiplier, c.chargedDamagePerLevel, c.parryWindow, c.quickAttackSpinCostPct,
                 c.dashSpinCostPct, c.damagePerImpactSpeed, c.damagePerSpeedDiff, c.knockbackBase, c.specialEnergyMultiplier,
-                c.speedSpread, c.referenceMaxSpeed, c.attackHitDamageMultiplier, c.dashHitDamageMultiplier, c.dashCooldown);
+                c.speedSpread, c.referenceMaxSpeed, c.attackHitDamageMultiplier, c.dashHitDamageMultiplier, c.dashCooldown,
+                c.hitBaseDamage, c.hitSpeedFactor.x, c.hitSpeedFactor.y);
         }
         #endregion
 

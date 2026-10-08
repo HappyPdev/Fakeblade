@@ -40,9 +40,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8a87d7d1cc53b264d87ef3c1ae45b85e, type: 2}
   presets:
   - nameKey: PRESET_ATTACK
-    tip: {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}
-    body: {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
-    blade: {fileID: 11400000, guid: 1fe7235a9118abf468d2b3dd6a3a1b2b, type: 2}
+    tip: {fileID: 11400000, guid: 31fc48ebe3116334e8223dd4e063e02c, type: 2}
+    body: {fileID: 11400000, guid: 071e78826be315f4bbf6db9d9ea1dab0, type: 2}
+    blade: {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
     core: {fileID: 11400000, guid: dbbd403471e98e44792db32eb2ae8946, type: 2}
   - nameKey: PRESET_DEFENSE
     tip: {fileID: 11400000, guid: 63f111d8601228047967dfcbc166c32d, type: 2}
@@ -52,7 +52,7 @@ MonoBehaviour:
   - nameKey: PRESET_AGILITY
     tip: {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}
     body: {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
-    blade: {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
+    blade: {fileID: 11400000, guid: 4a762cc7332a8e149984be2c3bdaf6d9, type: 2}
     core: {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
   - nameKey: PRESET_BALANCED
     tip: {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}

@@ -51,6 +51,15 @@ namespace FakeBlade.Core
             return key;
         }
 
+        /// <summary>Texto en un idioma concreto, sin cambiar el del juego (p. ej. documentos exportados).</summary>
+        public static string Get(string key, Language language)
+        {
+            EnsureInitialized();
+            if (key != null && Table.TryGetValue(key, out var entry))
+                return entry[(int)language];
+            return key;
+        }
+
         public static string Format(string key, object arg0) => string.Format(Get(key), arg0);
         public static string Format(string key, object arg0, object arg1) => string.Format(Get(key), arg0, arg1);
 

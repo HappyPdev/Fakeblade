@@ -28,5 +28,7 @@ MonoBehaviour:
   dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
-  traits: []
+  traits:
+  - type: 14
+    percent: 0.2
   specialAbility: 0

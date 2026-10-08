@@ -22,8 +22,8 @@ MonoBehaviour:
   model: {fileID: 919132149155446097, guid: 05753477564b9194bb30120f2221fcd5, type: 3}
   maxSpinModifier: 0
   spinDecayModifier: 1.5
-  moveSpeedModifier: 1.5
-  weightModifier: -0.5
+  moveSpeedModifier: 3
+  weightModifier: 0.5
   attackPowerModifier: 0
   defenseModifier: -3
   dashForceModifier: 3

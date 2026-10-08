@@ -209,7 +209,7 @@ namespace FakeBlade.Core
                 float combo = IsAttacking ? _attack.ComboMultiplier : 1f;
                 // Las diferencias de ataque de las piezas cuentan solo en parte (attackSpread)
                 var cfg = CombatConfig.Active;
-                float attack = Mathf.Lerp(1f, attackPower / Mathf.Max(1f, cfg.referenceAttackPower), cfg.attackSpread);
+                float attack = BladeFormulas.AttackMultiplier(cfg, attackPower);
                 return attack * combo;
             }
         }
@@ -241,7 +241,7 @@ namespace FakeBlade.Core
             get
             {
                 float defense = _stats != null ? _stats.Defense : 0f;
-                return (1f - defense * 0.005f) * _special.KnockbackTakenMultiplier * Trait(PartTraitType.KnockbackTaken);
+                return BladeFormulas.KnockbackTakenFactor(defense) * _special.KnockbackTakenMultiplier * Trait(PartTraitType.KnockbackTaken);
             }
         }
 
@@ -463,20 +463,15 @@ namespace FakeBlade.Core
             if (previousMax > 0f)
                 _currentSpin = Mathf.Min(_currentSpin, _maxSpin);
 
-            _weightNormalized = Mathf.InverseLerp(0.5f, 3f, weight);
+            _weightNormalized = BladeFormulas.WeightNormalized(weight);
 
             // Ligeras y pesadas, más parecidas que lo que dicen sus piezas (speedSpread, turnByWeight y
-            // accelerationByWeight en CombatConfig): las ágiles giran algo más pesadas y las lentas no lo son tanto
-            _effectiveAcceleration = Mathf.Clamp(
-                cfg.accelerationForce * Mathf.Max(moveSpeed * 0.1f, 1f) *
-                Mathf.Lerp(cfg.accelerationByWeight.x, cfg.accelerationByWeight.y, _weightNormalized) *
-                Trait(PartTraitType.Acceleration),
-                5f, 120f);
-            float rawMaxSpeed = cfg.maxVelocity + moveSpeed * Mathf.Lerp(0.8f, 0.4f, _weightNormalized);
-            _effectiveMaxSpeed = Mathf.Clamp(Mathf.Lerp(cfg.referenceMaxSpeed, rawMaxSpeed, cfg.speedSpread), 3f, 25f);
-            _effectiveTurnSpeed = cfg.turnResponsiveness * Mathf.Lerp(cfg.turnByWeight.x, cfg.turnByWeight.y, _weightNormalized) *
-                                  Trait(PartTraitType.TurnRate);
-            _effectiveDrag = cfg.stoppingFriction * Mathf.Lerp(1.5f, 0.4f, _weightNormalized);
+            // accelerationByWeight en CombatConfig): las ágiles giran algo más pesadas y las lentas no lo son tanto.
+            // Fórmulas en BladeFormulas (las mismas que usa el exportador de estadísticas, GDD 2.8)
+            _effectiveAcceleration = BladeFormulas.AccelerationForce(cfg, moveSpeed, _weightNormalized, Trait(PartTraitType.Acceleration));
+            _effectiveMaxSpeed = BladeFormulas.MaxSpeed(cfg, moveSpeed, _weightNormalized);
+            _effectiveTurnSpeed = BladeFormulas.TurnSpeed(cfg, _weightNormalized, Trait(PartTraitType.TurnRate));
+            _effectiveDrag = BladeFormulas.StoppingDrag(cfg, _weightNormalized);
 
             _attack.SetMaxCharges(_stats.AttackCharges);
 
@@ -498,7 +493,7 @@ namespace FakeBlade.Core
             if (_rb == null) return;
             var cfg = CombatConfig.Active;
 
-            _rb.mass = Mathf.Max(cfg.minPhysicalMass, Weight);
+            _rb.mass = BladeFormulas.PhysicalMass(cfg, Weight);
             _rb.linearDamping = cfg.linearDamping;
             _rb.angularDamping = cfg.angularDamping;
             _rb.useGravity = true;
@@ -587,7 +582,7 @@ namespace FakeBlade.Core
             // Rasgo de daño recibido (H8): solo lo que viene de otra peonza (golpes, roce, lanzadas), no
             // las paredes (tienen su rasgo) ni los estados (van sin defensa)
             float traitTaken = !ignoreDefense && source != null && source != this ? Trait(PartTraitType.DamageTaken) : 1f;
-            float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier * global * traitTaken;
+            float damage = amount * BladeFormulas.DamageTakenFactor(defense) * _special.DamageTakenMultiplier * global * traitTaken;
             if (damage <= 0f) return 0f;
 
             _currentSpin = Mathf.Max(0f, _currentSpin - damage);
@@ -851,7 +846,7 @@ namespace FakeBlade.Core
         }
 
         /// <summary>Peonzas ligeras ganan algo más de velocidad por impulso.</summary>
-        private float WeightSpeedFactor => Mathf.Lerp(1.15f, 0.85f, _weightNormalized);
+        private float WeightSpeedFactor => BladeFormulas.ImpulseFactor(_weightNormalized);
 
         /// <summary>
         /// Acelerón instantáneo en una dirección. Conserva la velocidad que ya llevaba
@@ -1188,7 +1183,7 @@ namespace FakeBlade.Core
                 Vector3 lateral = horizontal - inputDir * speedInInputDir;
                 if (lateral.sqrMagnitude > 0.01f)
                 {
-                    float brakeRate = Mathf.Clamp(_effectiveTurnSpeed * 120f, 5f, 50f);
+                    float brakeRate = BladeFormulas.TurnRate(_effectiveTurnSpeed);
                     if (bursting) brakeRate *= 0.5f;
                     _rb.AddForce(-lateral * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }

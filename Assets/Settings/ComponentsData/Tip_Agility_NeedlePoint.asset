@@ -10,22 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Blade_Medium_BalancedRing
+  m_Name: Tip_Agility_NeedlePoint
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Balanced Ring
-  description: Anillo equilibrado. Buen ataque y defensa decente.
-  componentType: 2
-  weightClass: 1
-  archetype: 0
+  componentName: Needle Point
+  description: "Punta ultrafina. M\xEDnima fricci\xF3n, m\xE1xima velocidad. Estabilidad
+    reducida."
+  componentType: 0
+  weightClass: 0
+  archetype: 3
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: bdf6bbc2456f1f742b1acdbb36e3f1e6, type: 3}
-  maxSpinModifier: 30
-  spinDecayModifier: 0
-  moveSpeedModifier: 0
-  weightModifier: 0.2
-  attackPowerModifier: 9
-  defenseModifier: 5
-  dashForceModifier: 0
+  model: {fileID: 919132149155446097, guid: 05753477564b9194bb30120f2221fcd5, type: 3}
+  maxSpinModifier: 0
+  spinDecayModifier: 1.5
+  moveSpeedModifier: 1.5
+  weightModifier: -0.5
+  attackPowerModifier: 0
+  defenseModifier: -3
+  dashForceModifier: 3
   attackChargesModifier: 0
   parryWindowModifier: 0
+  traits:
+  - type: 8
+    percent: -0.25
   specialAbility: 0

@@ -17,27 +17,27 @@ MonoBehaviour:
   uiTheme: {fileID: 11400000, guid: 9165171fd9aff314b934c84a99feb1a8, type: 2}
   credits: {fileID: 11400000, guid: 1d4cfde7aa28dc740a46d53f722ceda7, type: 2}
   tips:
-  - {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}
   - {fileID: 11400000, guid: 536b84d6ab8744548b81ef94ec33ab25, type: 2}
   - {fileID: 11400000, guid: 31fc48ebe3116334e8223dd4e063e02c, type: 2}
   - {fileID: 11400000, guid: 63f111d8601228047967dfcbc166c32d, type: 2}
+  - {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}
   bodies:
-  - {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
-  - {fileID: 11400000, guid: 071e78826be315f4bbf6db9d9ea1dab0, type: 2}
   - {fileID: 11400000, guid: b77002e7e4b3826419eaafd5498ba1ef, type: 2}
+  - {fileID: 11400000, guid: 071e78826be315f4bbf6db9d9ea1dab0, type: 2}
   - {fileID: 11400000, guid: 3cb8064594041fe49afb8bf74c551ebf, type: 2}
+  - {fileID: 11400000, guid: 29c5fe1f42d52654093e6a65b76a88b2, type: 2}
   blades:
-  - {fileID: 11400000, guid: 4a762cc7332a8e149984be2c3bdaf6d9, type: 2}
-  - {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
   - {fileID: 11400000, guid: 8a11b5029c5c5624aa5685c48f5c87e5, type: 2}
+  - {fileID: 11400000, guid: f84c41df9f731ca45b198ec806991487, type: 2}
   - {fileID: 11400000, guid: 1fe7235a9118abf468d2b3dd6a3a1b2b, type: 2}
+  - {fileID: 11400000, guid: 4a762cc7332a8e149984be2c3bdaf6d9, type: 2}
   cores:
-  - {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
-  - {fileID: 11400000, guid: dbbd403471e98e44792db32eb2ae8946, type: 2}
   - {fileID: 11400000, guid: 57b46a9fbadc1ed4e953921250de26cd, type: 2}
   - {fileID: 11400000, guid: e1e16883fbc78e048b596b22bb545cff, type: 2}
+  - {fileID: 11400000, guid: dbbd403471e98e44792db32eb2ae8946, type: 2}
   - {fileID: 11400000, guid: 175b1150fa1760f41ab87491b11ffc57, type: 2}
   - {fileID: 11400000, guid: 8a87d7d1cc53b264d87ef3c1ae45b85e, type: 2}
+  - {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
   presets:
   - nameKey: PRESET_ATTACK
     tip: {fileID: 11400000, guid: 31fc48ebe3116334e8223dd4e063e02c, type: 2}

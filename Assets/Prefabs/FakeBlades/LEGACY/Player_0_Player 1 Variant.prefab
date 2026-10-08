@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeStats
   baseMaxSpin: 400
   baseSpinDecay: 1
-  baseMoveSpeed: 4
+  baseMoveSpeed: 6
   baseWeight: 1
   baseAttackPower: 10
   baseDefense: 10

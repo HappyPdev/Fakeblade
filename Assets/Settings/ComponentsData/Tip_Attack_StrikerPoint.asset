@@ -10,22 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Blade_Light_RazorEdge
+  m_Name: Tip_Attack_StrikerPoint
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Razor Edge
-  description: "Disco afilado y ligero. Muchos ataques r\xE1pidos pero poco empuje."
-  componentType: 2
-  weightClass: 0
+  componentName: Striker Point
+  description: Punta de ataque. Agarra el suelo para embestir fuerte, pero se desgasta
+    antes.
+  componentType: 0
+  weightClass: 1
   archetype: 1
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: 954756163ea420f4f9539a89b9363db4, type: 3}
+  model: {fileID: 919132149155446097, guid: b7f1d71c502d02942a33eeef9a00ed00, type: 3}
   maxSpinModifier: 0
-  spinDecayModifier: 0.3
+  spinDecayModifier: 1
   moveSpeedModifier: 1
-  weightModifier: -0.1
-  attackPowerModifier: 3
-  defenseModifier: 4
+  weightModifier: 0
+  attackPowerModifier: 1
+  defenseModifier: 0
   dashForceModifier: 1
-  attackChargesModifier: 1
+  attackChargesModifier: 0
   parryWindowModifier: 0
+  traits: []
   specialAbility: 0

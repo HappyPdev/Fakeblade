@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Core_Medium_Ice
+  m_Name: Blade_Balanced_BalancedRing
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Frost Core
-  description: "N\xFAcleo helado. Poder: Hielo (sus golpes congelan)."
-  componentType: 3
+  componentName: Balanced Ring
+  description: Anillo equilibrado. Buen ataque y defensa decente.
+  componentType: 2
   weightClass: 1
   archetype: 0
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: 121c224285be2634095a489f5d39ce3f, type: 3}
-  maxSpinModifier: 0
-  spinDecayModifier: -0.4
+  model: {fileID: 919132149155446097, guid: bdf6bbc2456f1f742b1acdbb36e3f1e6, type: 3}
+  maxSpinModifier: 30
+  spinDecayModifier: 0
   moveSpeedModifier: 0
-  weightModifier: 0
-  attackPowerModifier: 0
-  defenseModifier: 0
+  weightModifier: 0.2
+  attackPowerModifier: 6
+  defenseModifier: 4
   dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
-  specialAbility: 6
+  traits: []
+  specialAbility: 0

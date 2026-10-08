@@ -285,7 +285,7 @@ namespace FakeBlade.Core.Editor
 
         private static FakeBladeCatalog BuildCatalog(List<ArenaData> arenas, MatchRules sandbox, CreditsData credits, StringBuilder log)
         {
-            if (AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(FakeBladeComponentPresets.SAVE_PATH + "Tip_Medium_FlatBase.asset") == null)
+            if (AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(FakeBladeComponentPresets.SAVE_PATH + "Tip_Balanced_FlatBase.asset") == null)
                 FakeBladeComponentPresets.CreateAllPresets();
 
             var catalog = LoadOrCreate<FakeBladeCatalog>(CatalogPath);
@@ -308,17 +308,17 @@ namespace FakeBlade.Core.Editor
                 var part = AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(path);
                 catalog.GetParts(part.ComponentType).Add(part);
             }
-            SortByWeight(catalog.tips);
-            SortByWeight(catalog.bodies);
-            SortByWeight(catalog.blades);
-            SortByWeight(catalog.cores);
+            SortByArchetype(catalog.tips);
+            SortByArchetype(catalog.bodies);
+            SortByArchetype(catalog.blades);
+            SortByArchetype(catalog.cores);
 
             catalog.presets.Clear();
             // Cada preset con las piezas de su arquetipo (C10)
-            catalog.presets.Add(Preset("PRESET_ATTACK", "Tip_Medium_StrikerPoint", "Body_Medium_AssaultFrame", "Blade_Light_RazorEdge", "Core_Medium_Fire"));
-            catalog.presets.Add(Preset("PRESET_DEFENSE", "Tip_Heavy_WideBall", "Body_Heavy_IronFortress", "Blade_Heavy_CrushWheel", "Core_Heavy_Defense"));
-            catalog.presets.Add(Preset("PRESET_AGILITY", "Tip_Light_NeedlePoint", "Body_Light_AeroShell", "Blade_Light_GaleRing", "Core_Light_Lightning"));
-            catalog.presets.Add(Preset("PRESET_BALANCED", "Tip_Medium_FlatBase", "Body_Medium_StandardFrame", "Blade_Medium_BalancedRing", "Core_Medium_SpinBoost"));
+            catalog.presets.Add(Preset("PRESET_ATTACK", "Tip_Attack_StrikerPoint", "Body_Attack_AssaultFrame", "Blade_Attack_RazorEdge", "Core_Attack_Fire"));
+            catalog.presets.Add(Preset("PRESET_DEFENSE", "Tip_Defense_WideBall", "Body_Defense_IronFortress", "Blade_Defense_CrushWheel", "Core_Defense_Defense"));
+            catalog.presets.Add(Preset("PRESET_AGILITY", "Tip_Agility_NeedlePoint", "Body_Agility_AeroShell", "Blade_Agility_GaleRing", "Core_Agility_Lightning"));
+            catalog.presets.Add(Preset("PRESET_BALANCED", "Tip_Balanced_FlatBase", "Body_Balanced_StandardFrame", "Blade_Balanced_BalancedRing", "Core_Balanced_SpinBoost"));
 
             catalog.arenas.Clear();
             foreach (var arena in arenas)
@@ -337,9 +337,10 @@ namespace FakeBlade.Core.Editor
             return catalog;
         }
 
-        private static void SortByWeight(List<FakeBladeComponentData> list) =>
-            list.Sort((a, b) => a.WeightClass != b.WeightClass
-                ? a.WeightClass.CompareTo(b.WeightClass)
+        /// <summary>Por arquetipo (Balanceada, Ataque, Defensa, Agilidad) y luego por nombre.</summary>
+        private static void SortByArchetype(List<FakeBladeComponentData> list) =>
+            list.Sort((a, b) => a.Archetype != b.Archetype
+                ? a.Archetype.CompareTo(b.Archetype)
                 : string.CompareOrdinal(a.ComponentName, b.ComponentName));
 
         private static BladePreset Preset(string key, string tip, string body, string blade, string core) => new BladePreset

@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Core_Heavy_Defense
+  m_Name: Core_Balanced_SpinBoost
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Fortress Core
-  description: "N\xFAcleo defensivo. Poder: Defensa."
+  componentName: Endurance Core
+  description: "N\xFAcleo de resistencia. Poder: Spin Boost (recupera RPM)."
   componentType: 3
-  weightClass: 2
-  archetype: 2
+  weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
   model: {fileID: 919132149155446097, guid: 121c224285be2634095a489f5d39ce3f, type: 3}
-  maxSpinModifier: 50
+  maxSpinModifier: -50
   spinDecayModifier: 0
   moveSpeedModifier: 0
-  weightModifier: 0
-  attackPowerModifier: 0
-  defenseModifier: 6
-  dashForceModifier: -2
-  attackChargesModifier: 0
+  weightModifier: -1
+  attackPowerModifier: -4
+  defenseModifier: 0
+  dashForceModifier: 0
+  attackChargesModifier: -1
   parryWindowModifier: 0
-  specialAbility: 3
+  traits: []
+  specialAbility: 1

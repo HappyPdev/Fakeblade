@@ -168,7 +168,8 @@ namespace FakeBlade.Core
 
         /// <summary>Ventana de parry de esta peonza: base de CombatConfig + lo que sumen/resten las piezas.</summary>
         public float ParryWindow =>
-            Mathf.Clamp(CombatConfig.Active.parryWindow + (_stats != null ? _stats.ParryWindowBonus : 0f), 0.02f, 0.4f);
+            Mathf.Clamp((CombatConfig.Active.parryWindow + (_stats != null ? _stats.ParryWindowBonus : 0f)) * Trait(PartTraitType.ParryWindow),
+                0.02f, 0.4f);
 
         /// <summary>Está en los primeros instantes de un ataque rápido: un choque ahora contra un ataque enemigo es parry.</summary>
         public bool IsInParryWindow => !_isDestroyed && _attack.IsInParryWindow(ParryWindow);
@@ -222,14 +223,17 @@ namespace FakeBlade.Core
             get
             {
                 var cfg = CombatConfig.Active;
-                if (_attack.IsAttacking) return cfg.attackHitDamageMultiplier;
-                return IsDashAttacking ? cfg.dashHitDamageMultiplier : 1f;
+                // Rasgos de daño por tipo de golpe (H8)
+                if (_attack.IsAttacking)
+                    return cfg.attackHitDamageMultiplier *
+                           Trait(_attack.AttackLevel > 0 ? PartTraitType.ChargedHitDamage : PartTraitType.QuickHitDamage);
+                return IsDashAttacking ? cfg.dashHitDamageMultiplier * Trait(PartTraitType.DashHitDamage) : 1f;
             }
         }
 
         /// <summary>Multiplicador del empuje que provoca esta peonza.</summary>
         public float OutgoingKnockbackMultiplier =>
-            _attack.KnockbackMultiplier * (IsAttacking ? _attack.ComboMultiplier : 1f);
+            _attack.KnockbackMultiplier * (IsAttacking ? _attack.ComboMultiplier : 1f) * Trait(PartTraitType.KnockbackDealt);
 
         /// <summary>Fracción del empuje que realmente recibe (defensa y poder Defensa).</summary>
         public float KnockbackResistance
@@ -237,7 +241,7 @@ namespace FakeBlade.Core
             get
             {
                 float defense = _stats != null ? _stats.Defense : 0f;
-                return (1f - defense * 0.005f) * _special.KnockbackTakenMultiplier;
+                return (1f - defense * 0.005f) * _special.KnockbackTakenMultiplier * Trait(PartTraitType.KnockbackTaken);
             }
         }
 
@@ -465,11 +469,13 @@ namespace FakeBlade.Core
             // accelerationByWeight en CombatConfig): las ágiles giran algo más pesadas y las lentas no lo son tanto
             _effectiveAcceleration = Mathf.Clamp(
                 cfg.accelerationForce * Mathf.Max(moveSpeed * 0.1f, 1f) *
-                Mathf.Lerp(cfg.accelerationByWeight.x, cfg.accelerationByWeight.y, _weightNormalized),
+                Mathf.Lerp(cfg.accelerationByWeight.x, cfg.accelerationByWeight.y, _weightNormalized) *
+                Trait(PartTraitType.Acceleration),
                 5f, 120f);
             float rawMaxSpeed = cfg.maxVelocity + moveSpeed * Mathf.Lerp(0.8f, 0.4f, _weightNormalized);
             _effectiveMaxSpeed = Mathf.Clamp(Mathf.Lerp(cfg.referenceMaxSpeed, rawMaxSpeed, cfg.speedSpread), 3f, 25f);
-            _effectiveTurnSpeed = cfg.turnResponsiveness * Mathf.Lerp(cfg.turnByWeight.x, cfg.turnByWeight.y, _weightNormalized);
+            _effectiveTurnSpeed = cfg.turnResponsiveness * Mathf.Lerp(cfg.turnByWeight.x, cfg.turnByWeight.y, _weightNormalized) *
+                                  Trait(PartTraitType.TurnRate);
             _effectiveDrag = cfg.stoppingFriction * Mathf.Lerp(1.5f, 0.4f, _weightNormalized);
 
             _attack.SetMaxCharges(_stats.AttackCharges);
@@ -578,7 +584,10 @@ namespace FakeBlade.Core
             float defense = _stats != null && !ignoreDefense ? _stats.Defense : 0f;
             // Multiplicador global (combates más largos); la quemadura va aparte, por porcentaje
             float global = ignoreDefense ? 1f : CombatConfig.Active.damageMultiplier;
-            float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier * global;
+            // Rasgo de daño recibido (H8): solo lo que viene de otra peonza (golpes, roce, lanzadas), no
+            // las paredes (tienen su rasgo) ni los estados (van sin defensa)
+            float traitTaken = !ignoreDefense && source != null && source != this ? Trait(PartTraitType.DamageTaken) : 1f;
+            float damage = amount * (1f - defense * 0.01f) * _special.DamageTakenMultiplier * global * traitTaken;
             if (damage <= 0f) return 0f;
 
             _currentSpin = Mathf.Max(0f, _currentSpin - damage);
@@ -605,15 +614,19 @@ namespace FakeBlade.Core
         #region Status Effects (GDD 5)
         /// <summary>Quemadura (Fuego). Devuelve false si está bloqueada, invulnerable o fuera de combate.</summary>
         public bool TryBurn(FakeBladeController source, float damagePctPerTick, float tickInterval, float duration) =>
-            CanReceiveStatus && NotifyStatusApplied(_status.TryBurn(source, damagePctPerTick, tickInterval, duration));
+            CanReceiveStatus && NotifyStatusApplied(_status.TryBurn(source, damagePctPerTick, tickInterval, StatusDuration(source, duration)));
 
         /// <summary>Congelación (Hielo).</summary>
         public bool TryFreeze(FakeBladeController source, float moveMultiplier, float rechargeMultiplier, float duration) =>
-            CanReceiveStatus && NotifyStatusApplied(_status.TryFreeze(source, moveMultiplier, rechargeMultiplier, duration));
+            CanReceiveStatus && NotifyStatusApplied(_status.TryFreeze(source, moveMultiplier, rechargeMultiplier, StatusDuration(source, duration)));
 
         /// <summary>Lanzada (Rayos).</summary>
         public bool TryLaunch(FakeBladeController source, float duration) =>
-            CanReceiveStatus && NotifyStatusApplied(_status.TryLaunch(source, duration));
+            CanReceiveStatus && NotifyStatusApplied(_status.TryLaunch(source, StatusDuration(source, duration)));
+
+        /// <summary>Duración de un estado con los rasgos de quien lo provoca y de quien lo sufre (H8).</summary>
+        private float StatusDuration(FakeBladeController source, float duration) =>
+            duration * (source != null ? source.Trait(PartTraitType.StatusDurationDealt) : 1f) * Trait(PartTraitType.StatusDurationTaken);
 
         public void ClearStatus()
         {
@@ -913,7 +926,10 @@ namespace FakeBlade.Core
             _special.AddEnergy(energy * CombatConfig.Active.specialEnergyMultiplier * Trait(PartTraitType.SpecialEnergyAll));
 
         /// <summary>Multiplicador de un rasgo de las piezas equipadas (1 si ninguna lo tiene).</summary>
-        private float Trait(PartTraitType type) => _stats != null ? _stats.Trait(type) : 1f;
+        /// <summary>Multiplicador de un rasgo de sus piezas (1 si ninguna lo tiene).</summary>
+        public float Trait(PartTraitType type) => _stats != null ? _stats.Trait(type) : 1f;
+        /// <summary>Suma de un rasgo aditivo de sus piezas (Espinas, Golpe lento; 0 si ninguna lo tiene).</summary>
+        public float TraitSum(PartTraitType type) => _stats != null ? _stats.TraitSum(type) : 0f;
 
         /// <summary>¿Ya se resolvió un choque con este rival hace menos de clashCooldown? (memoria por rival)</summary>
         private bool IsClashOnCooldown(FakeBladeController other)
@@ -1070,7 +1086,7 @@ namespace FakeBlade.Core
                 // quien la lanzó (daño base + diferencia de velocidad), y el daño cuenta para él
                 FakeBladeController thrower = _status.Source;
                 float offense = thrower != null ? thrower.OffenseMultiplier : 1f;
-                ApplyDamage(damageSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense, thrower);
+                ApplyDamage(damageSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense * Trait(PartTraitType.WallDamageTaken), thrower);
                 if (repeat) return;
                 PlayClashFeedback(contact.point, Mathf.Clamp01(impactSpeed / 15f));
                 OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
@@ -1078,7 +1094,7 @@ namespace FakeBlade.Core
             }
 
             // Como un choque parejo contra una peonza a esa velocidad (wallDamageScale = 1)
-            ApplyDamage(damageSpeed * cfg.damagePerImpactSpeed * cfg.wallDamageScale, null);
+            ApplyDamage(damageSpeed * cfg.damagePerImpactSpeed * cfg.wallDamageScale * Trait(PartTraitType.WallDamageTaken), null);
             if (repeat) return;
             VfxSystem.Play(VfxType.WallHit, contact.point, contact.normal, Color.white, Mathf.Clamp01(impactSpeed / 15f) + 0.3f);
             OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));

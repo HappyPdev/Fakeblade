@@ -70,7 +70,7 @@ namespace FakeBlade.Core
             // Efecto común de todos los poderes (GDD 5): RPM poco a poco y cargas al momento
             var cfg = CombatConfig.Active;
             _healCut = false;
-            _pendingHeal = _owner.MaxSpinSpeed * cfg.specialActivationSpinPct;
+            _pendingHeal = _owner.MaxSpinSpeed * cfg.specialActivationSpinPct * _owner.Trait(PartTraitType.HealAmount);
             _healRate = _pendingHeal / Mathf.Max(0.05f, cfg.specialHealTime);
             _owner.Attack.RefillCharges();
 
@@ -84,7 +84,7 @@ namespace FakeBlade.Core
         /// </summary>
         public void Heal(float amount)
         {
-            if (!_healCut && amount > 0f) _owner.AddSpin(amount);
+            if (!_healCut && amount > 0f) _owner.AddSpin(amount * _owner.Trait(PartTraitType.HealAmount));
         }
 
         /// <summary>Hay curación del poder en curso (la de activación o la de un poder que regenera).</summary>
@@ -115,7 +115,8 @@ namespace FakeBlade.Core
             if (!_isActive) return false;
 
             _ability.Tick(dt);
-            _energy -= dt / Mathf.Max(0.1f, _ability.Data.duration);
+            // Rasgo de duración del poder (H8)
+            _energy -= dt / Mathf.Max(0.1f, _ability.Data.duration * _owner.Trait(PartTraitType.SpecialDuration));
             if (_energy > 0f) return false;
 
             Stop();

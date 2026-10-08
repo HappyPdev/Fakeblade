@@ -31,7 +31,7 @@ namespace FakeBlade.Core
 
         public static BladeBaseStats Default => new BladeBaseStats
         {
-            maxSpin = 400f, spinDecay = 1f, moveSpeed = 4f, weight = 1f,
+            maxSpin = 400f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
             attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3
         };
     }
@@ -110,6 +110,8 @@ namespace FakeBlade.Core
         public BladeArchetype Archetype => _stats.Archetype;
         /// <summary>Multiplicador de un rasgo de las piezas (1 si ninguna lo tiene).</summary>
         public float Trait(PartTraitType type) => _stats.Traits != null ? _stats.Traits.Multiplier(type) : 1f;
+        /// <summary>Suma de un rasgo aditivo (Espinas, Golpe lento): 0 si ninguna pieza lo tiene.</summary>
+        public float TraitSum(PartTraitType type) => _stats.Traits != null ? _stats.Traits.Sum(type) : 0f;
         public PartTraits Traits => _stats.Traits ?? PartTraits.None;
         public BladeStatBlock Block => _stats;
 

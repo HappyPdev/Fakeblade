@@ -10,24 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Tip_Medium_StrikerPoint
+  m_Name: Body_Agility_AeroShell
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Striker Point
-  description: Punta de ataque. Agarra el suelo para embestir fuerte, pero se desgasta
-    antes.
-  componentType: 0
-  weightClass: 1
-  archetype: 1
+  componentName: Aero Shell
+  description: Cuerpo ultraligero. Se mueve como el viento pero sale volando en los
+    choques.
+  componentType: 1
+  weightClass: 0
+  archetype: 3
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: b7f1d71c502d02942a33eeef9a00ed00, type: 3}
-  maxSpinModifier: 0
+  model: {fileID: 919132149155446097, guid: 921cfc75ea0abd442a7c0a18f35269e7, type: 3}
+  maxSpinModifier: -50
   spinDecayModifier: 0.5
-  moveSpeedModifier: 2
-  weightModifier: 0
-  attackPowerModifier: 2
-  defenseModifier: 0
-  dashForceModifier: 1
-  attackChargesModifier: 0
+  moveSpeedModifier: 0.5
+  weightModifier: -0.4
+  attackPowerModifier: 1
+  defenseModifier: -2
+  dashForceModifier: 2
+  attackChargesModifier: 1
   parryWindowModifier: 0
-  traits: []
+  traits:
+  - type: 7
+    percent: -0.2
   specialAbility: 0

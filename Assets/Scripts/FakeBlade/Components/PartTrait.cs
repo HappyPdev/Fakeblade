@@ -30,7 +30,47 @@ namespace FakeBlade.Core
         /// <summary>RPM que cuestan los ataques.</summary>
         AttackCost = 8,
         /// <summary>Tiempo para subir cada nivel del ataque cargado.</summary>
-        ChargeTime = 9
+        ChargeTime = 9,
+
+        // Golpes que da (H8, 2026-10-08)
+        /// <summary>Daño de sus ataques rápidos.</summary>
+        QuickHitDamage = 10,
+        /// <summary>Daño de sus ataques cargados.</summary>
+        ChargedHitDamage = 11,
+        /// <summary>Daño de sus golpes con dash.</summary>
+        DashHitDamage = 12,
+        /// <summary>Empuje que provoca al golpear.</summary>
+        KnockbackDealt = 13,
+        /// <summary>Duración de los estados que provoca (quemadura, congelación, lanzada).</summary>
+        StatusDurationDealt = 14,
+
+        // Golpes que recibe
+        /// <summary>Daño que recibe de otras peonzas (golpes, roce, lanzadas).</summary>
+        DamageTaken = 15,
+        /// <summary>Empuje que recibe.</summary>
+        KnockbackTaken = 16,
+        /// <summary>Daño de las paredes.</summary>
+        WallDamageTaken = 17,
+        /// <summary>Espinas: quien le golpea atacando recibe este tanto por uno del daño que le ha hecho
+        /// (0,2 = el 20%; daño fijo, sin defensa). Aditivo, no multiplicador.</summary>
+        Thorns = 18,
+        /// <summary>Duración de los estados que sufre.</summary>
+        StatusDurationTaken = 19,
+        /// <summary>Golpe lento: daño extra de sus golpes cuando llega despacio (entero hasta el mínimo de
+        /// hitSpeedRange, nada desde la mitad del rango). 0,3 = hasta +30%. Aditivo, no multiplicador.</summary>
+        SlowHitDamage = 20,
+
+        // Manejo, parry y poder
+        /// <summary>Ventana de parry.</summary>
+        ParryWindow = 21,
+        /// <summary>Lo rápido que cambia de dirección.</summary>
+        TurnRate = 22,
+        /// <summary>Lo rápido que acelera (sin cambiar la velocidad máxima).</summary>
+        Acceleration = 23,
+        /// <summary>Lo que dura el poder activo.</summary>
+        SpecialDuration = 24,
+        /// <summary>Lo que curan los poderes (el 25% común y Spin Boost).</summary>
+        HealAmount = 25
     }
 
     /// <summary>
@@ -51,7 +91,7 @@ namespace FakeBlade.Core
     /// </summary>
     public sealed class PartTraits
     {
-        public const int Count = 10;
+        public const int Count = 26;
         private const float MinMultiplier = 0.1f;
 
         public static readonly PartTraits None = new PartTraits();
@@ -70,6 +110,13 @@ namespace FakeBlade.Core
             return index >= 0 && index < Count ? Mathf.Max(MinMultiplier, 1f + _sum[index]) : 1f;
         }
 
+        /// <summary>Suma de los porcentajes de un tipo, para los rasgos aditivos (Espinas, Golpe lento).</summary>
+        public float Sum(PartTraitType type)
+        {
+            int index = (int)type;
+            return index >= 0 && index < Count ? _sum[index] : 0f;
+        }
+
         public bool IsEmpty
         {
             get
@@ -78,6 +125,13 @@ namespace FakeBlade.Core
                     if (_sum[i] != 0f) return false;
                 return true;
             }
+        }
+
+        /// <summary>Texto corto de un rasgo para la UI: "DAÑO DEL RÁPIDO +15%" (claves TRAIT_* en Loc).</summary>
+        public static string Label(PartTrait trait)
+        {
+            int percent = Mathf.RoundToInt(trait.percent * 100f);
+            return $"{Loc.Get("TRAIT_" + trait.type.ToString().ToUpperInvariant())} {(percent > 0 ? "+" : "")}{percent}%";
         }
 
         /// <summary>"DashCooldown=-20%|DashCost=+10%" (registro del sandbox).</summary>

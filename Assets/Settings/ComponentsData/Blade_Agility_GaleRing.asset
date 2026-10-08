@@ -10,26 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Body_Light_AeroShell
+  m_Name: Blade_Agility_GaleRing
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Aero Shell
-  description: Cuerpo ultraligero. Se mueve como el viento pero sale volando en los
-    choques.
-  componentType: 1
+  componentName: Gale Ring
+  description: "Anilla ligera y aerodin\xE1mica. M\xE1s velocidad y dash, poco aguante."
+  componentType: 2
   weightClass: 0
   archetype: 3
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: 921cfc75ea0abd442a7c0a18f35269e7, type: 3}
-  maxSpinModifier: -50
-  spinDecayModifier: 0.5
-  moveSpeedModifier: 3
-  weightModifier: -0.4
-  attackPowerModifier: 0
-  defenseModifier: -5
+  model: {fileID: 919132149155446097, guid: f7d623d4b1a3e0c48a9dd544afd75660, type: 3}
+  maxSpinModifier: -20
+  spinDecayModifier: 0.2
+  moveSpeedModifier: 0.5
+  weightModifier: -0.2
+  attackPowerModifier: 4
+  defenseModifier: 0
   dashForceModifier: 2
   attackChargesModifier: 1
-  parryWindowModifier: 0
+  parryWindowModifier: 0.2
+  traits: []
   specialAbility: 0
-  traits:
-  - type: 7
-    percent: -0.2

@@ -9,11 +9,14 @@ namespace FakeBlade.Core.Editor
     /// Puntas, cuerpos y discos: una pieza por arquetipo (Ataque, Balanceada, Defensa, Agilidad), cada
     /// una con su modelo A-D. Núcleos: uno por poder.
     ///
-    /// - Ligera: rápida, ágil, menos resistente y con más cargas de ataque.
-    /// - Media: equilibrada.
-    /// - Pesada: lenta pero tanque, con menos cargas de ataque.
+    /// Archivos con nombre Tipo_Arquetipo_Nombre (Tip_Attack_StrikerPoint, Core_Defense_ShockWave...): se
+    /// clasifican por arquetipo, no por peso, para poder añadir más adelante arquetipos mixtos. La clase de
+    /// peso (Ligera, Media, Pesada) sigue siendo un dato de la pieza.
     ///
-    /// Montando las piezas salen los arquetipos: Ataque, Defensa, Agilidad o Balanceada.
+    /// Montando las piezas sale el arquetipo de la peonza (el que más se repite entre sus piezas).
+    ///
+    /// Solo crea las piezas que faltan: las que ya existen se ajustan a mano en el Inspector (estadísticas
+    /// y rasgos) y este menú no las sobrescribe.
     /// </summary>
     public static class FakeBladeComponentPresets
     {
@@ -27,76 +30,76 @@ namespace FakeBlade.Core.Editor
             // Los rasgos (lista Rasgos) no se tocan aquí: se ponen en cada asset (GDD 3)
 
             // === PUNTAS ===
-            CreateComponent("Tip_Light_NeedlePoint", "Needle Point",
+            CreateComponent("Tip_Agility_NeedlePoint", "Needle Point",
                 "Punta ultrafina. Mínima fricción, máxima velocidad. Estabilidad reducida.",
                 ComponentSlot.Tip, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: 0, spinDecay: 1f, moveSpeed: 4f, weight: -0.2f,
                 attack: 0, defense: -3f, dash: 3f);
 
-            CreateComponent("Tip_Medium_FlatBase", "Flat Base",
+            CreateComponent("Tip_Balanced_FlatBase", "Flat Base",
                 "Punta plana equilibrada. Buena estabilidad y velocidad decente.",
                 ComponentSlot.Tip, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 50, spinDecay: -0.5f, moveSpeed: 1f, weight: 0f,
                 attack: 0, defense: 0, dash: 0);
 
-            CreateComponent("Tip_Heavy_WideBall", "Wide Ball",
+            CreateComponent("Tip_Defense_WideBall", "Wide Ball",
                 "Punta esférica ancha. Máxima estabilidad, pero lenta.",
                 ComponentSlot.Tip, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 100, spinDecay: -1.5f, moveSpeed: -3f, weight: 0.3f,
                 attack: 0, defense: 5f, dash: -3f);
 
             // Valores provisionales hasta el pase de equilibrio (H9)
-            CreateComponent("Tip_Medium_StrikerPoint", "Striker Point",
+            CreateComponent("Tip_Attack_StrikerPoint", "Striker Point",
                 "Punta de ataque. Agarra el suelo para embestir fuerte, pero se desgasta antes.",
                 ComponentSlot.Tip, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.5f, moveSpeed: 2f, weight: 0f,
                 attack: 2f, defense: 0, dash: 1f);
 
             // === CUERPOS ===
-            CreateComponent("Body_Light_AeroShell", "Aero Shell",
+            CreateComponent("Body_Agility_AeroShell", "Aero Shell",
                 "Cuerpo ultraligero. Se mueve como el viento pero sale volando en los choques.",
                 ComponentSlot.Body, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: -50, spinDecay: 0.5f, moveSpeed: 3f, weight: -0.4f,
                 attack: 0, defense: -5f, dash: 2f, charges: 1);
 
-            CreateComponent("Body_Medium_StandardFrame", "Standard Frame",
+            CreateComponent("Body_Balanced_StandardFrame", "Standard Frame",
                 "Cuerpo estándar bien balanceado. Sin sorpresas.",
                 ComponentSlot.Body, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 0, spinDecay: 0, moveSpeed: 0, weight: 0.3f,
                 attack: 0, defense: 5f, dash: 0);
 
-            CreateComponent("Body_Heavy_IronFortress", "Iron Fortress",
+            CreateComponent("Body_Defense_IronFortress", "Iron Fortress",
                 "Cuerpo macizo de hierro. Imparable una vez en movimiento. Cuesta arrancar.",
                 ComponentSlot.Body, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: -0.3f, moveSpeed: -4f, weight: 1.2f,
                 attack: 0, defense: 15f, dash: -4f, charges: -1);
 
-            CreateComponent("Body_Medium_AssaultFrame", "Assault Frame",
+            CreateComponent("Body_Attack_AssaultFrame", "Assault Frame",
                 "Cuerpo de asalto. Reparte el peso hacia delante para golpear más, a cambio de defensa.",
                 ComponentSlot.Body, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.2f, moveSpeed: 1f, weight: 0.2f,
                 attack: 2f, defense: 4f, dash: 1f);
 
             // === DISCOS ===
-            CreateComponent("Blade_Light_RazorEdge", "Razor Edge",
+            CreateComponent("Blade_Attack_RazorEdge", "Razor Edge",
                 "Disco afilado y ligero. Muchos ataques rápidos pero poco empuje.",
                 ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Attack,
                 maxSpin: 0, spinDecay: 0.3f, moveSpeed: 1f, weight: -0.1f,
                 attack: 3f, defense: 4f, dash: 1f, charges: 1);
 
-            CreateComponent("Blade_Medium_BalancedRing", "Balanced Ring",
+            CreateComponent("Blade_Balanced_BalancedRing", "Balanced Ring",
                 "Anillo equilibrado. Buen ataque y defensa decente.",
                 ComponentSlot.Blade, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 30, spinDecay: 0, moveSpeed: 0, weight: 0.2f,
                 attack: 9f, defense: 5f, dash: 0);
 
-            CreateComponent("Blade_Heavy_CrushWheel", "Crush Wheel",
+            CreateComponent("Blade_Defense_CrushWheel", "Crush Wheel",
                 "Disco de demolición. Impactos devastadores. Muy pesado.",
                 ComponentSlot.Blade, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: -30, spinDecay: 0.5f, moveSpeed: -2f, weight: 0.6f,
                 attack: 0f, defense: 10f, dash: 2f);
 
-            CreateComponent("Blade_Light_GaleRing", "Gale Ring",
+            CreateComponent("Blade_Agility_GaleRing", "Gale Ring",
                 "Anilla ligera y aerodinámica. Más velocidad y dash, poco aguante.",
                 ComponentSlot.Blade, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: -20, spinDecay: 0.2f, moveSpeed: 2f, weight: -0.2f,
@@ -106,42 +109,42 @@ namespace FakeBlade.Core.Editor
             // Uno por poder. Todos +50 RPM máx. y una ventaja y un coste del mismo tamaño (2 puntos;
             // 1 punto = 25 RPM = 0,5 velocidad = 0,1 peso = 2 ataque = 3 defensa = 1 dash = 0,2 desgaste).
             // Fantasma tendrá el suyo con su poder (C5): Ligera, +2 dash, +0,4 desgaste.
-            CreateComponent("Core_Medium_SpinBoost", "Endurance Core",
+            CreateComponent("Core_Balanced_SpinBoost", "Endurance Core",
                 "Núcleo de resistencia. Poder: Spin Boost (recupera RPM).",
                 ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 100, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: -4f, defense: 0, dash: 0,
                 ability: SpecialAbilityType.SpinBoost);
 
-            CreateComponent("Core_Heavy_ShockWave", "Impact Core",
+            CreateComponent("Core_Defense_ShockWave", "Impact Core",
                 "Núcleo de impacto. Poder: Onda de choque que empuja enemigos.",
                 ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.2f,
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.ShockWave);
 
-            CreateComponent("Core_Heavy_Defense", "Fortress Core",
+            CreateComponent("Core_Defense_Defense", "Fortress Core",
                 "Núcleo defensivo. Poder: Defensa.",
                 ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: 0, defense: 6f, dash: -2f,
                 ability: SpecialAbilityType.Defense);
 
-            CreateComponent("Core_Light_Lightning", "Velocity Core",
+            CreateComponent("Core_Agility_Lightning", "Velocity Core",
                 "Núcleo de velocidad. Poder: Rayos.",
                 ComponentSlot.Core, WeightClass.Light, BladeArchetype.Agility,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 1f, weight: -0.2f,
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.Lightning);
 
-            CreateComponent("Core_Medium_Fire", "Blaze Core",
+            CreateComponent("Core_Attack_Fire", "Blaze Core",
                 "Núcleo ardiente. Poder: Fuego (sus golpes queman).",
                 ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Attack,
                 maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0,
                 attack: 4f, defense: -6f, dash: 0,
                 ability: SpecialAbilityType.Fire);
 
-            CreateComponent("Core_Medium_Ice", "Frost Core",
+            CreateComponent("Core_Balanced_Ice", "Frost Core",
                 "Núcleo helado. Poder: Hielo (sus golpes congelan).",
                 ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
                 maxSpin: 0, spinDecay: -0.4f, moveSpeed: 0, weight: 0,
@@ -151,7 +154,7 @@ namespace FakeBlade.Core.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"=== FakeBlade: piezas preset creadas/actualizadas en {SAVE_PATH} ===");
+            Debug.Log($"=== FakeBlade: piezas que faltaban creadas en {SAVE_PATH} (las que ya existían no se tocan) ===");
         }
 
         /// <summary>Piezas exportadas desde Blender (Tools/Blender/export_blade_parts.py).</summary>
@@ -192,9 +195,10 @@ namespace FakeBlade.Core.Editor
         {
             string path = $"{SAVE_PATH}{fileName}.asset";
 
-            var component = AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(path);
-            bool isNew = component == null;
-            if (isNew) component = ScriptableObject.CreateInstance<FakeBladeComponentData>();
+            // Las piezas que ya existen no se tocan: sus valores se ajustan a mano en el Inspector (H8).
+            // Estos valores solo sirven para crear las que falten.
+            if (AssetDatabase.LoadAssetAtPath<FakeBladeComponentData>(path) != null) return;
+            var component = ScriptableObject.CreateInstance<FakeBladeComponentData>();
 
             // SerializedObject para escribir los campos privados
             var so = new SerializedObject(component);
@@ -215,38 +219,37 @@ namespace FakeBlade.Core.Editor
             so.FindProperty("specialAbility").intValue = (int)ability;
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            if (isNew) AssetDatabase.CreateAsset(component, path);
-            else EditorUtility.SetDirty(component);
+            AssetDatabase.CreateAsset(component, path);
         }
 
-        // === QUICK EQUIP ===
+        // === QUICK EQUIP === (una build por arquetipo, con sus piezas)
 
-        [MenuItem("FakeBlade/Quick Equip/All Light (Agilidad)")]
-        public static void QuickEquipAllLight()
-        {
-            QuickEquipPreset("Light", "Tip_Light_NeedlePoint", "Body_Light_AeroShell",
-                "Blade_Light_RazorEdge", "Core_Light_Lightning");
-        }
-
-        [MenuItem("FakeBlade/Quick Equip/All Medium (Balanceada)")]
-        public static void QuickEquipAllMedium()
-        {
-            QuickEquipPreset("Medium", "Tip_Medium_FlatBase", "Body_Medium_StandardFrame",
-                "Blade_Medium_BalancedRing", "Core_Medium_SpinBoost");
-        }
-
-        [MenuItem("FakeBlade/Quick Equip/All Heavy (Defensa)")]
-        public static void QuickEquipAllHeavy()
-        {
-            QuickEquipPreset("Heavy", "Tip_Heavy_WideBall", "Body_Heavy_IronFortress",
-                "Blade_Heavy_CrushWheel", "Core_Heavy_Defense");
-        }
-
-        [MenuItem("FakeBlade/Quick Equip/Attack Build (Ataque)")]
+        [MenuItem("FakeBlade/Quick Equip/Ataque")]
         public static void QuickEquipAttack()
         {
-            QuickEquipPreset("Attack", "Tip_Medium_FlatBase", "Body_Light_AeroShell",
-                "Blade_Heavy_CrushWheel", "Core_Heavy_ShockWave");
+            QuickEquipPreset("Attack", "Tip_Attack_StrikerPoint", "Body_Attack_AssaultFrame",
+                "Blade_Attack_RazorEdge", "Core_Attack_Fire");
+        }
+
+        [MenuItem("FakeBlade/Quick Equip/Balanceada")]
+        public static void QuickEquipBalanced()
+        {
+            QuickEquipPreset("Balanced", "Tip_Balanced_FlatBase", "Body_Balanced_StandardFrame",
+                "Blade_Balanced_BalancedRing", "Core_Balanced_SpinBoost");
+        }
+
+        [MenuItem("FakeBlade/Quick Equip/Defensa")]
+        public static void QuickEquipDefense()
+        {
+            QuickEquipPreset("Defense", "Tip_Defense_WideBall", "Body_Defense_IronFortress",
+                "Blade_Defense_CrushWheel", "Core_Defense_Defense");
+        }
+
+        [MenuItem("FakeBlade/Quick Equip/Agilidad")]
+        public static void QuickEquipAgility()
+        {
+            QuickEquipPreset("Agility", "Tip_Agility_NeedlePoint", "Body_Agility_AeroShell",
+                "Blade_Agility_GaleRing", "Core_Agility_Lightning");
         }
 
         private static void QuickEquipPreset(string presetName, string tipFile, string bodyFile, string bladeFile, string coreFile)

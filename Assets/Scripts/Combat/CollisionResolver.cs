@@ -146,11 +146,16 @@ namespace FakeBlade.Core
             // Nivel de carga y tipo de golpe (ataque, dash o sin atacar)
             damageToSlow *= fast.ChargeDamageMultiplier * fast.HitTypeDamageMultiplier;
             damageToFast *= slow.ChargeDamageMultiplier * slow.HitTypeDamageMultiplier;
+            // Rasgo Golpe lento (H8): más daño si quien golpea llega despacio
+            damageToSlow *= SlowHitFactor(fast, fastDamageSpeed);
+            if (neutral) damageToFast *= SlowHitFactor(slow, slowDamageSpeed);
 
             float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier, fast);
             float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier, slow);
             CutHealIfAttacked(slow, fast, dealtToSlow);
             CutHealIfAttacked(fast, slow, dealtToFast);
+            ApplyThorns(slow, fast, dealtToSlow);
+            ApplyThorns(fast, slow, dealtToFast);
 
             // Empuje: velocidad instantánea (m/s), escalada por masas, cargas y resistencias
             float knockback = (cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff)
@@ -320,6 +325,30 @@ namespace FakeBlade.Core
         private static void CutHealIfAttacked(FakeBladeController victim, FakeBladeController hitter, float dealt)
         {
             if (dealt > 0f && hitter.IsAttacking && !victim.IsAllyOf(hitter)) victim.InterruptHeal();
+        }
+
+        /// <summary>
+        /// Rasgo Golpe lento (H8): hasta +TraitSum(SlowHitDamage) de daño si quien golpea llega despacio;
+        /// entero hasta hitSpeedRange.x y nada desde la mitad del rango.
+        /// </summary>
+        private static float SlowHitFactor(FakeBladeController hitter, float hitterSpeed)
+        {
+            float bonus = hitter.TraitSum(PartTraitType.SlowHitDamage);
+            if (bonus == 0f) return 1f;
+            Vector2 range = CombatConfig.Active.hitSpeedRange;
+            float slowness = 1f - Mathf.InverseLerp(range.x, (range.x + range.y) * 0.5f, hitterSpeed);
+            return Mathf.Max(0f, 1f + bonus * slowness);
+        }
+
+        /// <summary>
+        /// Rasgo Espinas (H8): quien golpea atacando recibe una parte del daño que ha hecho (daño fijo,
+        /// sin defensa). No da energía ni corta curaciones.
+        /// </summary>
+        private static void ApplyThorns(FakeBladeController victim, FakeBladeController hitter, float dealt)
+        {
+            if (dealt <= 0f || !hitter.IsAttacking) return;
+            float thorns = victim.TraitSum(PartTraitType.Thorns);
+            if (thorns > 0f) hitter.ApplyStatusDamage(dealt * thorns, victim);
         }
 
         /// <summary>

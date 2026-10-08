@@ -10,25 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Blade_Heavy_CrushWheel
+  m_Name: Core_Balanced_Ice
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Crush Wheel
-  description: "Disco de demolici\xF3n. Impactos devastadores. Muy pesado."
-  componentType: 2
-  weightClass: 2
-  archetype: 2
+  componentName: Frost Core
+  description: "N\xFAcleo helado. Poder: Hielo (sus golpes congelan)."
+  componentType: 3
+  weightClass: 1
+  archetype: 0
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: 095f34d9e0d679d4789f333c58d05e50, type: 3}
-  maxSpinModifier: -30
-  spinDecayModifier: 0.5
-  moveSpeedModifier: -2
-  weightModifier: 0.6
-  attackPowerModifier: 0
-  defenseModifier: 10
-  dashForceModifier: 2
+  model: {fileID: 919132149155446097, guid: 121c224285be2634095a489f5d39ce3f, type: 3}
+  maxSpinModifier: 0
+  spinDecayModifier: -0.4
+  moveSpeedModifier: 0
+  weightModifier: 0.2
+  attackPowerModifier: 1
+  defenseModifier: 2
+  dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
-  specialAbility: 0
-  traits:
-  - type: 5
-    percent: 0.2
+  traits: []
+  specialAbility: 6

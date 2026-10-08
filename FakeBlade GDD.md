@@ -185,7 +185,33 @@ Cada pieza tiene una clase de peso (Ligera / Media / Pesada) y **un arquetipo** 
 - Una punta con **dash con un 25% menos de espera pero un 15% más caro**.
 - Un cuerpo que **recarga los ataques más rápido** pero **los encarece**.
 
-Tipos disponibles (`PartTraitType`): energía del especial por golpe rápido, por dash, por cargado, por parry y total; espera y coste del dash; tiempo de recarga y coste de los ataques; y tiempo de carga del ataque cargado. Se ponen en el asset de la pieza (lista *Rasgos*, en tanto por uno: 0,25 = +25%) y se suman entre piezas. Añadir un tipo nuevo es añadirlo al enum y aplicarlo donde toque. Pendiente: más piezas con rasgos y mostrarlos en la selección (ver Quehaceres H8).
+Se ponen en el asset de la pieza (lista *Rasgos* en el Inspector, en tanto por uno: 0,25 = +25%, −0,1 = −10%) y los de todas las piezas montadas se suman. Casi todos multiplican un valor (1 + suma, nunca por debajo de ×0,1); Espinas y Golpe lento suman directamente. El menú *Create All Component Presets* ya no sobrescribe las piezas que existen, así que estadísticas y rasgos se ajustan a mano sin miedo. Tipos disponibles (`PartTraitType`; los 16 nuevos del 2026-10-08 probados uno a uno con un probe en el sandbox, 17 comprobaciones bien):
+
+| Grupo | Rasgo (nombre en el juego) | Qué cambia |
+|---|---|---|
+| Especial | Energía (rápido / dash / cargado / parry) y Energía del especial | Energía que se gana con cada tipo de golpe acertado, o con todos |
+| Ataques | Recarga de ataques, Coste de ataques, Tiempo de carga | Lo que tarda en volver cada carga, las RPM que cuestan y lo que tarda en subir cada nivel del cargado |
+| Dash | Espera del dash, Coste del dash | Tiempo entre dashes y RPM que cuesta |
+| Golpes que das | Daño del rápido, Daño del cargado, Daño del dash | Daño de cada tipo de golpe |
+| | Empuje que haces | Empuje al golpear |
+| | Duración de tus estados | Lo que duran la quemadura, la congelación y la lanzada que provocas |
+| | Golpe lento | Daño extra cuando llegas despacio: entero hasta 8 m/s, nada desde 16 m/s (ayuda a las peonzas lentas) |
+| Golpes que recibes | Daño recibido | Daño de otras peonzas (golpes, roce y lanzadas; no paredes ni estados) |
+| | Empuje recibido, Daño de paredes | Empuje que recibes y daño de las paredes |
+| | Espinas | Quien te golpea atacando recibe ese % del daño que te ha hecho (daño fijo, sin defensa) |
+| | Estados que sufres | Lo que te duran la quemadura, la congelación y la lanzada |
+| Manejo y poder | Ventana de parry | Ventana de parry (sobre la de las estadísticas) |
+| | Giro, Aceleración | Lo rápido que cambia de dirección y que acelera (la velocidad máxima no cambia) |
+| | Duración del poder, Curación | Lo que dura el poder activo y lo que curan los poderes (el 25% común y Spin Boost) |
+
+Para mostrarlos en la selección ya hay nombre de cada rasgo en español e inglés (`TRAIT_*` en `Loc`) y un texto listo para la UI (`PartTraits.Label`: "DAÑO DEL RÁPIDO +15%").
+
+**Rasgos con condición (para más adelante):** dan personalidad pero necesitan reglas propias.
+
+- **Último aliento:** por debajo del 30% de RPM, más daño (remontadas).
+- **Firme al cargar:** mientras carga recibe menos daño y empuje.
+- **Primer golpe:** el primer golpe tras unos segundos sin chocar hace más daño (premia entrar y salir).
+- *(Añadir aquí las ideas del usuario y nuevas propuestas antes de implementarlos.)*
 
 Rasgos actuales (equilibrio del 2026-10-07):
 
@@ -195,7 +221,7 @@ Rasgos actuales (equilibrio del 2026-10-07):
 | Needle Point | Coste de los ataques **−25%** | La Agilidad ataca mucho y barato. |
 | Aero Shell | Recarga de los ataques **−20%** | Ídem: más ataques rápidos, en vez de dashes. |
 
-**Ataque de las piezas** (mismo ajuste): Crush Wheel 15 → **6**, Iron Fortress 5 → **0** (la Defensa pegaba más que el Ataque), Razor Edge 8 → **12** (el disco de Ataque es el que más pega) y Aero Shell −3 → **0**.
+**Ataque de las piezas** (mismo ajuste): Crush Wheel 15 → **6**, Iron Fortress 5 → **0** (la Defensa pegaba más que el Ataque), Razor Edge 8 → **12** (el disco de Ataque es el que más pega) y Aero Shell −3 → **0**. *(Cambiado otra vez en C10, el 2026-10-07: ver el registro en Quehaceres C10.)*
 
 **Núcleos** (uno por poder). Deben notarse, pero sin decidir la partida: todos dan **+50 RPM máximas** y, además, una **ventaja y un coste del mismo tamaño** (2 puntos), a juego con su poder. Los poderes más fuertes ya pagan con la energía que necesitan. 1 punto = 25 RPM = 0,5 de velocidad = 0,1 de peso = 2 de ataque = 3 de defensa = 1 de dash = 0,2 de desgaste.
 
@@ -602,6 +628,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 - Hazards y powerups de arena (ver sección 4).
 - Más efectos de postprocesado en Opciones.
 - Portar a móvil con partidas en red local.
+- **Arquetipos mixtos:** piezas que mezclen dos arquetipos (por ejemplo Ataque-Agilidad o Defensa-Balanceada) y compartan características de ambos. Por eso las piezas se nombran por arquetipo y no por peso (registro del 2026-10-08).
 
 11. # Registro de decisiones
 
@@ -726,6 +753,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-07 | Cargado que no hacía daño | El daño del cargado restaba una velocidad fija (toda la que suma la carga, ~16 m/s en nivel 3): si el golpe llegaba tarde o frenado se quedaba en 0 y solo empujaba, y a toda velocidad se disparaba (0-90 RPM en el mismo registro). Ahora se quita en proporción (2.3). |
 | 2026-10-07 | Objetivos de equilibrio | Tabla en 2.7: rápido ≈ 20, cargado ×1,75, tope de 60 por golpe, duelos de 60 s y arquetipos con diferencias moderadas (Ataque hace +25% y recibe +10%; Defensa −25% / −35%; Agilidad +10% / +20%). |
 | 2026-10-07 | Daño por golpe | El daño de un golpe entre peonzas es un daño base (`hitBaseDamage` 50, calibrado para un rápido ≈ 20 en Balanceada contra Balanceada) que la velocidad solo mueve ±25%. Sustituye al daño que crecía en línea recta con la velocidad: los golpes a tope pasaban de 100. El empuje sigue dependiendo de la velocidad igual. |
+| 2026-10-08 | Rasgos generales | 16 tipos de rasgo nuevos para cualquier pieza (daño por tipo de golpe, empuje, estados, daño recibido, paredes, espinas, golpe lento, parry, giro, aceleración, duración del poder y curación; tabla en 3). Primero se hacen y prueban los tipos; después se decide qué pieza lleva cuál. Los rasgos con condición quedan apuntados para más adelante. |
+| 2026-10-08 | Piezas a mano | Las estadísticas y los rasgos de las piezas se ajustan a mano en sus assets; el menú de piezas solo crea las que faltan. |
+| 2026-10-08 | Nombres de las piezas | Las piezas se clasifican por arquetipo, no por peso: `Tipo_Arquetipo_Nombre` (p. ej. `Tip_Attack_StrikerPoint`, `Core_Defense_ShockWave`) en vez de `Light/Medium/Heavy`. Los menús las ordenan por arquetipo (Balanceada, Ataque, Defensa, Agilidad). Deja sitio a arquetipos mixtos en el futuro (Ideas futuras). |
+| 2026-10-08 | Velocidad base | La velocidad base de las peonzas sube de 4 a 6 (prefab de la peonza y `BladeBaseStats.Default`). La máxima real sube 0,4-0,8 m/s, porque `speedSpread` iguala en parte las diferencias. |
 | 2026-10-08 | Arquetipo de la peonza | Es el que más se repite entre sus 4 piezas (punta, cuerpo, anilla y núcleo); con empate en cabeza, Balanceada. Antes se deducía de las estadísticas y, con los valores nuevos, el preset Ataque salía como Agilidad. |
 | 2026-10-07 | Dispositivo por jugador | En Controles se elige el dispositivo de cada jugador (Teclado J1, Teclado J2, Mando 1..N), al momento desde la pausa y guardado como preferencia, para probar con mando cómodamente (9.2.4). |
 | 2026-10-07 | Vista previa de piezas | Al enseñar una pieza en la selección, la peonza se queda quieta para ver bien el cambio (H7). |
@@ -826,7 +857,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] H2. Opciones → Colores de peonza: lista de 24 colores retro por pieza, vista previa 3D, restaurar y guardado. Probado con teclado; falta con mando. 🎮
 - [x] H5. Selección de peonzas: arquetipo de cada pieza bajo su nombre, barras de stats por tramos con parpadeo de la pieza seleccionada y vista previa centrada y más de frente. Probado con 4 jugadores (captura); falta con mandos. 🎮
 - [x] H3. Modelo genérico del núcleo en la peonza: todos los núcleos usan `Nucleo_Generico` con `BladeCoreMaterial` (lo pone `BladeModel` desde los ajustes del prefab).
-- [ ] H8. Rasgos de las piezas (ver 3): la base está hecha (`PartTrait`, lista *Rasgos* en cada pieza, aplicados en energía del especial, dash, recarga, costes y carga). Primeros rasgos puestos el 2026-10-07 (dash de las pesadas, ataques de las ágiles; tabla en 3). Falta diseñar más piezas con rasgos, mostrarlos en la selección (bajo el arquetipo, o al tener la pieza seleccionada) y probarlos en el sandbox.
+- [ ] H8. Rasgos de las piezas (ver 3): la base está hecha (`PartTrait`, lista *Rasgos* en cada pieza, aplicados en energía del especial, dash, recarga, costes y carga). Primeros rasgos puestos el 2026-10-07 (dash de las pesadas, ataques de las ágiles; tabla en 3). Hecho el 2026-10-08: 16 tipos nuevos (26 en total, tabla en 3), aplicados en el combate y probados uno a uno con un probe en el sandbox (17 comprobaciones bien: cada rasgo cambia su valor en lo esperado); nombres ES/EN y texto para la UI; el menú de piezas ya no sobrescribe las que existen. Falta: decidir qué rasgos lleva cada pieza (el usuario los reparte a mano), mostrarlos en la selección (bajo el arquetipo, o al tener la pieza seleccionada), pasar el banco de equilibrio con los rasgos puestos y, más adelante, los rasgos con condición. 🎮
 - [ ] H9. Una pieza por arquetipo en punta, cuerpo y anilla (4 de cada, con su modelo A-D). Faltaban los ScriptableObject (el script de piezas solo creaba una por clase de peso): creadas **Striker Point** (punta de Ataque, `Punta_Type_A`), **Assault Frame** (cuerpo de Ataque, `Body_Type_A`) y **Gale Ring** (anilla de Agilidad, `Ring_Type_D`) en `FakeBladeComponentPresets` y en el catálogo, y salen en todos los menús de selección (comprobado con mando el 2026-10-07). Falta: fijar sus estadísticas y decidir los presets en el pase de equilibrio.
 - [ ] H7. Selección de piezas: al tener el foco en una fila de pieza (punta, cuerpo, disco o núcleo), la vista previa mueve la cámara o el modelo para enseñar esa pieza (por ejemplo, de lado para la punta, desde arriba para el núcleo). Mientras se enseña una pieza, **la peonza se queda quieta** (sin girar), para que el jugador vea bien cada cambio; girando no se aprecia. Vuelve a girar al salir de las filas de piezas.
 - [x] H6. Imagen del núcleo (plano `Imagen de Nucleo` con el icono pixel del poder, teñido con su color). **Aplicada para probarla (2026-10-06)**: `CoreImage`, creada por `BladeModel` con el núcleo; va en el pivote de inclinación (se inclina con la peonza pero no gira) y se orienta a la cámara cada frame. Dos modos en el prefab (`FakeBladeController` → Model Settings → Core Image Mode): **calcomanía** (tumbada sobre el núcleo, por defecto) y **cartel** (de pie, de frente a la cámara). La orientación de la textura sale de las UV de la malla (el FBX del plano necesita Read/Write activado, ya puesto). Iconos en `PowerIcons` (Fuego, Hielo y Rayos usan los de su estado; flecha, ondas, escudo y fantasma para el resto; el icono del asset del poder tiene prioridad). **Se queda como opción**: Opciones → Juego → Icono del núcleo, desactivada por defecto. Falta verla con mandos y a pantalla completa. 🎮

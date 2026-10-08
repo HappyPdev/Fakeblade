@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Tip_Heavy_WideBall
+  m_Name: Body_Defense_IronFortress
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Wide Ball
-  description: "Punta esf\xE9rica ancha. M\xE1xima estabilidad, pero lenta."
-  componentType: 0
+  componentName: Iron Fortress
+  description: Cuerpo macizo de hierro. Imparable una vez en movimiento. Cuesta arrancar.
+  componentType: 1
   weightClass: 2
   archetype: 2
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: f3f64f53573893a4d84003eeb88874dc, type: 3}
-  maxSpinModifier: 100
-  spinDecayModifier: -1.5
-  moveSpeedModifier: -3
-  weightModifier: 0.3
-  attackPowerModifier: 0
-  defenseModifier: 5
-  dashForceModifier: -3
-  attackChargesModifier: 0
-  parryWindowModifier: 0
-  specialAbility: 0
+  model: {fileID: 919132149155446097, guid: fd497958b9d61f54a9785e46446c1037, type: 3}
+  maxSpinModifier: 50
+  spinDecayModifier: -0.3
+  moveSpeedModifier: -1
+  weightModifier: 1
+  attackPowerModifier: 1
+  defenseModifier: 15
+  dashForceModifier: -2
+  attackChargesModifier: -1
+  parryWindowModifier: 0.1
   traits:
   - type: 5
     percent: 0.2
+  specialAbility: 0

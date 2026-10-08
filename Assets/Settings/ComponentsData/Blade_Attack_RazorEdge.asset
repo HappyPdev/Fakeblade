@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e9f588c48de59e4a8019972455d55b8, type: 3}
-  m_Name: Core_Light_Lightning
+  m_Name: Blade_Attack_RazorEdge
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.FakeBladeComponentData
-  componentName: Velocity Core
-  description: "N\xFAcleo de velocidad. Poder: Rayos."
-  componentType: 3
+  componentName: Razor Edge
+  description: "Disco afilado y ligero. Muchos ataques r\xE1pidos pero poco empuje."
+  componentType: 2
   weightClass: 0
-  archetype: 3
+  archetype: 1
   icon: {fileID: 0}
-  model: {fileID: 919132149155446097, guid: 121c224285be2634095a489f5d39ce3f, type: 3}
-  maxSpinModifier: 50
-  spinDecayModifier: 0
-  moveSpeedModifier: 1
+  model: {fileID: 919132149155446097, guid: 954756163ea420f4f9539a89b9363db4, type: 3}
+  maxSpinModifier: 0
+  spinDecayModifier: 0.3
+  moveSpeedModifier: 0.5
   weightModifier: -0.2
-  attackPowerModifier: 0
-  defenseModifier: 0
-  dashForceModifier: 0
-  attackChargesModifier: 0
-  parryWindowModifier: 0
-  specialAbility: 4
+  attackPowerModifier: 4
+  defenseModifier: 1
+  dashForceModifier: 1
+  attackChargesModifier: 1
+  parryWindowModifier: 0.1
+  traits: []
+  specialAbility: 0

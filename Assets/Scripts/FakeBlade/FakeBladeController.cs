@@ -189,7 +189,7 @@ namespace FakeBlade.Core
         public float DamageSpeed(float approachSpeed) => ChargeLevel > 0 ? approachSpeed * _chargeDamageSpeedScale : approachSpeed;
 
         /// <summary>Daño del ataque cargado sobre el de uno rápido: 1 + chargedDamagePerLevel × nivel.</summary>
-        public float ChargeDamageMultiplier => 1f + CombatConfig.Active.chargedDamagePerLevel * ChargeLevel;
+        public float ChargeDamageMultiplier => BladeFormulas.ChargeDamageMultiplier(CombatConfig.Active, ChargeLevel);
 
         public bool CanDash => _dashTimer <= 0f && !_isDestroyed && _simulationActive;
         /// <summary>0 = recién usado, 1 = listo.</summary>

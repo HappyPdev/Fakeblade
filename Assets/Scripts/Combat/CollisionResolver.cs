@@ -127,7 +127,7 @@ namespace FakeBlade.Core
 
             float baseDamage = (fastDamageSpeed + slowDamageSpeed) * cfg.damagePerImpactSpeed;
             // Golpe (GDD 2.7): daño base por golpe que la velocidad solo mueve entre ×0,75 y ×1,25
-            float hitDamage = cfg.hitBaseDamage * HitSpeedFactor(fastDamageSpeed + slowDamageSpeed);
+            float hitDamage = cfg.hitBaseDamage * BladeFormulas.HitSpeedFactor(cfg, fastDamageSpeed + slowDamageSpeed);
 
             float damageToSlow;
             float damageToFast;
@@ -349,20 +349,6 @@ namespace FakeBlade.Core
             if (dealt <= 0f || !hitter.IsAttacking) return;
             float thorns = victim.TraitSum(PartTraitType.Thorns);
             if (thorns > 0f) hitter.ApplyStatusDamage(dealt * thorns, victim);
-        }
-
-        /// <summary>
-        /// Cuánto vale un golpe según la velocidad de choque (sin la de la carga): de hitSpeedFactor.x en
-        /// hitSpeedRange.x a hitSpeedFactor.y en hitSpeedRange.y (y no más). Por debajo del mínimo baja en
-        /// proporción hasta 0, para que un roce lento no quite como un golpe.
-        /// </summary>
-        private static float HitSpeedFactor(float speed)
-        {
-            var cfg = CombatConfig.Active;
-            Vector2 range = cfg.hitSpeedRange;
-            Vector2 factor = cfg.hitSpeedFactor;
-            if (speed < range.x) return factor.x * Mathf.Max(0f, speed) / Mathf.Max(0.01f, range.x);
-            return Mathf.Lerp(factor.x, factor.y, Mathf.InverseLerp(range.x, range.y, speed));
         }
 
         /// <summary>Relación de masas para el empuje (con el bonus de masa del ataque en curso). La masa no

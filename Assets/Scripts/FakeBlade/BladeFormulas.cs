@@ -70,6 +70,23 @@ namespace FakeBlade.Core
 
         /// <summary>Parte del empuje que se recibe por la defensa (1 − defensa × 0,005).</summary>
         public static float KnockbackTakenFactor(float defense) => 1f - defense * 0.005f;
+
+        /// <summary>
+        /// Cuánto vale un golpe según la velocidad de choque (sin la de la carga): de hitSpeedFactor.x en
+        /// hitSpeedRange.x a hitSpeedFactor.y en hitSpeedRange.y (y no más). Por debajo del mínimo baja en
+        /// proporción hasta 0, para que un roce lento no quite como un golpe.
+        /// </summary>
+        public static float HitSpeedFactor(CombatConfig cfg, float speed)
+        {
+            Vector2 range = cfg.hitSpeedRange;
+            Vector2 factor = cfg.hitSpeedFactor;
+            if (speed < range.x) return factor.x * Mathf.Max(0f, speed) / Mathf.Max(0.01f, range.x);
+            return Mathf.Lerp(factor.x, factor.y, Mathf.InverseLerp(range.x, range.y, speed));
+        }
+
+        /// <summary>Daño del ataque cargado sobre el de uno rápido: 1 + chargedDamagePerLevel × nivel.</summary>
+        public static float ChargeDamageMultiplier(CombatConfig cfg, int chargeLevel) =>
+            1f + cfg.chargedDamagePerLevel * chargeLevel;
         #endregion
     }
 }

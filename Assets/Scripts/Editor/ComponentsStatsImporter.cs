@@ -34,7 +34,7 @@ namespace FakeBlade.Core.Editor
         [Serializable]
         private class Stats
         {
-            public float maxSpin, spinDecay, moveSpeed, weight, attack, defense, dash, parry;
+            public float maxSpin, spinDecay, moveSpeed, weight, attack, defense, dash, parry, grip;
             public int charges;
         }
 
@@ -48,7 +48,7 @@ namespace FakeBlade.Core.Editor
             ("moveSpeed", "moveSpeedModifier", "Velocidad"), ("weight", "weightModifier", "Peso"),
             ("attack", "attackPowerModifier", "Ataque"), ("defense", "defenseModifier", "Defensa"),
             ("dash", "dashForceModifier", "Dash"), ("charges", "attackChargesModifier", "Cargas"),
-            ("parry", "parryWindowModifier", "Parry"),
+            ("parry", "parryWindowModifier", "Parry"), ("grip", "gripModifier", "Agarre"),
         };
 
         private struct Change
@@ -247,6 +247,7 @@ namespace FakeBlade.Core.Editor
                 case "defense": return s.defense;
                 case "dash": return s.dash;
                 case "charges": return s.charges;
+                case "grip": return s.grip;
                 default: return s.parry;
             }
         }

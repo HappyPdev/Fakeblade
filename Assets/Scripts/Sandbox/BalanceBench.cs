@@ -28,7 +28,8 @@ namespace FakeBlade.Core
         // Objetivos (GDD 2.7): golpe de referencia, multiplicadores por arquetipo, tope y duración
         private const float TargetQuick = 20f;
         private const float MaxSingleHit = 60f;
-        private const float TargetMirrorSeconds = 60f;
+        /// <summary>Duración aceptada del espejo de Balanceada (GDD 2.7, 2026-10-07: duelos más largos aceptados).</summary>
+        private static readonly Vector2 TargetMirrorSeconds = new Vector2(90f, 120f);
         /// <summary>Segundos entre golpes con daño en el registro del sandbox (2026-10-07: uno cada 4,2 s).</summary>
         private const float SecondsPerHit = 4.2f;
         private const float Tolerance = 0.1f;
@@ -37,7 +38,7 @@ namespace FakeBlade.Core
         {
             // x = daño que hace, y = daño que recibe (Balanceada = 1)
             ["PRESET_ATTACK"] = new Vector2(1.25f, 1.10f),
-            ["PRESET_DEFENSE"] = new Vector2(0.75f, 0.65f),
+            ["PRESET_DEFENSE"] = new Vector2(1f, 0.65f), // pega como la Balanceada (2026-10-09)
             ["PRESET_AGILITY"] = new Vector2(1.10f, 1.20f),
             ["PRESET_BALANCED"] = new Vector2(1f, 1f),
         };
@@ -268,7 +269,7 @@ namespace FakeBlade.Core
                           $"Duración: {seconds:F0} s.");
             md.AppendLine();
             md.AppendLine($"Objetivos (GDD 2.7): rápido ≈ {TargetQuick:F0} en Balanceada contra Balanceada, cargado ×1,25 / ×1,5 / ×1,75, " +
-                          $"ningún golpe por encima de {MaxSingleHit:F0}, espejo de Balanceada ≈ {TargetMirrorSeconds:F0} s " +
+                          $"ningún golpe por encima de {MaxSingleHit:F0}, espejo de Balanceada {TargetMirrorSeconds.x:F0}-{TargetMirrorSeconds.y:F0} s " +
                           $"(con un golpe cada {F(SecondsPerHit)} s). P = parado, T = a tope, L = tarde.");
             md.AppendLine();
 
@@ -301,12 +302,41 @@ namespace FakeBlade.Core
             md.AppendLine("Hace = daño medio de sus golpes (P y T) contra Balanceada / el de Balanceada. Recibe = daño medio que le hace Balanceada / el que se hace a sí misma.");
             md.AppendLine();
 
-            // 3) Duración estimada de cada duelo (columna = quien recibe)
-            md.AppendLine("## Duración estimada de los duelos (s)");
-            md.AppendLine();
-            var header = new StringBuilder("| Atacante \\ Defensor |");
+            var header = new StringBuilder("| Fila \\ Columna |");
             var line = new StringBuilder("|---|");
             foreach (BladePreset d in presets) { header.Append($" {Name(d.nameKey)} |"); line.Append("---|"); }
+
+            // 3) Duelo completo (C14): las dos a la vez, con costes, desgaste y curación del especial
+            md.AppendLine("## Duelos completos (s)");
+            md.AppendLine();
+            md.AppendLine(header.ToString());
+            md.AppendLine(line.ToString());
+            foreach (BladePreset a in presets)
+            {
+                var row = new StringBuilder($"| {Name(a.nameKey)} |");
+                foreach (BladePreset d in presets)
+                {
+                    if (!TryDuel(a, d, out DuelEstimator.Result duel)) { row.Append(" — |"); continue; }
+                    string winner = duel.Winner < 0 ? "empate"
+                        : $"gana {Name(duel.Winner == 0 ? a.nameKey : d.nameKey)} ({duel.WinnerSpinLeft * 100f:F0}%)";
+                    string mirror = a == d && a.nameKey == balanced ? " " + CheckRange(duel.Seconds, TargetMirrorSeconds) : "";
+                    row.Append($" {duel.Seconds:F0}{mirror} · {winner} |");
+                }
+                md.AppendLine(row.ToString());
+            }
+            md.AppendLine();
+            md.AppendLine($"Las dos se golpean a la vez, un golpe cada {F(SecondsPerHit)} s, con el daño medio medido arriba (P y T) y lo que reciben al golpear. " +
+                          $"Por cada golpe que entra gastan {F(DuelEstimator.AttacksPerHit)} ataques ({F(DuelEstimator.ChargesPerAttack)} cargas de media) y " +
+                          $"{F(DuelEstimator.DashesPerHit)} dashes (ritmo de los registros del sandbox; la mitad de los dashes aciertan y devuelven " +
+                          $"el {F(cfg.dashHitRefundFraction * 100f)}% de su coste); pierden su desgaste por segundo; y al llenar el especial " +
+                          $"se curan el {F(cfg.specialActivationSpinPct * 100f)}% (más la curación de Spin Boost), con un {F(DuelEstimator.HealCutChance * 100f)}% " +
+                          "de curaciones cortadas. No cuenta los demás efectos de los poderes, las paredes ni el parry. " +
+                          $"(%) = RPM que le quedan al ganador. Objetivo del espejo de Balanceada: {TargetMirrorSeconds.x:F0}-{TargetMirrorSeconds.y:F0} s.");
+            md.AppendLine();
+
+            // 4) Solo golpes (como antes de C14): lo que tarda la fila en tumbar a la columna sin costes ni curación
+            md.AppendLine("## Solo golpes (s)");
+            md.AppendLine();
             md.AppendLine(header.ToString());
             md.AppendLine(line.ToString());
             foreach (BladePreset a in presets)
@@ -320,10 +350,11 @@ namespace FakeBlade.Core
                 md.AppendLine(row.ToString());
             }
             md.AppendLine();
-            md.AppendLine($"Golpes hasta el K.O. con la mezcla media de golpes (P y T) × {F(SecondsPerHit)} s por golpe. Objetivo del espejo de Balanceada: {TargetMirrorSeconds:F0} s.");
+            md.AppendLine($"Lo que tarda la fila en dejar a 0 a la columna: golpes hasta el K.O. con la mezcla media de golpes (P y T) × {F(SecondsPerHit)} s, " +
+                          "sin costes, desgaste ni curación (la medida de antes de C14, para comparar).");
             md.AppendLine();
 
-            // 4) Golpes por encima del tope
+            // 5) Golpes por encima del tope
             md.AppendLine($"## Golpes por encima de {MaxSingleHit:F0}");
             md.AppendLine();
             int over = 0;
@@ -375,6 +406,40 @@ namespace FakeBlade.Core
             float maxSpin = MaxSpinOf(preset);
             return maxSpin / (sum / n);
         }
+
+        /// <summary>Daño medio que hace el atacante (P y T) y el que se lleva él mismo al golpear.</summary>
+        private bool MeanHit(string attacker, string defender, out float damage, out float toAttacker)
+        {
+            damage = toAttacker = 0f;
+            int n = 0;
+            foreach (Hit hit in Enum.GetValues(typeof(Hit)))
+                foreach (Situation s in new[] { Situation.Standing, Situation.TopSpeed })
+                    if (TryGet(attacker, defender, hit, s, out Result r)) { damage += r.Damage; toAttacker += r.DamageToAttacker; n++; }
+            if (n == 0) return false;
+            damage /= n;
+            toAttacker /= n;
+            return true;
+        }
+
+        /// <summary>Duelo completo de dos presets con los daños medidos (C14, DuelEstimator).</summary>
+        private bool TryDuel(BladePreset a, BladePreset b, out DuelEstimator.Result result)
+        {
+            result = default;
+            if (!MeanHit(a.nameKey, b.nameKey, out float dealtA, out float selfA) ||
+                !MeanHit(b.nameKey, a.nameKey, out float dealtB, out float selfB)) return false;
+
+            var cfg = CombatConfig.Active;
+            BladeBaseStats baseStats = _catalog.GetBaseStats();
+            BladeStatBlock sa = FakeBladeStats.Calculate(baseStats, a.tip, a.body, a.blade, a.core);
+            BladeStatBlock sb = FakeBladeStats.Calculate(baseStats, b.tip, b.body, b.blade, b.core);
+            var sideA = DuelEstimator.BuildSide(cfg, sa, SpecialAbilities.Get(sa.Special), dealtA, selfA);
+            var sideB = DuelEstimator.BuildSide(cfg, sb, SpecialAbilities.Get(sb.Special), dealtB, selfB);
+            result = DuelEstimator.Simulate(sideA, sideB, SecondsPerHit);
+            return true;
+        }
+
+        private static string CheckRange(float value, Vector2 range) =>
+            value >= range.x && value <= range.y ? "OK" : "✗";
 
         private float MaxSpinOf(BladePreset preset)
         {

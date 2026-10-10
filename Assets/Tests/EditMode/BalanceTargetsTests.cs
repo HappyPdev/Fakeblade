@@ -92,7 +92,7 @@ namespace FakeBlade.Tests
             float MaxSpeed(BladeArchetype a)
             {
                 var s = TestData.Preset(a);
-                return BladeFormulas.MaxSpeed(_cfg, s.MoveSpeed, BladeFormulas.WeightNormalized(s.Weight));
+                return BladeFormulas.MaxSpeed(_cfg, s.MoveSpeed);
             }
 
             float agility = MaxSpeed(BladeArchetype.Agility);

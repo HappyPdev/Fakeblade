@@ -12,14 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 595c7ef7315e2d94aa4882d0d72bade6, type: 3}
   m_Name: CombatConfig
   m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.CombatConfig
-  accelerationForce: 80
-  maxVelocity: 12
-  stoppingFriction: 3
-  turnResponsiveness: 0.15
+  maxVelocity: 10
+  speedPerPoint: 0.7
   speedSpread: 0.5
   referenceMaxSpeed: 15.5
-  turnByWeight: {x: 1.3, y: 0.8}
-  accelerationByWeight: {x: 1, y: 0.7}
+  referenceWeight: 2.5
+  referenceAcceleration: 24.4
+  accelerationWeightExponent: 1.34
+  referenceImpulse: 0.91
+  impulseWeightExponent: 0.28
+  turnRate: 8
+  stoppingRate: 0.8
+  gripPerPoint: 0.1
   minPhysicalMass: 0.6
   linearDamping: 0.5
   angularDamping: 0.1

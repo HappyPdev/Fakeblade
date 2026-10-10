@@ -17,49 +17,60 @@ namespace FakeBlade.Tests
         public void SetUp() => _cfg = TestData.Config;
 
         [Test]
-        public void PesoNormalizado_VaDe0a1EntreLigeraYPesada()
+        public void Peso_EnLaReferenciaVale1()
         {
-            Assert.AreEqual(0f, BladeFormulas.WeightNormalized(0.5f), 1e-4f);
-            Assert.AreEqual(1f, BladeFormulas.WeightNormalized(3f), 1e-4f);
-            Assert.AreEqual(0f, BladeFormulas.WeightNormalized(0.1f), 1e-4f, "por debajo de 0,5 no baja de 0");
-            Assert.AreEqual(1f, BladeFormulas.WeightNormalized(5f), 1e-4f, "por encima de 3 no pasa de 1");
-            Assert.AreEqual(0.5f, BladeFormulas.WeightNormalized(1.75f), 1e-4f);
+            Assert.AreEqual(1f, BladeFormulas.WeightRatio(_cfg, _cfg.referenceWeight), 1e-4f);
+            Assert.AreEqual(_cfg.referenceImpulse, BladeFormulas.ImpulseFactor(_cfg, _cfg.referenceWeight), 1e-4f);
+            Assert.AreEqual(_cfg.referenceAcceleration, BladeFormulas.Acceleration(_cfg, 6f, _cfg.referenceWeight), 1e-3f);
         }
 
         [Test]
-        public void VelocidadMaxima_DentroDeLimites_SubeConVelocidadYBajaConPeso()
+        public void VelocidadMaxima_DentroDeLimites_YSubeConLaVelocidad()
         {
             for (float speed = 0f; speed <= 20f; speed += 1f)
-            for (float wn = 0f; wn <= 1f; wn += 0.25f)
-                Assert.That(BladeFormulas.MaxSpeed(_cfg, speed, wn), Is.InRange(3f, 25f));
-
-            Assert.Greater(BladeFormulas.MaxSpeed(_cfg, 10f, 0.5f), BladeFormulas.MaxSpeed(_cfg, 6f, 0.5f));
-            Assert.Greater(BladeFormulas.MaxSpeed(_cfg, 6f, 0f), BladeFormulas.MaxSpeed(_cfg, 6f, 1f));
+                Assert.That(BladeFormulas.MaxSpeed(_cfg, speed), Is.InRange(3f, 25f));
+            Assert.Greater(BladeFormulas.MaxSpeed(_cfg, 10f), BladeFormulas.MaxSpeed(_cfg, 6f));
         }
 
         [Test]
-        public void Aceleracion_MasPesoAceleraMenos()
+        public void Aceleracion_MasPesoAceleraMenos_SinTopeArriba()
         {
+            // C11: sin topes de peso, un jefe de peso 10 sigue siendo distinto de uno de 5, y se mueve
             float previous = float.MaxValue;
-            for (float weight = 0.5f; weight <= 4f; weight += 0.5f)
+            for (float weight = 1f; weight <= 10f; weight += 0.5f)
             {
                 float accel = BladeFormulas.Acceleration(_cfg, 6f, weight);
                 Assert.Less(accel, previous, $"peso {weight}");
+                Assert.Greater(accel, 0f, $"peso {weight}");
                 previous = accel;
             }
         }
 
         [Test]
-        public void Frenado_MasPesoFrenaMenos()
+        public void Aceleracion_LaVelocidadSoloCuentaPorEncimaDe10()
         {
-            Assert.Greater(BladeFormulas.StoppingRate(_cfg, 0.5f), BladeFormulas.StoppingRate(_cfg, 3f));
+            Assert.AreEqual(BladeFormulas.Acceleration(_cfg, 6f, 3f), BladeFormulas.Acceleration(_cfg, 10f, 3f), 1e-4f);
+            Assert.Greater(BladeFormulas.Acceleration(_cfg, 13f, 3f), BladeFormulas.Acceleration(_cfg, 10f, 3f));
         }
 
         [Test]
-        public void Impulso_LaLigeraSaleMasQueLaPesada()
+        public void Impulso_LaLigeraSaleMasQueLaPesada_SinTopeArriba()
         {
-            Assert.AreEqual(1.15f, BladeFormulas.ImpulseFactor(0f), 1e-4f);
-            Assert.AreEqual(0.85f, BladeFormulas.ImpulseFactor(1f), 1e-4f);
+            Assert.Greater(BladeFormulas.ImpulseFactor(_cfg, 1.5f), BladeFormulas.ImpulseFactor(_cfg, 3f));
+            Assert.Greater(BladeFormulas.ImpulseFactor(_cfg, 5f), BladeFormulas.ImpulseFactor(_cfg, 10f));
+            Assert.Greater(BladeFormulas.ImpulseFactor(_cfg, 10f), 0f);
+        }
+
+        [Test]
+        public void Agarre_SubeElGiroYElFrenado_Y0EsElDeCombatConfig()
+        {
+            Assert.AreEqual(_cfg.turnRate, BladeFormulas.TurnRate(_cfg, 0f), 1e-4f);
+            Assert.AreEqual(_cfg.stoppingRate, BladeFormulas.StoppingRate(_cfg, 0f), 1e-4f);
+            Assert.Greater(BladeFormulas.TurnRate(_cfg, 3f), BladeFormulas.TurnRate(_cfg, 0f));
+            Assert.Less(BladeFormulas.TurnRate(_cfg, -3f), BladeFormulas.TurnRate(_cfg, 0f));
+            Assert.Greater(BladeFormulas.StoppingRate(_cfg, 3f), BladeFormulas.StoppingRate(_cfg, -3f));
+            Assert.Greater(BladeFormulas.TurnRate(_cfg, -50f), 0f, "con muy poco agarre sigue pudiendo girar");
+            Assert.Greater(BladeFormulas.StoppingRate(_cfg, -50f), 0f, "con muy poco agarre sigue frenando algo");
         }
 
         [Test]

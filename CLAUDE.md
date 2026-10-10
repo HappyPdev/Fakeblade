@@ -49,7 +49,8 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 
 ## Git
 
-- Rama de trabajo actual: `reestructuracion-menus-parry`; la principal es `main`.
+- Ramas: `desarrollo` para el trabajo diario (todos los commits van aquí) y `main` estable, con lo probado. Se hace merge de `desarrollo` a `main` (avance rápido) cuando el usuario lo aprueba, normalmente al cerrar una fase o tras probar con mando. `Legacy` guarda el `main` antiguo (2026-02) y no se toca.
+- Para hacer push, el usuario puede tener que lanzar los comandos él: su consola es cmd o PowerShell 5.1, que no admite `&&` (dárselos línea a línea).
 - **No commitear nunca** los `.blend` / `.blend1` (modelos en curso del usuario), salvo que lo pida.
 - El árbol de trabajo suele tener cambios del usuario o de otra sesión. **Solo se commitean los cambios propios**. Si un archivo mezcla cambios de los dos (por ejemplo el GDD): hacer stage del archivo entero y quitar los bloques ajenos con `git apply --cached -R --unidiff-zero`. Hacer stage bloque a bloque descolocó texto una vez.
 - Commitear solo cuando el usuario lo pida o lo apruebe.

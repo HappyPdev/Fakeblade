@@ -73,17 +73,17 @@ namespace FakeBlade.Core.Editor
             md.AppendLine();
             md.AppendLine($"**Base de toda peonza** (prefab de la peonza): {N(b.maxSpin)} RPM, desgaste {N(b.spinDecay)}, velocidad {N(b.moveSpeed)}, " +
                           $"peso {N(b.weight)}, ataque {N(b.attackPower)}, defensa {N(b.defense)}, dash {N(b.dashForce)}, {b.attackCharges} cargas, " +
-                          $"parry {N(cfg.parryWindow)} s. Las piezas suman o restan sobre esto.");
+                          $"agarre {N(b.grip)}, parry {N(cfg.parryWindow)} s. Las piezas suman o restan sobre esto.");
             md.AppendLine();
 
             // 1) Por arquetipo, con el total del preset de cada uno
             md.AppendLine("## Por arquetipo");
             md.AppendLine();
-            md.AppendLine("| Pieza | Tipo | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Rasgos |");
-            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|");
+            md.AppendLine("| Pieza | Tipo | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Agarre | Rasgos |");
+            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
             foreach (BladeArchetype archetype in ArchetypeOrder)
             {
-                md.AppendLine($"| **{ArchetypeName(archetype).ToUpperInvariant()}** | | | | | | | | | | | |");
+                md.AppendLine($"| **{ArchetypeName(archetype).ToUpperInvariant()}** | | | | | | | | | | | | |");
                 foreach (ComponentSlot slot in SlotOrder)
                     foreach (var part in Sorted(parts.Where(p => p.Archetype == archetype && p.ComponentType == slot)))
                         md.AppendLine(PartRow(part, SlotName(slot)));
@@ -98,11 +98,11 @@ namespace FakeBlade.Core.Editor
             // 2) Por tipo de pieza
             md.AppendLine("## Por tipo de pieza");
             md.AppendLine();
-            md.AppendLine("| Pieza | Arquetipo | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Rasgos |");
-            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|");
+            md.AppendLine("| Pieza | Arquetipo | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Agarre | Rasgos |");
+            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
             foreach (ComponentSlot slot in SlotOrder)
             {
-                md.AppendLine($"| **{SlotPlural(slot).ToUpperInvariant()}** | | | | | | | | | | | |");
+                md.AppendLine($"| **{SlotPlural(slot).ToUpperInvariant()}** | | | | | | | | | | | | |");
                 foreach (BladeArchetype archetype in ArchetypeOrder)
                     foreach (var part in Sorted(parts.Where(p => p.Archetype == archetype && p.ComponentType == slot)))
                         md.AppendLine(PartRow(part, ArchetypeName(archetype)));
@@ -112,8 +112,8 @@ namespace FakeBlade.Core.Editor
             // 3) Totales de los presets y lo que sale en el juego
             md.AppendLine("## Presets");
             md.AppendLine();
-            md.AppendLine("| Preset | Piezas | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Rasgos |");
-            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|");
+            md.AppendLine("| Preset | Piezas | RPM | Desgaste | Vel. | Peso | Ataque | Defensa | Dash | Cargas | Parry (s) | Agarre | Rasgos |");
+            md.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
             foreach (BladePreset preset in catalog.presets)
             {
                 var s = FakeBladeStats.Calculate(b, preset.tip, preset.body, preset.blade, preset.core);
@@ -133,17 +133,16 @@ namespace FakeBlade.Core.Editor
             foreach (BladePreset preset in catalog.presets)
             {
                 var s = FakeBladeStats.Calculate(b, preset.tip, preset.body, preset.blade, preset.core);
-                float wn = BladeFormulas.WeightNormalized(s.Weight);
-                float maxSpeed = BladeFormulas.MaxSpeed(cfg, s.MoveSpeed, wn);
+                float maxSpeed = BladeFormulas.MaxSpeed(cfg, s.MoveSpeed);
                 float accel = BladeFormulas.Acceleration(cfg, s.MoveSpeed, s.Weight);
-                float impulse = BladeFormulas.ImpulseFactor(wn);
+                float impulse = BladeFormulas.ImpulseFactor(cfg, s.Weight);
                 md.AppendLine($"| {PresetName(preset)} " +
                               $"| ×{N(BladeFormulas.AttackMultiplier(cfg, s.AttackPower))} " +
                               $"| ×{N(BladeFormulas.DamageTakenFactor(s.Defense))} " +
                               $"| ×{N(BladeFormulas.KnockbackTakenFactor(s.Defense))} " +
                               $"| {N(maxSpeed, 1)} m/s | {N(accel, 0)} m/s² | {N(maxSpeed / Mathf.Max(0.01f, accel), 2)} s " +
-                              $"| {N(BladeFormulas.TurnRate(BladeFormulas.TurnSpeed(cfg, wn)), 1)}/s " +
-                              $"| {N(BladeFormulas.StoppingRate(cfg, s.Weight), 2)}/s " +
+                              $"| {N(BladeFormulas.TurnRate(cfg, s.Grip), 1)}/s " +
+                              $"| {N(BladeFormulas.StoppingRate(cfg, s.Grip), 2)}/s " +
                               $"| {N(s.DashForce * impulse, 1)} m/s | {N(cfg.quickAttackImpulse * impulse, 1)} m/s " +
                               $"| {N(BladeFormulas.PhysicalMass(cfg, s.Weight))} |");
             }
@@ -160,13 +159,14 @@ namespace FakeBlade.Core.Editor
             md.AppendLine("|---|---|");
             md.AppendLine("| RPM | La vida. Los costes son un % de ella (ataque 2% por carga, dash 8%, curación común 25%). |");
             md.AppendLine("| Desgaste | RPM que se pierden solas por segundo. |");
-            md.AppendLine("| Velocidad | Solo la velocidad máxima: 0,4 m/s por punto en una ligera y 0,2 en una pesada (tras igualar). A la aceleración solo le afecta por encima de 10. |");
-            md.AppendLine("| Peso | Movimiento (aceleración, giro, frenado, acelerones y cuánto cuenta la velocidad) y empuje. No toca el daño. |");
+            md.AppendLine($"| Velocidad | Solo la velocidad máxima: {N(cfg.speedPerPoint * cfg.speedSpread)} m/s por punto (tras igualar), pese lo que pese. A la aceleración solo le afecta por encima de 10. |");
+            md.AppendLine($"| Peso | Aceleración y acelerones del ataque y del dash, una sola vez y sin topes ((peso {N(cfg.referenceWeight)} ÷ peso) elevado a {N(cfg.accelerationWeightExponent)} y a {N(cfg.impulseWeightExponent)}), y empuje en los choques. No toca el daño, la velocidad máxima ni el giro. |");
             md.AppendLine("| Ataque | Daño que hace: cada punto, +4% (ataque 15 = ×1). |");
             md.AppendLine("| Defensa | Daño recibido −1% por punto y empuje recibido −0,5% por punto. |");
             md.AppendLine("| Dash | Velocidad del acelerón del dash (× el factor de peso). |");
             md.AppendLine("| Cargas | Ataques guardados y nivel máximo del cargado. |");
             md.AppendLine("| Parry | Segundos que se suman a la ventana de parry (tope 0,4 s). |");
+            md.AppendLine($"| Agarre | Giro (cuánto derrapa) y frenado al soltar el stick: cada punto, ±{N(cfg.gripPerPoint * 100f, 0)}%. Lo dan las puntas. |");
 
             string path = Path.GetFullPath(Path.Combine(Application.dataPath, "..", OutputFile));
             File.WriteAllText(path, md.ToString(), new UTF8Encoding(false));
@@ -189,7 +189,7 @@ namespace FakeBlade.Core.Editor
                 : p.ComponentName;
             return $"| {name} | {second} | {S(p.MaxSpinModifier)} | {S(p.SpinDecayModifier)} | {S(p.MoveSpeedModifier)} | {S(p.WeightModifier)} " +
                    $"| {S(p.AttackPowerModifier)} | {S(p.DefenseModifier)} | {S(p.DashForceModifier)} | {S(p.AttackChargesModifier)} " +
-                   $"| {S(p.ParryWindowModifier)} | {Traits(p.Traits)} |";
+                   $"| {S(p.ParryWindowModifier)} | {S(p.GripModifier)} | {Traits(p.Traits)} |";
         }
 
         private static string TotalRow(string label, string second, BladeStatBlock s, CombatConfig cfg, bool italic)
@@ -199,7 +199,7 @@ namespace FakeBlade.Core.Editor
             string Min(float value, float min) => value <= min + 0.0001f ? $"{N(value)}\\*" : N(value);
             return $"| {label} | {second} | {i}{N(s.MaxSpin)}{i} | {i}{Min(s.SpinDecay, 0.5f)}{i} | {i}{Min(s.MoveSpeed, 2f)}{i} " +
                    $"| {i}{Min(s.Weight, 0.3f)}{i} | {i}{N(s.AttackPower)}{i} | {i}{N(s.Defense)}{i} | {i}{N(s.DashForce)}{i} " +
-                   $"| {i}{s.AttackCharges}{i} | {i}{N(parry)}{i} | {i}{(s.Traits == null || s.Traits.IsEmpty ? "—" : TraitTotals(s.Traits))}{i} |";
+                   $"| {i}{s.AttackCharges}{i} | {i}{N(parry)}{i} | {i}{N(s.Grip)}{i} | {i}{(s.Traits == null || s.Traits.IsEmpty ? "—" : TraitTotals(s.Traits))}{i} |";
         }
 
         internal static string Traits(IReadOnlyList<PartTrait> traits)

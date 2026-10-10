@@ -72,6 +72,10 @@ namespace FakeBlade.Core
                  "agilidad la amplíen y las de defensa la reduzcan (base en CombatConfig).")]
         [SerializeField] private float parryWindowModifier = 0f;
 
+        [Tooltip("Modifica el agarre (+/-): giro y frenado al soltar. POSITIVO = gira más cerrado y frena antes; " +
+                 "NEGATIVO = derrapa y desliza. Pensado para las puntas: el resto de piezas lo deja a 0 (C13).")]
+        [SerializeField] private float gripModifier = 0f;
+
         [Header("=== RASGOS (GDD 3) ===")]
         [Tooltip("Efectos propios de la pieza sobre el combate, en porcentaje (p. ej. más energía del especial con los cargados, o dash con menos espera pero más caro)")]
         [SerializeField] private System.Collections.Generic.List<PartTrait> traits = new System.Collections.Generic.List<PartTrait>();
@@ -98,6 +102,7 @@ namespace FakeBlade.Core
         public float DashForceModifier => dashForceModifier;
         public int AttackChargesModifier => attackChargesModifier;
         public float ParryWindowModifier => parryWindowModifier;
+        public float GripModifier => gripModifier;
         public System.Collections.Generic.IReadOnlyList<PartTrait> Traits => traits;
 
         public SpecialAbilityType SpecialAbility => specialAbility;
@@ -119,6 +124,7 @@ namespace FakeBlade.Core
             Append(sb, "Dash", dashForceModifier);
             Append(sb, "Charges", attackChargesModifier);
             Append(sb, "Parry", parryWindowModifier);
+            Append(sb, "Grip", gripModifier);
             return sb.Length > 0 ? sb.ToString() : "No modifiers";
         }
 

@@ -20,7 +20,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   model: {fileID: 919132149155446097, guid: 954756163ea420f4f9539a89b9363db4, type: 3}
   maxSpinModifier: 0
-  spinDecayModifier: 0.3
+  spinDecayModifier: 0.2
   moveSpeedModifier: 0.5
   weightModifier: 0.5
   attackPowerModifier: 4
@@ -28,6 +28,7 @@ MonoBehaviour:
   dashForceModifier: 1
   attackChargesModifier: 1
   parryWindowModifier: 0.1
+  gripModifier: 0
   traits:
   - type: 10
     percent: 0.1

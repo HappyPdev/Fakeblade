@@ -28,11 +28,13 @@ namespace FakeBlade.Core
         public float defense;
         public float dashForce;
         public int attackCharges;
+        /// <summary>Agarre: giro y frenado (C13). Lo modifican las puntas.</summary>
+        public float grip;
 
         public static BladeBaseStats Default => new BladeBaseStats
         {
             maxSpin = 400f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
-            attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3
+            attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3, grip = 0f
         };
     }
 
@@ -47,6 +49,8 @@ namespace FakeBlade.Core
         public float Defense;
         public float DashForce;
         public int AttackCharges;
+        /// <summary>Agarre: cada punto, ±gripPerPoint en el giro y el frenado (C13).</summary>
+        public float Grip;
         /// <summary>Segundos que las piezas suman (o restan) a la ventana de parry base.</summary>
         public float ParryWindowBonus;
         public SpecialAbilityType Special;
@@ -76,6 +80,8 @@ namespace FakeBlade.Core
         [SerializeField] private float baseDashForce = 18f;
         [Tooltip("Cargas de ataque sin piezas. La media del juego es 3.")]
         [SerializeField] private int baseAttackCharges = 3;
+        [Tooltip("Agarre sin piezas (giro y frenado). 0 = el giro y el frenado de CombatConfig tal cual")]
+        [SerializeField] private float baseGrip = 0f;
         #endregion
 
         #region Equipped Components
@@ -105,6 +111,7 @@ namespace FakeBlade.Core
         public float Defense => _stats.Defense;
         public float DashForce => _stats.DashForce;
         public int AttackCharges => _stats.AttackCharges;
+        public float Grip => _stats.Grip;
         public float ParryWindowBonus => _stats.ParryWindowBonus;
         public SpecialAbilityType SpecialAbility => _stats.Special;
         public BladeArchetype Archetype => _stats.Archetype;
@@ -124,7 +131,8 @@ namespace FakeBlade.Core
             attackPower = baseAttackPower,
             defense = baseDefense,
             dashForce = baseDashForce,
-            attackCharges = baseAttackCharges
+            attackCharges = baseAttackCharges,
+            grip = baseGrip
         };
 
         public FakeBladeComponentData EquippedTip => equippedTip;
@@ -165,7 +173,8 @@ namespace FakeBlade.Core
                 AttackPower = b.attackPower,
                 Defense = b.defense,
                 DashForce = b.dashForce,
-                AttackCharges = b.attackCharges
+                AttackCharges = b.attackCharges,
+                Grip = b.grip
             };
 
             Apply(ref s, tip);
@@ -213,6 +222,7 @@ namespace FakeBlade.Core
             s.DashForce += c.DashForceModifier;
             s.AttackCharges += c.AttackChargesModifier;
             s.ParryWindowBonus += c.ParryWindowModifier;
+            s.Grip += c.GripModifier;
         }
 
         /// <summary>
@@ -280,7 +290,7 @@ namespace FakeBlade.Core
         {
             return $"MaxSpin:{_stats.MaxSpin:F0} Decay:{_stats.SpinDecay:F1} Speed:{_stats.MoveSpeed:F1} " +
                    $"Weight:{_stats.Weight:F1} Atk:{_stats.AttackPower:F1} Def:{_stats.Defense:F1} Dash:{_stats.DashForce:F1} " +
-                   $"Charges:{_stats.AttackCharges} Special:{_stats.Special} ({_stats.Archetype})";
+                   $"Grip:{_stats.Grip:F1} Charges:{_stats.AttackCharges} Special:{_stats.Special} ({_stats.Archetype})";
         }
 
         public List<FakeBladeComponentData> GetEquippedComponents()

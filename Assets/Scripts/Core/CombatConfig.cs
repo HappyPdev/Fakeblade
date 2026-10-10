@@ -37,24 +37,38 @@ namespace FakeBlade.Core
         #endregion
 
         [Header("=== MOVIMIENTO ===")]
-        [Tooltip("Fuerza de aceleración base")]
-        public float accelerationForce = 80f;
-        [Tooltip("Velocidad máxima de movimiento normal (sin ataques ni dash)")]
-        public float maxVelocity = 12f;
-        [Tooltip("Frenado cuando no hay input")]
-        public float stoppingFriction = 3f;
-        [Range(0.01f, 1f)] public float turnResponsiveness = 0.15f;
+        [Tooltip("Velocidad máxima antes de sumar la estadística de velocidad (sin ataques ni dash)")]
+        public float maxVelocity = 10f;
+        [Tooltip("m/s de velocidad máxima por punto de la estadística de velocidad (antes de igualar con speedSpread). " +
+                 "El peso no la toca (C11)")]
+        public float speedPerPoint = 0.7f;
         [Tooltip("Cuánto se separan las velocidades máximas de las peonzas de la de referencia " +
                  "(1 = lo que dicen sus piezas; menos = más parecidas entre sí)")]
         [Range(0f, 1f)] public float speedSpread = 0.5f;
         [Tooltip("Velocidad máxima de referencia (más o menos la de una peonza media)")]
         public float referenceMaxSpeed = 15.5f;
-        [Tooltip("Respuesta del giro según el peso: x = la más ligera, y = la más pesada")]
-        public Vector2 turnByWeight = new Vector2(1.3f, 0.8f);
-        [Tooltip("Aceleración según el peso: x = la más ligera, y = la más pesada")]
-        public Vector2 accelerationByWeight = new Vector2(1f, 0.7f);
-        [Tooltip("Masa física mínima del Rigidbody: las muy ligeras no se sienten flotantes ni aceleran " +
-                 "de golpe (el peso de sus piezas sigue contando para el daño)")]
+
+        [Tooltip("Peso de referencia: con este peso la aceleración y los acelerones valen lo de 'en la referencia'. " +
+                 "Cada efecto del peso es valor × (referencia ÷ peso)^exponente: sin topes, nunca llega a 0 (C11)")]
+        public float referenceWeight = 2.5f;
+        [Tooltip("Aceleración (m/s²) de una peonza con el peso de referencia y velocidad 10 o menos")]
+        public float referenceAcceleration = 24.4f;
+        [Tooltip("Cuánto cambia la aceleración con el peso (0 = nada; 1,34 = como antes de C11)")]
+        public float accelerationWeightExponent = 1.34f;
+        [Tooltip("Multiplicador de los acelerones del ataque y del dash con el peso de referencia")]
+        public float referenceImpulse = 0.91f;
+        [Tooltip("Cuánto cambian los acelerones con el peso (0 = nada)")]
+        public float impulseWeightExponent = 0.28f;
+
+        [Tooltip("Correcciones por segundo de la velocidad lateral al girar, con agarre 0. Menos = derrapa más (C13)")]
+        public float turnRate = 8f;
+        [Tooltip("Frenado al soltar el stick (fracción de la velocidad por segundo), con agarre 0")]
+        public float stoppingRate = 0.8f;
+        [Tooltip("Cuánto cambia cada punto de agarre el giro y el frenado (0,1 = ±10% por punto)")]
+        public float gripPerPoint = 0.1f;
+
+        [Tooltip("Masa física mínima del Rigidbody (choques y empuje de la física de Unity). " +
+                 "También es el peso mínimo con el que se calculan los efectos del peso")]
         public float minPhysicalMass = 0.6f;
         public float linearDamping = 0.5f;
         public float angularDamping = 0.1f;

@@ -30,6 +30,8 @@ Objetivo: que la próxima sesión empiece sin tener que redescubrir nada, con el
 - Enseña al usuario la lista de archivos y el mensaje, y **espera su aprobación** antes de commitear.
 - En los archivos con cambios mezclados: haz stage del archivo entero y después `git apply --cached -R --unidiff-zero` con los bloques ajenos. Comprueba con `git diff --cached` que solo queda lo mío.
 - Termina el mensaje con la línea de coautoría que indique el sistema.
+- El commit va en `desarrollo`. Después, haz push de `desarrollo`.
+- **Merge a `main`**: si en la sesión se cerró una fase o algo quedó probado con mando, pregunta al usuario si se pasa a `main` (`git push origin desarrollo:main`, avance rápido; nunca forzado).
 
 ## 4. Traspaso a la próxima sesión (memoria)
 

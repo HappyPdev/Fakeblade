@@ -37,6 +37,7 @@ namespace FakeBlade.Core.Editor
             new Column { Header = "Dash", Part = p => p.DashForceModifier, Total = s => s.DashForce, Good = 1, Min = 5f },
             new Column { Header = "Cargas", Part = p => p.AttackChargesModifier, Total = s => s.AttackCharges, Good = 1, Min = 1f },
             new Column { Header = "Parry (s)", Part = p => p.ParryWindowModifier, Total = s => s.ParryWindowBonus, Good = 1, Min = float.MinValue },
+            new Column { Header = "Agarre", Part = p => p.GripModifier, Total = s => s.Grip, Good = 1, Min = float.MinValue },
         };
 
         /// <summary>Rasgos en los que bajar es lo bueno (menos espera, menos coste, menos daño recibido...).</summary>
@@ -61,7 +62,7 @@ namespace FakeBlade.Core.Editor
                          "Para pasarlos a Unity: descarga los cambios y usa <b>FakeBlade → Import ComponentsData Stats</b>. Fórmulas en el GDD (2.8).</p>");
             h.AppendLine($"<p class=\"base\"><b>Base de toda peonza:</b> {X.N(b.maxSpin)} RPM · desgaste {X.N(b.spinDecay)} · velocidad {X.N(b.moveSpeed)} · " +
                          $"peso {X.N(b.weight)} · ataque {X.N(b.attackPower)} · defensa {X.N(b.defense)} · dash {X.N(b.dashForce)} · " +
-                         $"{b.attackCharges} cargas · parry {X.N(cfg.parryWindow)} s. Las piezas suman o restan sobre esto.</p>");
+                         $"{b.attackCharges} cargas · agarre {X.N(b.grip)} · parry {X.N(cfg.parryWindow)} s. Las piezas suman o restan sobre esto.</p>");
             h.AppendLine("<p class=\"legend\"><span class=\"good\">verde</span> ayuda · <span class=\"bad\">rojo</span> perjudica · " +
                          "<span class=\"neutral\">azul</span> ni bueno ni malo (peso) · <span class=\"min\">✱</span> llega al mínimo del juego</p>");
             h.AppendLine("<nav>" +
@@ -216,14 +217,14 @@ namespace FakeBlade.Core.Editor
                 ("Daño que hace", s => BladeFormulas.AttackMultiplier(cfg, s.AttackPower), v => "×" + X.N(v), 1),
                 ("Daño que recibe", s => BladeFormulas.DamageTakenFactor(s.Defense), v => "×" + X.N(v), -1),
                 ("Empuje que recibe", s => BladeFormulas.KnockbackTakenFactor(s.Defense), v => "×" + X.N(v), -1),
-                ("Vel. máx.", s => BladeFormulas.MaxSpeed(cfg, s.MoveSpeed, BladeFormulas.WeightNormalized(s.Weight)), v => X.N(v, 1) + " m/s", 1),
+                ("Vel. máx.", s => BladeFormulas.MaxSpeed(cfg, s.MoveSpeed), v => X.N(v, 1) + " m/s", 1),
                 ("Aceleración", s => BladeFormulas.Acceleration(cfg, s.MoveSpeed, s.Weight), v => X.N(v, 0) + " m/s²", 1),
-                ("Llega a tope en", s => BladeFormulas.MaxSpeed(cfg, s.MoveSpeed, BladeFormulas.WeightNormalized(s.Weight)) /
+                ("Llega a tope en", s => BladeFormulas.MaxSpeed(cfg, s.MoveSpeed) /
                                          Mathf.Max(0.01f, BladeFormulas.Acceleration(cfg, s.MoveSpeed, s.Weight)), v => X.N(v) + " s", -1),
-                ("Giro", s => BladeFormulas.TurnRate(BladeFormulas.TurnSpeed(cfg, BladeFormulas.WeightNormalized(s.Weight))), v => X.N(v, 1) + "/s", 1),
-                ("Frenado al soltar", s => BladeFormulas.StoppingRate(cfg, s.Weight), v => X.N(v) + "/s", 1),
-                ("Dash", s => s.DashForce * BladeFormulas.ImpulseFactor(BladeFormulas.WeightNormalized(s.Weight)), v => X.N(v, 1) + " m/s", 1),
-                ("Acelerón del ataque", s => cfg.quickAttackImpulse * BladeFormulas.ImpulseFactor(BladeFormulas.WeightNormalized(s.Weight)), v => X.N(v, 1) + " m/s", 1),
+                ("Giro", s => BladeFormulas.TurnRate(cfg, s.Grip), v => X.N(v, 1) + "/s", 1),
+                ("Frenado al soltar", s => BladeFormulas.StoppingRate(cfg, s.Grip), v => X.N(v) + "/s", 1),
+                ("Dash", s => s.DashForce * BladeFormulas.ImpulseFactor(cfg, s.Weight), v => X.N(v, 1) + " m/s", 1),
+                ("Acelerón del ataque", s => cfg.quickAttackImpulse * BladeFormulas.ImpulseFactor(cfg, s.Weight), v => X.N(v, 1) + " m/s", 1),
                 ("Masa", s => BladeFormulas.PhysicalMass(cfg, s.Weight), v => X.N(v), 0),
             };
             var stats = catalog.presets.Select(p => (p, s: FakeBladeStats.Calculate(b, p.tip, p.body, p.blade, p.core))).ToList();
@@ -269,11 +270,13 @@ namespace FakeBlade.Core.Editor
             var j = new StringBuilder("{");
             j.Append($"\"exported\":{J(DateTime.Now.ToString("yyyy-MM-dd HH:mm"))},\"maxCharges\":{AttackSystem.MaxSupportedCharges},");
             j.Append($"\"base\":{{\"maxSpin\":{F(b.maxSpin)},\"spinDecay\":{F(b.spinDecay)},\"moveSpeed\":{F(b.moveSpeed)},\"weight\":{F(b.weight)}," +
-                     $"\"attack\":{F(b.attackPower)},\"defense\":{F(b.defense)},\"dash\":{F(b.dashForce)},\"charges\":{b.attackCharges}}},");
+                     $"\"attack\":{F(b.attackPower)},\"defense\":{F(b.defense)},\"dash\":{F(b.dashForce)},\"charges\":{b.attackCharges},\"grip\":{F(b.grip)}}},");
             j.Append($"\"cfg\":{{\"parryWindow\":{F(cfg.parryWindow)},\"minPhysicalMass\":{F(cfg.minPhysicalMass)},\"maxVelocity\":{F(cfg.maxVelocity)}," +
-                     $"\"referenceMaxSpeed\":{F(cfg.referenceMaxSpeed)},\"speedSpread\":{F(cfg.speedSpread)},\"accelerationForce\":{F(cfg.accelerationForce)}," +
-                     $"\"accelByWeight\":[{F(cfg.accelerationByWeight.x)},{F(cfg.accelerationByWeight.y)}],\"turnResponsiveness\":{F(cfg.turnResponsiveness)}," +
-                     $"\"turnByWeight\":[{F(cfg.turnByWeight.x)},{F(cfg.turnByWeight.y)}],\"stoppingFriction\":{F(cfg.stoppingFriction)}," +
+                     $"\"speedPerPoint\":{F(cfg.speedPerPoint)},\"referenceMaxSpeed\":{F(cfg.referenceMaxSpeed)},\"speedSpread\":{F(cfg.speedSpread)}," +
+                     $"\"referenceWeight\":{F(cfg.referenceWeight)},\"referenceAcceleration\":{F(cfg.referenceAcceleration)}," +
+                     $"\"accelerationWeightExponent\":{F(cfg.accelerationWeightExponent)},\"referenceImpulse\":{F(cfg.referenceImpulse)}," +
+                     $"\"impulseWeightExponent\":{F(cfg.impulseWeightExponent)},\"turnRate\":{F(cfg.turnRate)},\"stoppingRate\":{F(cfg.stoppingRate)}," +
+                     $"\"gripPerPoint\":{F(cfg.gripPerPoint)}," +
                      $"\"referenceAttackPower\":{F(cfg.referenceAttackPower)},\"attackSpread\":{F(cfg.attackSpread)},\"quickAttackImpulse\":{F(cfg.quickAttackImpulse)}}},");
 
             j.Append("\"parts\":[");
@@ -291,7 +294,7 @@ namespace FakeBlade.Core.Editor
                                  $"\"power\":{J(slot == ComponentSlot.Core && p.SpecialAbility != SpecialAbilityType.None ? X.PowerName(p.SpecialAbility) : "")}," +
                                  $"\"stats\":{{\"maxSpin\":{F(p.MaxSpinModifier)},\"spinDecay\":{F(p.SpinDecayModifier)},\"moveSpeed\":{F(p.MoveSpeedModifier)}," +
                                  $"\"weight\":{F(p.WeightModifier)},\"attack\":{F(p.AttackPowerModifier)},\"defense\":{F(p.DefenseModifier)}," +
-                                 $"\"dash\":{F(p.DashForceModifier)},\"charges\":{p.AttackChargesModifier},\"parry\":{F(p.ParryWindowModifier)}}},\"traits\":[");
+                                 $"\"dash\":{F(p.DashForceModifier)},\"charges\":{p.AttackChargesModifier},\"parry\":{F(p.ParryWindowModifier)},\"grip\":{F(p.GripModifier)}}},\"traits\":[");
                         j.Append(string.Join(",", p.Traits.Select(t =>
                             $"{{\"type\":{(int)t.type},\"name\":{J(X.TraitName(t.type))},\"lower\":{(LowerIsBetter.Contains(t.type) ? "true" : "false")},\"percent\":{F(t.percent)}}}")));
                         j.Append("]}");
@@ -352,13 +355,14 @@ namespace FakeBlade.Core.Editor
         {
             new KeyValuePair<string, string>("RPM", "La vida. Los costes son un % de ella (ataque 2% por carga, dash 8%, curación común 25%)."),
             new KeyValuePair<string, string>("Desgaste", "RPM que se pierden solas por segundo."),
-            new KeyValuePair<string, string>("Velocidad", "Solo la velocidad máxima: 0,4 m/s por punto en una ligera y 0,2 en una pesada (tras igualar). A la aceleración solo le afecta por encima de 10."),
-            new KeyValuePair<string, string>("Peso", "Movimiento (aceleración, giro, frenado, acelerones y cuánto cuenta la velocidad) y empuje. No toca el daño."),
+            new KeyValuePair<string, string>("Velocidad", "Solo la velocidad máxima: la misma por punto pese lo que pese (tras igualar). A la aceleración solo le afecta por encima de 10."),
+            new KeyValuePair<string, string>("Peso", "Aceleración y acelerones del ataque y del dash (una sola vez y sin topes: un jefe de peso 10 sigue moviéndose) y empuje en los choques. No toca el daño, la velocidad máxima ni el giro."),
             new KeyValuePair<string, string>("Ataque", "Daño que hace: cada punto, +4% (ataque 15 = ×1)."),
             new KeyValuePair<string, string>("Defensa", "Daño recibido −1% por punto y empuje recibido −0,5% por punto."),
             new KeyValuePair<string, string>("Dash", "Velocidad del acelerón del dash (× el factor de peso)."),
             new KeyValuePair<string, string>("Cargas", "Ataques guardados y nivel máximo del cargado."),
             new KeyValuePair<string, string>("Parry", "Segundos que se suman a la ventana de parry (tope 0,4 s)."),
+            new KeyValuePair<string, string>("Agarre", "Giro (cuánto derrapa al cambiar de dirección) y frenado al soltar el stick: cada punto, ±10% (gripPerPoint). Lo dan las puntas: goma agarra, bola desliza."),
         };
         #endregion
 
@@ -413,7 +417,7 @@ select,button,input{font:inherit;color:var(--text)}select{background:var(--input
 const D=JSON.parse(document.getElementById('fb-data').textContent), C=D.cfg, B=D.base;
 const parts=D.parts, orig=JSON.parse(JSON.stringify(parts)), byGuid={};parts.forEach(p=>byGuid[p.guid]=p);
 const STATS=[['maxSpin','RPM',1,5],['spinDecay','Desgaste',-1,0.1],['moveSpeed','Vel.',1,0.1],['weight','Peso',0,0.1],
- ['attack','Ataque',1,0.5],['defense','Defensa',1,1],['dash','Dash',1,0.5],['charges','Cargas',1,1],['parry','Parry (s)',1,0.01]];
+ ['attack','Ataque',1,0.5],['defense','Defensa',1,1],['dash','Dash',1,0.5],['charges','Cargas',1,1],['parry','Parry (s)',1,0.01],['grip','Agarre',1,0.5]];
 const lerp=(a,b,t)=>a+(b-a)*t, clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), inv=(a,b,v)=>clamp((v-a)/(b-a),0,1);
 const fmt=(v,d=2)=>Number(Number(v).toFixed(d)).toLocaleString('es-ES',{maximumFractionDigits:d});
 const sgn=v=>v>0?'+'+fmt(v):v<0?'−'+fmt(-v):'0';
@@ -424,20 +428,20 @@ function hideTip(){tip.hidden=true;}
 
 // FakeBladeStats.Calculate: base + piezas, con los mínimos del juego
 function totals(guids,useOrig){
- const s={maxSpin:B.maxSpin,spinDecay:B.spinDecay,moveSpeed:B.moveSpeed,weight:B.weight,attack:B.attack,defense:B.defense,dash:B.dash,charges:B.charges,parry:0};
- guids.forEach(g=>{const p=useOrig?orig.find(o=>o.guid===g):byGuid[g];if(!p)return;for(const k in s)s[k]+=p.stats[k];});
+ const s={maxSpin:B.maxSpin,spinDecay:B.spinDecay,moveSpeed:B.moveSpeed,weight:B.weight,attack:B.attack,defense:B.defense,dash:B.dash,charges:B.charges,parry:0,grip:B.grip||0};
+ guids.forEach(g=>{const p=useOrig?orig.find(o=>o.guid===g):byGuid[g];if(!p)return;for(const k in s)s[k]+=p.stats[k]||0;});
  s.maxSpin=Math.max(100,s.maxSpin);s.spinDecay=Math.max(0.5,s.spinDecay);s.moveSpeed=Math.max(2,s.moveSpeed);s.weight=Math.max(0.3,s.weight);
  s.attack=Math.max(1,s.attack);s.defense=clamp(s.defense,0,80);s.dash=Math.max(5,s.dash);s.charges=clamp(Math.round(s.charges),1,D.maxCharges);
  s.parryWin=clamp(C.parryWindow+s.parry,0.02,0.4);return s;}
 // BladeFormulas: lo que sale en el juego (sin rasgos ni poderes)
 function game(s){
- const wn=inv(0.5,3,s.weight),mass=Math.max(C.minPhysicalMass,s.weight);
- const maxSpeed=clamp(lerp(C.referenceMaxSpeed,C.maxVelocity+s.moveSpeed*lerp(0.8,0.4,wn),C.speedSpread),3,25);
- const accel=clamp(C.accelerationForce*Math.max(s.moveSpeed*0.1,1)*lerp(C.accelByWeight[0],C.accelByWeight[1],wn),5,120)/mass;
- const turn=clamp(C.turnResponsiveness*lerp(C.turnByWeight[0],C.turnByWeight[1],wn)*120,5,50);
- const imp=lerp(1.15,0.85,wn),taken=1-s.defense*0.01;
+ const mass=Math.max(C.minPhysicalMass,s.weight),ratio=C.referenceWeight/mass,grip=Math.max(0.25,1+s.grip*C.gripPerPoint);
+ const maxSpeed=clamp(lerp(C.referenceMaxSpeed,C.maxVelocity+s.moveSpeed*C.speedPerPoint,C.speedSpread),3,25);
+ const accel=clamp(C.referenceAcceleration*Math.max(s.moveSpeed*0.1,1)*Math.pow(ratio,C.accelerationWeightExponent),1,120);
+ const turn=clamp(C.turnRate*grip,2,50);
+ const imp=C.referenceImpulse*Math.pow(ratio,C.impulseWeightExponent),taken=1-s.defense*0.01;
  return {atk:lerp(1,s.attack/Math.max(1,C.referenceAttackPower),C.attackSpread),taken:taken,knock:1-s.defense*0.005,maxSpeed:maxSpeed,accel:accel,
-  top:maxSpeed/Math.max(0.01,accel),turn:turn,stop:C.stoppingFriction*lerp(1.5,0.4,wn)/Math.max(0.1,mass),dash:s.dash*imp,
+  top:maxSpeed/Math.max(0.01,accel),turn:turn,stop:C.stoppingRate*grip,dash:s.dash*imp,
   impulse:C.quickAttackImpulse*imp,mass:mass,ehp:s.maxSpin/Math.max(0.01,taken)};}
 
 // ---- Editor ----
@@ -474,7 +478,7 @@ function livePresets(){
 
 // ---- Gráfica 1: perfil respecto a la Balanceada (barras divergentes desde el 100%) ----
 const METRICS=[['atk','Daño que hace',v=>'×'+fmt(v)],['ehp','Vida efectiva',v=>fmt(v,0)],['maxSpeed','Velocidad máxima',v=>fmt(v,1)+' m/s'],
- ['accel','Aceleración',v=>fmt(v,0)+' m/s²'],['turn','Giro',v=>fmt(v,1)+'/s'],['dash','Dash',v=>fmt(v,1)+' m/s'],['charges','Cargas',v=>fmt(v,0)]];
+ ['accel','Aceleración',v=>fmt(v,0)+' m/s²'],['turn','Giro',v=>fmt(v,1)+'/s'],['stop','Frenado al soltar',v=>fmt(v)+'/s'],['dash','Dash',v=>fmt(v,1)+' m/s'],['charges','Cargas',v=>fmt(v,0)]];
 function chartProfile(){
  const el=document.getElementById('chart-profile'),lg=document.getElementById('legend-profile');
  const ref=D.presets.find(p=>p.arch==='balanced');if(!ref){el.innerHTML='<p class=\'hint\'>No hay preset Balanceada.</p>';return;}
@@ -530,7 +534,7 @@ function update(){const n=changes();btnDl.disabled=n===0;btnReset.disabled=n===0
 const r4=v=>Math.round(v*10000)/10000;
 btnDl.addEventListener('click',()=>{
  const out={version:1,exported:D.exported,parts:parts.map(p=>{const o=orig.find(x=>x.guid===p.guid),st=s=>({maxSpin:r4(s.maxSpin),spinDecay:r4(s.spinDecay),
-  moveSpeed:r4(s.moveSpeed),weight:r4(s.weight),attack:r4(s.attack),defense:r4(s.defense),dash:r4(s.dash),charges:Math.round(s.charges),parry:r4(s.parry)});
+  moveSpeed:r4(s.moveSpeed),weight:r4(s.weight),attack:r4(s.attack),defense:r4(s.defense),dash:r4(s.dash),charges:Math.round(s.charges),parry:r4(s.parry),grip:r4(s.grip||0)});
   return {guid:p.guid,name:p.name,original:st(o.stats),values:st(p.stats),originalTraits:o.traits.map(t=>({type:t.type,percent:r4(t.percent)})),
    traits:p.traits.map(t=>({type:t.type,percent:r4(t.percent)}))};})};
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));

@@ -149,9 +149,9 @@ namespace FakeBlade.Core
         // Stats derivadas
         private float _effectiveAcceleration;
         private float _effectiveMaxSpeed;
-        private float _effectiveTurnSpeed;
-        private float _effectiveDrag;
-        private float _weightNormalized;
+        private float _effectiveTurnRate;
+        private float _effectiveStoppingRate;
+        private float _impulseFactor = 1f;
         #endregion
 
         #region Properties
@@ -463,15 +463,15 @@ namespace FakeBlade.Core
             if (previousMax > 0f)
                 _currentSpin = Mathf.Min(_currentSpin, _maxSpin);
 
-            _weightNormalized = BladeFormulas.WeightNormalized(weight);
-
-            // Ligeras y pesadas, más parecidas que lo que dicen sus piezas (speedSpread, turnByWeight y
-            // accelerationByWeight en CombatConfig): las ágiles giran algo más pesadas y las lentas no lo son tanto.
-            // Fórmulas en BladeFormulas (las mismas que usa el exportador de estadísticas, GDD 2.8)
-            _effectiveAcceleration = BladeFormulas.AccelerationForce(cfg, moveSpeed, _weightNormalized, Trait(PartTraitType.Acceleration));
-            _effectiveMaxSpeed = BladeFormulas.MaxSpeed(cfg, moveSpeed, _weightNormalized);
-            _effectiveTurnSpeed = BladeFormulas.TurnSpeed(cfg, _weightNormalized, Trait(PartTraitType.TurnRate));
-            _effectiveDrag = BladeFormulas.StoppingDrag(cfg, _weightNormalized);
+            // Una estadística, un efecto (C11/C13, GDD 2.8): la velocidad da la velocidad máxima; el peso, la
+            // aceleración y los acelerones (una sola vez, sin dividir entre la masa); el agarre, el giro y el
+            // frenado. Fórmulas en BladeFormulas (las mismas que usa el exportador de estadísticas).
+            float grip = _stats.Grip;
+            _effectiveAcceleration = BladeFormulas.Acceleration(cfg, moveSpeed, weight, Trait(PartTraitType.Acceleration));
+            _effectiveMaxSpeed = BladeFormulas.MaxSpeed(cfg, moveSpeed);
+            _effectiveTurnRate = BladeFormulas.TurnRate(cfg, grip, Trait(PartTraitType.TurnRate));
+            _effectiveStoppingRate = BladeFormulas.StoppingRate(cfg, grip);
+            _impulseFactor = BladeFormulas.ImpulseFactor(cfg, weight);
 
             _attack.SetMaxCharges(_stats.AttackCharges);
 
@@ -846,7 +846,7 @@ namespace FakeBlade.Core
         }
 
         /// <summary>Peonzas ligeras ganan algo más de velocidad por impulso.</summary>
-        private float WeightSpeedFactor => BladeFormulas.ImpulseFactor(_weightNormalized);
+        private float WeightSpeedFactor => _impulseFactor;
 
         /// <summary>
         /// Acelerón instantáneo en una dirección. Conserva la velocidad que ya llevaba
@@ -1175,7 +1175,8 @@ namespace FakeBlade.Core
                 if (speedInInputDir > 0f && targetSpeed > 0f)
                     accel *= Mathf.Clamp01(1f - speedInInputDir / targetSpeed);
 
-                _rb.AddForce(inputDir * accel, ForceMode.Force);
+                // Como aceleración: igual para cualquier masa (el peso ya cuenta en _effectiveAcceleration, C11)
+                _rb.AddForce(inputDir * accel, ForceMode.Acceleration);
 
                 // 2. Frenado lateral (permite girar). Más suave durante un burst.
                 //    Se aplica como cambio de velocidad acotado (fracción ≤ 1 por paso): un frenado
@@ -1183,21 +1184,21 @@ namespace FakeBlade.Core
                 Vector3 lateral = horizontal - inputDir * speedInInputDir;
                 if (lateral.sqrMagnitude > 0.01f)
                 {
-                    float brakeRate = BladeFormulas.TurnRate(_effectiveTurnSpeed);
+                    float brakeRate = _effectiveTurnRate;
                     if (bursting) brakeRate *= 0.5f;
                     _rb.AddForce(-lateral * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }
 
                 // 3. Frenado extra si va en dirección contraria al input
                 if (speedInInputDir < -0.5f && speed > 0.01f)
-                    _rb.AddForce(-horizontal / speed * (_effectiveAcceleration * 0.5f), ForceMode.Force);
+                    _rb.AddForce(-horizontal / speed * (_effectiveAcceleration * 0.5f), ForceMode.Acceleration);
             }
             else if (!bursting && !staggered)
             {
                 // Sin input: frenado progresivo (acotado igual que el lateral para que sea estable)
                 if (speed > 0.1f)
                 {
-                    float brakeRate = _effectiveDrag / Mathf.Max(0.1f, _rb.mass);
+                    float brakeRate = _effectiveStoppingRate;
                     _rb.AddForce(-horizontal * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }
                 else if (speed > 0f)

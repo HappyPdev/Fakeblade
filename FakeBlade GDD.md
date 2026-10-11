@@ -27,7 +27,7 @@ FakeBlade es un juego arcade de combate en 3D entre jugadores que controlan peon
 
 ## 1.3 Plataformas y Audiencia
 
-Plataformas: PC (Windows) y navegador con WebGL.
+Plataformas: PC (Windows) y navegador con WebGL. Más adelante, **Linux** y **Android**. Lo que implica cada una (API gráficas, render, controles y limitaciones) está en **7.5**.
 Audiencia: a partir de 8 años.
 
 2. # Mecánicas Core
@@ -384,7 +384,7 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
 
 6. # Sistema de Multijugador
 
-Multijugador local para PC Windows y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado). Los huecos se pueden completar con **rivales CPU** (ver 6.4): el máximo de 4 cuenta jugadores humanos y CPU juntos.
+Multijugador local para PC (Windows y, más adelante, Linux) y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado). Los huecos se pueden completar con **rivales CPU** (ver 6.4): el máximo de 4 cuenta jugadores humanos y CPU juntos.
 
 **Escalable a 8:** en el futuro se quiere llegar a **8 jugadores**. Por ahora el máximo es 4, pero el código debe prepararse para que ese número sea un único valor configurable (lobby, HUD, colores, puntos de aparición, equipos...).
 
@@ -482,6 +482,32 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   Medido contra un J1 quieto (30 s): Difícil 7 rápidos y 4 cargados, Experto 6 y 3, con 10-13 carrerillas y unos 20 de daño medio por golpe (máximo 28-30). Antes no cargaba nunca (0-1) y fallaba muchos golpes. Con J1 atacando cada 1,5 s y cargas infinitas, el parry queda en un 21-26%, porque la IA se queda sin cargas (recarga solo sin atacar y parry sin devolución, C16).
 - **En el Sandbox:** Rivales → Dummies → «IA», con la fila «Nivel IA» (Fácil, Normal, Difícil y Experto). Se aplica al momento.
 
+## 6.5 Jugar a distancia y en red *(2026-10-12)*
+
+**No habrá servidores ni partidas online propias.** El orden es: primero la versión de PC completa con multijugador local; la red, después.
+
+**PC a distancia: juego remoto sobre el multijugador local** (sin programar red). Un jugador abre el juego y los demás se conectan a su pantalla con un programa de juego remoto. A cada invitado le llegan el vídeo y el sonido, y sus mandos aparecen en el PC del anfitrión como si estuvieran enchufados ahí. Para el juego, todos son jugadores locales.
+
+- **Parsec:** funciona con cualquier juego, sin hacer nada. Los mandos de los invitados llegan como mandos de Xbox virtuales.
+- **Steam Remote Play Together:** solo con el juego en Steam. Se activa en la configuración de Steamworks, sin código. Cada invitado aparece como un mando más.
+- **Qué pide al juego** (casi todo ya se cumple): 4 mandos a la vez con asignación libre en el lobby, ventana sin bloqueos de foco (*Run In Background* ya activado) y nada que dependa del ratón. **El teclado no sirve para invitados**: el teclado de todos llega como uno solo al anfitrión, así que a distancia se juega con mando.
+- **Latencia:** el invitado ve la imagen y su mando llega con retraso (unos 30-80 ms entre vídeo e input, según la conexión). Lo que más lo nota es el **parry, con una ventana de 0,12 s**. Habrá que probarlo y, si hace falta, añadir una opción de partida "ventana de parry amplia" para jugar a distancia.
+
+**Android: multijugador en red local (LAN), más adelante.** En un móvil no caben varios jugadores, así que cada jugador usaría su propio dispositivo y todos en la misma red Wi-Fi:
+
+- Un dispositivo **crea la partida** (anfitrión) y los demás la **encuentran en el lobby** sin escribir direcciones (descubrimiento por la red local). Sin servidor, sin cuentas y sin Internet.
+- El anfitrión simula la partida (física, daño, IA) y los demás envían sus órdenes y reciben el estado. La forma de controlar la peonza ya pasa por una fuente de órdenes (`IBladeInputSource`), que es justo el punto donde entraría un jugador remoto.
+- Herramienta candidata: **Netcode for GameObjects + Unity Transport**, que son de Unity, gratis y admiten descubrimiento en LAN. Se estudiará al empezar.
+- Cambios grandes que trae: **interfaz táctil** (controles en pantalla, menús y lobby para dedos y pantallas pequeñas), un **lobby de red** (crear, buscar y unirse, desconexiones) y el **combate sincronizado** (lo que ve cada uno tiene que coincidir con el anfitrión).
+- Si existe, la misma LAN también podría servir para PC.
+
+**Para no cerrarse puertas desde ahora** (sin implementar nada de red):
+
+1. Que todas las órdenes de una peonza pasen por su `IBladeInputSource`, nunca leídas directamente del mando en otro sitio.
+2. Que las reglas (daño, K.O., puntos, rondas) se decidan en un único sitio (`GameManager` y los sistemas de combate), no repartidas entre la UI y los efectos.
+3. Que la configuración de partida (`MatchSetup`) sean datos simples: piezas por ID del catálogo y reglas, sin referencias a objetos de la escena. Así se podrá enviar por red.
+4. Que los efectos, el sonido y el HUD reaccionen a eventos y no decidan nada del combate (ya es así, 7.2).
+
 7. # Sistema Técnico
 
 ## 7.1 Motor de Física
@@ -553,6 +579,80 @@ Medición en editor (4 peonzas con IA y efectos): física ~0,3 ms por paso y ren
   - Se quedan en su sitio aunque no sean nuestros: `TextMesh Pro` (recursos de Unity que usa el HUD; hacen falta para que el repo funcione al clonarlo) e `InputSystem_Actions` (registrado como acciones globales del proyecto en la configuración de Input System).
 - El código del juego **no depende de clases de paquetes de pago**: los shaders se usan a través de materiales y las herramientas solo en el editor. Así el repo compila aunque falten.
 - **Qué entra en la build:** lo que usan las escenas de la build (y sus dependencias), todo lo que esté en carpetas `Resources` y todo el código de runtime. Lo que no se usa no entra, pero hay que vigilar las carpetas `Resources` y los scripts de cada paquete (se compilan siempre, también en WebGL).
+
+## 7.5 Plataformas, API gráficas y builds *(revisado el 2026-10-11, sin cambios en el proyecto)*
+
+Objetivo: builds de **Windows, Linux y WebGL**, y más adelante **Android**. Esta sección recoge cómo está configurado hoy el proyecto y qué hay que tener en cuenta para cada plataforma. Las tareas están en **Fase J** (Quehaceres).
+
+**Cómo elige Unity la API gráfica.** Cada plataforma tiene una lista de API en *Player Settings → Other Settings → Graphics APIs*. Con *Auto Graphics API* activado, Unity usa su lista por defecto; desactivado, se usa la primera de la lista que funcione en la máquina, y las siguientes son de reserva. Cada API añadida multiplica las variantes de shader (más tiempo de build y más tamaño). Por defecto: Windows DirectX 12 en los proyectos nuevos desde Unity 6.1 (antes DirectX 11); Linux Vulkan (reserva OpenGL Core); WebGL WebGL 2 (WebGPU solo si se añade a mano); Android Vulkan con reserva OpenGL ES 3.
+
+**Configuración actual** (Unity 6000.3.11f1, URP 17.3):
+
+| Plataforma | API gráficas | Calidad por defecto | Scripting |
+|---|---|---|---|
+| Windows | Manual: **DirectX 11** (la que se usa) y DirectX 12 de reserva | PC (`PC_RPAsset`) | Mono (por defecto) |
+| Linux | Automática (Vulkan, reserva OpenGL Core) | PC | Mono (por defecto) |
+| WebGL | Automática (WebGL 2) | Mobile (`Mobile_RPAsset`) | IL2CPP (obligatorio) |
+| Android | Manual: Vulkan y OpenGL ES 3 | Mobile | IL2CPP, solo ARM64, API mínima 25 |
+
+- Espacio de color **lineal**: válido en todas (WebGL 2 y OpenGL ES 3 lo admiten).
+- Los dos renderers (PC y Mobile) usan **Forward+**.
+- `Mobile_RPAsset`: escala de render 0,8, una cascada de sombras, sin sombras suaves, **sin Depth Texture ni Opaque Texture**. `PC_RPAsset`: 4 cascadas, sombras suaves, con Depth y Opaque Texture.
+- GPU Resident Drawer apagado y sin compute shaders propios: bien, porque WebGL 2 no tiene compute shaders.
+- Shaders propios: ninguno. Los de terceros (All In 1 Sprite Shader, TextMesh Pro) son compatibles con OpenGL ES 3 / WebGL 2.
+- El código no usa hilos ni `Task.Run` (WebGL no tiene hilos sin activarlos aparte).
+
+**Qué implica DirectX 11 en Windows.** Es la API más compatible (GPUs antiguas y portátiles) y la más probada. DirectX 12 solo compensa con mucha carga de CPU en el render (*graphics jobs*), que este juego no tiene (render ~1 ms con 4 peonzas, ver 7.3). Lo que perdemos con DirectX 11: ray tracing y algunas funciones nuevas de URP que FakeBlade no necesita. **Se puede dejar así.** El editor también usa DirectX 11, así que lo que se ve en el editor es lo que sale en la build de Windows.
+
+**Windows**
+
+- Sin limitaciones conocidas. Es la plataforma de referencia: lo que se mide en el editor vale aquí.
+
+**Linux**
+
+- Se compila desde Windows con el módulo *Linux Build Support (Mono)* instalado en Unity Hub. Para compilar con IL2CPP desde Windows hace falta además el toolchain de Linux (paquete de Unity); con Mono no.
+- Usa **Vulkan**: hay que probar el aspecto (bloom, partículas HDR, pixelado) y los drivers; si algo falla, poner OpenGL Core de reserva a mano.
+- **Rutas y nombres de archivo distinguen mayúsculas.** `System.IO` (CSV del Sandbox y del banco) debe usar `Path.Combine` y el nombre exacto; `Resources.Load` con la ruta tal como está escrita.
+- Mandos: Input System los lee por SDL. Xbox y genéricos van bien; los de PlayStation pueden verse como mando genérico (otros nombres de botón, sin vibración o con otro mapeo). Probar en Steam Deck si se publica en Steam.
+- Pantalla completa y resoluciones: dependen del gestor de ventanas (X11 o Wayland); probar `Screen.SetResolution` de Opciones.
+
+**WebGL** (la más limitada)
+
+- **Forward+ da problemas en WebGL 2 con Unity 6**: hay informes de builds que se congelan al cargar y de decals rotos; se arregla pasando a Forward. Como WebGL usa `Mobile_Renderer` y está en Forward+, **antes de la primera build de WebGL hay que poner `Mobile_Renderer` en Forward** (o crear un renderer Web aparte) y comprobarlo. Con 4 peonzas y pocas luces, Forward basta.
+- **Opciones → Calidad** deja elegir el nivel PC también en el navegador: comprobar que funciona o limitarlo a Mobile en WebGL.
+- Sin Depth Texture en `Mobile_RPAsset`: las partículas suaves (Cartoon FX, G11) no se verían. Activarla en el asset de WebGL/Android si se usan esos efectos.
+- **Coste:** bloom con HDR, sombras y muchas partículas transparentes pesan más en el navegador y en gráficas integradas. El pixelado de la escena (Render Scale bajo, en Otros pendientes) ayuda mucho aquí.
+- **WebGPU:** en Unity 6.3 no está lista para producción. Según Unity, desde 6.6 está soportada pero sigue sin activarse por defecto. No se usa hasta actualizar Unity y probarla.
+- **Mandos en el navegador:** un mando no aparece hasta que se pulsa un botón con la página enfocada; el mapeo depende del navegador; **la vibración no funciona** en WebGL (`SetMotorSpeeds` no hace nada, no da error). Con 4 mandos puede haber diferencias entre Chrome y Firefox: probarlo.
+- **Teclado:** el navegador se queda algunas teclas (F5, Ctrl+W, Tab, F11). Los controles de teclado por defecto no deben usarlas.
+- **Audio:** el navegador no deja sonar nada hasta el primer clic o tecla. La música del menú tiene que empezar después de esa primera pulsación.
+- **Guardado:** `PlayerPrefs` y `persistentDataPath` van al almacenamiento del navegador (IndexedDB, poco espacio). Los ajustes y controles se guardan bien; los CSV del Sandbox y del banco no se pueden abrir desde fuera, así que en WebGL no tienen sentido.
+- Ya resuelto: Salir se oculta y Resolución y Pantalla completa no aparecen en Opciones (las controla la página).
+- *Run In Background* tiene su propia casilla para web; los navegadores frenan las pestañas en segundo plano de todos modos.
+- **Publicación:** compresión Brotli activada (`webGLCompressionFormat`), que exige que el servidor envíe la cabecera `Content-Encoding` (itch.io lo hace). Si se publica en otro sitio sin esa cabecera, activar *Decompression Fallback* o usar Gzip.
+- **IL2CPP** (también en Android): compila más lento y quita el código que no ve usado (*stripping*). Lo que se use solo por reflexión o por nombre puede desaparecer y fallar solo en la build; si pasa, se protege con `[Preserve]` o un `link.xml`.
+- Memoria: crece hasta 2 GB; con este juego no debería ser un problema. Vigilar el tamaño de la descarga (texturas, audio y paquetes que no se usan, como Visual Scripting).
+
+**Android** (más adelante)
+
+- Usa el nivel de calidad Mobile, en **Forward+**: funciona en Vulkan, pero los móviles con OpenGL ES 3 pueden ir peor. Lo mismo que en WebGL: probar con Forward.
+- **Controles y multijugador** *(decidido el 2026-10-12)*: un jugador por dispositivo, con controles táctiles, y partidas en **red local** (ver 6.5). Es un cambio grande de interfaz y de multijugador, así que va **después de tener la versión de PC completa**.
+- **Orientación:** hoy está en rotación automática con vertical permitida. Para Android, solo horizontal.
+- **HUD:** zona segura (notch y esquinas redondeadas, `Screen.safeArea`), relaciones de aspecto de 18:9 a 21:9 y tamaño de texto legible en pantalla pequeña.
+- **Frecuencia:** Android va a 30 FPS por defecto; hay que fijar `Application.targetFrameRate = 60`. Vigilar batería y temperatura (Adaptive Performance ya está en los módulos).
+- Texturas en ASTC (lo normal en Unity para Android). Publicar en Google Play exige AAB, ARM64 (ya configurado) y la API objetivo reciente (hoy "la más alta instalada").
+- Botón Atrás del sistema: debe hacer lo mismo que Volver en los menús, y abrir la pausa en combate.
+- Vibración: los mandos Bluetooth pueden no vibrar; la del móvil es otra API.
+
+**Reglas desde ahora** (para no cerrarse puertas):
+
+1. Nada de compute shaders, hilos, `Task.Run` ni librerías nativas solo de Windows en el código del juego.
+2. Escribir archivos solo en el Sandbox y en herramientas de debug, siempre con `Path.Combine` y `persistentDataPath` en las builds.
+3. Shaders y efectos nuevos: comprobar que funcionan sin Depth Texture o activarla en el asset Mobile.
+4. Teclas por defecto que el navegador no se quede.
+5. Textos y HUD que se lean en pantallas pequeñas y con cualquier relación de aspecto (anclajes, no posiciones fijas).
+6. Mantener cero GC por frame (7.3): en WebGL y Android las pausas del recolector se notan mucho más.
+7. Probar cada plataforma con una build, no solo en el editor: el editor de Windows (DirectX 11, Mono) no muestra los fallos de IL2CPP, Vulkan ni WebGL.
 
 8. # Progresión y contenido
 
@@ -716,7 +816,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 - **Survival:** 1 contra oleadas de enemigos con dificultad progresiva (necesita IA; no está en el v2).
 - Hazards y powerups de arena (ver sección 4).
 - Más efectos de postprocesado en Opciones.
-- Portar a móvil con partidas en red local.
+- Portar a móvil con partidas en red local (6.5 y 7.5).
 - **Arquetipos mixtos:** piezas que mezclen dos arquetipos (por ejemplo Ataque-Agilidad o Defensa-Balanceada) y compartan características de ambos. Por eso las piezas se nombran por arquetipo y no por peso (registro del 2026-10-08).
 
 11. # Registro de decisiones
@@ -880,6 +980,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-11 | Parry sin devolver la carga | El parry cuesta su carga; queda la recompensa de energía (20%), además de no recibir daño y aturdir al atacante (2.5). |
 | 2026-10-11 | Run In Background | Activado en Player Settings: el juego sigue corriendo aunque la ventana pierda el foco (también en el juego compilado). |
 | 2026-10-11 | Arena básica por defecto | La arena del usuario `Basic 2` (suelo plano, paredes verticales, dos FBX) es la primera del catálogo y la de por defecto, con los materiales del proyecto. Orden: Básica, Clásica (cuenco), Pruebas; la Plana V2 entra cuando exista su FBX (I3). |
+| 2026-10-11 | Plataformas objetivo | Windows y WebGL, y más adelante Linux y Android. Revisión de API gráficas y limitaciones en 7.5, sin cambiar nada del proyecto todavía; las tareas van en la Fase J. |
+| 2026-10-12 | Red y juego a distancia | Sin servidores ni online propio. En PC, el juego a distancia se hace con Parsec o Steam Remote Play Together sobre el multijugador local. Android tendrá un jugador por dispositivo y partidas en red local (Wi-Fi), después de completar la versión de PC (6.5). |
 
 12. # Pendiente de definir
 
@@ -920,6 +1022,16 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Pérdida de control por empuje: `0,1 + 0,015 × empuje` s, desde 4 m/s, y recuperación en 0,15 s (propuesta: dejarla así, porque se siente bien con mando; ajustarla en C7 o C12 si algún poder empuja demasiado).
 - Recarga de cargas: espera de 0,5 s tras atacar; se siente lenta, pero el usuario prefiere esta mecánica (propuesta: revisarla con el banco en C12).
 - Desde dónde se añaden las CPU en las partidas normales (en una columna libre de la selección de peonzas, eligiendo nivel y peonza).
+
+**Plataformas (7.5):**
+
+- Render en WebGL y Android: Forward+ (como ahora) o Forward (propuesta: `Mobile_Renderer` en Forward, que es el que usan las dos, y PC sigue en Forward+).
+- API gráfica de Windows (propuesta: dejar DirectX 11 primero y DirectX 12 de reserva).
+- Juego a distancia con la ventana de parry de 0,12 s (propuesta: probarlo con Parsec y, si no se puede hacer parry, añadir a las reglas de partida una "ventana de parry amplia").
+- Herramienta de red para la LAN de Android (propuesta: Netcode for GameObjects + Unity Transport; se decide al empezar, cuando la versión de PC esté completa).
+- Opción Calidad en WebGL: dejar elegir PC o limitarla a Mobile (propuesta: dejarla y avisar de que puede ir lento, después de probarla).
+- WebGPU (propuesta: no usarla hasta actualizar a Unity 6.6 o posterior y probarla).
+- Dónde se publica la versión WebGL (propuesta: itch.io, que admite la compresión Brotli).
 
 13. # Quehaceres
 
@@ -1064,6 +1176,16 @@ Proceso con cada paquete: descargarlo en *Package Manager → My Assets* (con la
 
 Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D se hace en C#), White Mage Spells (efectos realistas y aditivos, en contra de 7.3), GUI Pro Fantasy RPG (estilo pintado) y el resto de la lista (entornos realistas, HDRP, personajes, plantillas de otros géneros y assets deprecated).
 
+**Fase J. Plataformas y builds** (detalles en 7.5)
+
+- [ ] J1. Primera build de Windows (DirectX 11, Mono): partida completa, opciones, controles guardados y 4 mandos. 🎮
+- [ ] J2. WebGL: `Mobile_Renderer` en Forward (o renderer Web aparte), comprobar Depth Texture si se usan partículas suaves y hacer la primera build. Probar en Chrome y Firefox: carga, mandos (aparecen al pulsar), teclas que el navegador no se quede, audio tras el primer clic, guardado de opciones y rendimiento con 4 peonzas. Decidir qué hace Opciones → Calidad. 🎮
+- [ ] J3. WebGL: desactivar los CSV del Sandbox y del banco en el navegador; revisar el tamaño de la descarga (quitar paquetes sin uso como Visual Scripting).
+- [ ] J4. Linux: instalar *Linux Build Support (Mono)*, build con Vulkan y probar aspecto, pantalla completa y mandos (Xbox y PlayStation). Si hay un Steam Deck a mano, también ahí. 🎮
+- [ ] J5. Android (**después de completar la versión de PC**): multijugador en red local (6.5) con lobby para crear, buscar y unirse; controles táctiles y menús para pantalla pequeña; orientación solo horizontal, zona segura en el HUD, 60 FPS, botón Atrás, texturas ASTC y build AAB. Antes de empezar, aprender lo básico de Netcode for GameObjects con una prueba aparte.
+- [ ] J6. Revisar las reglas de 7.5 y 6.5 al añadir shaders, efectos, código que escriba archivos o cambios en cómo llegan las órdenes a la peonza.
+- [ ] J7. Probar una partida a distancia con **Parsec** (anfitrión + 1-3 invitados con mando): asignación en el lobby, latencia y si se puede hacer parry. Steam Remote Play Together, cuando el juego esté en Steam. 🎮
+
 **Otros pendientes**
 
 - [ ] Modo por puntos: restar 1 punto por autoeliminación.
@@ -1073,7 +1195,7 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [ ] Pixelar la escena 3D de batalla y el fondo del menú (pilar 1.2). Ahora solo lo tiene la vista previa del lobby (`BladePreviewStage`). Renderizar a una RenderTexture de baja resolución con escala entera y filtro Point; prueba rápida: Render Scale de URP entre 0,33 y 0,5 con filtro Nearest-Neighbor. El HUD (Overlay) no se ve afectado.
 - [ ] Equilibrio general. Primer ajuste hecho (2026-10-06): daño x0,8, RPM base 400, cargado = rápido × (1 + 10% por nivel) y movimiento más parejo. Siguiente: jugar con mandos y revisar los CSV del sandbox (`Logs/Sandbox/`). Antes, una peonza lanzada que chocaba a 12 m/s contra una de ataque fuerte perdía un 42%. 🎮
 - [ ] Probar menús, lobby y combate con mandos reales. 🎮
-- [ ] Probar builds de PC y WebGL.
+- [ ] Probar builds de PC y WebGL (ahora en la Fase J: J1 y J2).
 - [ ] Probar el ratón en las columnas del lobby.
 - [ ] Input handling en "Input System" solamente (ahora está en "Both").
 - [ ] Quitar `Assets/Scripts_copiaAntigua.zip` y el stash antiguo de backup cuando ya no hagan falta.

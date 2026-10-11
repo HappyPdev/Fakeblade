@@ -9,7 +9,9 @@ namespace FakeBlade.Core
     /// - Mantener pulsado → ataque cargado; sube de nivel cada chargeTimePerLevel hasta
     ///   el nº de cargas disponibles. Gasta tantas cargas como niveles. Si se mantiene
     ///   en el máximo durante chargedAutoReleaseTime se lanza solo.
-    /// - Las cargas se recuperan de una en una con el tiempo.
+    /// - Las cargas se recuperan de una en una con el tiempo, solo sin atacar: cada ataque (también
+    ///   el parry) pone a 0 la carga en curso, y la recarga espera attackRechargeDelay tras el ataque
+    ///   y no corre mientras se carga uno.
     ///
     /// No aplica fuerzas: devuelve peticiones de lanzamiento y el controller las ejecuta.
     /// </summary>
@@ -22,6 +24,8 @@ namespace FakeBlade.Core
         private int _maxCharges = 3;
         private int _charges = 3;
         private float _rechargeTimer;
+        /// <summary>Time.time hasta el que la recarga no cuenta (fin del último ataque + espera).</summary>
+        private float _rechargeBlockedUntil = float.NegativeInfinity;
 
         private bool _wasHeld;
         private bool _pressing;
@@ -103,6 +107,7 @@ namespace FakeBlade.Core
             _maxCharges = Mathf.Clamp(maxCharges, 1, MaxSupportedCharges);
             _charges = _maxCharges;
             _rechargeTimer = 0f;
+            _rechargeBlockedUntil = float.NegativeInfinity;
             CancelCharge();
             _chargedCooldown = 0f;
             _attackStartTime = float.NegativeInfinity;
@@ -215,13 +220,15 @@ namespace FakeBlade.Core
         {
             var cfg = CombatConfig.Active;
             int cost = ChargeCost(requestedLevel);
-            bool wasFull = _charges >= _maxCharges;
             _charges = Mathf.Max(0, _charges - cost);
-            if (wasFull) _rechargeTimer = 0f;
 
             _attackLevel = Mathf.Max(0, effectiveLevel);
             _attackStartTime = Time.time;
             _attackEndTime = Time.time + cfg.quickAttackDuration * (1f + 0.25f * _attackLevel);
+
+            // Atacar corta la recarga: la carga en curso vuelve a 0 y no cuenta hasta un rato después
+            _rechargeTimer = 0f;
+            _rechargeBlockedUntil = _attackEndTime + cfg.attackRechargeDelay;
             _launchedAsQuick = requestedLevel == 0;
 
             if (requestedLevel > 0)
@@ -234,14 +241,6 @@ namespace FakeBlade.Core
         public void EndAttack()
         {
             if (IsAttacking) _attackEndTime = Time.time;
-        }
-
-        /// <summary>Devuelve una carga de ataque (recompensa del parry).</summary>
-        public void RefundCharge()
-        {
-            if (_charges >= _maxCharges) return;
-            _charges++;
-            if (_charges >= _maxCharges) _rechargeTimer = 0f;
         }
 
         /// <summary>Rellena todas las cargas de ataque (efecto común de los especiales).</summary>
@@ -266,6 +265,8 @@ namespace FakeBlade.Core
                 _rechargeTimer = 0f;
                 return;
             }
+            // Atacando, cargando o recién atacado: no recarga (conserva lo que lleve)
+            if (_isCharging || Time.time < _rechargeBlockedUntil) return;
 
             _rechargeTimer += dt;
             if (_rechargeTimer >= cfg.attackRechargeTime)

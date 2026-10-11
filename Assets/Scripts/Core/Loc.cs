@@ -235,6 +235,12 @@ namespace FakeBlade.Core
             ["DUMMY_ATTACK"] = new[] { "ATACAN", "ATTACK" },
             ["DUMMY_DASH"] = new[] { "DASH HACIA TI", "DASH AT YOU" },
             ["DUMMY_SPECIAL"] = new[] { "ESPECIAL", "SPECIAL" },
+            ["DUMMY_AI"] = new[] { "IA", "AI" },
+            ["SANDBOX_AI_LEVEL"] = new[] { "NIVEL IA", "AI LEVEL" },
+            ["AI_EASY"] = new[] { "FÁCIL", "EASY" },
+            ["AI_NORMAL"] = new[] { "NORMAL", "NORMAL" },
+            ["AI_HARD"] = new[] { "DIFÍCIL", "HARD" },
+            ["AI_EXPERT"] = new[] { "EXPERTO", "EXPERT" },
             ["DEVICE_KB_LEFT"] = new[] { "TECLADO J1", "KEYBOARD P1" },
             ["DEVICE_KB_RIGHT"] = new[] { "TECLADO J2", "KEYBOARD P2" },
             ["DEVICE_PAD"] = new[] { "MANDO {0}", "GAMEPAD {0}" },
@@ -319,6 +325,8 @@ namespace FakeBlade.Core
             ["SET_TEAMS_INVALID"] = new[] { "CADA EQUIPO NECESITA AL MENOS UN JUGADOR", "EACH TEAM NEEDS AT LEAST ONE PLAYER" },
 
             // Arenas
+            ["ARENA_BASIC_2"] = new[] { "ARENA BÁSICA", "BASIC ARENA" },
+            ["ARENA_V2"] = new[] { "ARENA PLANA", "FLAT ARENA" },
             ["ARENA_00"] = new[] { "ARENA CLÁSICA", "CLASSIC ARENA" },
             ["ARENA_TEST"] = new[] { "ARENA DE PRUEBAS", "TEST ARENA" },
         };

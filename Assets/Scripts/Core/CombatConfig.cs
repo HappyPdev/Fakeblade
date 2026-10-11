@@ -130,6 +130,9 @@ namespace FakeBlade.Core
         [Header("=== ATAQUE ===")]
         [Tooltip("Segundos para recuperar una carga de ataque")]
         public float attackRechargeTime = 1.5f;
+        [Tooltip("Cada ataque (también el parry) pone a 0 la carga que se recargaba; la recarga no vuelve " +
+                 "a contar hasta estos segundos después de terminar el ataque (2026-10-11)")]
+        public float attackRechargeDelay = 0.5f;
         [Tooltip("Impulso (m/s) del ataque rápido")]
         public float quickAttackImpulse = 9f;
         [Tooltip("Coste en RPM del ataque rápido (fracción de las RPM máximas)")]
@@ -236,6 +239,14 @@ namespace FakeBlade.Core
         [Tooltip("Fracción del empuje que recibe el ganador")]
         [Range(0f, 1f)] public float winnerKnockbackFraction = 0.35f;
         public float maxKnockback = 18f;
+        [Tooltip("Pérdida de control tras un empuje: segundos base (el stick no acelera ni frena la peonza)")]
+        public float knockbackControlLossBase = 0.1f;
+        [Tooltip("Pérdida de control: segundos extra por cada m/s de empuje (18 m/s ≈ 0,37 s en total)")]
+        public float knockbackControlLossPerSpeed = 0.015f;
+        [Tooltip("Empujes más flojos que esto (m/s) no quitan el control (p. ej. el del ganador de un choque suave)")]
+        public float knockbackControlMinSpeed = 4f;
+        [Tooltip("Segundos en los que el control vuelve poco a poco tras perderlo")]
+        public float knockbackControlRecoverTime = 0.15f;
         [Tooltip("Segundos durante los que un golpe cuenta para dar el punto de K.O.")]
         public float killCreditWindow = 5f;
 

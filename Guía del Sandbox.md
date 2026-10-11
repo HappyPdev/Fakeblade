@@ -33,8 +33,9 @@ Todo lo que eliges se mantiene mientras sigas en el sandbox (también si reinici
 | Fila | Opciones |
 |---|---|
 | **Rivales** | Ninguno o de 1 a 3 dummies (máximo 4 peonzas en total). Cambiarlo reinicia la partida al cerrar el panel. |
-| **Dummies** | Qué hacen todos: **Quietos**, **Se mueven**, **Atacan** (ataque rápido hacia ti: sirve para practicar el parry), **Dash hacia ti** o **Especial** (llenan la esfera y usan su poder). |
-| **Cada** | Cada cuántos segundos hacen su acción: 0,5 / 1 / 2 / 3 s. |
+| **Dummies** | Qué hacen todos: **Quietos**, **Se mueven**, **Atacan** (ataque rápido hacia ti: sirve para practicar el parry), **Dash hacia ti**, **Especial** (llenan la esfera y usan su poder) o **IA** (los controla la IA con el nivel de la fila siguiente). |
+| **Cada** | Cada cuántos segundos hacen su acción: 0,5 / 1 / 2 / 3 s. Con **IA** no se usa. |
+| **Nivel IA** | Con **IA**: Fácil, Normal, Difícil o Experto (GDD 6.4). Se aplica al momento. |
 
 ## 4. Mi peonza
 

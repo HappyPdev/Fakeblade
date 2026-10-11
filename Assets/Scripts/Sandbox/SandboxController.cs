@@ -53,6 +53,7 @@ namespace FakeBlade.Core
         private PixelOptionRow _rivalsRow;
         private PixelOptionRow _behaviourRow;
         private PixelOptionRow _intervalRow;
+        private PixelOptionRow _aiLevelRow;
         private TextMeshProUGUI _maxHint;
 
         private PixelOptionRow _playerRow;
@@ -409,8 +410,13 @@ namespace FakeBlade.Core
             _behaviourRow.SetOptions(new[]
             {
                 Loc.Get("DUMMY_IDLE"), Loc.Get("DUMMY_MOVE"), Loc.Get("DUMMY_ATTACK"),
-                Loc.Get("DUMMY_DASH"), Loc.Get("DUMMY_SPECIAL")
+                Loc.Get("DUMMY_DASH"), Loc.Get("DUMMY_SPECIAL"), Loc.Get("DUMMY_AI")
             }, (int)SandboxSettings.Behaviour);
+
+            _aiLevelRow.SetOptions(new[]
+            {
+                Loc.Get("AI_EASY"), Loc.Get("AI_NORMAL"), Loc.Get("AI_HARD"), Loc.Get("AI_EXPERT")
+            }, (int)SandboxSettings.AIDifficulty);
 
             // Decimales con coma en español y con punto en inglés
             char separator = Loc.Current == Language.English ? '.' : ',';
@@ -441,7 +447,34 @@ namespace FakeBlade.Core
                 _dummies.Add(_bootstrap.SpawnDummy(playerIndex, _dummies.Count + 1));
             }
 
+            ApplyDummyBrains();
             _bootstrap.RefreshCameraTargets();
+        }
+
+        /// <summary>
+        /// Con el comportamiento "IA" los dummies los controla un AIBrain del nivel elegido (D1);
+        /// con los demás, su SandboxDummyBrain. Se aplica al momento.
+        /// </summary>
+        private void ApplyDummyBrains()
+        {
+            bool useAI = SandboxSettings.Behaviour == DummyBehaviour.AI;
+            for (int i = 0; i < _dummies.Count; i++)
+            {
+                PlayerController dummy = _dummies[i];
+                if (dummy == null) continue;
+                var dummyBrain = dummy.GetComponent<SandboxDummyBrain>();
+                if (!dummy.TryGetComponent(out AIBrain ai)) ai = dummy.gameObject.AddComponent<AIBrain>();
+
+                ai.Difficulty = SandboxSettings.AIDifficulty;
+                ai.ClearBuffers();
+                ai.enabled = useAI;
+                if (dummyBrain != null)
+                {
+                    dummyBrain.ClearBuffers();
+                    dummyBrain.enabled = !useAI;
+                }
+                dummy.SetInputSource(useAI ? ai : dummyBrain);
+            }
         }
         #endregion
 
@@ -620,9 +653,18 @@ namespace FakeBlade.Core
             _rivalsRow = _rivalsPanel.AddSelector("SANDBOX_RIVALS", new[] { "-" }, 0, i => _pendingDummies = i);
             _maxHint = _rivalsPanel.AddText("SANDBOX_MAX_HINT", 5, _theme.textColor, TextAlignmentOptions.Center, 7);
             _behaviourRow = _rivalsPanel.AddSelector("SANDBOX_BEHAVIOUR", new[] { "-" }, 0,
-                i => SandboxSettings.Behaviour = (DummyBehaviour)i);
+                i =>
+                {
+                    SandboxSettings.Behaviour = (DummyBehaviour)i;
+                    ApplyDummyBrains();
+                });
             _intervalRow = _rivalsPanel.AddSelector("SANDBOX_INTERVAL", new[] { "-" }, 0,
                 i => SandboxSettings.IntervalIndex = i);
+            _aiLevelRow = _rivalsPanel.AddSelector("SANDBOX_AI_LEVEL", new[] { "-" }, 0, i =>
+            {
+                SandboxSettings.AIDifficulty = (AIDifficulty)i;
+                ApplyDummyBrains();
+            });
             AddBack(_rivalsPanel);
 
             // Mi peonza

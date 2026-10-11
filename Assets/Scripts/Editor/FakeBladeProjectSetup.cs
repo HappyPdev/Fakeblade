@@ -9,13 +9,19 @@ namespace FakeBlade.Core.Editor
 {
     /// <summary>
     /// Monta el contenido de menús y escenas (idempotente, se puede repetir):
-    /// - Prefab de arena a partir de "Arena 00.fbx" (medido y escalado a tamaño de juego) y arena de pruebas.
+    /// - Prefabs de arena a partir de sus FBX ("Basic 2", "Arena_V2_Plana.fbx", "Arena 00.fbx"; medidos y
+    ///   escalados a tamaño de juego) y arena de pruebas. Solo las arenas: menú "Setup Arenas".
     /// - ArenaData, reglas de práctica, créditos y catálogo (FakeBladeCatalog).
     /// - Escenas MainMenu / Assembly / BattleArena con su controlador y Build Settings.
     /// </summary>
     public static class FakeBladeProjectSetup
     {
         private const string ArenaModelPath = "Assets/3D Models/Arena 00.fbx";
+        private const string ArenaV2ModelPath = "Assets/3D Models/Arenas/Arena_V2_Plana.fbx";
+        private const string ArenaBasic2FloorPath = "Assets/3D Models/Arenas/Basic 2/BattleArena Suelo 2.fbx";
+        private const string ArenaBasic2WallsPath = "Assets/3D Models/Arenas/Basic 2/BattleArena Paredes 2.fbx";
+        private const string FloorRenderPath = "Assets/Materials/ArenaMaterial/SueloMaterial 00.mat";
+        private const string WallRenderPath = "Assets/Materials/ArenaMaterial/ParedMaterial Cristal 00.mat";
         private const string ArenaPrefabFolder = "Assets/Prefabs/Arena";
         private const string ArenaDataFolder = "Assets/Settings/Arenas";
         private const string PhysicsFolder = "Assets/Settings/Physics";
@@ -46,22 +52,14 @@ namespace FakeBlade.Core.Editor
             log.AppendLine(FakeBladeVfxSetup.Run());
             log.AppendLine(FakeBladeSpecialsSetup.Run());
 
-            var floorMat = PhysicsMaterialAsset("Arena_Floor", 0.1f, 0f);
-            var wallMat = PhysicsMaterialAsset("Arena_Wall", 0.05f, 0.5f);
-
             // Escena temporal vacía para medir con raycasts sin ensuciar otras escenas
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-
-            GameObject arena00 = BuildArena00(floorMat, wallMat, log);
-            GameObject arenaTest = BuildTestArena(floorMat, wallMat, log);
-
-            var arena00Data = ArenaDataAsset("Arena_00", "ARENA_00", arena00);
-            var arenaTestData = ArenaDataAsset("Arena_Test", "ARENA_TEST", arenaTest);
+            List<ArenaData> arenas = BuildArenas(log);
 
             MatchRules sandbox = RulesAsset("Sandbox", "MODE_SANDBOX", WinCondition.Sandbox);
             CreditsData credits = LoadOrCreate<CreditsData>("Assets/Settings/Credits.asset");
 
-            FakeBladeCatalog catalog = BuildCatalog(new List<ArenaData> { arena00Data, arenaTestData }, sandbox, credits, log);
+            FakeBladeCatalog catalog = BuildCatalog(arenas, sandbox, credits, log);
             // Guardar antes de abrir escenas (abrir una escena puede descargar assets sin usar)
             AssetDatabase.SaveAssets();
 
@@ -87,29 +85,114 @@ namespace FakeBlade.Core.Editor
         }
 
         #region Arenas
-        private static GameObject BuildArena00(PhysicsMaterial floorMat, PhysicsMaterial wallMat, StringBuilder log)
+        [MenuItem("FakeBlade/Setup Arenas")]
+        public static void SetupArenasFromMenu()
         {
-            var model = AssetDatabase.LoadAssetAtPath<GameObject>(ArenaModelPath);
-            if (model == null)
+            Debug.Log(SetupArenas());
+        }
+
+        /// <summary>
+        /// Solo las arenas: prefabs, ArenaData y lista de arenas del catálogo (no toca escenas ni presets).
+        /// Mide en una escena temporal y vuelve a abrir las escenas que había; si alguna tiene cambios sin guardar, no hace nada.
+        /// </summary>
+        public static string SetupArenas()
+        {
+            var log = new StringBuilder();
+            var openScenes = new List<string>();
+            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
             {
-                log.AppendLine("No existe " + ArenaModelPath);
+                var scene = EditorSceneManager.GetSceneAt(i);
+                if (scene.isDirty) return $"Setup Arenas: guarda antes la escena {scene.name} (tiene cambios sin guardar).";
+                if (!string.IsNullOrEmpty(scene.path)) openScenes.Add(scene.path);
+            }
+
+            FakeBladeAssetsMenu.EnsureFolder(ArenaPrefabFolder);
+            FakeBladeAssetsMenu.EnsureFolder(ArenaDataFolder);
+            FakeBladeAssetsMenu.EnsureFolder(PhysicsFolder);
+
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            List<ArenaData> arenas = BuildArenas(log);
+
+            var catalog = AssetDatabase.LoadAssetAtPath<FakeBladeCatalog>(CatalogPath);
+            if (catalog != null)
+            {
+                catalog.arenas.Clear();
+                foreach (var arena in arenas)
+                    if (arena != null && arena.prefab != null) catalog.arenas.Add(arena);
+                EditorUtility.SetDirty(catalog);
+                log.AppendLine($"Catálogo: {catalog.arenas.Count} arenas (por defecto: {(catalog.arenas.Count > 0 ? catalog.arenas[0].name : "-")})");
+            }
+            AssetDatabase.SaveAssets();
+
+            for (int i = 0; i < openScenes.Count; i++)
+                EditorSceneManager.OpenScene(openScenes[i], i == 0 ? OpenSceneMode.Single : OpenSceneMode.Additive);
+            return log.ToString();
+        }
+
+        /// <summary>Prefabs y ArenaData de todas las arenas, en el orden del catálogo (la primera es la de por defecto).</summary>
+        private static List<ArenaData> BuildArenas(StringBuilder log)
+        {
+            var floorMat = PhysicsMaterialAsset("Arena_Floor", 0.1f, 0f);
+            var wallMat = PhysicsMaterialAsset("Arena_Wall", 0.05f, 0.5f);
+            var floorRender = AssetDatabase.LoadAssetAtPath<Material>(FloorRenderPath);
+            var wallRender = AssetDatabase.LoadAssetAtPath<Material>(WallRenderPath);
+
+            GameObject arenaBasic2 = BuildModelArena("Arena_Basic_2", new[] { ArenaBasic2FloorPath, ArenaBasic2WallsPath },
+                floorMat, wallMat, floorRender, wallRender, log);
+            GameObject arenaV2 = BuildModelArena("Arena_V2_Plana", new[] { ArenaV2ModelPath }, floorMat, wallMat, floorRender, wallRender, log);
+            GameObject arena00 = BuildModelArena("Arena_00", new[] { ArenaModelPath }, floorMat, wallMat, null, null, log);
+            GameObject arenaTest = BuildTestArena(floorMat, wallMat, floorRender, wallRender, log);
+
+            // Las que no tienen modelo (prefab null) no crean asset ni entran en el catálogo
+            var arenas = new List<ArenaData>();
+            if (arenaBasic2 != null) arenas.Add(ArenaDataAsset("Arena_Basic_2", "ARENA_BASIC_2", arenaBasic2));
+            if (arenaV2 != null) arenas.Add(ArenaDataAsset("Arena_V2_Plana", "ARENA_V2", arenaV2));
+            if (arena00 != null) arenas.Add(ArenaDataAsset("Arena_00", "ARENA_00", arena00));
+            arenas.Add(ArenaDataAsset("Arena_Test", "ARENA_TEST", arenaTest));
+            return arenas;
+        }
+
+        /// <summary>
+        /// Arena a partir de uno o varios modelos (por ejemplo suelo y paredes en FBX separados): las mallas con
+        /// "pared"/"wall" en el nombre son muro y el resto suelo. Un suelo con la cara de arriba plana lleva un
+        /// BoxCollider (más estable que un MeshCollider); el resto, MeshCollider.
+        /// Los materiales de render son opcionales (null = los del FBX).
+        /// </summary>
+        private static GameObject BuildModelArena(string arenaName, string[] modelPaths, PhysicsMaterial floorMat, PhysicsMaterial wallMat,
+            Material floorRender, Material wallRender, StringBuilder log)
+        {
+            foreach (string modelPath in modelPaths)
+            {
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(modelPath) != null) continue;
+                log.AppendLine($"{arenaName}: no existe {modelPath}");
                 return null;
             }
 
-            var root = new GameObject("Arena_00");
-            var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, root.transform);
-            instance.name = "Model";
+            var root = new GameObject(arenaName);
+            var instance = new GameObject("Model");
+            instance.transform.SetParent(root.transform, false);
+            foreach (string modelPath in modelPaths)
+                PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(modelPath), instance.transform);
 
             var floorColliders = new List<Collider>();
             var wallColliders = new List<Collider>();
             foreach (var mf in instance.GetComponentsInChildren<MeshFilter>(true))
             {
-                var collider = mf.gameObject.GetComponent<MeshCollider>();
-                if (collider == null) collider = mf.gameObject.AddComponent<MeshCollider>();
-                collider.sharedMesh = mf.sharedMesh;
                 bool isWall = mf.name.ToLowerInvariant().Contains("pared") || mf.name.ToLowerInvariant().Contains("wall");
-                collider.sharedMaterial = isWall ? wallMat : floorMat;
-                (isWall ? wallColliders : floorColliders).Add(collider);
+                var meshCollider = mf.gameObject.GetComponent<MeshCollider>();
+                if (meshCollider == null) meshCollider = mf.gameObject.AddComponent<MeshCollider>();
+                meshCollider.sharedMesh = mf.sharedMesh;
+                meshCollider.sharedMaterial = isWall ? wallMat : floorMat;
+
+                Material render = isWall ? wallRender : floorRender;
+                var renderer = mf.GetComponent<MeshRenderer>();
+                if (render != null && renderer != null)
+                {
+                    var materials = new Material[Mathf.Max(1, renderer.sharedMaterials.Length)];
+                    for (int i = 0; i < materials.Length; i++) materials[i] = render;
+                    renderer.sharedMaterials = materials;
+                }
+                (isWall ? wallColliders : floorColliders).Add(meshCollider);
                 mf.gameObject.isStatic = true;
             }
 
@@ -118,6 +201,12 @@ namespace FakeBlade.Core.Editor
             SetEnabled(wallColliders, false);
             Physics.SyncTransforms();
             float floorY = RaycastFloor(Vector3.zero, 100f, out bool hitCenter);
+            if (hitCenter && IsFlatFloor(floorColliders, floorY))
+            {
+                ReplaceWithSlabs(floorColliders, floorMat);
+                Physics.SyncTransforms();
+                log.AppendLine($"{arenaName}: suelo plano → BoxCollider");
+            }
 
             SetEnabled(wallColliders, true);
             SetEnabled(floorColliders, false);
@@ -139,7 +228,7 @@ namespace FakeBlade.Core.Editor
             {
                 Bounds b = CombinedBounds(instance);
                 measuredRadius = Mathf.Min(b.extents.x, b.extents.z) * 0.9f;
-                log.AppendLine("Arena 00: radio estimado por bounds");
+                log.AppendLine($"{arenaName}: radio estimado por bounds");
             }
 
             float scale = TargetArenaRadius / measuredRadius;
@@ -148,7 +237,7 @@ namespace FakeBlade.Core.Editor
             Physics.SyncTransforms();
 
             // Perfil del suelo tras escalar (para saber si es cuenco)
-            log.Append($"Arena 00: suelo centro y={floorY:F2} (hit {hitCenter}), radio medido {measuredRadius:F2} → escala {scale:F3}. Perfil: ");
+            log.Append($"{arenaName}: suelo centro y={floorY:F2} (hit {hitCenter}), radio medido {measuredRadius:F2} → escala {scale:F3}. Perfil: ");
             for (int i = 0; i <= 4; i++)
             {
                 float r = TargetArenaRadius * i / 4f * 0.95f;
@@ -160,18 +249,17 @@ namespace FakeBlade.Core.Editor
             var definition = root.AddComponent<ArenaDefinition>();
             definition.EditorConfigure(TargetArenaRadius, 0.6f);
 
-            string path = $"{ArenaPrefabFolder}/Arena_00.prefab";
+            string path = $"{ArenaPrefabFolder}/{arenaName}.prefab";
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
             Object.DestroyImmediate(root);
             log.AppendLine("Prefab: " + path);
             return prefab;
         }
 
-        private static GameObject BuildTestArena(PhysicsMaterial floorMat, PhysicsMaterial wallMat, StringBuilder log)
+        private static GameObject BuildTestArena(PhysicsMaterial floorMat, PhysicsMaterial wallMat, Material floorRender, Material wallRender,
+            StringBuilder log)
         {
             var root = new GameObject("Arena_Test");
-            var floorRender = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/ArenaMaterial/SueloMaterial 00.mat");
-            var wallRender = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/ArenaMaterial/ParedMaterial Cristal 00.mat");
 
             var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "Floor";
@@ -214,6 +302,54 @@ namespace FakeBlade.Core.Editor
         private static void SetEnabled(List<Collider> colliders, bool enabled)
         {
             foreach (var c in colliders) c.enabled = enabled;
+        }
+
+        /// <summary>
+        /// Suelo plano: la cara de arriba es la parte más alta de las mallas de suelo y los raycasts
+        /// (3 anillos × 8 direcciones hasta el 60% del ancho) caen todos a la altura del centro.
+        /// </summary>
+        private static bool IsFlatFloor(List<Collider> floorColliders, float floorY)
+        {
+            if (floorColliders.Count == 0) return false;
+            Bounds b = floorColliders[0].bounds;
+            foreach (var c in floorColliders) b.Encapsulate(c.bounds);
+            float tolerance = Mathf.Max(b.size.x, b.size.z) * 0.001f;
+            if (Mathf.Abs(b.max.y - floorY) > tolerance) return false;
+
+            float maxR = Mathf.Min(b.extents.x, b.extents.z) * 0.6f;
+            for (int ring = 1; ring <= 3; ring++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float a = i * Mathf.PI / 4f;
+                    var xz = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * (maxR * ring / 3f);
+                    float y = RaycastFloor(b.center + xz, b.max.y + 10f, out bool hit);
+                    if (!hit || Mathf.Abs(y - floorY) > tolerance) return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>Cambia los MeshCollider del suelo por losas (BoxCollider) con la cara de arriba en la del modelo.</summary>
+        private static void ReplaceWithSlabs(List<Collider> floorColliders, PhysicsMaterial floorMat)
+        {
+            for (int i = 0; i < floorColliders.Count; i++)
+            {
+                var meshCollider = floorColliders[i] as MeshCollider;
+                if (meshCollider == null) continue;
+                GameObject go = meshCollider.gameObject;
+                Bounds bounds = meshCollider.sharedMesh.bounds;
+                Object.DestroyImmediate(meshCollider);
+
+                // Un plano sin grosor lleva una losa por debajo del 5% del ancho
+                float width = Mathf.Max(bounds.size.x, bounds.size.z);
+                float thickness = bounds.size.y > width * 0.001f ? bounds.size.y : width * 0.05f;
+                var box = go.AddComponent<BoxCollider>();
+                box.center = new Vector3(bounds.center.x, bounds.max.y - thickness * 0.5f, bounds.center.z);
+                box.size = new Vector3(bounds.size.x, thickness, bounds.size.z);
+                box.sharedMaterial = floorMat;
+                floorColliders[i] = box;
+            }
         }
 
         private static float RaycastFloor(Vector3 xz, float height, out bool hit)

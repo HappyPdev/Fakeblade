@@ -98,6 +98,7 @@ MonoBehaviour:
   - {r: 0.25, g: 0.55, b: 1, a: 1}
   - {r: 1, g: 0.35, b: 0.3, a: 1}
   arenas:
+  - {fileID: 11400000, guid: b2f9a1878ea07a242a8c2d294262c713, type: 2}
   - {fileID: 11400000, guid: bffacfe4af0a3664b9b7e85f0913adbd, type: 2}
   - {fileID: 11400000, guid: fcd93f753daf7714fa5326d39bcf2101, type: 2}
   lastStanding: {fileID: 11400000, guid: 26d7b26a6dede674790e3842b1716c17, type: 2}

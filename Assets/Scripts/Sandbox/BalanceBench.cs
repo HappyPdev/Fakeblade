@@ -113,6 +113,14 @@ namespace FakeBlade.Core
             SandboxSettings.RecordData = false;
             GameTime.SetNormalScale(1f, true);
             _attacker.SetInputSource(_input);
+            // El defensor, quieto aunque el sandbox tenga los dummies en "IA"
+            _defender.TryGetComponent(out AIBrain defenderAI);
+            bool defenderUsedAI = defenderAI != null && defenderAI.enabled;
+            if (defenderUsedAI)
+            {
+                defenderAI.enabled = false;
+                _defender.SetInputSource(_defender.GetComponent<SandboxDummyBrain>());
+            }
             CollisionResolver.OnClashResolved += OnClash;
 
             float started = Time.realtimeSinceStartup;
@@ -141,6 +149,11 @@ namespace FakeBlade.Core
                 Restore(_attacker.Stats, attackerParts);
                 Restore(_defender.Stats, defenderParts);
                 SandboxSettings.Behaviour = behaviour;
+                if (defenderUsedAI)
+                {
+                    defenderAI.enabled = true;
+                    _defender.SetInputSource(defenderAI);
+                }
                 SandboxSettings.InfiniteSpin = cheats[0];
                 SandboxSettings.FullSpecial = cheats[1];
                 SandboxSettings.InfiniteCharges = cheats[2];

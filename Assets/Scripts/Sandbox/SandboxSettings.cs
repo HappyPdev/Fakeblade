@@ -8,7 +8,9 @@ namespace FakeBlade.Core
         /// <summary>Ataque rápido hacia el jugador más cercano cada X s (para practicar parry).</summary>
         Attack = 2,
         DashAtYou = 3,
-        Special = 4
+        Special = 4,
+        /// <summary>Los controla la IA (AIBrain) con el nivel elegido (D1).</summary>
+        AI = 5
     }
 
     /// <summary>A quién se aplica un truco del sandbox (GDD 6.3). Los valores se muestran en ese orden.</summary>
@@ -74,6 +76,8 @@ namespace FakeBlade.Core
         public static int DummyCount = 1;
         public static DummyBehaviour Behaviour = DummyBehaviour.Idle;
         public static int IntervalIndex = 1;
+        /// <summary>Nivel de la IA cuando los dummies están en "IA".</summary>
+        public static AIDifficulty AIDifficulty = AIDifficulty.Normal;
 
         /// <summary>Segundos entre acciones de los dummies (atacar, dash, especial).</summary>
         public static float Interval => Intervals[UnityEngine.Mathf.Clamp(IntervalIndex, 0, Intervals.Length - 1)];

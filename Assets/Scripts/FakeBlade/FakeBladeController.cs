@@ -121,6 +121,9 @@ namespace FakeBlade.Core
         private float _dashAttackEndTime = float.NegativeInfinity;
         /// <summary>Fin del aturdimiento tras recibir un parry (sin control ni ataques).</summary>
         private float _staggerEndTime = float.NegativeInfinity;
+        /// <summary>Tras un empuje fuerte o una lanzada: hasta aquí el stick no mueve la peonza; después vuelve poco a poco.</summary>
+        private float _controlLossEnd = float.NegativeInfinity;
+        private float _controlRecoverEnd = float.NegativeInfinity;
         /// <summary>RPM gastadas en el dash en curso (se devuelve una fracción si gana un choque).</summary>
         private float _dashRefundableCost;
         /// <summary>Ataque cargado en curso: velocidad que tendría uno rápido / velocidad real al lanzarlo.</summary>
@@ -615,9 +618,18 @@ namespace FakeBlade.Core
         public bool TryFreeze(FakeBladeController source, float moveMultiplier, float rechargeMultiplier, float duration) =>
             CanReceiveStatus && NotifyStatusApplied(_status.TryFreeze(source, moveMultiplier, rechargeMultiplier, StatusDuration(source, duration)));
 
-        /// <summary>Lanzada (Rayos).</summary>
-        public bool TryLaunch(FakeBladeController source, float duration) =>
-            CanReceiveStatus && NotifyStatusApplied(_status.TryLaunch(source, StatusDuration(source, duration)));
+        /// <summary>Lanzada (Rayos): sin control mientras dura.</summary>
+        public bool TryLaunch(FakeBladeController source, float duration)
+        {
+            if (!CanReceiveStatus) return false;
+            float seconds = StatusDuration(source, duration);
+            if (!NotifyStatusApplied(_status.TryLaunch(source, seconds))) return false;
+            LoseControl(seconds);
+            // Sin tope de velocidad mientras vuela (cuenta el empuje del mismo choque, aún sin aplicar)
+            Vector3 velocity = _rb.linearVelocity + _pendingVelocityChange;
+            OpenBurst(new Vector3(velocity.x, 0f, velocity.z).magnitude, seconds);
+            return true;
+        }
 
         /// <summary>Duración de un estado con los rasgos de quien lo provoca y de quien lo sufre (H8).</summary>
         private float StatusDuration(FakeBladeController source, float duration) =>
@@ -875,7 +887,10 @@ namespace FakeBlade.Core
             _burstHold = Mathf.Max(_burstHold, holdTime);
         }
 
-        /// <summary>Empuje instantáneo (cambio de velocidad en m/s).</summary>
+        /// <summary>
+        /// Empuje instantáneo (cambio de velocidad en m/s). Un empuje fuerte quita el control un rato
+        /// (más cuanto más fuerte): si no, el stick a contrapelo lo cancelaba enseguida (2026-10-11).
+        /// </summary>
         public void ApplyKnockback(Vector3 velocityChange)
         {
             if (_isDestroyed || _rb == null) return;
@@ -884,10 +899,36 @@ namespace FakeBlade.Core
             _rb.AddForce(velocityChange, ForceMode.VelocityChange);
             _pendingVelocityChange += velocityChange;
 
-            // Permite que el empuje supere la velocidad máxima normal
+            var cfg = CombatConfig.Active;
+            float push = velocityChange.magnitude;
+            float controlLoss = push >= cfg.knockbackControlMinSpeed
+                ? cfg.knockbackControlLossBase + cfg.knockbackControlLossPerSpeed * push
+                : 0f;
+            if (controlLoss > 0f) LoseControl(controlLoss);
+
+            // Permite que el empuje supere la velocidad máxima normal mientras dura
             Vector3 horizontal = _rb.linearVelocity;
             horizontal.y = 0f;
-            OpenBurst((horizontal + velocityChange).magnitude, 0.1f);
+            OpenBurst((horizontal + velocityChange).magnitude, Mathf.Max(0.1f, controlLoss));
+        }
+
+        /// <summary>El stick deja de mover la peonza estos segundos; después el control vuelve poco a poco.</summary>
+        private void LoseControl(float seconds)
+        {
+            _controlLossEnd = Mathf.Max(_controlLossEnd, Time.time + seconds);
+            _controlRecoverEnd = _controlLossEnd + CombatConfig.Active.knockbackControlRecoverTime;
+        }
+
+        /// <summary>Control del movimiento: 0 tras un empuje o lanzada, subiendo a 1 al recuperarse.</summary>
+        private float ControlFactor
+        {
+            get
+            {
+                float now = Time.time;
+                if (now < _controlLossEnd) return 0f;
+                if (now >= _controlRecoverEnd) return 1f;
+                return (now - _controlLossEnd) / Mathf.Max(0.01f, _controlRecoverEnd - _controlLossEnd);
+            }
         }
 
         /// <summary>Llamado por CollisionResolver cuando esta peonza inflige daño.</summary>
@@ -1006,10 +1047,9 @@ namespace FakeBlade.Core
             OpenBurst(horizontalVelocity.magnitude, 0.1f);
         }
 
-        /// <summary>Recompensas de un parry con éxito: devuelve la carga y da energía de especial.</summary>
+        /// <summary>Recompensa de un parry con éxito: energía de especial (la carga ya no se devuelve, 2026-10-11).</summary>
         public void RegisterParry()
         {
-            _attack.RefundCharge();
             AddSpecialEnergy(CombatConfig.Active.parryEnergy * Trait(PartTraitType.SpecialEnergyParry));
 
             if (showDebugInfo) Debug.Log($"[FakeBlade] {name} PARRY", this);
@@ -1163,7 +1203,9 @@ namespace FakeBlade.Core
             bool bursting = _burstHold > 0f;
 
             bool staggered = IsStaggered; // tras un parry: sin control y sin frenar el rebote
-            if (_simulationActive && !staggered && _moveInput.sqrMagnitude > 0.01f)
+            // Tras un empuje fuerte o una lanzada: el stick no acelera ni frena (0), y vuelve poco a poco
+            float control = ControlFactor;
+            if (_simulationActive && !staggered && control > 0f && _moveInput.sqrMagnitude > 0.01f)
             {
                 Vector3 inputDir = _moveInput.normalized;
                 float inputMag = Mathf.Min(1f, _moveInput.magnitude);
@@ -1171,7 +1213,7 @@ namespace FakeBlade.Core
                 // 1. Aceleración hacia el input (se reduce al acercarse al tope en esa dirección)
                 float speedInInputDir = Vector3.Dot(horizontal, inputDir);
                 float targetSpeed = maxSpeed * inputMag;
-                float accel = _effectiveAcceleration;
+                float accel = _effectiveAcceleration * control;
                 if (speedInInputDir > 0f && targetSpeed > 0f)
                     accel *= Mathf.Clamp01(1f - speedInInputDir / targetSpeed);
 
@@ -1184,18 +1226,18 @@ namespace FakeBlade.Core
                 Vector3 lateral = horizontal - inputDir * speedInInputDir;
                 if (lateral.sqrMagnitude > 0.01f)
                 {
-                    float brakeRate = _effectiveTurnRate;
+                    float brakeRate = _effectiveTurnRate * control;
                     if (bursting) brakeRate *= 0.5f;
                     _rb.AddForce(-lateral * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }
 
                 // 3. Frenado extra si va en dirección contraria al input
                 if (speedInInputDir < -0.5f && speed > 0.01f)
-                    _rb.AddForce(-horizontal / speed * (_effectiveAcceleration * 0.5f), ForceMode.Acceleration);
+                    _rb.AddForce(-horizontal / speed * (_effectiveAcceleration * 0.5f * control), ForceMode.Acceleration);
             }
-            else if (!bursting && !staggered)
+            else if (!bursting && !staggered && control >= 1f)
             {
-                // Sin input: frenado progresivo (acotado igual que el lateral para que sea estable)
+                // Sin input (y con control): frenado progresivo (acotado igual que el lateral para que sea estable)
                 if (speed > 0.1f)
                 {
                     float brakeRate = _effectiveStoppingRate;
@@ -1321,6 +1363,8 @@ namespace FakeBlade.Core
             _dashAttackEndTime = float.NegativeInfinity;
             _staggerEndTime = float.NegativeInfinity;
             _dashRefundableCost = 0f;
+            _controlLossEnd = float.NegativeInfinity;
+            _controlRecoverEnd = float.NegativeInfinity;
             _burstCap = 0f;
             _burstHold = 0f;
             _moveInput = Vector3.zero;

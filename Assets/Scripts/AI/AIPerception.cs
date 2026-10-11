@@ -46,6 +46,8 @@ namespace FakeBlade.Core
         public float TargetSpin { get; private set; }
         /// <summary>El rival está casi quieto, sin atacar ni cargar.</summary>
         public bool TargetIdle { get; private set; }
+        /// <summary>El rival está aturdido (tras un parry o un choque fuerte): no puede atacar.</summary>
+        public bool TargetStaggered { get; private set; }
         /// <summary>Del borde del rival a la pared (infinito sin arena).</summary>
         public float TargetWallDistance { get; private set; }
         /// <summary>Del centro de la arena hacia el rival, en el plano y normalizado.</summary>
@@ -53,6 +55,8 @@ namespace FakeBlade.Core
 
         /// <summary>Hacia el centro de la arena, en el plano y normalizado.</summary>
         public Vector3 ToCenter { get; private set; }
+        /// <summary>Del centro de la peonza al centro de la arena (0 sin arena).</summary>
+        public float CenterDistance { get; private set; }
         /// <summary>Del borde de la peonza a la pared (infinito sin arena o si el nivel no la mira).</summary>
         public float WallDistance { get; private set; }
         /// <summary>Velocidad hacia la pared (negativa si se aleja de ella).</summary>
@@ -75,6 +79,7 @@ namespace FakeBlade.Core
             WallDistance = float.PositiveInfinity;
             OutwardSpeed = 0f;
             ToCenter = Vector3.zero;
+            CenterDistance = 0f;
             if (arena != null)
             {
                 Vector3 fromCenter = position - arena.Center;
@@ -82,6 +87,7 @@ namespace FakeBlade.Core
                 float radius = fromCenter.magnitude;
                 Vector3 outward = radius > 0.01f ? fromCenter / radius : Vector3.zero;
                 ToCenter = -outward;
+                CenterDistance = radius;
                 if (level.watchesWalls)
                 {
                     WallDistance = arena.InnerRadius - radius - BladeRadius;
@@ -95,7 +101,7 @@ namespace FakeBlade.Core
                 Distance = Gap = TimeToImpact = float.PositiveInfinity;
                 ClosingSpeed = 0f;
                 ToTarget = TargetVelocity = Vector3.zero;
-                TargetAttacking = TargetCharging = IncomingAttack = TargetIdle = false;
+                TargetAttacking = TargetCharging = IncomingAttack = TargetIdle = TargetStaggered = false;
                 TargetCharges = -1;
                 TargetSpin = 0f;
                 TargetWallDistance = float.PositiveInfinity;
@@ -121,6 +127,7 @@ namespace FakeBlade.Core
             TargetCharges = level.readsResources ? Target.Attack.CurrentCharges : -1;
             TargetSpin = Target.SpinSpeedPercentage;
             TargetIdle = targetVelocity.sqrMagnitude < IdleSpeed * IdleSpeed && !TargetAttacking && !Target.Attack.IsCharging;
+            TargetStaggered = Target.IsStaggered;
 
             TargetWallDistance = float.PositiveInfinity;
             TargetOutward = Vector3.zero;

@@ -103,9 +103,10 @@ namespace FakeBlade.Core
         #region Sandbox
         /// <summary>
         /// Crea un dummy del sandbox en la plaza playerIndex (después de los humanos), con el preset
-        /// balanceado y el cerebro de dummy. Se registra solo en el GameManager (en su Start).
+        /// del catálogo presetIndex (-1 = el último, la Balanceada) y el cerebro de dummy. Se registra solo en el
+        /// GameManager (en su Start).
         /// </summary>
-        public PlayerController SpawnDummy(int playerIndex, int dummyNumber)
+        public PlayerController SpawnDummy(int playerIndex, int dummyNumber, int presetIndex = -1)
         {
             Vector3 position = _gm.GetSpawnPoint(playerIndex).position;
             GameObject go = Instantiate(catalog.playerPrefab, position, Quaternion.identity);
@@ -118,7 +119,7 @@ namespace FakeBlade.Core
             player.SetInputSource(go.AddComponent<SandboxDummyBrain>());
 
             var setup = new PlayerSetup();
-            setup.ApplyPreset(catalog.GetPreset(catalog.presets.Count - 1));
+            setup.ApplyPreset(catalog.GetPreset(presetIndex < 0 ? catalog.presets.Count - 1 : presetIndex));
             setup.EquipOn(go.GetComponent<FakeBladeStats>());
 
             _spawned.Add(go);

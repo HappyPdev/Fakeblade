@@ -17,8 +17,9 @@ namespace FakeBlade.Core
     /// hace el rival, si está quieto o junto a la pared, que decide si guarda carga, cuánto carga y si coge carrerilla.
     /// El nivel (AILevel) fija reacción, puntería, probabilidades y qué datos lee.
     ///
-    /// Clase base de los perfiles por arquetipo (D3): sobrescriben Think, OnIncomingAttack,
-    /// ChooseAttackLevel o TryUseSpecial. Sin asignaciones por frame.
+    /// Es también el perfil Balanceado y la clase base de los demás perfiles por arquetipo (D3, AIProfiles):
+    /// cambian el estilo (dónde se coloca, cuándo y cómo ataca, especial) con los métodos virtuales y retocan
+    /// la habilidad del nivel con ParryScale, DodgeScale y ReactionScale. Sin asignaciones por frame.
     /// </summary>
     [RequireComponent(typeof(FakeBladeController))]
     public class AIBrain : MonoBehaviour, IBladeInputSource
@@ -112,6 +113,39 @@ namespace FakeBlade.Core
             }
         }
 
+        /// <summary>Perfil de esta IA (D3): el arquetipo cuyo estilo juega.</summary>
+        public virtual BladeArchetype Profile => BladeArchetype.Balanced;
+
+        #region Perfil (D3)
+        /// <summary>Multiplicadores del perfil sobre la habilidad del nivel (parry, esquiva y tiempo de reacción).</summary>
+        protected virtual float ParryScale => 1f;
+        protected virtual float DodgeScale => 1f;
+        protected virtual float ReactionScale => 1f;
+
+        protected float ParryChance => Mathf.Clamp01(Level.parryChance * ParryScale);
+        protected float DodgeChance => Mathf.Clamp01(Level.dodgeChance * DodgeScale);
+        protected float ReactionTime => Level.reactionTime * ReactionScale;
+
+        /// <summary>El perfil se juega entero (desde Normal); en Fácil solo se nota su tendencia (GDD 6.4).</summary>
+        protected bool FullStyle => Level.fullProfile;
+
+        /// <summary>Atacando, cargando, preparando un parry o aturdida: no empieza otra acción.</summary>
+        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered;
+
+        /// <summary>Sentido en que rodea al rival (1 o -1).</summary>
+        protected float OrbitSign => _orbitSign;
+        protected void FlipOrbit() => _orbitSign = -_orbitSign;
+
+        /// <summary>Multiplica la probabilidad de atacar con el rival a tiro.</summary>
+        protected virtual float AttackChanceScale() => 1f;
+        /// <summary>Multiplica la probabilidad de que el ataque sea cargado.</summary>
+        protected virtual float ChargedChanceScale => 1f;
+        /// <summary>Se suma a la agresividad de la capa táctica.</summary>
+        protected virtual float AggressionBias => 0f;
+        /// <summary>Probabilidad de acercarse con un dash a media distancia.</summary>
+        protected virtual float ApproachDashChance => 0.15f;
+        #endregion
+
         #region IBladeInputSource
         public Vector2 MovementInput => _move;
         public bool AttackHeld => _attackHeld;
@@ -148,7 +182,7 @@ namespace FakeBlade.Core
             Blade = GetComponent<FakeBladeController>();
             Level = AILevel.Get(difficulty);
             _orbitSign = Random.value < 0.5f ? -1f : 1f;
-            _thinkTimer = Random.Range(0f, Level.reactionTime);
+            _thinkTimer = Random.Range(0f, ReactionTime);
         }
 
         protected virtual void OnValidate()
@@ -195,7 +229,7 @@ namespace FakeBlade.Core
             _thinkTimer -= dt;
             if (_thinkTimer <= 0f)
             {
-                _thinkTimer = Level.reactionTime * Random.Range(0.7f, 1.3f);
+                _thinkTimer = ReactionTime * Random.Range(0.7f, 1.3f);
                 if (_arena == null) _arena = FindAnyObjectByType<ArenaDefinition>();
                 Think();
             }
@@ -236,20 +270,20 @@ namespace FakeBlade.Core
             TryUseSpecial();
 
             // 2. La defensa va cada frame (UpdateDefense): mientras prepara un parry o ataca, no empieza otro
-            if (_parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered) return;
+            if (Busy) return;
 
             // 3. Atacar (sin gastar las cargas que guarda para el parry)
             if (p.Distance < AttackRange && Blade.Attack.CurrentCharges > ReservedCharges())
             {
-                float chance = Level.attackChance * AggressionScale(0.7f, 1.2f);
+                float chance = Level.attackChance * AggressionScale(0.7f, 1.2f) * AttackChanceScale();
                 // Sin cargas, el rival no puede hacer parry: es un buen momento
                 if (p.TargetCharges == 0) chance += 0.3f;
                 if (Random.value < chance)
                 {
                     int level = ChooseAttackLevel();
                     if (level < 0) return; // espera a juntar cargas para un cargado
-                    // Golpe fuerte contra un rival quieto: antes, carrerilla (la velocidad del choque suma daño)
-                    if (Level.tactical && p.TargetIdle && Aggression >= BoldAggression && p.Distance < RunUpDistance)
+                    // Golpe fuerte: antes, carrerilla (la velocidad del choque suma daño)
+                    if (WantsRunUp(level))
                     {
                         _intent = Intent.RunUp;
                         _runUpUntil = Time.time + RunUpTime;
@@ -262,23 +296,37 @@ namespace FakeBlade.Core
                     }
                     else
                     {
-                        BeginEngage();
+                        BeginQuickStrike();
                     }
                     return;
                 }
             }
 
             // 4. Acercarse: a media distancia, a veces con un dash (también golpea)
-            if (p.Distance > AttackRange * 1.5f && p.Distance < AttackRange * 3f && Blade.CanDash && Random.value < 0.15f)
+            if (p.Distance > AttackRange * 1.5f && p.Distance < AttackRange * 3f && Blade.CanDash && Random.value < ApproachDashChance)
                 DashTowards(AimDirection(), false);
         }
+
+        /// <summary>Coger carrerilla antes de este golpe. Balanceada: con capa táctica, solo contra un rival quieto.</summary>
+        protected virtual bool WantsRunUp(int level) =>
+            Level.tactical && Perception.TargetIdle && Aggression >= BoldAggression && Perception.Distance < RunUpDistance;
+
+        /// <summary>Ataque rápido con el rival a tiro pero aún lejos para soltarlo: embestir primero.</summary>
+        protected virtual void BeginQuickStrike() => BeginEngage();
+
+        /// <summary>
+        /// Hay sitio para coger carrerilla: lejos de la pared, o con el rival a un lado (la carrerilla se abre de
+        /// lado hacia el centro). Solo falta si está contra la pared y el rival le tapa el centro.
+        /// </summary>
+        protected bool HasRoomBehind() =>
+            Perception.WallDistance > 2.5f || Vector3.Dot(Perception.ToTarget, Perception.ToCenter) < 0.5f;
 
         /// <summary>
         /// Cargas que no gasta atacando, para poder hacer parry: una si el nivel hace parry a menudo
         /// y el rival puede atacar (si el nivel no lee sus cargas, supone que sí).
         /// </summary>
         protected virtual int ReservedCharges() =>
-            Level.parryChance >= 0.4f && Perception.TargetCharges != 0 &&
+            ParryChance >= 0.4f && Perception.TargetCharges != 0 &&
             (Aggression < BoldAggression || Time.time - _lastThreatTime < RecentThreatTime) ? 1 : 0;
 
         /// <summary>
@@ -288,13 +336,19 @@ namespace FakeBlade.Core
         protected virtual int ChooseAttackLevel()
         {
             int charges = Blade.Attack.CurrentCharges - ReservedCharges();
-            bool roomToCharge = Perception.Distance > ChargedMinDistance || (Level.tactical && Perception.TargetIdle);
-            bool wantsCharged = roomToCharge && Blade.Attack.MaxCharges >= 2 &&
-                                Random.value < Level.chargedChance * AggressionScale(0.5f, 2f);
+            bool wantsCharged = RoomToCharge() && Blade.Attack.MaxCharges >= 2 &&
+                                Random.value < Level.chargedChance * AggressionScale(0.5f, 2f) * ChargedChanceScale;
             if (!wantsCharged) return 0;
             if (charges >= 2) return Random.Range(2, charges + 1);
-            return Level.tactical ? -1 : 0;
+            return WaitsForCharged ? -1 : 0;
         }
+
+        /// <summary>Si quiere un cargado y no tiene cargas para él, espera a juntarlas (con capa táctica).</summary>
+        protected virtual bool WaitsForCharged => Level.tactical;
+
+        /// <summary>Hay tiempo de cargar antes del choque: el rival lejos (o quieto, con capa táctica).</summary>
+        protected virtual bool RoomToCharge() =>
+            Perception.Distance > ChargedMinDistance || (Level.tactical && Perception.TargetIdle);
 
         /// <summary>
         /// Capa táctica (GDD 6.4): cuánto arriesgar, de 0 a 1 (0,5 = neutral). Baja si va por delante en vida o si
@@ -306,7 +360,7 @@ namespace FakeBlade.Core
             AIPerception p = Perception;
             if (!Level.tactical || p.Target == null) return 0.5f;
 
-            float aggression = 0.5f;
+            float aggression = 0.5f + AggressionBias;
             // Vida: +30% de ventaja → −0,24
             aggression -= (Blade.SpinSpeedPercentage - p.TargetSpin) * 0.8f;
             // Parrys del rival: tasa estimada partiendo de un 30% (como si ya llevara 2 ataques)
@@ -332,7 +386,7 @@ namespace FakeBlade.Core
                 return;
             }
 
-            if (Blade.Attack.CurrentCharges > 0 && Random.value < Level.parryChance)
+            if (Blade.Attack.CurrentCharges > 0 && Random.value < ParryChance)
             {
                 // Con el error de timing del nivel: demasiado pronto o tarde, el parry falla
                 _parryPending = true;
@@ -340,7 +394,7 @@ namespace FakeBlade.Core
                 return;
             }
 
-            if (Blade.CanDash && Random.value < Level.dodgeChance)
+            if (Blade.CanDash && Random.value < DodgeChance)
                 Dodge();
         }
 
@@ -364,6 +418,9 @@ namespace FakeBlade.Core
         #endregion
 
         #region Acciones
+        /// <summary>Pulsa el especial (lo recoge el controller en el frame siguiente).</summary>
+        protected void PressSpecial() => _special = true;
+
         /// <summary>
         /// Pulsa ataque: rápido (nivel 0) o cargado hasta el nivel pedido. Con <paramref name="evenIfAttacking"/>
         /// se lanza aunque ya esté atacando (un ataque nuevo abre otra ventana de parry).
@@ -490,7 +547,7 @@ namespace FakeBlade.Core
                 _threatSeen = true;
                 _lastThreatTime = Time.time;
                 _threatHandled = false;
-                _reactAt = Time.time + Level.reactionTime;
+                _reactAt = Time.time + ReactionTime;
             }
 
             if (!_threatHandled && p.IncomingAttack && Time.time >= _reactAt)
@@ -548,18 +605,19 @@ namespace FakeBlade.Core
                         dir = AimDirection();
                         break;
                     case Intent.RunUp:
-                        // Alejarse del rival, algo de lado para no ir recto contra la pared
-                        dir = (-p.ToTarget * 0.8f + new Vector3(-p.ToTarget.z, 0f, p.ToTarget.x) * (0.4f * _orbitSign)).normalized;
+                        // Alejarse del rival, algo de lado para no ir recto contra la pared; cerca de ella, de lado
+                        // hacia el centro (si no, con el rival más al centro, se metía contra la pared sin coger sitio)
+                        Vector3 side = new Vector3(-p.ToTarget.z, 0f, p.ToTarget.x) * _orbitSign;
+                        float sideWeight = 0.4f;
+                        if (p.WallDistance < 3f)
+                        {
+                            if (Vector3.Dot(side, p.ToCenter) < 0f) side = -side;
+                            sideWeight = 0.9f;
+                        }
+                        dir = (-p.ToTarget * 0.8f + side * sideWeight).normalized;
                         break;
                     case Intent.Approach:
-                        // Lejos: casi recto. A tiro: lo rodea acercándose. Demasiado cerca: lo rodea alejándose
-                        Vector3 perpendicular = new Vector3(-p.ToTarget.z, 0f, p.ToTarget.x) * _orbitSign;
-                        if (p.Distance < KeepDistance && Level.keepsDistance)
-                            dir = (perpendicular * 0.7f - p.ToTarget * 0.3f).normalized;
-                        else if (p.Distance < AttackRange)
-                            dir = (perpendicular * 0.6f + p.ToTarget * 0.4f).normalized;
-                        else
-                            dir = (perpendicular * 0.1f + p.ToTarget * 0.9f).normalized;
+                        dir = ApproachDirection();
                         break;
                     default:
                         dir = p.ToCenter * 0.4f;
@@ -568,6 +626,25 @@ namespace FakeBlade.Core
             }
             return new Vector2(dir.x, dir.z);
         }
+
+        /// <summary>
+        /// Movimiento sin atacar (perfil Balanceado): lejos, casi recto hacia el rival; a tiro, lo rodea acercándose;
+        /// demasiado cerca, lo rodea alejándose. Un vector de longitud 0-1 (0 = quedarse quieta).
+        /// </summary>
+        protected virtual Vector3 ApproachDirection()
+        {
+            AIPerception p = Perception;
+            Vector3 perpendicular = Perpendicular();
+            if (p.Distance < KeepDistance && Level.keepsDistance)
+                return (perpendicular * 0.7f - p.ToTarget * 0.3f).normalized;
+            if (p.Distance < AttackRange)
+                return (perpendicular * 0.6f + p.ToTarget * 0.4f).normalized;
+            return (perpendicular * 0.1f + p.ToTarget * 0.9f).normalized;
+        }
+
+        /// <summary>De lado respecto al rival, en el sentido en que lo rodea.</summary>
+        protected Vector3 Perpendicular() =>
+            new Vector3(-Perception.ToTarget.z, 0f, Perception.ToTarget.x) * _orbitSign;
         #endregion
     }
 }

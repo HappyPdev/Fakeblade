@@ -43,7 +43,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 ## Reglas de trabajo con Unity
 
 - **Antes de editar scripts**: `get_unity_editor_state`. Si está en Play, pararlo primero, avisando al usuario, porque puede estar probando. Editar en Play recompila y deja nulos los campos creados por código.
-- Después de editar: `check_compile_errors`. Puede necesitar un reintento mientras Unity recarga.
+- Después de editar: `check_compile_errors`. Puede necesitar un reintento mientras Unity recarga. Ojo: si Unity no tiene el foco, puede no haber importado aún los cambios y aun así decir "No compile errors": fuerza `AssetDatabase.Refresh()` con `execute_script`, espera ~15 s y comprueba que existe un tipo nuevo (`System.Type.GetType("FakeBlade.Core.X, FakeBlade.Runtime")`).
 - Antes de un banco de pruebas o un commit, comprobar si hay piezas o assets editados sin guardar (`EditorUtility.IsDirty`) y avisar al usuario.
 - Para probar en Play, usar la skill `probar-en-play`. Para tocar el equilibrio, la skill `equilibrio`. Para los tests de EditMode (`Assets/Tests/EditMode`, ensamblado `FakeBlade.Tests.EditMode`), la skill `ejecutar-tests`.
 - Las escenas `BattleArena` y `Sandbox` se pueden abrir y jugar directamente (se crea un MatchSetup por defecto). Las otras escenas son `MainMenu` y `Assembly`.

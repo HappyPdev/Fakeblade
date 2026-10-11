@@ -57,6 +57,11 @@ namespace FakeBlade.Core
         /// el rival, si el rival está quieto o cerca de la pared; y coge carrerilla para los golpes fuertes.
         /// </summary>
         public bool tactical;
+        /// <summary>
+        /// Juega su perfil de arquetipo entero (D3): carrerillas, golpes y huidas, contraataques. Sin él (Fácil),
+        /// solo se nota la tendencia del perfil: dónde se coloca y cuánto ataca o carga.
+        /// </summary>
+        public bool fullProfile;
         public AISpecialUse specialUse;
 
         private static readonly AILevel[] Levels =
@@ -64,19 +69,19 @@ namespace FakeBlade.Core
             // Fácil: lenta, falla, nunca hace parry ni esquiva y no mira la pared
             new AILevel { reactionTime = 0.5f, aimErrorDegrees = 25f, attackChance = 0.45f, chargedChance = 0.15f,
                 parryChance = 0f, parryTimingError = 0f, dodgeChance = 0f, readsCharging = false, predictsMovement = false,
-                readsResources = false, watchesWalls = false, keepsDistance = false, tactical = false, specialUse = AISpecialUse.Random },
+                readsResources = false, watchesWalls = false, keepsDistance = false, tactical = false, fullProfile = false, specialUse = AISpecialUse.Random },
             // Normal: parry a veces, ve las cargas del rival venir
             new AILevel { reactionTime = 0.3f, aimErrorDegrees = 14f, attackChance = 0.6f, chargedChance = 0.25f,
                 parryChance = 0.25f, parryTimingError = 0.08f, dodgeChance = 0.2f, readsCharging = true, predictsMovement = false,
-                readsResources = false, watchesWalls = true, keepsDistance = true, tactical = false, specialUse = AISpecialUse.WhenFull },
+                readsResources = false, watchesWalls = true, keepsDistance = true, tactical = false, fullProfile = true, specialUse = AISpecialUse.WhenFull },
             // Difícil: parry a menudo, apunta adelantado y mira los recursos del rival
             new AILevel { reactionTime = 0.18f, aimErrorDegrees = 7f, attackChance = 0.75f, chargedChance = 0.3f,
                 parryChance = 0.45f, parryTimingError = 0.05f, dodgeChance = 0.35f, readsCharging = true, predictsMovement = true,
-                readsResources = true, watchesWalls = true, keepsDistance = true, tactical = true, specialUse = AISpecialUse.GoodMoment },
+                readsResources = true, watchesWalls = true, keepsDistance = true, tactical = true, fullProfile = true, specialUse = AISpecialUse.GoodMoment },
             // Experto: parry a menudo y casi a tiempo, pero no siempre (2026-10-11: con 90% era imbatible)
             new AILevel { reactionTime = 0.1f, aimErrorDegrees = 2f, attackChance = 0.85f, chargedChance = 0.35f,
                 parryChance = 0.7f, parryTimingError = 0.03f, dodgeChance = 0.5f, readsCharging = true, predictsMovement = true,
-                readsResources = true, watchesWalls = true, keepsDistance = true, tactical = true, specialUse = AISpecialUse.GoodMoment },
+                readsResources = true, watchesWalls = true, keepsDistance = true, tactical = true, fullProfile = true, specialUse = AISpecialUse.GoodMoment },
         };
 
         public static AILevel Get(AIDifficulty difficulty) =>

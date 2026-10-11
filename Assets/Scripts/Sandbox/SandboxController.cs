@@ -54,6 +54,8 @@ namespace FakeBlade.Core
         private PixelOptionRow _behaviourRow;
         private PixelOptionRow _intervalRow;
         private PixelOptionRow _aiLevelRow;
+        private PixelOptionRow _aiProfileRow;
+        private PixelOptionRow _dummyPresetRow;
         private TextMeshProUGUI _maxHint;
 
         private PixelOptionRow _playerRow;
@@ -418,6 +420,18 @@ namespace FakeBlade.Core
                 Loc.Get("AI_EASY"), Loc.Get("AI_NORMAL"), Loc.Get("AI_HARD"), Loc.Get("AI_EXPERT")
             }, (int)SandboxSettings.AIDifficulty);
 
+            _aiProfileRow.SetOptions(new[]
+            {
+                Loc.Get("AI_PROFILE_AUTO"), Loc.Get("ARCHETYPE_BALANCED"), Loc.Get("ARCHETYPE_ATTACK"),
+                Loc.Get("ARCHETYPE_DEFENSE"), Loc.Get("ARCHETYPE_AGILITY")
+            }, (int)SandboxSettings.AIProfile);
+
+            List<BladePreset> presets = _bootstrap.Catalog.presets;
+            var presetNames = new string[Mathf.Max(1, presets.Count)];
+            presetNames[0] = "-";
+            for (int i = 0; i < presets.Count; i++) presetNames[i] = Loc.Get(presets[i].nameKey);
+            _dummyPresetRow.SetOptions(presetNames, DummyPresetIndex());
+
             // Decimales con coma en español y con punto en inglés
             char separator = Loc.Current == Language.English ? '.' : ',';
             var intervals = new string[SandboxSettings.Intervals.Length];
@@ -444,16 +458,38 @@ namespace FakeBlade.Core
             while (_dummies.Count < count)
             {
                 int playerIndex = MatchSetup.Players.Count + _dummies.Count;
-                _dummies.Add(_bootstrap.SpawnDummy(playerIndex, _dummies.Count + 1));
+                _dummies.Add(_bootstrap.SpawnDummy(playerIndex, _dummies.Count + 1, DummyPresetIndex()));
             }
 
             ApplyDummyBrains();
             _bootstrap.RefreshCameraTargets();
         }
 
+        /// <summary>Preset de los dummies en el catálogo (el último, la Balanceada, si no se ha elegido).</summary>
+        private int DummyPresetIndex()
+        {
+            int count = _bootstrap.Catalog.presets.Count;
+            if (count == 0) return 0;
+            return SandboxSettings.DummyPreset < 0 || SandboxSettings.DummyPreset >= count
+                ? count - 1
+                : SandboxSettings.DummyPreset;
+        }
+
+        /// <summary>Peonza de los dummies (D6): se cambia al momento y la IA en Auto cambia con ella de perfil.</summary>
+        private void SetDummyPreset(int index)
+        {
+            SandboxSettings.DummyPreset = index;
+            BladePreset preset = _bootstrap.Catalog.GetPreset(DummyPresetIndex());
+            var setup = new PlayerSetup();
+            setup.ApplyPreset(preset);
+            for (int i = 0; i < _dummies.Count; i++)
+                if (_dummies[i] != null) setup.EquipOn(_dummies[i].Stats);
+            ApplyDummyBrains();
+        }
+
         /// <summary>
-        /// Con el comportamiento "IA" los dummies los controla un AIBrain del nivel elegido (D1);
-        /// con los demás, su SandboxDummyBrain. Se aplica al momento.
+        /// Con el comportamiento "IA" los dummies los controla la IA del nivel y el perfil elegidos (D1, D3;
+        /// en Auto, el arquetipo de su peonza); con los demás, su SandboxDummyBrain. Se aplica al momento.
         /// </summary>
         private void ApplyDummyBrains()
         {
@@ -463,7 +499,7 @@ namespace FakeBlade.Core
                 PlayerController dummy = _dummies[i];
                 if (dummy == null) continue;
                 var dummyBrain = dummy.GetComponent<SandboxDummyBrain>();
-                if (!dummy.TryGetComponent(out AIBrain ai)) ai = dummy.gameObject.AddComponent<AIBrain>();
+                AIBrain ai = AIProfiles.Ensure(dummy.gameObject, AIProfiles.Resolve(SandboxSettings.AIProfile, dummy.Stats));
 
                 ai.Difficulty = SandboxSettings.AIDifficulty;
                 ai.ClearBuffers();
@@ -665,6 +701,12 @@ namespace FakeBlade.Core
                 SandboxSettings.AIDifficulty = (AIDifficulty)i;
                 ApplyDummyBrains();
             });
+            _aiProfileRow = _rivalsPanel.AddSelector("SANDBOX_AI_PROFILE", new[] { "-" }, 0, i =>
+            {
+                SandboxSettings.AIProfile = (AIProfileChoice)i;
+                ApplyDummyBrains();
+            });
+            _dummyPresetRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_BLADE", new[] { "-" }, 0, SetDummyPreset);
             AddBack(_rivalsPanel);
 
             // Mi peonza

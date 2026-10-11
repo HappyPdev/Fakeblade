@@ -458,7 +458,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 
 **Cómo está hecha (D1, 2026-10-11):**
 
-- **`AIBrain`** (`Assets/Scripts/AI/`) es la clase base. Los comportamientos por arquetipo (D3) serán clases que heredan de ella y sobrescriben sus decisiones (`Think`, `OnIncomingAttack`, `ChooseAttackLevel`, `TryUseSpecial`, `ReservedCharges`). `SimpleAIBrain` se queda solo para el fondo del menú hasta D8.
+- **`AIBrain`** (`Assets/Scripts/AI/`) es la clase base y el perfil Balanceado. Los perfiles por arquetipo (D3) heredan de ella y sobrescriben sus decisiones (ver *Perfiles por arquetipo* más abajo). `SimpleAIBrain` se queda solo para el fondo del menú hasta D8.
 - **Percepción (`AIPerception`):** la IA **puede leer todos los datos internos del juego**; cada nivel decide cuáles ignora. Hoy: ver al rival cargar (para reaccionar antes), predecir su movimiento al apuntar, leer sus cargas de ataque y vigilar la pared. Sin asignaciones por frame.
 - **Prioridades:** (1) salir de la pared si va hacia ella; (2) defenderse de un ataque que llega, con parry o esquiva con dash, mirado cada frame y con el retraso de reacción del nivel; (3) atacar si el rival está a tiro: el cargado se acerca mientras carga y el rápido embiste y se suelta a 3 m; (4) acercarse rodeando al rival. Sin atacar, **guarda unos 2,8 m de distancia** (salvo en Fácil), porque pegada al rival un ataque llega antes de poder reaccionar. Los niveles que hacen parry a menudo **se guardan una carga** para él mientras el rival pueda atacar.
 - **Niveles (`AILevel`):** de momento, tabla en código (en D2 pasa a un asset):
@@ -480,7 +480,32 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   
   Con agresividad 0,65 o más **no se guarda carga** para el parry, salvo que el rival la haya atacado en los últimos 2 s. Además, la agresividad sube o baja la probabilidad de atacar (×0,7-×1,2) y la de cargar (×0,5-×2). Si quiere un cargado y aún no tiene las cargas, **espera** a juntarlas en vez de gastar la que tiene. Contra un rival quieto, antes de un golpe fuerte **coge carrerilla**: se aleja hasta 5 m y entra en línea recta, cargando mientras corre o embistiendo (la velocidad del choque suma daño).
   Medido contra un J1 quieto (30 s): Difícil 7 rápidos y 4 cargados, Experto 6 y 3, con 10-13 carrerillas y unos 20 de daño medio por golpe (máximo 28-30). Antes no cargaba nunca (0-1) y fallaba muchos golpes. Con J1 atacando cada 1,5 s y cargas infinitas, el parry queda en un 21-26%, porque la IA se queda sin cargas (recarga solo sin atacar y parry sin devolución, C16).
-- **En el Sandbox:** Rivales → Dummies → «IA», con la fila «Nivel IA» (Fácil, Normal, Difícil y Experto). Se aplica al momento.
+- **En el Sandbox:** Rivales → Dummies → «IA», con las filas «Nivel IA» (Fácil, Normal, Difícil y Experto), «Perfil IA» (Según peonza, Balanceada, Ataque, Defensa y Agilidad) y «Su peonza» (el preset de los dummies, también fuera de «IA»). Se aplica al momento y a todos los dummies a la vez.
+
+**Perfiles por arquetipo (D3, 2026-10-12):**
+
+- **Cómo se elige:** por defecto, el arquetipo de su peonza (`FakeBladeStats.Archetype`); en el Sandbox también a mano. `AIProfiles.Ensure` deja en la peonza la clase del perfil (`AIBrain` para Balanceada, `AttackAIBrain`, `DefenseAIBrain`, `AgilityAIBrain`), y servirá igual para las CPU de D7.
+- **Estilo y habilidad:** el nivel da la habilidad base y el perfil la multiplica, así que un Experto sigue siendo mejor que un Normal con cualquier perfil. Además, cada perfil cambia dónde se coloca, cuándo y cómo ataca y cuándo usa el especial.
+- **Niveles:** desde Normal se juega el perfil entero; en Fácil solo se nota su tendencia (dónde se coloca y cuánto ataca o carga), sin carrerillas, dashes de entrada o salida ni contraataques (`AILevel.fullProfile`).
+
+| Perfil | Parry | Esquiva | Reacción | Estilo |
+|---|---|---|---|---|
+| Balanceada | ×1 | ×1 | ×1 | La IA de D1: guarda 2,8 m, rodea y ataca según la capa táctica. |
+| Ataque | ×0,7 | ×0,8 | ×1 | Presión: guarda solo 2,2 m, ataca ×1,25 y carga ×1,6, no guarda carga para el parry y espera a juntar cargas para el cargado (también en Normal). Coge **carrerilla** para cada cargado (y en el 40% de los rápidos) siempre que tenga sitio, no solo contra un rival quieto. Usa el especial en cuanto lo tiene. Agresividad +0,15. |
+| Defensa | ×1,1 | ×0,5 | ×1 | **Domina el centro:** se coloca a 1 m del centro, del lado del rival, y se queda quieta. Ataca poco (×0,5) salvo con hueco: el rival acaba de atacar (0,8 s), está aturdido o sin cargas (×1,6), o lo puede empotrar contra la pared (×1,4); como está en el centro, sus golpes lo empujan hacia fuera. Solo deja el centro para contraatacar o empotrar a un rival a menos de 4 m, si el rival no se acerca en 4 s o con agresividad 0,9 o más. Carga ×1,2. Agresividad −0,1. |
+| Agilidad | ×1,3 | ×1,3 | ×0,9 | **Rodea** al rival a 3,6 m (cambia de sentido si va hacia la pared), entra con dash en el 30% de los rápidos y, al acabar su ataque, sale con dash de lado en el 30% (golpe y fuera). Busca parrys: se guarda una carga mientras el rival pueda atacar. Casi no carga (×0,5) y se acerca con dash el doble. |
+
+  La carrerilla ahora se abre de lado hacia el centro cuando la IA está cerca de la pared (antes, con el rival más al centro, se metía contra la pared); lo nota también la Balanceada.
+  Medido en el Sandbox (40 s por perfil, dummy con el preset de su arquetipo en «Según peonza» contra J1 con una IA Normal Balanceada y RPM infinitas):
+
+| Difícil | Dist. al rival | Dist. al centro | Cargados | Carrerillas | Dashes | Parrys | Daño hecho / recibido |
+|---|---|---|---|---|---|---|---|
+| Ataque | 2,72 | 3,92 | 5 | 7 | 0 | 4 | 287 / 218 |
+| Defensa | 2,57 | 3,75 (2,74 en otra) | 2 | 1 | 0 | 7 | 182 / 120 |
+| Agilidad | 3,29 | 4,04 | 5 | 2 | 8 | 8 | 285 / 129 |
+| Balanceada | 2,93 | 3,81 | 0 | 1 | 1 | 8 | 178 / 152 |
+
+  La Defensa sujeta el centro la mitad del tiempo; el resto sale a contraatacar (36%) o a empotrar (21%), porque la IA Normal ataca mucho. En Normal, el Ataque hace 2 cargados y 4 carrerillas en 40 s (las cargas escasean por la recarga lenta, C16). En Fácil, la Defensa se queda a 2,3 m del centro y ninguna coge carrerilla ni usa el dash; el Ataque Fácil gana a la Balanceada Normal (591 / 353), sobre todo porque el preset de Ataque pega más.
 
 ## 6.5 Jugar a distancia y en red *(2026-10-12)*
 
@@ -982,6 +1007,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-11 | Arena básica por defecto | La arena del usuario `Basic 2` (suelo plano, paredes verticales, dos FBX) es la primera del catálogo y la de por defecto, con los materiales del proyecto. Orden: Básica, Clásica (cuenco), Pruebas; la Plana V2 entra cuando exista su FBX (I3). |
 | 2026-10-11 | Plataformas objetivo | Windows y WebGL, y más adelante Linux y Android. Revisión de API gráficas y limitaciones en 7.5, sin cambiar nada del proyecto todavía; las tareas van en la Fase J. |
 | 2026-10-12 | Red y juego a distancia | Sin servidores ni online propio. En PC, el juego a distancia se hace con Parsec o Steam Remote Play Together sobre el multijugador local. Android tendrá un jugador por dispositivo y partidas en red local (Wi-Fi), después de completar la versión de PC (6.5). |
+| 2026-10-12 | IA: perfil por arquetipo | Por defecto, el arquetipo de su peonza; en el Sandbox también se elige a mano («Perfil IA»), junto con la peonza de los dummies («Su peonza»). Balanceada = la IA de D1 (6.4). |
+| 2026-10-12 | IA: perfil, estilo y habilidad | El perfil cambia el estilo (colocación, ataques, carrerilla, especial) y multiplica la habilidad del nivel (parry, esquiva, reacción): Ataque ×0,7 / ×0,8 / ×1, Defensa ×1,1 / ×0,5 / ×1, Agilidad ×1,3 / ×1,3 / ×0,9. Valores en código, al asset con D2 (6.4). |
+| 2026-10-12 | IA: perfiles en Fácil | Los perfiles valen en los cuatro niveles; en Fácil solo se nota la tendencia (dónde se coloca y cuánto ataca o carga), sin carrerillas, dashes de entrada o salida ni contraataques (6.4). |
+| 2026-10-12 | IA: Defensa en el centro | Que el rival no tenga cargas solo la hace atacar más a tiro, no la saca del centro: con la recarga lenta (C16) el rival está sin cargas casi siempre y se pasaba la partida persiguiéndolo (6.4). |
 
 12. # Pendiente de definir
 
@@ -1018,7 +1047,8 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 **Sandbox e IA:**
 
 - Parámetros exactos de cada nivel de IA: hoy, tabla en código (`AILevel`, valores en 6.4). Fácil y Normal casi no se distinguen en duelos cortos (propuesta: pasarlos a un asset en D2 y medir con duelos más largos o repetidos).
-- Carrerilla de la IA: hoy solo contra un rival quieto y no se nota jugando (propuesta: revisarla en D3, para que la usen más los perfiles a los que les pegue, como el de Ataque).
+- Multiplicadores y valores de los perfiles de IA (D3, tabla en 6.4): provisionales, en código (propuesta: ajustarlos jugando con mando y pasarlos al asset de los niveles en D2).
+- IA Fácil con el perfil de Ataque: gana a una IA Normal Balanceada en el probe, sobre todo por el preset (propuesta: probarla con mando; si es demasiado para un principiante, quitarle en Fácil el ×1,25 de ataque).
 - Pérdida de control por empuje: `0,1 + 0,015 × empuje` s, desde 4 m/s, y recuperación en 0,15 s (propuesta: dejarla así, porque se siente bien con mando; ajustarla en C7 o C12 si algún poder empuja demasiado).
 - Recarga de cargas: espera de 0,5 s tras atacar; se siente lenta, pero el usuario prefiere esta mecánica (propuesta: revisarla con el banco en C12).
 - Desde dónde se añaden las CPU en las partidas normales (en una columna libre de la selección de peonzas, eligiendo nivel y peonza).
@@ -1086,10 +1116,10 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
   - Segunda vuelta (2026-10-11, tras probarla el usuario: «hay que atacar mucho y agotarla, sigue siendo muy buena»; «contra un rival quieto ataca poco, solo rápidos, y se queda corta»): parry no infalible, sigue empujando hacia el rival durante su ataque y capa táctica en Difícil y Experto (6.4). **Probado con mando (2026-10-11):** el Experto sigue siendo complicado, pero se le puede ganar (el usuario le ganó un set): es el desafío que se busca. La carrerilla no se notó (solo la hace contra un rival quieto); se ve una IA que guarda una distancia prudente, lista para atacar o hacer parry, y que persigue muy de cerca si el rival huye.
   - Para D2: Fácil y Normal no se distinguen en duelos cortos; el parry del Difícil (reacción 0,18 s) apenas llega, porque un ataque rápido tarda ~0,2 s en llegar; las medidas necesitan duelos más largos o varias repeticiones.
 - [ ] D2. 4 niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial).
-- [ ] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta. Ideas del usuario (2026-10-11, tras probar D1: «se siente bien; la Experta hace parry a todo y espera el momento justo para golpear»): comportamientos más variados, como rodear al jugador o dominar el centro de la arena. La carrerilla de la capa táctica (hoy solo contra un rival quieto, y no se nota jugando) se revisa aquí: que la usen más los perfiles a los que les pegue, como el de Ataque.
+- [x] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta. Ideas del usuario (2026-10-11, tras probar D1: «se siente bien; la Experta hace parry a todo y espera el momento justo para golpear»): comportamientos más variados, como rodear al jugador o dominar el centro de la arena. La carrerilla de la capa táctica (hoy solo contra un rival quieto, y no se nota jugando) se revisa aquí: que la usen más los perfiles a los que les pegue, como el de Ataque. **Hecho (2026-10-12):** `AttackAIBrain`, `DefenseAIBrain` y `AgilityAIBrain` heredan de `AIBrain` (la Balanceada) y `AIProfiles` elige la clase; el perfil sale de la peonza o se elige en el Sandbox. Ataque: presión, cargados y carrerilla siempre que tenga sitio. Defensa: domina el centro y contraataca o empotra. Agilidad: rodea, entra y sale con dash y busca parrys. Cada perfil multiplica el parry, la esquiva y la reacción del nivel (tabla y medidas en 6.4). Probado con probes en el Sandbox en Difícil, Normal y Fácil contra una IA Normal: cada perfil sale con su clase y se distingue en las medidas (la Agilidad hace 8 dashes, frente a 0-1; el Ataque, 7 carrerillas, frente a 1-2; la Defensa sujeta el centro la mitad del tiempo). Falta probarlo con mando: que cada perfil se note jugando. 🎮
 - [ ] D4. Parry de la IA: lanzar un ataque rápido justo cuando el rival ataca.
 - [ ] D5. Uso de los especiales por la IA (cada poder en su buen momento).
-- [ ] D6. IA en el panel del sandbox: 1-3 rivales, nivel y arquetipo. *Hecho en D1: comportamiento «IA» y nivel (para todos los dummies a la vez). Falta el arquetipo.*
+- [x] D6. IA en el panel del sandbox: 1-3 rivales, nivel y arquetipo. *Hecho en D1: comportamiento «IA» y nivel (para todos los dummies a la vez).* **Completado con D3 (2026-10-12):** filas «Perfil IA» (según peonza o uno de los cuatro) y «Su peonza» (preset de los dummies), también para todos a la vez. Comprobado con una captura del panel; falta con mando. 🎮
 - [ ] D7. Rivales CPU en partidas normales (hasta completar 4 jugadores).
 - [ ] D8. Menú de fondo con la IA nueva en vez de la actual.
 

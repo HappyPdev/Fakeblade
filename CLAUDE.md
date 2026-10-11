@@ -36,6 +36,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 - **Banco de equilibrio**: se lanza con Play en la escena Sandbox, tarda unos 7 minutos y deja el informe en `Logs/Balance/`.
 - **Export ComponentsData Stats**: genera `Estadísticas de las piezas.html/.md` en la raíz.
 - **Import ComponentsData Stats**: aplica el `fakeblade-piezas.json` descargado del HTML (por GUID, con vista previa y deshacer).
+- **Setup Arenas**: monta solo las arenas (prefab, `ArenaData` y lista del catálogo) desde sus FBX, sin tocar escenas; no se ejecuta si hay una escena abierta con cambios sin guardar. Para añadir una arena: sus rutas en `FakeBladeProjectSetup.BuildArenas` y su nombre en `Loc`. *Setup Menus & Scenes* lo hace todo, pero rehace la raíz de las escenas.
 - Setup Specials, Setup VFX y los menús de assets crean solo lo que falta. Las piezas existentes las ajusta el usuario a mano en el Inspector.
 - Blender (solo está instalada la 5.0): `Tools/Blender/export_blade_parts.py` y `export_arena.py`. Probarlos en modo headless sobre una copia en el scratchpad.
 

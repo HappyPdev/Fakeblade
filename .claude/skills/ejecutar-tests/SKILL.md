@@ -16,7 +16,7 @@ description: Ejecuta los tests de EditMode de FakeBlade (Assets/Tests/EditMode) 
 
 1. Copia `RunTests.cs` (en esta carpeta) al scratchpad y cambia `<SCRATCHPAD>` por su ruta absoluta.
 2. `execute_script` con ese archivo. Vuelve enseguida con `started`; aunque `execute_script` diga timeout, los tests pueden estar corriendo.
-3. Espera en segundo plano a que `tests.txt` contenga `hecho` (bucle con `timeout 1 tail -f /dev/null`). Tardan unos segundos.
+3. Espera a que `tests.txt` tenga la línea exacta `hecho`: `for i in $(seq 1 90); do grep -qx "hecho" "$F" 2>/dev/null && break; ping -n 2 127.0.0.1 >/dev/null; done` (en este Git Bash `timeout 1 tail -f /dev/null` no espera; `ping -n 2` tarda 1 s). Tardan unos segundos. Comprueba que el archivo es de ahora (`ls -l`): si `RunTests.cs` no lanzó nada por la escena sin guardar, puede quedar el de una ejecución anterior.
 4. Lee `tests.txt`: primero el resumen (pasan, fallan) y después cada test con el mensaje de lo que falló.
 
 ## Interpretar

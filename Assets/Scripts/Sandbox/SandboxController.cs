@@ -420,11 +420,12 @@ namespace FakeBlade.Core
                 Loc.Get("AI_EASY"), Loc.Get("AI_NORMAL"), Loc.Get("AI_HARD"), Loc.Get("AI_EXPERT"), Loc.Get("AI_IMPOSSIBLE")
             }, (int)SandboxSettings.AIDifficulty);
 
-            _aiProfileRow.SetOptions(new[]
-            {
-                Loc.Get("AI_PROFILE_AUTO"), Loc.Get("ARCHETYPE_BALANCED"), Loc.Get("ARCHETYPE_ATTACK"),
-                Loc.Get("ARCHETYPE_DEFENSE"), Loc.Get("ARCHETYPE_AGILITY")
-            }, (int)SandboxSettings.AIProfile);
+            // Según peonza y los perfiles de Resources/AI/Profiles por orden (D2: un perfil nuevo sale aquí solo)
+            IReadOnlyList<AIProfile> profiles = AIProfiles.All;
+            var profileNames = new string[profiles.Count + 1];
+            profileNames[0] = Loc.Get("AI_PROFILE_AUTO");
+            for (int i = 0; i < profiles.Count; i++) profileNames[i + 1] = Loc.Get(profiles[i].nameKey);
+            _aiProfileRow.SetOptions(profileNames, Mathf.Clamp(SandboxSettings.AIProfile, 0, profiles.Count));
 
             List<BladePreset> presets = _bootstrap.Catalog.presets;
             var presetNames = new string[Mathf.Max(1, presets.Count)];
@@ -703,7 +704,7 @@ namespace FakeBlade.Core
             });
             _aiProfileRow = _rivalsPanel.AddSelector("SANDBOX_AI_PROFILE", new[] { "-" }, 0, i =>
             {
-                SandboxSettings.AIProfile = (AIProfileChoice)i;
+                SandboxSettings.AIProfile = i;
                 ApplyDummyBrains();
             });
             _dummyPresetRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_BLADE", new[] { "-" }, 0, SetDummyPreset);

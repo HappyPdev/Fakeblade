@@ -3,31 +3,21 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Perfil de Agilidad (GDD 6.4, D3): rodea al rival a media distancia, entra con dash o con un rápido y sale
+    /// Comportamiento de Agilidad (GDD 6.4, D3): rodea al rival a media distancia, entra con dash o con un rápido y sale
     /// (golpe y fuera), y busca parrys: se guarda una carga para ellos aunque su nivel haga pocos. Casi no carga.
-    /// Parry y esquiva ×1,3, reacción ×0,9. En Fácil solo se nota que rodea y casi no carga.
+    /// En Fácil solo se nota que rodea y casi no carga. Valores en su perfil (AIProfile, D2): los generales
+    /// (parry y esquiva ×1,3, reacción ×0,9...) y los de rodear (orbit).
     /// </summary>
     public class AgilityAIBrain : AIBrain
     {
-        /// <summary>Distancia entre centros a la que rodea al rival (a tiro, AttackRange = 4 m).</summary>
-        private const float OrbitRadius = 3.6f;
-        /// <summary>Probabilidad de entrar con un dash en vez de embestir para el rápido.</summary>
-        private const float DashInChance = 0.3f;
-        /// <summary>Probabilidad de salir con un dash al acabar su ataque, si sigue pegada al rival.</summary>
-        private const float DashOutChance = 0.3f;
-        /// <summary>Tiempo mínimo entre cambios de sentido al rodear (evita ir y venir junto a la pared).</summary>
-        private const float FlipCooldown = 1f;
-
         private bool _wasAttacking;
         private float _nextFlip;
 
-        public override BladeArchetype Profile => BladeArchetype.Agility;
+        protected override AIStyle DefaultStyle => AIStyle.Agility;
 
-        protected override float ParryScale => 1.3f;
-        protected override float DodgeScale => 1.3f;
-        protected override float ReactionScale => 0.9f;
-        protected override float ChargedChanceScale => 0.5f;
-        protected override float ApproachDashChance => FullStyle ? 0.3f : 0.15f;
+        private AIOrbitStyle Orbit => Profile.orbit;
+
+        protected override float ApproachDashChance => FullStyle ? Orbit.approachDashChance : base.ApproachDashChance;
 
         /// <summary>Busca parrys: se guarda una carga mientras el rival pueda atacar, aunque su nivel haga pocos.</summary>
         protected override int ReservedCharges() =>
@@ -43,7 +33,7 @@ namespace FakeBlade.Core
             if (p.WallDistance < 2f && Time.time >= _nextFlip && Vector3.Dot(Perpendicular(), -p.ToCenter) > 0.5f)
             {
                 FlipOrbit();
-                _nextFlip = Time.time + FlipCooldown;
+                _nextFlip = Time.time + Orbit.flipCooldown;
             }
         }
 
@@ -56,7 +46,7 @@ namespace FakeBlade.Core
             AIPerception p = Perception;
             bool attacking = Blade.Attack.IsAttacking;
             if (FullStyle && _wasAttacking && !attacking && !Busy && !Lapsing && !Blade.IsDestroyed && p.Target != null &&
-                p.Distance < KeepDistance && Blade.CanDash && Random.value < DashOutChance)
+                p.Distance < KeepDistance && Blade.CanDash && Random.value < Orbit.dashOutChance)
             {
                 Vector3 side = Perpendicular();
                 if (Vector3.Dot(side, p.ToCenter) < 0f) side = -side;
@@ -69,16 +59,17 @@ namespace FakeBlade.Core
         /// <summary>Entra con un dash (también golpea) en vez de embestir.</summary>
         protected override void BeginQuickStrike()
         {
-            if (FullStyle && Blade.CanDash && Random.value < DashInChance) DashTowards(AimDirection(), true);
+            if (FullStyle && Blade.CanDash && Random.value < Orbit.dashInChance) DashTowards(AimDirection(), true);
             else base.BeginQuickStrike();
         }
 
-        /// <summary>Lejos, como la Balanceada; cerca, da vueltas a OrbitRadius del rival.</summary>
+        /// <summary>Lejos, como la Balanceada; cerca, da vueltas a orbitRadius del rival.</summary>
         protected override Vector3 ApproachDirection()
         {
             AIPerception p = Perception;
-            if (p.Distance > OrbitRadius + 3f) return base.ApproachDirection();
-            float radial = Mathf.Clamp((p.Distance - OrbitRadius) * 0.8f, -0.8f, 0.8f);
+            float radius = Orbit.orbitRadius;
+            if (p.Distance > radius + 3f) return base.ApproachDirection();
+            float radial = Mathf.Clamp((p.Distance - radius) * 0.8f, -0.8f, 0.8f);
             return (Perpendicular() + p.ToTarget * radial).normalized;
         }
     }

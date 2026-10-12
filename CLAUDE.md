@@ -25,7 +25,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 
 - Ensamblados: `FakeBlade.Runtime` (`Assets/Scripts/`) y `FakeBlade.Editor` (`Assets/Scripts/Editor/`). Namespaces: `FakeBlade.Core`, `FakeBlade.Core.Editor` y `FakeBlade.UI`.
 - Carpetas: `Core` (GameManager, PlayerController, CombatConfig, catálogo, Loc...), `FakeBlade` (peonza: FakeBladeController, FakeBladeStats, BladeFormulas, modelo y pintura), `Combat` (ataque, choques, poderes, estados), `Input`, `AI`, `Sandbox`, `UI`, `VFX`.
-- Datos en ScriptableObjects: `FakeBladeComponentData` (piezas), `CombatConfig`, `MatchRules`, `HUDTheme`, `SpecialAbilityData` (en `Resources/SpecialAbilities`) y `FakeBladeCatalog` (`Assets/Settings/FakeBladeCatalog.asset`). Añadir contenido es añadir entradas al catálogo.
+- Datos en ScriptableObjects: `FakeBladeComponentData` (piezas), `CombatConfig`, `MatchRules`, `HUDTheme`, `SpecialAbilityData` (en `Resources/SpecialAbilities`), `AILevel` y `AIProfile` (niveles y perfiles de IA, en `Resources/AI`; se leen en vivo) y `FakeBladeCatalog` (`Assets/Settings/FakeBladeCatalog.asset`). Añadir contenido es añadir entradas al catálogo.
 - Las piezas se llaman `Tipo_Arquetipo_Nombre` (por ejemplo `Tip_Attack_StrikerPoint`). Los arquetipos son Ataque, Balanceada, Defensa y Agilidad.
 - **`BladeFormulas` y el JavaScript de `ComponentsStatsHtml` (Editor) son la misma fórmula escrita dos veces**: si se cambia una, hay que cambiar la otra y el GDD 2.8.
 - Rendimiento: cero asignaciones (GC) por frame en gameplay, HUD y efectos; partículas con emisores compartidos (`Emit()`), sin instanciar nada en combate. Mantenerlo (GDD 7.3).
@@ -37,7 +37,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 - **Export ComponentsData Stats**: genera `Estadísticas de las piezas.html/.md` en la raíz.
 - **Import ComponentsData Stats**: aplica el `fakeblade-piezas.json` descargado del HTML (por GUID, con vista previa y deshacer).
 - **Setup Arenas**: monta solo las arenas (prefab, `ArenaData` y lista del catálogo) desde sus FBX, sin tocar escenas; no se ejecuta si hay una escena abierta con cambios sin guardar. Para añadir una arena: sus rutas en `FakeBladeProjectSetup.BuildArenas` y su nombre en `Loc`. *Setup Menus & Scenes* lo hace todo, pero rehace la raíz de las escenas.
-- Setup Specials, Setup VFX y los menús de assets crean solo lo que falta. Las piezas existentes las ajusta el usuario a mano en el Inspector.
+- Setup Specials, Setup AI, Setup VFX y los menús de assets crean solo lo que falta. Las piezas existentes las ajusta el usuario a mano en el Inspector.
 - Blender (solo está instalada la 5.0): `Tools/Blender/export_blade_parts.py` y `export_arena.py`. Probarlos en modo headless sobre una copia en el scratchpad.
 
 ## Reglas de trabajo con Unity

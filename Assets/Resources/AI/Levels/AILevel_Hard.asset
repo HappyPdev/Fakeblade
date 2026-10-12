@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7299c20617be05a4d9c6a01c7bea085f, type: 3}
+  m_Name: AILevel_Hard
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.AILevel
+  difficulty: 2
+  reactionTime: 0.18
+  aimErrorDegrees: 7
+  attackChance: 0.75
+  chargedChance: 0.3
+  parryChance: 0.45
+  parryTimingError: 0.05
+  dodgeChance: 0.35
+  specialUse: 2
+  readsCharging: 1
+  predictsMovement: 1
+  readsResources: 1
+  watchesWalls: 1
+  keepsDistance: 1
+  tactical: 1
+  fullProfile: 1
+  perceptionDelay: 0.15
+  predictionError: 0.35
+  lapseInterval: 14
+  lapseDuration: 0.4
+  steerWobbleDegrees: 6
+  overshootRate: 0.02

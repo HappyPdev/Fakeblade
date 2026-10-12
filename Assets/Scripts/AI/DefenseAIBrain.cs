@@ -3,34 +3,21 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Perfil de Defensa (GDD 6.4, D3): domina el centro de la arena y aguanta. Ataca poco salvo cuando el rival
+    /// Comportamiento de Defensa (GDD 6.4, D3): domina el centro de la arena y aguanta. Ataca poco salvo cuando el rival
     /// le abre hueco (acaba de atacar, está sin cargas o aturdido) o cuando puede empotrarlo contra la pared; como
     /// está en el centro, sus golpes empujan al rival hacia fuera. Solo deja el centro para contraatacar o empotrar
-    /// a un rival cercano, si el rival no se acerca o si va muy por detrás.
-    /// Parry ×1,1 y casi no esquiva (×0,5): aguanta el golpe. En Fácil solo se nota que se queda en el centro.
+    /// a un rival cercano, si el rival no se acerca o si va muy por detrás. En Fácil solo se nota que se queda en el
+    /// centro. Valores en su perfil (AIProfile, D2): los generales (parry ×1,1, esquiva ×0,5...) y los del centro (center).
     /// </summary>
     public class DefenseAIBrain : AIBrain
     {
-        /// <summary>Se coloca a esta distancia del centro, del lado del rival (le corta el paso).</summary>
-        private const float CenterHold = 1f;
-        /// <summary>Segundos tras el ataque del rival en que contraataca.</summary>
-        private const float CounterWindow = 0.8f;
-        /// <summary>Si el rival no se acerca en estos segundos, sale a por él.</summary>
-        private const float Patience = 4f;
-        /// <summary>Con esta agresividad o más (va muy por detrás, rival quieto...) deja el centro. Alta: el rival junto a
-        /// la pared ya suma agresividad (+0,2) y se trata aparte (CanPin).</summary>
-        private const float LeaveCenterAggression = 0.9f;
-
         private float _counterUntil;
         private bool _targetWasAttacking;
         private float _lastCloseTime;
 
-        public override BladeArchetype Profile => BladeArchetype.Defense;
+        protected override AIStyle DefaultStyle => AIStyle.Defense;
 
-        protected override float ParryScale => 1.1f;
-        protected override float DodgeScale => 0.5f;
-        protected override float ChargedChanceScale => 1.2f;
-        protected override float AggressionBias => -0.1f;
+        private AICenterStyle Center => Profile.center;
 
         protected override void OnEnable()
         {
@@ -43,7 +30,7 @@ namespace FakeBlade.Core
             base.Update();
             AIPerception p = Perception;
             // El rival acaba de soltar su ataque (ha gastado carga y no puede hacer parry enseguida): contraataque
-            if (_targetWasAttacking && !p.TargetAttacking) _counterUntil = Time.time + CounterWindow;
+            if (_targetWasAttacking && !p.TargetAttacking) _counterUntil = Time.time + Center.counterWindow;
             _targetWasAttacking = p.TargetAttacking;
             if (p.Distance < AttackRange * 1.5f) _lastCloseTime = Time.time;
         }
@@ -61,25 +48,26 @@ namespace FakeBlade.Core
         private bool CanPin =>
             Perception.TargetWallDistance < PinWallDistance && Vector3.Dot(Perception.ToTarget, Perception.TargetOutward) > 0.5f;
 
+        /// <summary>Sin el perfil entero (Fácil), la general del perfil; si no, según el hueco que deja el rival.</summary>
         protected override float AttackChanceScale()
         {
-            if (!FullStyle) return 0.8f;
-            if (Opening) return 1.6f;
-            return CanPin ? 1.4f : 0.5f;
+            if (!FullStyle) return base.AttackChanceScale();
+            if (Opening) return Center.openingAttackScale;
+            return CanPin ? Center.pinAttackScale : Center.waitingAttackScale;
         }
 
         /// <summary>
         /// En el centro, un poco hacia el rival, y quieta al llegar. Sale a por él para contraatacar o empotrarlo si
-        /// lo tiene cerca, si el rival no se acerca (Patience) o si la capa táctica pide arriesgar mucho.
+        /// lo tiene cerca, si el rival no se acerca (patience) o si la capa táctica pide arriesgar mucho.
         /// </summary>
         protected override Vector3 ApproachDirection()
         {
             AIPerception p = Perception;
-            bool goForIt = Time.time - _lastCloseTime > Patience ||
-                           (FullStyle && (((Counter || CanPin) && p.Distance < AttackRange) || Aggression >= LeaveCenterAggression));
+            bool goForIt = Time.time - _lastCloseTime > Center.patience ||
+                           (FullStyle && (((Counter || CanPin) && p.Distance < AttackRange) || Aggression >= Center.leaveCenterAggression));
             if (goForIt || p.TargetOutward == Vector3.zero) return base.ApproachDirection();
 
-            Vector3 toGoal = p.ToCenter * p.CenterDistance + p.TargetOutward * CenterHold;
+            Vector3 toGoal = p.ToCenter * p.CenterDistance + p.TargetOutward * Center.centerHold;
             return Vector3.ClampMagnitude(toGoal, 1f);
         }
     }

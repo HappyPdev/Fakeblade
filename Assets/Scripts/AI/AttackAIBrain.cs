@@ -3,24 +3,15 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Perfil de Ataque (GDD 6.4, D3): presión constante. Se queda más cerca, ataca más y prefiere los cargados,
+    /// Comportamiento de Ataque (GDD 6.4, D3): presión constante. Se queda más cerca, ataca más y prefiere los cargados,
     /// no se guarda carga para el parry, coge carrerilla siempre que tiene sitio detrás y usa el especial en cuanto
-    /// lo tiene. Para menos (parry ×0,7) y esquiva menos (×0,8). En Fácil solo se nota que se acerca, ataca y carga más.
+    /// lo tiene. En Fácil solo se nota que se acerca, ataca y carga más. Valores en su perfil (AIProfile, D2):
+    /// los generales (parry ×0,7, esquiva ×0,8, distancia 2,2 m...) y los de presión (pressure).
     /// </summary>
     public class AttackAIBrain : AIBrain
     {
-        /// <summary>Distancia que guarda sin atacar (la Balanceada, KeepDistance = 2,8 m).</summary>
-        private const float PressureDistance = 2.2f;
-        /// <summary>Probabilidad de coger carrerilla también para un ataque rápido.</summary>
-        private const float QuickRunUpChance = 0.4f;
+        protected override AIStyle DefaultStyle => AIStyle.Attack;
 
-        public override BladeArchetype Profile => BladeArchetype.Attack;
-
-        protected override float ParryScale => 0.7f;
-        protected override float DodgeScale => 0.8f;
-        protected override float ChargedChanceScale => 1.6f;
-        protected override float AggressionBias => 0.15f;
-        protected override float AttackChanceScale() => 1.25f;
         /// <summary>Busca los cargados: espera a juntar cargas también sin capa táctica (Normal).</summary>
         protected override bool WaitsForCharged => FullStyle;
 
@@ -33,7 +24,7 @@ namespace FakeBlade.Core
         /// <summary>Carrerilla para los cargados siempre que haya sitio, y a veces para los rápidos.</summary>
         protected override bool WantsRunUp(int level) =>
             base.WantsRunUp(level) ||
-            (FullStyle && Perception.Distance < RunUpDistance && HasRoomBehind() && (level > 0 || Random.value < QuickRunUpChance));
+            (FullStyle && Perception.Distance < RunUpDistance && HasRoomBehind() && (level > 0 || Random.value < Profile.pressure.quickRunUpChance));
 
         protected override void TryUseSpecial()
         {
@@ -41,12 +32,12 @@ namespace FakeBlade.Core
             else base.TryUseSpecial();
         }
 
-        /// <summary>Como la Balanceada, pero pegada al rival: solo se separa por debajo de PressureDistance.</summary>
+        /// <summary>Como la Balanceada, pero pegada al rival: solo se separa por debajo de su distancia (2,2 m, más corta).</summary>
         protected override Vector3 ApproachDirection()
         {
             AIPerception p = Perception;
             Vector3 perpendicular = Perpendicular();
-            if (p.Distance < PressureDistance && Level.keepsDistance)
+            if (p.Distance < KeepDistance && Level.keepsDistance)
                 return (perpendicular * 0.8f - p.ToTarget * 0.2f).normalized;
             if (p.Distance < AttackRange)
                 return (perpendicular * 0.4f + p.ToTarget * 0.6f).normalized;

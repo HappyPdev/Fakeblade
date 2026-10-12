@@ -78,8 +78,11 @@ namespace FakeBlade.Core
         public static int IntervalIndex = 1;
         /// <summary>Nivel de la IA cuando los dummies están en "IA".</summary>
         public static AIDifficulty AIDifficulty = AIDifficulty.Normal;
-        /// <summary>Perfil de la IA (D3): Auto = el arquetipo de la peonza de cada dummy.</summary>
-        public static AIProfileChoice AIProfile = AIProfileChoice.Auto;
+        /// <summary>
+        /// Perfil de la IA (D3, D2): 0 = según la peonza de cada dummy (el perfil de su arquetipo);
+        /// i = AIProfiles.All[i - 1] (los cuatro de los arquetipos y los que se añadan).
+        /// </summary>
+        public static int AIProfile;
         /// <summary>Preset de la peonza de los dummies (índice del catálogo; -1 = el último, la Balanceada).</summary>
         public static int DummyPreset = -1;
 

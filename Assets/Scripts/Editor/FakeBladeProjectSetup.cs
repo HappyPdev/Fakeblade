@@ -51,6 +51,7 @@ namespace FakeBlade.Core.Editor
 
             log.AppendLine(FakeBladeVfxSetup.Run());
             log.AppendLine(FakeBladeSpecialsSetup.Run());
+            log.AppendLine(FakeBladeAISetup.Run());
 
             // Escena temporal vacía para medir con raycasts sin ensuciar otras escenas
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);

@@ -325,6 +325,11 @@ Arenas actuales (cada una es un prefab con sus puntos de aparición y un asset d
 
 Cuando todo funcione, se añadirán **hazards**: suelos con distintas fricciones y efectos (hielo que desliza, suelos que aceleran) y zonas que afectan a las estadísticas. También powerups en el escenario que mejoren los ataques o recuperen algo de RPM.
 
+**Escenarios más variados** *(idea del usuario, 2026-10-12; Quehaceres I4 e I5)*:
+
+- **Obstáculos diversos, rampas y elementos con los que interactúan las peonzas** (por ejemplo, rebotadores, barras que giran, paredes que se mueven o trampolines). Cada arena con su personalidad.
+- **Coleccionables** que aparecen por el escenario: pequeñas curas, escudos temporales, vida temporal (RPM por encima del máximo durante un rato), recarga del especial, etc. Que se puedan activar o quitar en las reglas de partida (6.2). Sin instanciar nada en combate (un pool, 7.3).
+
 5. # Sistema de Poderes
 
 El poder especial lo define el **Núcleo** montado: para cambiar de especial se cambia el núcleo de la peonza. Habrá un núcleo por poder.
@@ -383,6 +388,18 @@ Poderes (se fusionan los que ya había con los nuevos: 7 núcleos en total):
 | Hielo | Cristales que flotan alrededor de la peonza y humo blanco de frío que se arrastra por el suelo (hecho). Las peonzas congeladas llevan su escarcha, vaho frío y el icono de copo (estado Congelación). |
 | Fantasma | Pendiente: clon translúcido con estela. |
 
+**Poderes futuros** *(ideas del usuario, 2026-10-12; para otras sesiones, Fase L)*. Cada uno necesitará su asset, su núcleo en el catálogo, su aura y su prueba en el Sandbox, como los de la Fase C. Las dudas de cada uno están en 12.
+
+| Poder | Efecto (idea) | Pensado para | Notas |
+|---|---|---|---|
+| **Tornado** | Atrae hacia sí a todas las peonzas que estén en un área y después las **expulsa** hacia fuera con un empuje de área. | — | **Convive con Onda de choque** (decidido el 2026-10-12): cada uno con su recarga y sus usos. |
+| **Rebote** | Parecido a Rayos, pero solo empuja a **quien le ataca**: el que choca con ella sale empujado en dirección contraria. Quien lo activa **no pierde vida** en los choques que provocan los demás. | — | **Convive con Defensa** (decidido el 2026-10-12). Se parece más a Rayos que a Defensa, pero al revés: una especie de **parry pasivo con rayo** (Rayos empuja al que ella embiste; Rebote, al que la embiste a ella). Sus propios ataques sí dañan y cuestan como siempre. |
+| **Pinchos** | Pinchos que giran alrededor de la peonza (para que todos vean que está activo). Sube un poco su daño y **refleja el 60-80% del daño recibido** al que la ataca (por equilibrar). | Defensa (aguantar golpes y devolverlos) | El daño reflejado cuenta como golpe suyo para el punto de K.O. |
+| **Rastro de agua** | Durante unos segundos deja un rastro de líquido por donde pasa. Las otras peonzas que lo pisan **resbalan mucho**: su agarre baja a −10 durante unos segundos (C13), así que derrapan y pierden el control. | — | Ojo: hoy el agarre tiene un mínimo de ×0,25 (2.8, `GripMultiplier`), al que ya se llega con −7,5; con −10 el giro y el frenado quedan en un cuarto. Si no resbala lo bastante, que el rastro baje ese mínimo mientras dura. El rastro, sin instanciar nada en combate (7.3). |
+| **Salto** | Salta hacia delante y, al caer, hace una **onda de choque**: daño de área y un empuje muy fuerte en un área pequeña. | — | La peonza en el aire: decidir si puede chocar mientras vuela y cómo se ve la sombra para saber dónde cae. |
+| **Gancho** | Engancha a la peonza enemiga con la que choca y la **arrastra** con la suya. | — | **Por decidir:** puede ser contraproducente (arrastrarla también frena a la que engancha). Falta ver qué gana quien la usa (llevarla contra una pared, contra otra peonza...) y cómo se suelta. |
+| **Escudo** | Genera **3 escudos** que giran alrededor de la peonza: paran los ataques de los rivales y los expulsan. Un rival que choca contra un escudo lo destruye y quedan menos girando. | — | Como giran, dejan huecos: un golpe que entra por un hueco llega a la peonza. Se termina al romperse los 3 o al acabarse el tiempo. |
+
 6. # Sistema de Multijugador
 
 Multijugador local para PC (Windows y, más adelante, Linux) y WebGL, con 2-4 jugadores usando mandos (y hasta 2 en teclado). Los huecos se pueden completar con **rivales CPU** (ver 6.4): el máximo de 4 cuenta jugadores humanos y CPU juntos.
@@ -400,6 +417,13 @@ Multijugador local para PC (Windows y, más adelante, Linux) y WebGL, con 2-4 ju
 - **Por equipos (2vs2):** los equipos se enfrentan con las mismas reglas. El **fuego amigo es configurable**. Cada jugador elige su equipo en su columna de la pantalla de selección.
 - **Sandbox (campo de pruebas):** sustituye al modo Práctica. Tiene **escena propia** y se usa tanto para practicar como de **entorno de debug**. Ver 6.3. *(Implementado en su primera versión, fase B.)*
 - **Contra la IA:** la arquitectura separa quién controla la peonza (jugador, dummy o IA). La IA se usará primero en el sandbox y después como rival CPU en partidas normales. Ver 6.4.
+
+**Modos futuros** *(ideas del usuario, 2026-10-12; para otras sesiones, Fase M; dudas en 12)*:
+
+- **Carreras:** las peonzas compiten en un circuito.
+- **Pilla pilla de fuego:** una peonza está **en llamas** y tiene que pegárselas a otra tocándola. Cuando se acaba el tiempo, **pierde** quien tenga el fuego. El fuego **no quita vida**: solo importa no tenerlo al final.
+- **Virus:** como el pilla pilla, pero quien pega el fuego **no lo pierde**: el tocado se une al bando de los infectados. El fuego de este modo es **verde** y **no quita vida**. Al acabarse el tiempo, **ganan los que no estén infectados**.
+- **Desafíos:** rivales CPU con nombre, cada uno con su peonza, su nivel y su perfil de IA (6.4). Más adelante, una **campaña** con personajes.
 
 ## 6.2 Reglas personalizables
 
@@ -463,7 +487,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 - **`AIBrain`** (`Assets/Scripts/AI/`) es la clase base y el perfil Balanceado. Los perfiles por arquetipo (D3) heredan de ella y sobrescriben sus decisiones (ver *Perfiles por arquetipo* más abajo). `SimpleAIBrain` se queda solo para el fondo del menú hasta D8.
 - **Percepción (`AIPerception`):** la IA **puede leer todos los datos internos del juego**; cada nivel decide cuáles ignora. Hoy: ver al rival cargar (para reaccionar antes), predecir su movimiento al apuntar, leer sus cargas de ataque y vigilar la pared. Sin asignaciones por frame.
 - **Prioridades:** (1) salir de la pared si va hacia ella; (2) defenderse de un ataque que llega, con parry o esquiva con dash, mirado cada frame y con el retraso de reacción del nivel; (3) atacar si el rival está a tiro: el cargado se acerca mientras carga y el rápido embiste y se suelta a 3 m; (4) acercarse rodeando al rival. Sin atacar, **guarda unos 2,8 m de distancia** (salvo en Fácil), porque pegada al rival un ataque llega antes de poder reaccionar. Los niveles que hacen parry a menudo **se guardan una carga** para él mientras el rival pueda atacar.
-- **Niveles (`AILevel`):** de momento, tabla en código (en D2 pasa a un asset):
+- **Niveles (`AILevel`):** un asset por nivel (D2, ver *Datos de la IA* más abajo). Valores por defecto:
 
 | Nivel | Reacción | Error de puntería | Parry (error de timing) | Esquiva | Lee | Capa táctica | Especial |
 |---|---|---|---|---|---|---|---|
@@ -483,11 +507,11 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   
   Con agresividad 0,65 o más **no se guarda carga** para el parry, salvo que el rival la haya atacado en los últimos 2 s. Además, la agresividad sube o baja la probabilidad de atacar (×0,7-×1,2) y la de cargar (×0,5-×2). Si quiere un cargado y aún no tiene las cargas, **espera** a juntarlas en vez de gastar la que tiene. Contra un rival quieto, antes de un golpe fuerte **coge carrerilla**: se aleja hasta 5 m y entra en línea recta, cargando mientras corre o embistiendo (la velocidad del choque suma daño).
   Medido contra un J1 quieto (30 s): Difícil 7 rápidos y 4 cargados, Experto 6 y 3, con 10-13 carrerillas y unos 20 de daño medio por golpe (máximo 28-30). Antes no cargaba nunca (0-1) y fallaba muchos golpes. Con J1 atacando cada 1,5 s y cargas infinitas, el parry queda en un 21-26%, porque la IA se queda sin cargas (recarga solo sin atacar y parry sin devolución, C16).
-- **En el Sandbox:** Rivales → Dummies → «IA», con las filas «Nivel IA» (Fácil, Normal, Difícil, Experto e Imposible), «Perfil IA» (Según peonza, Balanceada, Ataque, Defensa y Agilidad) y «Su peonza» (el preset de los dummies, también fuera de «IA»). Se aplica al momento y a todos los dummies a la vez.
+- **En el Sandbox:** Rivales → Dummies → «IA», con las filas «Nivel IA» (Fácil, Normal, Difícil, Experto e Imposible), «Perfil IA» (Según peonza y después todos los perfiles de `Resources/AI/Profiles` por orden: hoy Balanceada, Ataque, Defensa y Agilidad; un perfil nuevo sale aquí solo) y «Su peonza» (el preset de los dummies, también fuera de «IA»). Se aplica al momento y a todos los dummies a la vez.
 
 **Perfiles por arquetipo (D3, 2026-10-12):**
 
-- **Cómo se elige:** por defecto, el arquetipo de su peonza (`FakeBladeStats.Archetype`); en el Sandbox también a mano. `AIProfiles.Ensure` deja en la peonza la clase del perfil (`AIBrain` para Balanceada, `AttackAIBrain`, `DefenseAIBrain`, `AgilityAIBrain`), y servirá igual para las CPU de D7.
+- **Cómo se elige:** por defecto, el perfil del arquetipo de su peonza (`FakeBladeStats.Archetype`); en el Sandbox también a mano. `AIProfiles.Ensure` deja en la peonza la clase del comportamiento del perfil (`AIBrain` para Balanceada, `AttackAIBrain`, `DefenseAIBrain`, `AgilityAIBrain`) con ese perfil, y servirá igual para las CPU de D7.
 - **Estilo y habilidad:** el nivel da la habilidad base y el perfil la multiplica, así que un Experto sigue siendo mejor que un Normal con cualquier perfil. Además, cada perfil cambia dónde se coloca, cuándo y cómo ataca y cuándo usa el especial.
 - **Niveles:** desde Normal se juega el perfil entero; en Fácil solo se nota su tendencia (dónde se coloca y cuánto ataca o carga), sin carrerillas, dashes de entrada o salida ni contraataques (`AILevel.fullProfile`).
 
@@ -531,6 +555,14 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   Medido (40 s por nivel, Balanceada contra una IA Normal): despistes 8 / 5 / 3 / 1 y veces que se pasa 4 / 2 / 0 / 0 (Fácil → Experto); choques con la pared 12 / 4 / 6 / 3; la distancia al rival que ve se aparta de la real 0,89 / 0,68 / 0,50 / 0,23 m de media. El parry no se rompe: contra un rápido cada 1,5 s, el Experto para el 31-34% con fallos y el 24-38% sin ellos (lo mismo dentro del ruido).
   **Imposible** (2026-10-12): el Experto mejorado y sin ningún fallo humano (tablas de arriba). Medido contra una IA Normal en 40 s: 0 despistes, ve al rival sin error, 8 parrys y el doble de daño hecho que recibido (135 / 67).
 - **Contra cargados fuertes** (2026-10-12): como el parry contra un cargado de nivel 2 o más solo bloquea (2.5), la IA que ve cargar al rival intenta antes esquivarlo con dash (con su probabilidad de esquiva) y, si no, hace el parry igualmente.
+
+**Datos de la IA (D2, 2026-10-12):** todos los valores de las tablas de arriba están en assets, no en el código, para ajustarlos en el Inspector y para crear rivales con su forma de jugar sin programar.
+
+- **Dos ejes:** el **nivel** (`AILevel`, lo *bien* que juega: reacción, parry, puntería, qué lee y fallos humanos) y el **perfil** (`AIProfile`, *cómo* juega). El perfil multiplica la habilidad del nivel (parry, esquiva, reacción, ataque y carga), suma agresividad, fija la distancia que guarda y elige su **comportamiento**: la clase de IA que lo juega (Balanceada, Ataque, Defensa o Agilidad). Cada comportamiento tiene sus propios valores en el perfil: presión (Ataque), centro (Defensa) y rodear (Agilidad).
+- **Dónde están:** `Resources/AI/Levels` (un asset por nivel, `AILevel_Easy` a `AILevel_Impossible`) y `Resources/AI/Profiles` (uno por arquetipo, `AIProfile_Balanced`, `_Attack`, `_Defense` y `_Agility`). El menú *FakeBlade → Setup AI* crea los que faltan con los valores por defecto del código, sin tocar los que existen. Si falta un asset, la IA usa esos valores por defecto (los tests de `AIDataTests` avisan).
+- **En vivo:** la IA lee los assets en cada decisión, así que lo que se cambie en el Inspector en Play se nota al momento. **Ojo:** se queda guardado al salir de Play (es un asset). El comportamiento de un perfil se aplica al volver a poner la IA (en el Sandbox, al tocar cualquier fila de la IA).
+- **Un rival nuevo** (por ejemplo, para el modo desafíos): duplicar un perfil, darle otro `nameKey` (en `Loc`) y un `order` mayor que 3, y cambiar sus valores. Sale solo en la fila «Perfil IA» del Sandbox. «Según peonza» usa el primer perfil (por orden) de cada comportamiento, así que los rivales no lo cambian. Si un rival necesita algo que ningún comportamiento hace, se programa una clase pequeña que hereda de uno (como `AttackAIBrain` de `AIBrain`) y se añade al enum `AIStyle`.
+- **Más adelante (campaña):** combinar comportamientos (por ejemplo, la presión del Ataque con los parrys de la Agilidad) pide partir cada comportamiento en piezas que se eligen por separado en el perfil (D10).
 
 ## 6.5 Jugar a distancia y en red *(2026-10-12)*
 
@@ -864,7 +896,9 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 
 - **Rivales controlados por IA en partidas normales** (añadir CPU en la selección de peonzas). La IA se diseña en 6.4 y se usará primero en el sandbox. También permitiría el modo Survival.
 - **Survival:** 1 contra oleadas de enemigos con dificultad progresiva (necesita IA; no está en el v2).
-- Hazards y powerups de arena (ver sección 4).
+- Hazards y powerups de arena (ver sección 4); escenarios con obstáculos, rampas, elementos interactivos y coleccionables (sección 4, 2026-10-12).
+- Poderes nuevos: Tornado, Rebote, Pinchos, Rastro de agua, Salto, Gancho y Escudo (sección 5, Fase L).
+- Modos nuevos: Carreras, Pilla pilla de fuego, Virus y Desafíos (6.1, Fase M).
 - Más efectos de postprocesado en Opciones.
 - Portar a móvil con partidas en red local (6.5 y 7.5).
 - **Arquetipos mixtos:** piezas que mezclen dos arquetipos (por ejemplo Ataque-Agilidad o Defensa-Balanceada) y compartan características de ambos. Por eso las piezas se nombran por arquetipo y no por peso (registro del 2026-10-08).
@@ -1045,6 +1079,10 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-12 | IA: fallos humanos | Tras probarla con mando («lee demasiado bien mis movimientos»): ve al rival con retraso, predicción con error, despistes, pulso imperfecto y pasarse al rodear o al llegar (puede rozar la pared). Por nivel, frecuentes en Fácil y casi nunca en Difícil y Experto, que también los tiene (6.4). |
 | 2026-10-12 | Agilidad con menos cargas | Tras probarla con mando la Agilidad es demasiado fuerte: el usuario la baja a mano a 3 cargas (hoy 5: base 3 + Gale Ring +1 + Aero Shell +1), confiando en su bonus de recarga para compensar (C12). |
 | 2026-10-12 | IA: Defensa en el centro | Que el rival no tenga cargas solo la hace atacar más a tiro, no la saca del centro: con la recarga lenta (C16) el rival está sin cargas casi siempre y se pasaba la partida persiguiéndolo (6.4). |
+| 2026-10-12 | Datos de la IA en assets (D2) | Un asset por nivel y uno por perfil (no un asset único ni piezas combinables todavía). El perfil elige el comportamiento (la clase de IA) y lleva sus valores, así que un rival nuevo es un asset y solo pide código si hace algo que ningún comportamiento hace. Los valores se leen en vivo (ajustarlos en Play con mando). D2 solo pasa los datos; separar Fácil de Normal se ajusta después de probar con mando (6.4). |
+| 2026-10-12 | Rivales con nombre | El usuario quiere rivales con nombre para un **modo desafíos** y, más adelante, una **campaña** con personajes cuyo comportamiento y arquetipo se puedan cambiar e incluso combinar. Los perfiles de IA se preparan para eso (D2); combinar comportamientos queda para D10 (12, 13). |
+| 2026-10-12 | Ideas para más adelante | Apuntadas como ideas, sin diseñar del todo: 7 poderes nuevos (Tornado, Rebote, Pinchos, Rastro de agua, Salto, Gancho y Escudo; 5, Fase L), 3 modos (Carreras, Pilla pilla de fuego y Virus; 6.1, Fase M) y escenarios con obstáculos, rampas, elementos interactivos y coleccionables (4, I4 e I5). El Gancho queda por decidir. Las dudas, en 12. |
+| 2026-10-12 | Primeras decisiones de las ideas | Tornado **convive** con Onda de choque (cada uno con su recarga y sus usos). Rebote **convive** con Defensa: es un parry pasivo con rayo (empuja a quien la embiste). Pinchos refleja el **60-80%** del daño recibido (por equilibrar). En Pilla pilla y Virus el fuego **no quita vida**; en Virus, al acabar el tiempo ganan los no infectados (5, 6.1). |
 
 12. # Pendiente de definir
 
@@ -1070,6 +1108,21 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Rayos: daño real del golpe fuerte (registro del 2026-10-07, 10 golpes contra un dummy de 580 RPM): el golpe en sí quita ~38 (+20%), pero con los choques contra la pared de la lanzada el total sale en **~105 RPM de media (62-161)**, ~18% de la vida. Se nota poco porque casi todo llega después, por la pared. El doble golpe de pared ya está corregido (C9). Con el daño global a ×0,5 (probe, preset Agilidad con dash): golpe directo ~25-28 y un golpe de pared de 12-58, total **39-90** cuando llega a la pared (antes 115-152). Si sigue siendo mucho, la idea es que Rayos tarde más en cargarse: hoy necesita 0,8 de energía, menos que la barra normal (propuesta: subirla a 1-1,2 en C7, después de probar el daño nuevo).
 - Rayos: si más adelante cualquiera que toque a la peonza (atacando o en movimiento normal) sale impulsado (por ahora, solo sus propios choques).
 - Fantasma: agresividad del clon (busca al rival más cercano y ataca en cuanto puede, como mucho una vez por segundo).
+- **Poderes futuros (Fase L, 2026-10-12)**. Para todos: arquetipo y núcleo de cada uno (propuesta: decidirlo al hacerlo, uno por arquetipo cuando se pueda) y su energía necesaria (propuesta: 1 y ajustarla en C7).
+  - Tornado: cuánto dura la atracción y si expulsa sola al final o al pulsar otra vez (propuesta: atrae 2 s y expulsa sola). Convive con Onda de choque (decidido).
+  - Rebote (convive con Defensa, decidido): fuerza del empuje (propuesta: como un choque pequeño de Rayos, ×1,8).
+  - Pinchos: refleja el 60-80% del daño recibido (decidido; el valor exacto, en C7). Falta cuánto recibe ella y cuánto sube su daño (propuesta: recibe el daño normal, refleja el 70% y su daño +10%).
+  - Rastro de agua: cuánto dura el rastro y el resbalón, y si su dueño también resbala (propuesta: rastro 4 s, resbalón 2 s, el dueño no resbala).
+  - Salto: si choca mientras vuela y cómo se avisa de dónde cae (propuesta: no choca en el aire y se ve una sombra en el suelo).
+  - Gancho: **por decidir si se hace** (propuesta: probarlo el último; que se suelte con un dash o al chocar contra una pared).
+  - Escudo: si un ataque rápido rompe un escudo igual que un cargado (propuesta: sí, cualquier choque de un rival rompe uno).
+
+**Modos y escenarios futuros (2026-10-12):**
+
+- Carreras: circuito, vueltas y si hay choques y poderes (propuesta: circuito cerrado con puntos de control, choques y poderes activos; necesita arenas propias).
+- Pilla pilla de fuego (el fuego no quita vida, decidido): si hay varias rondas (propuesta: quien pierde cada ronda queda eliminado y se juega hasta que quede uno). Un tiempo sin poder devolverlo al que te lo pegó (propuesta: 1 s).
+- Virus (no quita vida y al acabar el tiempo ganan los no infectados, decidido): qué pasa si todos quedan infectados antes de tiempo (propuesta: la partida acaba antes y gana quien empezó con el virus). El fuego verde reutiliza el estado de quemadura con otro color.
+- Coleccionables: cuántos, cada cuánto aparecen y si se activan por modo (propuesta: uno cada 10-15 s, como mucho 2 a la vez, activables en las reglas de partida).
 
 **Efectos de UI y sonido:**
 
@@ -1080,9 +1133,11 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 **Sandbox e IA:**
 
-- Parámetros exactos de cada nivel de IA: hoy, tabla en código (`AILevel`, valores en 6.4). Fácil y Normal casi no se distinguen en duelos cortos (propuesta: pasarlos a un asset en D2 y medir con duelos más largos o repetidos).
-- Multiplicadores y valores de los perfiles de IA (D3, tabla en 6.4): provisionales, en código (propuesta: ajustarlos jugando con mando y pasarlos al asset de los niveles en D2).
-- Valores de los fallos humanos de la IA (tabla en 6.4; propuesta: probarlos con mando y ajustarlos, sobre todo el retraso al ver y la deriva; al asset con D2).
+- Parámetros exactos de cada nivel de IA (assets `AILevel`, valores en 6.4). Fácil y Normal casi no se distinguen en duelos cortos (propuesta: ajustarlos jugando con mando en los assets y medir con duelos más largos o repetidos).
+- Multiplicadores y valores de los perfiles de IA (assets `AIProfile`, tabla en 6.4): provisionales (propuesta: ajustarlos jugando con mando, en Play desde el Inspector).
+- Valores de los fallos humanos de la IA (en los assets de nivel, tabla en 6.4; propuesta: probarlos con mando y ajustarlos, sobre todo el retraso al ver y la deriva).
+- **Modo desafíos y campaña** (idea del usuario, 2026-10-12): rivales con nombre, cada uno con su peonza, su nivel y su perfil de IA. Falta todo el diseño del modo: cómo se eligen los desafíos, si se desbloquean, qué se gana (propuesta: un asset por rival con nombre, peonza, nivel y perfil; diseñarlo cuando la IA esté terminada, después de D7).
+- Combinar comportamientos de IA (D10): elegir por separado la colocación (centro, rodear, presión), la forma de atacar (carrerilla, contraataque, golpe y fuera) y la defensa (parrys, esquivas) (propuesta: hacerlo cuando la campaña lo pida, partiendo los comportamientos actuales en esas piezas).
 - Valores del bloqueo (2.5; propuesta: dejarlos en la mitad y revisarlos jugando con mando y en C12; el banco de equilibrio no modela el parry).
 - IA Fácil con el perfil de Ataque: gana a una IA Normal Balanceada en el probe, sobre todo por el preset (propuesta: probarla con mando; si es demasiado para un principiante, quitarle en Fácil el ×1,25 de ataque).
 - Pérdida de control por empuje: `0,1 + 0,015 × empuje` s, desde 4 m/s, y recuperación en 0,15 s (propuesta: dejarla así, porque se siente bien con mando; ajustarla en C7 o C12 si algún poder empuja demasiado).
@@ -1155,7 +1210,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] D1. Base de la IA: percepción (rivales, paredes, ataques enemigos) y decisión por prioridades, sobre `IBladeInputSource` (partiendo de `SimpleAIBrain`). **Hecho (2026-10-11):** `AIBrain` (clase base para los perfiles de D3), `AIPerception` y `AILevel` (4 niveles en código, provisional hasta D2); diseño en 6.4. En el Sandbox: dummies en «IA» con «Nivel IA» (adelantado de D6). El banco de equilibrio deja quieto al defensor aunque los dummies estén en «IA». Probado con probes en el Sandbox (Arena básica). Defensa contra ataques rápidos de J1 cada 1,5 s: el Experto llegó a parar 9 de 13 tras guardar una carga y distancia (antes 0-2, porque gastaba todas las cargas y se pegaba al rival); de una ejecución a otra varía mucho (3-9). Duelos de 45 s con el preset Balanceado en las dos contra una IA Normal (daño hecho / recibido): Fácil 0,62, Normal 0,48 (espejo, debería salir ~1: ruido), Difícil 1,14, Experto 2,85 (16 parrys frente a 2). **Probado con mando por el usuario (2026-10-11):** se siente bien; la Experta es difícil, hace parry a todo y espera el momento justo para golpear.
   - Segunda vuelta (2026-10-11, tras probarla el usuario: «hay que atacar mucho y agotarla, sigue siendo muy buena»; «contra un rival quieto ataca poco, solo rápidos, y se queda corta»): parry no infalible, sigue empujando hacia el rival durante su ataque y capa táctica en Difícil y Experto (6.4). **Probado con mando (2026-10-11):** el Experto sigue siendo complicado, pero se le puede ganar (el usuario le ganó un set): es el desafío que se busca. La carrerilla no se notó (solo la hace contra un rival quieto); se ve una IA que guarda una distancia prudente, lista para atacar o hacer parry, y que persigue muy de cerca si el rival huye.
   - Para D2: Fácil y Normal no se distinguen en duelos cortos; el parry del Difícil (reacción 0,18 s) apenas llega, porque un ataque rápido tarda ~0,2 s en llegar; las medidas necesitan duelos más largos o varias repeticiones.
-- [ ] D2. 4 niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial).
+- [x] D2. Niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial). **Hecho (2026-10-12):** un asset por nivel (`AILevel`, los 5) y uno por perfil (`AIProfile`, los 4 arquetipos) en `Resources/AI`, creados con *FakeBlade → Setup AI*; el perfil elige su comportamiento (la clase de IA) y lleva sus valores (6.4, *Datos de la IA*). Se leen en vivo, para ajustarlos en Play jugando con mando. La fila «Perfil IA» del Sandbox lista los perfiles que haya. Comprobado: los assets salen con los valores de la tabla anterior y cada perfil con su clase. Solo se han pasado los datos: el ajuste (Fácil frente a Normal, fallos humanos) viene después de probar con mando. 🎮
 - [x] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta. Ideas del usuario (2026-10-11, tras probar D1: «se siente bien; la Experta hace parry a todo y espera el momento justo para golpear»): comportamientos más variados, como rodear al jugador o dominar el centro de la arena. La carrerilla de la capa táctica (hoy solo contra un rival quieto, y no se nota jugando) se revisa aquí: que la usen más los perfiles a los que les pegue, como el de Ataque. **Hecho (2026-10-12):** `AttackAIBrain`, `DefenseAIBrain` y `AgilityAIBrain` heredan de `AIBrain` (la Balanceada) y `AIProfiles` elige la clase; el perfil sale de la peonza o se elige en el Sandbox. Ataque: presión, cargados y carrerilla siempre que tenga sitio. Defensa: domina el centro y contraataca o empotra. Agilidad: rodea, entra y sale con dash y busca parrys. Cada perfil multiplica el parry, la esquiva y la reacción del nivel (tabla y medidas en 6.4). Probado con probes en el Sandbox en Difícil, Normal y Fácil contra una IA Normal: cada perfil sale con su clase y se distingue en las medidas (la Agilidad hace 8 dashes, frente a 0-1; el Ataque, 7 carrerillas, frente a 1-2; la Defensa sujeta el centro la mitad del tiempo). **Probado con mando (2026-10-12):** los perfiles se notan.
   - Segunda vuelta (2026-10-12, tras probarla el usuario: «lee demasiado bien mis movimientos; se nota que es todo demasiado calculado»): fallos humanos por nivel (ver con retraso, predicción con error, despistes, pulso imperfecto y pasarse al rodear o al llegar), tabla en 6.4. Probado con probes: los fallos salen más en Fácil que en Experto y el parry no se rompe. Falta probarlo con mando: que se le pueda engañar con fintas sin que parezca tonta. 🎮
 - [x] D9. **Nivel Imposible** (pedido el 2026-10-12): Experto mejorado y sin fallos humanos (6.4); en el Sandbox, quinta opción de «Nivel IA». Probado con un probe (0 despistes, 8 parrys y daño 135 / 67 contra una IA Normal en 40 s). Falta probarlo con mando. 🎮
@@ -1164,6 +1219,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] D6. IA en el panel del sandbox: 1-3 rivales, nivel y arquetipo. *Hecho en D1: comportamiento «IA» y nivel (para todos los dummies a la vez).* **Completado con D3 (2026-10-12):** filas «Perfil IA» (según peonza o uno de los cuatro) y «Su peonza» (preset de los dummies), también para todos a la vez. Comprobado con una captura del panel; falta con mando. 🎮
 - [ ] D7. Rivales CPU en partidas normales (hasta completar 4 jugadores).
 - [ ] D8. Menú de fondo con la IA nueva en vez de la actual.
+- [ ] D10. **Combinar comportamientos** (para la campaña, 2026-10-12): partir los comportamientos de la IA en piezas que se eligen por separado en el perfil (colocación, forma de atacar, defensa), para crear personajes que mezclen estilos (por ejemplo, la presión del Ataque con los parrys de la Agilidad). Se hace cuando la campaña lo pida (12).
 
 **Fase E. Sandbox completo**
 
@@ -1196,6 +1252,26 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] I2. **Cuencos en arenas futuras.** Dos caminos, a decidir al hacer la primera:
   - **Cuenco real (geometría):** la pendiente empuja hacia el centro y provoca más choques. Necesita un perfil curvo continuo hasta la pared (sin pliegues donde se juntan suelo, rampa y pared) y es más difícil de equilibrar.
   - **Cuenco simulado (propuesta):** suelo físico plano y una fuerza hacia el centro según la distancia, con su intensidad en el asset de la arena. El cuenco se modela solo como decoración. Así la física sigue siendo estable y cada arena puede tener un cuenco más o menos agresivo sin remodelar nada.
+
+- [ ] I4. **Arenas con obstáculos** (idea del usuario, 2026-10-12): rampas, obstáculos diversos y elementos con los que interactúan las peonzas (rebotadores, barras que giran, paredes que se mueven, trampolines...). Ver 4.
+- [ ] I5. **Coleccionables** en el escenario (idea del usuario, 2026-10-12): pequeñas curas, escudos temporales, vida temporal, recarga del especial... Aparecen por la arena, con pool y activables en las reglas de partida. Ver 4 y 12.
+
+**Fase L. Poderes nuevos** (ideas del usuario, 2026-10-12; tabla en 5, dudas en 12). Cada uno con su asset, su núcleo, su aura y su prueba en el Sandbox.
+
+- [ ] L1. Tornado: atrae a las peonzas de un área y después las expulsa con un empuje de área.
+- [ ] L2. Rebote: quien choca con ella sale empujado en dirección contraria y ella no pierde vida en esos choques.
+- [ ] L3. Pinchos: pinchos que giran a su alrededor, algo más de daño y reflejo del daño recibido (para la Defensa).
+- [ ] L4. Rastro de agua: rastro de unos segundos que hace resbalar a quien lo pisa (agarre −10).
+- [ ] L5. Salto: salto hacia delante con onda de choque al caer (daño de área y empuje fuerte en un área pequeña).
+- [ ] L6. Escudo: 3 escudos que giran alrededor, paran y expulsan los ataques y se rompen al recibir un choque.
+- [ ] L7. Gancho: engancha a la peonza con la que choca y la arrastra. **Por decidir si se hace** (puede ser contraproducente).
+
+**Fase M. Modos de juego nuevos** (ideas del usuario, 2026-10-12; en 6.1, dudas en 12)
+
+- [ ] M1. Pilla pilla de fuego: quien tiene el fuego se lo pega a otro al tocarlo; al acabar el tiempo pierde quien lo tenga.
+- [ ] M2. Virus: como el pilla pilla, pero el fuego (verde) se contagia y quien lo pega lo conserva.
+- [ ] M3. Carreras: las peonzas compiten en un circuito (necesita arenas propias).
+- [ ] M4. Desafíos: rivales CPU con nombre, peonza, nivel y perfil de IA (6.4; después de D7). Más adelante, campaña (D10).
 
 **Fase F. Más adelante**
 

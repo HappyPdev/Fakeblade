@@ -11,7 +11,7 @@ namespace FakeBlade.Core
     /// 3. Atacar si el rival está a tiro y tiene cargas: cargado (se acerca mientras carga) o rápido
     ///    (embiste y lo suelta al tenerlo a StrikeDistance).
     /// 4. Acercarse rodeando al rival (con algún dash para cerrar distancia) y, sin atacar, guardar
-    ///    distancia (KeepDistance, salvo en Fácil) para tener tiempo de reaccionar.
+    ///    distancia (keepDistance del perfil, salvo en Fácil) para tener tiempo de reaccionar.
     /// Los niveles que hacen parry a menudo guardan una carga para él (ReservedCharges).
     /// Capa táctica (Difícil, Experto): una agresividad (EvaluateAggression) según la vida, los parrys que le
     /// hace el rival, si está quieto o junto a la pared, que decide si guarda carga, cuánto carga y si coge carrerilla.
@@ -19,20 +19,16 @@ namespace FakeBlade.Core
     /// Fallos humanos del nivel (2026-10-12): ve al rival con retraso (AIPerception), la predicción se pasa o se queda
     /// corta, se despista a ratos, el stick deriva y, rodeando o llegando al rival, a veces se pasa (UpdateSlips).
     ///
-    /// Es también el perfil Balanceado y la clase base de los demás perfiles por arquetipo (D3, AIProfiles):
-    /// cambian el estilo (dónde se coloca, cuándo y cómo ataca, especial) con los métodos virtuales y retocan
-    /// la habilidad del nivel con ParryScale, DodgeScale y ReactionScale. Sin asignaciones por frame.
+    /// Es también el comportamiento Balanceado y la clase base de los demás (D3, AIProfiles): cambian el estilo
+    /// (dónde se coloca, cuándo y cómo ataca, especial) con los métodos virtuales. Los valores salen de dos assets
+    /// (D2): el nivel (AILevel, la habilidad) y el perfil (AIProfile, que la multiplica y da los valores del estilo).
+    /// Se leen en cada decisión, así que los cambios en el Inspector se notan en Play. Sin asignaciones por frame.
     /// </summary>
     [RequireComponent(typeof(FakeBladeController))]
     public class AIBrain : MonoBehaviour, IBladeInputSource
     {
         /// <summary>Distancia entre centros a la que intenta atacar.</summary>
         protected const float AttackRange = 4f;
-        /// <summary>
-        /// Distancia entre centros que guarda mientras no ataca: pegada al rival, un ataque suyo llega
-        /// antes de poder reaccionar (ni parry ni esquiva).
-        /// </summary>
-        protected const float KeepDistance = 2.8f;
         /// <summary>Distancia a la pared a la que intenta separarse de ella.</summary>
         protected const float WallMargin = 1.2f;
         /// <summary>Distancia mínima para empezar un cargado (cargar tarda).</summary>
@@ -65,6 +61,8 @@ namespace FakeBlade.Core
         private enum Intent { Wander, Approach, EscapeWall, Engage, RunUp }
 
         [SerializeField] private AIDifficulty difficulty = AIDifficulty.Normal;
+        [Tooltip("Perfil (cómo juega). Vacío = el primero de su comportamiento")]
+        [SerializeField] private AIProfile profile;
 
         protected FakeBladeController Blade;
         protected AILevel Level;
@@ -124,18 +122,28 @@ namespace FakeBlade.Core
             }
         }
 
-        /// <summary>Perfil de esta IA (D3): el arquetipo cuyo estilo juega.</summary>
-        public virtual BladeArchetype Profile => BladeArchetype.Balanced;
+        /// <summary>
+        /// Perfil de esta IA (D2, D3): cómo juega. Sin asignar, el primero de su comportamiento (DefaultStyle).
+        /// Su comportamiento debería ser el de esta clase (AIProfiles.Ensure lo garantiza).
+        /// </summary>
+        public AIProfile Profile
+        {
+            get
+            {
+                if (profile == null) profile = AIProfiles.ForStyle(DefaultStyle);
+                return profile;
+            }
+            set => profile = value;
+        }
+
+        /// <summary>Comportamiento que juega esta clase (el del perfil por defecto).</summary>
+        protected virtual AIStyle DefaultStyle => AIStyle.Balanced;
 
         #region Perfil (D3)
-        /// <summary>Multiplicadores del perfil sobre la habilidad del nivel (parry, esquiva y tiempo de reacción).</summary>
-        protected virtual float ParryScale => 1f;
-        protected virtual float DodgeScale => 1f;
-        protected virtual float ReactionScale => 1f;
-
-        protected float ParryChance => Mathf.Clamp01(Level.parryChance * ParryScale);
-        protected float DodgeChance => Mathf.Clamp01(Level.dodgeChance * DodgeScale);
-        protected float ReactionTime => Level.reactionTime * ReactionScale;
+        /// <summary>El nivel da la habilidad y el perfil la multiplica (parry, esquiva y tiempo de reacción).</summary>
+        protected float ParryChance => Mathf.Clamp01(Level.parryChance * Profile.parryScale);
+        protected float DodgeChance => Mathf.Clamp01(Level.dodgeChance * Profile.dodgeScale);
+        protected float ReactionTime => Level.reactionTime * Profile.reactionScale;
 
         /// <summary>El perfil se juega entero (desde Normal); en Fácil solo se nota su tendencia (GDD 6.4).</summary>
         protected bool FullStyle => Level.fullProfile;
@@ -148,13 +156,11 @@ namespace FakeBlade.Core
         protected void FlipOrbit() => _orbitSign = -_orbitSign;
 
         /// <summary>Multiplica la probabilidad de atacar con el rival a tiro.</summary>
-        protected virtual float AttackChanceScale() => 1f;
-        /// <summary>Multiplica la probabilidad de que el ataque sea cargado.</summary>
-        protected virtual float ChargedChanceScale => 1f;
-        /// <summary>Se suma a la agresividad de la capa táctica.</summary>
-        protected virtual float AggressionBias => 0f;
+        protected virtual float AttackChanceScale() => Profile.attackChanceScale;
         /// <summary>Probabilidad de acercarse con un dash a media distancia.</summary>
-        protected virtual float ApproachDashChance => 0.15f;
+        protected virtual float ApproachDashChance => Profile.approachDashChance;
+        /// <summary>Distancia entre centros que guarda mientras no ataca (sin ella, un ataque suyo llega antes de reaccionar).</summary>
+        protected float KeepDistance => Profile.keepDistance;
         #endregion
 
         #region IBladeInputSource
@@ -354,7 +360,7 @@ namespace FakeBlade.Core
         {
             int charges = Blade.Attack.CurrentCharges - ReservedCharges();
             bool wantsCharged = RoomToCharge() && Blade.Attack.MaxCharges >= 2 &&
-                                Random.value < Level.chargedChance * AggressionScale(0.5f, 2f) * ChargedChanceScale;
+                                Random.value < Level.chargedChance * AggressionScale(0.5f, 2f) * Profile.chargedChanceScale;
             if (!wantsCharged) return 0;
             if (charges >= 2) return Random.Range(2, charges + 1);
             return WaitsForCharged ? -1 : 0;
@@ -377,7 +383,7 @@ namespace FakeBlade.Core
             AIPerception p = Perception;
             if (!Level.tactical || p.Target == null) return 0.5f;
 
-            float aggression = 0.5f + AggressionBias;
+            float aggression = 0.5f + Profile.aggressionBias;
             // Vida: +30% de ventaja → −0,24
             aggression -= (Blade.SpinSpeedPercentage - p.TargetSpin) * 0.8f;
             // Parrys del rival: tasa estimada partiendo de un 30% (como si ya llevara 2 ataques)
@@ -677,6 +683,9 @@ namespace FakeBlade.Core
         /// </summary>
         private void UpdateSlips(float dt)
         {
+            // El intervalo se puede cambiar en Play desde el asset: con 0 no hay despistes; al ponerlo, se programa el primero
+            if (Level.lapseInterval <= 0f) _nextLapse = float.PositiveInfinity;
+            else if (float.IsPositiveInfinity(_nextLapse)) ScheduleLapse();
             if (Time.time >= _nextLapse)
             {
                 _lapseUntil = Time.time + Level.lapseDuration * Random.Range(0.7f, 1.3f);

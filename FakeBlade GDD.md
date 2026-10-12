@@ -104,7 +104,7 @@ Cuando dos peonzas chocan, se comparan sus velocidades en el momento del choque 
 
 ### Parry
 
-Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloquea por completo.
+Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloquea por completo si es un rápido, un dash o un cargado de nivel 1; contra un cargado de nivel 2 o más solo **lo bloquea a medias** (ver *Bloqueo*).
 
 - **Ventana:** los primeros **0,12 s** desde que se lanza el ataque rápido (al soltar el botón). Solo vale el ataque rápido: ni el cargado ni el dash hacen parry.
 - **Condición:** la otra peonza tiene que venir atacando (ataque rápido, cargado o dash). El parry tiene prioridad sobre la regla de la más rápida.
@@ -113,9 +113,10 @@ Un ataque **rápido** lanzado justo antes de recibir un ataque enemigo lo bloque
   - El atacante recibe solo **su fracción del impacto** (la misma que recibe normalmente la peonza más rápida).
   - El atacante **sale despedido**, su ataque o dash queda cortado y queda **aturdido 0,3 s** (sin control, ataques ni dash) para que el rebote se note.
   - Quien hace el parry frena su embestida y casi no se mueve.
-- **Recompensa para quien hace el parry:** gana un 20% de la energía del especial. **Ya no recupera la carga gastada** (2026-10-11): el parry cuesta su carga como cualquier ataque y corta la recarga igual que ellos; si no, salía gratis y la IA Experta tenía parry infinito.
+- **Recompensa para quien hace el parry:** gana un **12%** de la energía del especial (antes 20%; 2026-10-12). **A quien le hacen parry también gana un 6%** (`parriedEnergy`): contra un rival que lo para todo no se cargaba nunca el especial, y así atacar compensa el riesgo. **Ya no recupera la carga gastada** (2026-10-11): el parry cuesta su carga como cualquier ataque y corta la recarga igual que ellos; si no, salía gratis y la IA Experta tenía parry infinito.
 - **Aviso:** partículas especiales (estallido blanco y cian), texto "¡PARRY!" en pantalla y una pausa muy breve del juego (hit-stop de 0,08 s).
 - **Doble parry:** si las dos peonzas están en su ventana a la vez, se anulan. Ninguna recibe daño ni recompensa, y las dos rebotan aturdidas.
+- **Bloqueo** *(2026-10-12)*: un parry contra un **cargado de nivel 2 o más** cuenta como parry, pero no refleja: quien para recibe **la mitad del daño y del empuje** que recibiría quieta, y gana la mitad de la energía del parry (6%). El atacante no recibe daño, **gana la energía de su golpe como si hubiera entrado** (cargado 2: 22%) y queda **aturdido un instante**, más cuanto más ligero: `0,15 × (2,5 ÷ peso)` s, entre 0,08 y 0,25 (Agilidad 0,19 s, Ataque 0,17 s, Defensa y Balanceada 0,12 s), para dar impacto al bloqueo. Rebota como la ganadora de un choque. Aviso «¡BLOQUEO!». Así gastar muchas cargas en un golpe compensa el riesgo (con la recarga lenta, C16, juntarlas cuesta) y la Defensa tiene un punto débil contra los cargados fuertes. Ajustes en `CombatConfig` → Parry (`parryBlockMinLevel`, `blockDamageFraction`, `blockKnockbackFraction`, `blockEnergyFraction`, `blockStagger`, `blockStaggerMin`, `blockStaggerMax`). Medido en el Sandbox (Ataque contra Defensa): cargado 2, 24,6 de daño sin parar y 12,5 bloqueando; cargado 3, 30 y 15,1; el empuje, de 15,6 a 7,2-7,8. Contra un rápido o un cargado 1, parry completo como antes.
 - **Piezas:** cada pieza suma o resta ventana de parry (`parryWindowModifier`): las de agilidad **+0,03 s**, las balanceadas 0, las de ataque **−0,01 s** y las de defensa **−0,03 s**. Se suman todas las piezas montadas; la ventana nunca baja de 0,02 s. *(Pendiente de asignar en los assets de las piezas.)*
 - **Ajustes:** todo se configura en `CombatConfig` → Parry.
 
@@ -389,7 +390,7 @@ Multijugador local para PC (Windows y, más adelante, Linux) y WebGL, con 2-4 ju
 **Escalable a 8:** en el futuro se quiere llegar a **8 jugadores**. Por ahora el máximo es 4, pero el código debe prepararse para que ese número sea un único valor configurable (lobby, HUD, colores, puntos de aparición, equipos...).
 
 - **Asignación de controles flexible:** cada jugador se une en la pantalla de selección **manteniendo pulsado** el botón de ataque de su dispositivo (ver 9.2). El orden en que se unen fija el número de jugador (J1, J2...) y el dispositivo que usa cada uno.
-- **Cámara dinámica** que encuadra a todos los jugadores vivos en todo momento.
+- **Cámara dinámica** que encuadra a todos los jugadores vivos en todo momento. **Ángulo fijo** (2026-10-12): nunca gira; solo se desplaza y hace zoom, con seguimiento suave (`followSmoothTime` 0,4 s, `zoomSmoothTime` 0,6 s), y el punto que sigue tira un 25% hacia el centro de la arena (`arenaCenterPull`). Antes miraba cada frame al centro exacto de las peonzas y se movía «un poco loca».
 - Si el proyecto funciona, se estudiará portarlo a móvil con partidas en la misma red local.
 
 ## 6.1 Modos de juego
@@ -436,7 +437,7 @@ Escena propia (`Sandbox`) para probar mecánicas sin salir de la partida: parrys
 
 La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSource`), así que no hace trampas: pulsa los mismos botones.
 
-**Niveles de dificultad (4):** Fácil, Normal, Difícil y Experto. Cambian el tiempo de reacción, la puntería, la probabilidad de hacer parry, el uso del dash para esquivar y cómo usa el especial.
+**Niveles de dificultad (5):** Fácil, Normal, Difícil, Experto e **Imposible** (2026-10-12, para quien busque un reto muy difícil). Cambian el tiempo de reacción, la puntería, la probabilidad de hacer parry, el uso del dash para esquivar y cómo usa el especial.
 
 | Nivel | Reacción | Parry | Especial |
 |---|---|---|---|
@@ -444,6 +445,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 | Normal | Media (~0,3 s) | A veces | Cuando está lleno |
 | Difícil | Rápida (~0,18 s) | A menudo | En buen momento |
 | Experto | Muy rápida (~0,1 s) | Casi siempre que puede | Óptimo |
+| Imposible | Muy rápida (~0,08 s), sin fallos | Casi siempre (85%) | Óptimo |
 
 *(Valores orientativos, por ajustar.)*
 
@@ -469,6 +471,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 | Normal | 0,3 s | ±14° | 25% (±0,08 s) | 20% | cargas del rival viniendo, pared | no | lleno |
 | Difícil | 0,18 s | ±7° | 45% (±0,05 s) | 35% | además predice el movimiento y lee las cargas del rival | sí | lleno y con el rival cerca |
 | Experto | 0,1 s | ±2° | 70% (±0,03 s) | 50% | igual que Difícil | sí | lleno y con el rival cerca |
+| Imposible | 0,08 s | 0° | 85% (±0,02 s) | 60% | igual que Difícil | sí | lleno y con el rival cerca |
 
   El parry es la probabilidad de intentarlo cuando llega un ataque y tiene carga; el error de timing lo lanza antes o después y a veces falla (2026-10-11: con 90% y timing perfecto el Experto era imbatible).
 - **Durante su ataque** sigue empujando el stick hacia el rival: si volvía a rodearlo, el golpe se desviaba y avanzaba la mitad (medido: 1,3-2,1 m frente a 2,5-3,2 m), y «atacaba al aire».
@@ -480,7 +483,7 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
   
   Con agresividad 0,65 o más **no se guarda carga** para el parry, salvo que el rival la haya atacado en los últimos 2 s. Además, la agresividad sube o baja la probabilidad de atacar (×0,7-×1,2) y la de cargar (×0,5-×2). Si quiere un cargado y aún no tiene las cargas, **espera** a juntarlas en vez de gastar la que tiene. Contra un rival quieto, antes de un golpe fuerte **coge carrerilla**: se aleja hasta 5 m y entra en línea recta, cargando mientras corre o embistiendo (la velocidad del choque suma daño).
   Medido contra un J1 quieto (30 s): Difícil 7 rápidos y 4 cargados, Experto 6 y 3, con 10-13 carrerillas y unos 20 de daño medio por golpe (máximo 28-30). Antes no cargaba nunca (0-1) y fallaba muchos golpes. Con J1 atacando cada 1,5 s y cargas infinitas, el parry queda en un 21-26%, porque la IA se queda sin cargas (recarga solo sin atacar y parry sin devolución, C16).
-- **En el Sandbox:** Rivales → Dummies → «IA», con las filas «Nivel IA» (Fácil, Normal, Difícil y Experto), «Perfil IA» (Según peonza, Balanceada, Ataque, Defensa y Agilidad) y «Su peonza» (el preset de los dummies, también fuera de «IA»). Se aplica al momento y a todos los dummies a la vez.
+- **En el Sandbox:** Rivales → Dummies → «IA», con las filas «Nivel IA» (Fácil, Normal, Difícil, Experto e Imposible), «Perfil IA» (Según peonza, Balanceada, Ataque, Defensa y Agilidad) y «Su peonza» (el preset de los dummies, también fuera de «IA»). Se aplica al momento y a todos los dummies a la vez.
 
 **Perfiles por arquetipo (D3, 2026-10-12):**
 
@@ -506,6 +509,28 @@ La IA controla la peonza con la misma interfaz que un jugador (`IBladeInputSourc
 | Balanceada | 2,93 | 3,81 | 0 | 1 | 1 | 8 | 178 / 152 |
 
   La Defensa sujeta el centro la mitad del tiempo; el resto sale a contraatacar (36%) o a empotrar (21%), porque la IA Normal ataca mucho. En Normal, el Ataque hace 2 cargados y 4 carrerillas en 40 s (las cargas escasean por la recarga lenta, C16). En Fácil, la Defensa se queda a 2,3 m del centro y ninguna coge carrerilla ni usa el dash; el Ataque Fácil gana a la Balanceada Normal (591 / 353), sobre todo porque el preset de Ataque pega más.
+
+  **Probado con mando (2026-10-12):** los perfiles se notan («sí noto los tipos de arquetipo con distintos comportamientos»), pero la IA «lee demasiado bien mis movimientos; se nota que es todo demasiado calculado». De ahí los fallos humanos.
+
+**Fallos humanos (2026-10-12):** para que no lea los movimientos del rival de forma perfecta. Todos van por nivel: frecuentes en Fácil, casi nunca en Difícil y Experto (el Experto también los tiene, pocos).
+
+- **Ve con retraso:** la posición y la velocidad del rival con las que se mueve y apunta le llegan con un retraso, así que las fintas y los cambios bruscos de dirección la engañan y llega a donde estaba el rival. Los ataques que le vienen se ven al momento: ya tienen su tiempo de reacción y su error de parry (`AIPerception`, que guarda las últimas posiciones del rival).
+- **Predicción con error:** al apuntar adelantado (Difícil y Experto), cada ataque calcula de más o de menos.
+- **Despistes:** cada cierto tiempo (al azar, entre ×0,6 y ×1,4 del intervalo), un rato en que no decide ni se defiende y el stick se queda como estaba.
+- **Pulso imperfecto:** el stick deriva despacio a un lado y a otro al moverse (ruido suave), no va en línea perfecta.
+- **Pasarse:** rodeando al rival o llegando a él, a veces sigue recta 0,5-0,9 s: abre el círculo y puede rozar la pared, o se pasa de frenada.
+
+| Nivel | Retraso al ver | Error de predicción | Despiste (cada / dura) | Deriva del stick | Pasarse (por segundo) |
+|---|---|---|---|---|---|
+| Fácil | 0,35 s | (no predice) | ~5 s / 0,6 s | ±20° | 15% |
+| Normal | 0,25 s | (no predice) | ~8 s / 0,5 s | ±12° | 8% |
+| Difícil | 0,15 s | ±35% | ~14 s / 0,4 s | ±6° | 2% |
+| Experto | 0,08 s | ±15% | ~22 s / 0,3 s | ±3° | 1% |
+| Imposible | 0 | 0 | nunca | 0 | 0 |
+
+  Medido (40 s por nivel, Balanceada contra una IA Normal): despistes 8 / 5 / 3 / 1 y veces que se pasa 4 / 2 / 0 / 0 (Fácil → Experto); choques con la pared 12 / 4 / 6 / 3; la distancia al rival que ve se aparta de la real 0,89 / 0,68 / 0,50 / 0,23 m de media. El parry no se rompe: contra un rápido cada 1,5 s, el Experto para el 31-34% con fallos y el 24-38% sin ellos (lo mismo dentro del ruido).
+  **Imposible** (2026-10-12): el Experto mejorado y sin ningún fallo humano (tablas de arriba). Medido contra una IA Normal en 40 s: 0 despistes, ve al rival sin error, 8 parrys y el doble de daño hecho que recibido (135 / 67).
+- **Contra cargados fuertes** (2026-10-12): como el parry contra un cargado de nivel 2 o más solo bloquea (2.5), la IA que ve cargar al rival intenta antes esquivarlo con dash (con su probabilidad de esquiva) y, si no, hace el parry igualmente.
 
 ## 6.5 Jugar a distancia y en red *(2026-10-12)*
 
@@ -1010,6 +1035,15 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-12 | IA: perfil por arquetipo | Por defecto, el arquetipo de su peonza; en el Sandbox también se elige a mano («Perfil IA»), junto con la peonza de los dummies («Su peonza»). Balanceada = la IA de D1 (6.4). |
 | 2026-10-12 | IA: perfil, estilo y habilidad | El perfil cambia el estilo (colocación, ataques, carrerilla, especial) y multiplica la habilidad del nivel (parry, esquiva, reacción): Ataque ×0,7 / ×0,8 / ×1, Defensa ×1,1 / ×0,5 / ×1, Agilidad ×1,3 / ×1,3 / ×0,9. Valores en código, al asset con D2 (6.4). |
 | 2026-10-12 | IA: perfiles en Fácil | Los perfiles valen en los cuatro niveles; en Fácil solo se nota la tendencia (dónde se coloca y cuánto ataca o carga), sin carrerillas, dashes de entrada o salida ni contraataques (6.4). |
+| 2026-10-12 | Bloqueo | El parry completo vale contra rápidos, dash y cargados de nivel 1. Contra un cargado de nivel 2 o más cuenta como parry pero bloquea: quien para recibe la mitad del daño y del empuje que recibiría quieta y la mitad de la energía; el atacante ni recibe daño ni queda aturdido. Compensa el riesgo de juntar cargas y da a la Defensa un punto débil (2.5). |
+| 2026-10-12 | Bloqueo: energía y aturdimiento | El bloqueado gana la energía de su golpe como si hubiera entrado y queda aturdido `0,15 × (2,5 ÷ peso)` s (0,08-0,25), algo simbólico para dar impacto al golpe (2.5). |
+| 2026-10-12 | Energía del parry | Quien para gana 12% (antes 20%) y a quien le paran, 6%: contra un rival que lo para todo no se cargaba nunca el especial (2.5). La energía por perder vida al recibir golpes queda para el pase de equilibrio (C12). |
+| 2026-10-12 | Cámara de ángulo fijo | Nunca gira; seguimiento y zoom suaves por separado y un 25% de tirón hacia el centro de la arena (6). |
+| 2026-10-12 | Agilidad a 3 cargas | El usuario baja a mano Gale Ring y Aero Shell de +1 a 0 cargas: la Agilidad pasa de 5 a 3 cargas. |
+| 2026-10-12 | IA Imposible | Quinto nivel para retos muy difíciles: el Experto mejorado (reacción 0,08 s, puntería exacta, parry 85% con ±0,02 s, esquiva 60%) y sin ningún fallo humano (6.4). |
+| 2026-10-12 | Anticipación de los ataques | Jugando contra la IA cuesta hacer parry porque los ataques rápidos no se ven venir. Se resolverá en la fase visual (después de la IA) con efectos más claros o llamativos al lanzar un ataque rápido (Fase K). |
+| 2026-10-12 | IA: fallos humanos | Tras probarla con mando («lee demasiado bien mis movimientos»): ve al rival con retraso, predicción con error, despistes, pulso imperfecto y pasarse al rodear o al llegar (puede rozar la pared). Por nivel, frecuentes en Fácil y casi nunca en Difícil y Experto, que también los tiene (6.4). |
+| 2026-10-12 | Agilidad con menos cargas | Tras probarla con mando la Agilidad es demasiado fuerte: el usuario la baja a mano a 3 cargas (hoy 5: base 3 + Gale Ring +1 + Aero Shell +1), confiando en su bonus de recarga para compensar (C12). |
 | 2026-10-12 | IA: Defensa en el centro | Que el rival no tenga cargas solo la hace atacar más a tiro, no la saca del centro: con la recarga lenta (C16) el rival está sin cargas casi siempre y se pasaba la partida persiguiéndolo (6.4). |
 
 12. # Pendiente de definir
@@ -1048,6 +1082,8 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 - Parámetros exactos de cada nivel de IA: hoy, tabla en código (`AILevel`, valores en 6.4). Fácil y Normal casi no se distinguen en duelos cortos (propuesta: pasarlos a un asset en D2 y medir con duelos más largos o repetidos).
 - Multiplicadores y valores de los perfiles de IA (D3, tabla en 6.4): provisionales, en código (propuesta: ajustarlos jugando con mando y pasarlos al asset de los niveles en D2).
+- Valores de los fallos humanos de la IA (tabla en 6.4; propuesta: probarlos con mando y ajustarlos, sobre todo el retraso al ver y la deriva; al asset con D2).
+- Valores del bloqueo (2.5; propuesta: dejarlos en la mitad y revisarlos jugando con mando y en C12; el banco de equilibrio no modela el parry).
 - IA Fácil con el perfil de Ataque: gana a una IA Normal Balanceada en el probe, sobre todo por el preset (propuesta: probarla con mando; si es demasiado para un principiante, quitarle en Fácil el ×1,25 de ataque).
 - Pérdida de control por empuje: `0,1 + 0,015 × empuje` s, desde 4 m/s, y recuperación en 0,15 s (propuesta: dejarla así, porque se siente bien con mando; ajustarla en C7 o C12 si algún poder empuja demasiado).
 - Recarga de cargas: espera de 0,5 s tras atacar; se siente lenta, pero el usuario prefiere esta mecánica (propuesta: revisarla con el banco en C12).
@@ -1096,12 +1132,16 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [x] C6. Núcleos en el catálogo: uno por poder, con estadísticas. Hecho: 6 núcleos (Fantasma, con C5) con los valores de la tabla de 3, nuevos `Core_Medium_Fire` y `Core_Medium_Ice`, preset Ataque con Fuego y nombre del núcleo con el color de su poder en la selección. Los 4 presets siguen dando su arquetipo. Falta verlo en la selección con mandos. 🎮
 - [ ] C7. Equilibrio de valores de cada poder en partida. 🎮
 - [ ] C12. **Pendiente del equilibrio** (tras el ajuste a mano del 2026-10-09, que deja bien el daño de los golpes y la sensación de movimiento de cada arquetipo). **Se hace después de C11, C13 y C14** (registro del 2026-10-10). Sexto informe (`bench_2026-10-10_02-18-38.md`, con la Defensa bajada a mano: RPM 630 → 550 y defensa 46 → 25): tumbar a la Defensa cuesta 79-121 s (antes 125-193); la Defensa recibe 0,98 (objetivo 0,65, ver 12), el Ataque hace 1,39 / recibe 1,19 y su cargado 3 a tope sigue pasando de 60 (63 y 67). **Preparado para empezar (2026-10-10, sin tocar valores):** medir con la tabla *Duelos completos* del banco (C14, séptimo informe `bench_2026-10-10_23-50-29.md`). Puntos de partida: (1) el desgaste de las ligeras (Agilidad 3,2 y Ataque 2,5 RPM/s frente a 0,5; propuesta ~1,5 y ~1,2) es lo que más las hunde; (2) la Defensa gana todos sus duelos (decidir su objetivo de daño recibido, 12); (3) el cargado 3 del Ataque a tope; (4) la Agilidad hace 0,99 (objetivo 1,1); (5) la regla de piezas de §11 (cada pieza, la mejor en la estadística de su arquetipo). Ojo: la Balanceada sigue pesando 3,2 como la Defensa.
+  - **Agilidad (2026-10-12, probada con mando contra la IA):** demasiado fuerte. El usuario le baja a mano las cargas de 5 a 3 (Gale Ring y Aero Shell de +1 a 0) y confía en su bonus de recarga para compensar; después, exportar las estadísticas y pasar el banco. **Hecho a mano (2026-10-12)** y estadísticas exportadas; falta pasar el banco.
+  - **Energía al recibir daño (idea del usuario, 2026-10-12):** dar energía del especial al perder vida por los golpes recibidos, para que quien va perdiendo pueda remontar. Se decide aquí, con el resto del equilibrio de la energía (parry 12% / parado 6%, bloqueo).
   - **Ataque:** bajar un poco su ataque para que no sobresalga tanto (hace ×1,39 y recibe ×1,25 respecto a la Balanceada; objetivos ×1,25 / ×1,1). Un golpe suyo cargado 3 a tope aún pasa de 60.
   - **Vida (RPM) y defensa:** los duelos contra la Defensa duran 125-193 s (el resto 37-92 s): ajustar RPM y defensa de cada arquetipo para acercarlos. No bajar el daño de la Defensa (ver 2.7).
   - **Cargas de la Balanceada:** el Endurance Core quita una carga y la Balanceada se queda en 2 (sin cargado 3). **Decidido (2026-10-10):** se queda así, porque cura mucho; con el Frost Core (también de Balanceada) tiene sus 3.
   - **Poderes y costes:** energía, duración y efecto de cada poder (C7) y costes en RPM de ataque, dash y especial.
   - **Tests:** tres tests de `BalanceTargetsTests` están marcados *Pendiente C12* (daño que recibe el Ataque y la Defensa, y el tope de 60). Al ajustar, ejecutarlos para ver al momento si se llega al objetivo. Al terminar C12, quitar las marcas `Ignore` y comprobar que pasan.
 - [x] C15. **Empujes efectivos** (pedido el 2026-10-11 tras jugar contra la IA: los empujes, sobre todo el de Rayos, se cancelaban al ir en dirección contraria). **Hecho (2026-10-11):** pérdida de control proporcional al empuje y lanzada sin control (2.8). Probado con un probe (empuje de 12 m/s con el stick en contra: 0,6 → 2,5 m). **Probado con mando por el usuario (2026-10-11)**, con Rayos, Defensa y Agilidad: «se siente mejor; al empujar, la peonza sale despedida de verdad».
+- [x] C18. **Energía del parry y cámara** (pedido el 2026-10-12, tras jugar contra la IA, que para casi todo): parry 12% para quien para y 6% para a quien le paran (2.5); cámara de ángulo fijo con seguimiento suave (6). Probado con probes: energías como se esperaba y la cámara no gira nada (0°) en 15 s con 3 peonzas, 2,7 m/s de media. Falta probarlo con mando. 🎮
+- [x] C17. **Bloqueo** (pedido el 2026-10-12): el parry contra un cargado de nivel 2 o más solo bloquea (mitad de daño y de empuje, mitad de energía, sin reflejar), 2.5. Segunda vuelta (2026-10-12, tras probarlo con mando): el bloqueado gana la energía de su golpe y queda aturdido un instante según su peso; probado con un probe (cargado 2: bloqueado +26,4% de energía y 0,17 s aturdido con peso 2,2; quien bloquea +6%). La IA que lo ve venir prefiere esquivarlo. Probado con un probe en el Sandbox (Ataque contra Defensa): cargado 2, 24,6 → 12,5; cargado 3, 30 → 15,1; rápido y cargado 1, parry completo. Tests: pasan los 31. Falta probarlo con mando. 🎮
 - [x] C16. **Recarga de cargas solo sin atacar y parry sin devolver la carga** (pedido el 2026-10-11: la IA Experta parecía tener parry infinito). **Hecho (2026-10-11):** probado con un probe (tras un ataque rápido, la recarga empieza a los 0,85 s y la carga vuelve a los 2,36 s). **Probado con mando (2026-10-11):** la recarga se siente lenta y enseguida se queda uno sin ataques, pero el usuario prefiere esta mecánica; se deja así por ahora. Ojo: cambia el ritmo de los combates; el banco de equilibrio no lo modela, así que hay que tenerlo en cuenta en C12. Falta probarlo con mando. 🎮
 - [x] C13. **Giros con más arrastre (inercia).** El movimiento se siente bien, pero los giros eran demasiado perfectos y cerrados: no se notaba física. **Hecho (2026-10-10):** estadística nueva **agarre** en las piezas (`gripModifier`; solo la modifican las puntas) que mueve el giro y el frenado al soltar (±10% por punto); el giro ya no depende del peso y baja a 8 correcciones por segundo con agarre 0 (antes 14-18), para que se note el derrape. En el HTML de estadísticas, en el exportador y en el importador, y con tests. Agarre puesto a mano por el usuario: Needle Point +3, Flat Base +1, Wide Ball −3 (Striker Point 0). **Probado con mando (2026-10-10):** el derrape se nota un poco y basta para seguir; el usuario lo irá ajustando. Si se queda corto, bajar `turnRate` (el giro con agarre 0) y subir el agarre de las puntas que deban girar cerrado. Pendiente: barra de agarre en la selección (12).
 - [x] C11. **El peso contaba dos veces en el movimiento** (la aceleración y el frenado multiplicaban por una curva de peso y además se dividían entre la masa física). **Hecho (2026-10-10):** una estadística, un efecto (2.8): la aceleración se aplica igual para cualquier masa y el peso entra una sola vez, con curvas `(2,5 ÷ peso)^exponente` sin topes (antes una recta cortada entre peso 0,5 y 3); el peso ya no toca la velocidad máxima ni el giro. Valores ajustados para que los presets se muevan como antes (aceleración 42,8 / 29 / 17,5 / 17,5 m/s², antes 42,6 / 28,9 / 17,5 / 17,5). Tests de las fórmulas nuevas (peso de referencia, sin topes, agarre): pasan los 26. Probado con mando junto con C13 (2026-10-10).
@@ -1116,7 +1156,9 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
   - Segunda vuelta (2026-10-11, tras probarla el usuario: «hay que atacar mucho y agotarla, sigue siendo muy buena»; «contra un rival quieto ataca poco, solo rápidos, y se queda corta»): parry no infalible, sigue empujando hacia el rival durante su ataque y capa táctica en Difícil y Experto (6.4). **Probado con mando (2026-10-11):** el Experto sigue siendo complicado, pero se le puede ganar (el usuario le ganó un set): es el desafío que se busca. La carrerilla no se notó (solo la hace contra un rival quieto); se ve una IA que guarda una distancia prudente, lista para atacar o hacer parry, y que persigue muy de cerca si el rival huye.
   - Para D2: Fácil y Normal no se distinguen en duelos cortos; el parry del Difícil (reacción 0,18 s) apenas llega, porque un ataque rápido tarda ~0,2 s en llegar; las medidas necesitan duelos más largos o varias repeticiones.
 - [ ] D2. 4 niveles de dificultad como asset de datos (reacción, puntería, parry, esquiva con dash, uso del especial).
-- [x] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta. Ideas del usuario (2026-10-11, tras probar D1: «se siente bien; la Experta hace parry a todo y espera el momento justo para golpear»): comportamientos más variados, como rodear al jugador o dominar el centro de la arena. La carrerilla de la capa táctica (hoy solo contra un rival quieto, y no se nota jugando) se revisa aquí: que la usen más los perfiles a los que les pegue, como el de Ataque. **Hecho (2026-10-12):** `AttackAIBrain`, `DefenseAIBrain` y `AgilityAIBrain` heredan de `AIBrain` (la Balanceada) y `AIProfiles` elige la clase; el perfil sale de la peonza o se elige en el Sandbox. Ataque: presión, cargados y carrerilla siempre que tenga sitio. Defensa: domina el centro y contraataca o empotra. Agilidad: rodea, entra y sale con dash y busca parrys. Cada perfil multiplica el parry, la esquiva y la reacción del nivel (tabla y medidas en 6.4). Probado con probes en el Sandbox en Difícil, Normal y Fácil contra una IA Normal: cada perfil sale con su clase y se distingue en las medidas (la Agilidad hace 8 dashes, frente a 0-1; el Ataque, 7 carrerillas, frente a 1-2; la Defensa sujeta el centro la mitad del tiempo). Falta probarlo con mando: que cada perfil se note jugando. 🎮
+- [x] D3. Perfiles por arquetipo: Agilidad agresiva y con parrys; Ataque con presión y cargados; Defensa que aguanta, contraataca y estampa contra paredes; Balanceada mixta. Ideas del usuario (2026-10-11, tras probar D1: «se siente bien; la Experta hace parry a todo y espera el momento justo para golpear»): comportamientos más variados, como rodear al jugador o dominar el centro de la arena. La carrerilla de la capa táctica (hoy solo contra un rival quieto, y no se nota jugando) se revisa aquí: que la usen más los perfiles a los que les pegue, como el de Ataque. **Hecho (2026-10-12):** `AttackAIBrain`, `DefenseAIBrain` y `AgilityAIBrain` heredan de `AIBrain` (la Balanceada) y `AIProfiles` elige la clase; el perfil sale de la peonza o se elige en el Sandbox. Ataque: presión, cargados y carrerilla siempre que tenga sitio. Defensa: domina el centro y contraataca o empotra. Agilidad: rodea, entra y sale con dash y busca parrys. Cada perfil multiplica el parry, la esquiva y la reacción del nivel (tabla y medidas en 6.4). Probado con probes en el Sandbox en Difícil, Normal y Fácil contra una IA Normal: cada perfil sale con su clase y se distingue en las medidas (la Agilidad hace 8 dashes, frente a 0-1; el Ataque, 7 carrerillas, frente a 1-2; la Defensa sujeta el centro la mitad del tiempo). **Probado con mando (2026-10-12):** los perfiles se notan.
+  - Segunda vuelta (2026-10-12, tras probarla el usuario: «lee demasiado bien mis movimientos; se nota que es todo demasiado calculado»): fallos humanos por nivel (ver con retraso, predicción con error, despistes, pulso imperfecto y pasarse al rodear o al llegar), tabla en 6.4. Probado con probes: los fallos salen más en Fácil que en Experto y el parry no se rompe. Falta probarlo con mando: que se le pueda engañar con fintas sin que parezca tonta. 🎮
+- [x] D9. **Nivel Imposible** (pedido el 2026-10-12): Experto mejorado y sin fallos humanos (6.4); en el Sandbox, quinta opción de «Nivel IA». Probado con un probe (0 despistes, 8 parrys y daño 135 / 67 contra una IA Normal en 40 s). Falta probarlo con mando. 🎮
 - [ ] D4. Parry de la IA: lanzar un ataque rápido justo cuando el rival ataca.
 - [ ] D5. Uso de los especiales por la IA (cada poder en su buen momento).
 - [x] D6. IA en el panel del sandbox: 1-3 rivales, nivel y arquetipo. *Hecho en D1: comportamiento «IA» y nivel (para todos los dummies a la vez).* **Completado con D3 (2026-10-12):** filas «Perfil IA» (según peonza o uno de los cuatro) y «Su peonza» (preset de los dummies), también para todos a la vez. Comprobado con una captura del panel; falta con mando. 🎮
@@ -1215,6 +1257,10 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [ ] J5. Android (**después de completar la versión de PC**): multijugador en red local (6.5) con lobby para crear, buscar y unirse; controles táctiles y menús para pantalla pequeña; orientación solo horizontal, zona segura en el HUD, 60 FPS, botón Atrás, texturas ASTC y build AAB. Antes de empezar, aprender lo básico de Netcode for GameObjects con una prueba aparte.
 - [ ] J6. Revisar las reglas de 7.5 y 6.5 al añadir shaders, efectos, código que escriba archivos o cambios en cómo llegan las órdenes a la peonza.
 - [ ] J7. Probar una partida a distancia con **Parsec** (anfitrión + 1-3 invitados con mando): asignación en el lobby, latencia y si se puede hacer parry. Steam Remote Play Together, cuando el juego esté en Steam. 🎮
+
+**Fase K. Aspecto visual del combate** (después de terminar la IA, 2026-10-12)
+
+- [ ] K1. **Anticipación de los ataques:** efectos más claros o llamativos al lanzar un ataque rápido (y al empezar un cargado), para verlos venir y poder hacer parry. Jugando contra la IA (2026-10-12) cuesta hacerle parry porque sus ataques no se anticipan. 🎮
 
 **Otros pendientes**
 

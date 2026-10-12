@@ -417,7 +417,7 @@ namespace FakeBlade.Core
 
             _aiLevelRow.SetOptions(new[]
             {
-                Loc.Get("AI_EASY"), Loc.Get("AI_NORMAL"), Loc.Get("AI_HARD"), Loc.Get("AI_EXPERT")
+                Loc.Get("AI_EASY"), Loc.Get("AI_NORMAL"), Loc.Get("AI_HARD"), Loc.Get("AI_EXPERT"), Loc.Get("AI_IMPOSSIBLE")
             }, (int)SandboxSettings.AIDifficulty);
 
             _aiProfileRow.SetOptions(new[]

@@ -6,6 +6,8 @@ namespace FakeBlade.Core
     /// Lo que la IA sabe de la partida en este frame (GDD 6.4): rival más cercano, si viene un ataque
     /// y dónde está la pared. Lee los datos internos del juego; lo que el nivel ignora se queda en
     /// "no lo sabe" (TargetCharges = -1, TargetCharging = false, pared en el infinito).
+    /// La posición y la velocidad del rival (Distance, ToTarget, TargetVelocity...) le llegan con el retraso
+    /// del nivel; ClosingSpeed, TimeToImpact e IncomingAttack (la amenaza) van con la posición real.
     /// Clase C# sin asignaciones por frame.
     /// </summary>
     public sealed class AIPerception
@@ -18,6 +20,15 @@ namespace FakeBlade.Core
         private const float ThreatGap = 4f;
         /// <summary>Por debajo de esta velocidad (m/s) el rival cuenta como quieto.</summary>
         private const float IdleSpeed = 1.5f;
+        /// <summary>Muestras del rival que guarda para verlo con retraso (cubre 0,35 s hasta ~360 FPS).</summary>
+        private const int HistorySize = 128;
+
+        private readonly float[] _historyTime = new float[HistorySize];
+        private readonly Vector3[] _historyPosition = new Vector3[HistorySize];
+        private readonly Vector3[] _historyVelocity = new Vector3[HistorySize];
+        private int _historyHead;
+        private int _historyCount;
+        private FakeBladeController _historyTarget;
 
         /// <summary>Radio real del collider (esfera × escala), leído una vez.</summary>
         public float BladeRadius { get; private set; }
@@ -109,21 +120,33 @@ namespace FakeBlade.Core
                 return;
             }
 
-            Vector3 offset = Target.Position - position;
+            // Lo que ve del rival para moverse y apuntar llega con el retraso del nivel (perceptionDelay):
+            // las fintas la engañan. Sus ataques se ven al momento (ya tienen su reacción y su error de parry).
+            Vector3 livePosition = Target.Position;
+            Vector3 liveVelocity = Target.Velocity;
+            liveVelocity.y = 0f;
+            RecordTarget(livePosition, liveVelocity);
+            SeenTarget(level.perceptionDelay, out Vector3 seenPosition, out Vector3 targetVelocity);
+
+            Vector3 offset = seenPosition - position;
             offset.y = 0f;
             Distance = offset.magnitude;
             ToTarget = Distance > 0.01f ? offset / Distance : Vector3.forward;
             Gap = Mathf.Max(0f, Distance - 2f * BladeRadius);
-
-            Vector3 targetVelocity = Target.Velocity;
-            targetVelocity.y = 0f;
             TargetVelocity = targetVelocity;
-            ClosingSpeed = Vector3.Dot(velocity - targetVelocity, ToTarget);
-            TimeToImpact = ClosingSpeed > 0.1f ? Gap / ClosingSpeed : float.PositiveInfinity;
+
+            // Amenaza: con la posición real
+            Vector3 liveOffset = livePosition - position;
+            liveOffset.y = 0f;
+            float liveDistance = liveOffset.magnitude;
+            Vector3 liveToTarget = liveDistance > 0.01f ? liveOffset / liveDistance : Vector3.forward;
+            float liveGap = Mathf.Max(0f, liveDistance - 2f * BladeRadius);
+            ClosingSpeed = Vector3.Dot(velocity - liveVelocity, liveToTarget);
+            TimeToImpact = ClosingSpeed > 0.1f ? liveGap / ClosingSpeed : float.PositiveInfinity;
 
             TargetAttacking = Target.IsAttacking;
             TargetCharging = level.readsCharging && Target.Attack.IsCharging;
-            IncomingAttack = TargetAttacking && Gap < ThreatGap && Vector3.Dot(targetVelocity, -ToTarget) > IncomingSpeed;
+            IncomingAttack = TargetAttacking && liveGap < ThreatGap && Vector3.Dot(liveVelocity, -liveToTarget) > IncomingSpeed;
             TargetCharges = level.readsResources ? Target.Attack.CurrentCharges : -1;
             TargetSpin = Target.SpinSpeedPercentage;
             TargetIdle = targetVelocity.sqrMagnitude < IdleSpeed * IdleSpeed && !TargetAttacking && !Target.Attack.IsCharging;
@@ -133,12 +156,41 @@ namespace FakeBlade.Core
             TargetOutward = Vector3.zero;
             if (arena != null)
             {
-                Vector3 fromCenter = Target.Position - arena.Center;
+                Vector3 fromCenter = seenPosition - arena.Center;
                 fromCenter.y = 0f;
                 float radius = fromCenter.magnitude;
                 TargetOutward = radius > 0.01f ? fromCenter / radius : Vector3.zero;
                 TargetWallDistance = arena.InnerRadius - radius - BladeRadius;
             }
+        }
+
+        /// <summary>Guarda la posición y la velocidad del rival en este frame (empieza de cero si cambia de rival).</summary>
+        private void RecordTarget(Vector3 position, Vector3 velocity)
+        {
+            if (Target != _historyTarget)
+            {
+                _historyTarget = Target;
+                _historyCount = 0;
+            }
+            _historyHead = (_historyHead + 1) % HistorySize;
+            _historyTime[_historyHead] = Time.time;
+            _historyPosition[_historyHead] = position;
+            _historyVelocity[_historyHead] = velocity;
+            if (_historyCount < HistorySize) _historyCount++;
+        }
+
+        /// <summary>Lo que ve del rival: la muestra más reciente de hace al menos <paramref name="delay"/> s (o la más antigua).</summary>
+        private void SeenTarget(float delay, out Vector3 position, out Vector3 velocity)
+        {
+            float seenTime = Time.time - delay;
+            int index = _historyHead;
+            for (int i = 0; i < _historyCount; i++)
+            {
+                index = (_historyHead - i + HistorySize) % HistorySize;
+                if (_historyTime[index] <= seenTime) break;
+            }
+            position = _historyPosition[index];
+            velocity = _historyVelocity[index];
         }
     }
 }

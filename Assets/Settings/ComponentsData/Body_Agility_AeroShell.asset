@@ -27,7 +27,7 @@ MonoBehaviour:
   attackPowerModifier: 1
   defenseModifier: -2
   dashForceModifier: 2
-  attackChargesModifier: 1
+  attackChargesModifier: 0
   parryWindowModifier: 0
   gripModifier: 0
   traits:

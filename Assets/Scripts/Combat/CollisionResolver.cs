@@ -19,6 +19,8 @@ namespace FakeBlade.Core
     /// y la otra viene atacando (ataque o dash), se ignora la regla de velocidad: quien hace el
     /// parry no recibe daño y el atacante solo recibe su fracción del impacto y sale rebotado.
     /// Si ambas están en ventana de parry, se anulan sin daño.
+    /// BLOQUEO (2026-10-12): contra un cargado de nivel parryBlockMinLevel o más, el parry no lo refleja: quien
+    /// para recibe la mitad del daño y del empuje del golpe; el atacante no recibe daño y queda aturdido un instante.
     ///
     /// LANZADA (estado de Rayos): si solo una de las dos está lanzada, pierde la prioridad por
     /// velocidad: recibe el daño como la más lenta, la otra un choque parejo, y todo el daño
@@ -31,8 +33,11 @@ namespace FakeBlade.Core
         /// <summary>Parry: (quien hace el parry, atacante, doble parry). Lo escucha el HUD.</summary>
         public static event System.Action<FakeBladeController, FakeBladeController, bool> OnParry;
 
-        /// <summary>Stuck: dos peonzas pegadas sin velocidad que se separan.</summary>
-        public enum ClashKind { Normal, Even, Parry, DoubleParry, Launched, Stuck }
+        /// <summary>Bloqueo: (quien bloquea, atacante). Un parry contra un cargado fuerte. Lo escucha el HUD.</summary>
+        public static event System.Action<FakeBladeController, FakeBladeController> OnBlock;
+
+        /// <summary>Stuck: dos peonzas pegadas sin velocidad que se separan. Block: parry contra un cargado fuerte.</summary>
+        public enum ClashKind { Normal, Even, Parry, DoubleParry, Launched, Stuck, Block }
 
         /// <summary>Todo lo de un choque resuelto, para la grabación de datos del sandbox.</summary>
         public struct ClashReport
@@ -226,6 +231,14 @@ namespace FakeBlade.Core
             FakeBladeController attacker = aParries ? b : a;
             Vector3 parrierToAttacker = aParries ? toB : -toB;
 
+            // Contra un cargado fuerte no se refleja: bloqueo
+            if (attacker.ChargeLevel >= cfg.parryBlockMinLevel)
+            {
+                ResolveBlock(parrier, attacker, parrierToAttacker, aParries ? approachA : approachB,
+                    aParries ? approachB : approachA, aParries, contactPoint);
+                return;
+            }
+
             // El atacante se sigue llevando su fracción del impacto (la misma que recibe
             // normalmente la peonza más rápida); quien hace el parry no recibe nada.
             float baseDamage = closing * cfg.damagePerImpactSpeed;
@@ -242,6 +255,8 @@ namespace FakeBlade.Core
             parrier.ParryRebound(-parrierToAttacker * cfg.parryKnockback * cfg.parryDefenderKnockbackFraction, false);
 
             parrier.RegisterParry();
+            // A quien le hacen parry también gana algo: atacar es arriesgarse (2026-10-12)
+            if (!parrier.IsAllyOf(attacker)) attacker.RegisterParried();
             parrier.PlayParryFeedback(contactPoint);
             parrier.NotifyClash(attacker, 0f);
             attacker.NotifyClash(parrier, dealt);
@@ -249,6 +264,59 @@ namespace FakeBlade.Core
             Report(ClashKind.Parry, parrier, attacker, aParries ? approachA : approachB, aParries ? approachB : approachA,
                 0f, dealt, cfg.parryKnockback * cfg.parryDefenderKnockbackFraction, cfg.parryKnockback * attacker.KnockbackResistance,
                 0, attackerCharge, false, attackerDash);
+        }
+
+        /// <summary>
+        /// Bloqueo (2026-10-12): parry contra un cargado de nivel parryBlockMinLevel o más. Cuenta como parry, pero no
+        /// refleja: quien bloquea recibe blockDamageFraction del golpe y blockKnockbackFraction del empuje que recibiría
+        /// quieta, y gana parte de la energía del parry. El atacante no recibe daño, gana la energía de un golpe
+        /// acertado, rebota como la ganadora de un choque y queda aturdido un instante (más cuanto más ligera).
+        /// </summary>
+        private static void ResolveBlock(FakeBladeController parrier, FakeBladeController attacker, Vector3 parrierToAttacker,
+            float approachParrier, float approachAttacker, bool parrierIsA, Vector3 contactPoint)
+        {
+            var cfg = CombatConfig.Active;
+            ClashBonus bonus = attacker.Special.GetClashBonus(parrier, approachAttacker);
+
+            // La mitad de lo que recibiría quieta: sin la velocidad de su propio ataque rápido, que si no subía el golpe
+            // (medido: 70% del daño de no hacer nada, en vez del 50%)
+            float attackerSpeed = attacker.DamageSpeed(approachAttacker);
+            float hitDamage = cfg.hitBaseDamage * BladeFormulas.HitSpeedFactor(cfg, attackerSpeed);
+            float damage = hitDamage * attacker.OffenseMultiplier * attacker.ChargeDamageMultiplier *
+                           attacker.HitTypeDamageMultiplier * SlowHitFactor(attacker, attackerSpeed) * cfg.blockDamageFraction;
+            float dealt = parrier.ApplyDamage(damage * bonus.DamageMultiplier, attacker);
+            CutHealIfAttacked(parrier, attacker, dealt);
+            ApplyThorns(parrier, attacker, dealt);
+
+            float knockback = Mathf.Min((cfg.knockbackBase + approachAttacker * cfg.knockbackPerSpeedDiff)
+                                        * attacker.OutgoingKnockbackMultiplier * KnockbackMassRatio(attacker, parrier),
+                                        cfg.maxKnockback);
+            float toParrier = knockback * parrier.KnockbackResistance * bonus.KnockbackMultiplier * cfg.blockKnockbackFraction;
+            float toAttacker = knockback * cfg.winnerKnockbackFraction * attacker.KnockbackResistance;
+            int attackerCharge = attacker.ChargeLevel;
+            parrier.ApplyKnockback(-parrierToAttacker * toParrier);
+            attacker.ApplyKnockback(parrierToAttacker * toAttacker);
+            attacker.Special.NotifyClashBonusApplied(parrier, bonus, contactPoint);
+
+            if (!parrier.IsAllyOf(attacker))
+            {
+                parrier.RegisterParry(cfg.blockEnergyFraction);
+                // El golpe ha entrado: el atacante gana la energía de un golpe acertado de su tipo
+                attacker.RegisterSuccessfulHit(false);
+            }
+            // Aturdimiento simbólico del atacante, mayor cuanto más ligero (da impacto al bloqueo)
+            float weightRatio = cfg.referenceWeight / Mathf.Max(cfg.minPhysicalMass, attacker.Stats.Weight);
+            attacker.ApplyStagger(Mathf.Clamp(cfg.blockStagger * weightRatio, cfg.blockStaggerMin, cfg.blockStaggerMax));
+            parrier.PlayParryFeedback(contactPoint);
+            parrier.NotifyClash(attacker, dealt);
+            attacker.NotifyClash(parrier, 0f);
+            OnBlock?.Invoke(parrier, attacker);
+
+            FakeBladeController a = parrierIsA ? parrier : attacker;
+            FakeBladeController b = parrierIsA ? attacker : parrier;
+            Report(ClashKind.Block, a, b, parrierIsA ? approachParrier : approachAttacker, parrierIsA ? approachAttacker : approachParrier,
+                parrierIsA ? dealt : 0f, parrierIsA ? 0f : dealt, parrierIsA ? toParrier : toAttacker, parrierIsA ? toAttacker : toParrier,
+                parrierIsA ? 0 : attackerCharge, parrierIsA ? attackerCharge : 0, false, false);
         }
 
         /// <summary>

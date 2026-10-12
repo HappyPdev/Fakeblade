@@ -121,9 +121,17 @@ namespace FakeBlade.Core
             }
         }
 
-        private void OnEnable() => CollisionResolver.OnParry += HandleParry;
+        private void OnEnable()
+        {
+            CollisionResolver.OnParry += HandleParry;
+            CollisionResolver.OnBlock += HandleBlock;
+        }
 
-        private void OnDisable() => CollisionResolver.OnParry -= HandleParry;
+        private void OnDisable()
+        {
+            CollisionResolver.OnParry -= HandleParry;
+            CollisionResolver.OnBlock -= HandleBlock;
+        }
 
         private void OnDestroy()
         {
@@ -335,6 +343,9 @@ namespace FakeBlade.Core
             string b = Name(attacker.GetComponent<PlayerController>());
             Log(both ? Loc.Format("LOG_DOUBLE_PARRY", a, b) : Loc.Format("LOG_PARRY", a, b));
         }
+
+        private void HandleBlock(FakeBladeController parrier, FakeBladeController attacker) =>
+            Log(Loc.Format("LOG_BLOCK", Name(parrier.GetComponent<PlayerController>()), Name(attacker.GetComponent<PlayerController>())));
 
         /// <summary>Cada choque llega dos veces (una por peonza) en el mismo frame: se juntan en una línea.</summary>
         private void LogClash(PlayerController player, FakeBladeController other, float taken)

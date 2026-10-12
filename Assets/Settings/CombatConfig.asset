@@ -59,7 +59,7 @@ MonoBehaviour:
   parryKnockback: 10
   parryStagger: 0.3
   parryDefenderKnockbackFraction: 0.1
-  parryEnergy: 0.2
+  parryEnergy: 0.12
   parryHitStop: 0.08
   comboWindow: 1
   comboBonusPerHit: 0.1

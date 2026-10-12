@@ -55,7 +55,7 @@ namespace FakeBlade.Core
         {
             AIPerception p = Perception;
             bool attacking = Blade.Attack.IsAttacking;
-            if (FullStyle && _wasAttacking && !attacking && !Busy && !Blade.IsDestroyed && p.Target != null &&
+            if (FullStyle && _wasAttacking && !attacking && !Busy && !Lapsing && !Blade.IsDestroyed && p.Target != null &&
                 p.Distance < KeepDistance && Blade.CanDash && Random.value < DashOutChance)
             {
                 Vector3 side = Perpendicular();

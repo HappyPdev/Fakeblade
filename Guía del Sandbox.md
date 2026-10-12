@@ -35,7 +35,9 @@ Todo lo que eliges se mantiene mientras sigas en el sandbox (también si reinici
 | **Rivales** | Ninguno o de 1 a 3 dummies (máximo 4 peonzas en total). Cambiarlo reinicia la partida al cerrar el panel. |
 | **Dummies** | Qué hacen todos: **Quietos**, **Se mueven**, **Atacan** (ataque rápido hacia ti: sirve para practicar el parry), **Dash hacia ti**, **Especial** (llenan la esfera y usan su poder) o **IA** (los controla la IA con el nivel de la fila siguiente). |
 | **Cada** | Cada cuántos segundos hacen su acción: 0,5 / 1 / 2 / 3 s. Con **IA** no se usa. |
-| **Nivel IA** | Con **IA**: Fácil, Normal, Difícil o Experto (GDD 6.4). Se aplica al momento. |
+| **Nivel IA** | Con **IA**: Fácil, Normal, Difícil, Experto o Imposible (sin ningún fallo) (GDD 6.4). Se aplica al momento. |
+| **Perfil IA** | Con **IA**: **Según peonza** (el arquetipo de la peonza de cada dummy) o Balanceada, Ataque, Defensa o Agilidad a mano (GDD 6.4). Se aplica al momento. |
+| **Su peonza** | La peonza de los dummies: uno de los presets (Ataque, Defensa, Agilidad, Balanceada). Se cambia al momento, con cualquier comportamiento. |
 
 ## 4. Mi peonza
 
@@ -68,7 +70,7 @@ Todo empieza apagado. Cada fila es un Sí/No:
 | **Números de daño** | Números que suben sobre la peonza. | Las RPM que pierde: **blanco** (menos de 10), **naranja** (10-29) y **rojo** (30 o más). El roce continuo no saca números. |
 | **Estados** | Texto bajo la peonza. | "QUEMADA 2,1 S", "CONGELADA", "LANZADA" o "INVULNERABLE", con el tiempo que le queda. |
 | **FPS** | Contador arriba a la derecha. | Fotogramas por segundo. |
-| **Registro** | Los últimos 6 eventos abajo a la izquierda. | Choques ("CHOQUE J2 -2 · J1 -56": lo que pierde cada uno), parrys, especiales, estados, K.O. y curaciones cortadas por un golpe ("CURACIÓN CORTADA"). Cada jugador va con su color; desaparecen a los 6 s. |
+| **Registro** | Los últimos 6 eventos abajo a la izquierda. | Choques ("CHOQUE J2 -2 · J1 -56": lo que pierde cada uno), parrys, bloqueos, especiales, estados, K.O. y curaciones cortadas por un golpe ("CURACIÓN CORTADA"). Cada jugador va con su color; desaparecen a los 6 s. |
 | **Guardar datos** | Nada en pantalla. | Guarda la sesión en un archivo (ver punto 9). **Activado por defecto.** |
 
 Las ayudas usan tiempo real: a cámara lenta se leen igual.
@@ -127,7 +129,7 @@ Cambiar de arena empieza un archivo nuevo. Se puede abrir con Excel u otra hoja 
 | **SESSION** | — | — | — | — | — | arena, fecha y versión |
 | **CONFIG** | — | — | — | — | — | velocidad y valores de combate en uso (se repite al cambiarlos) |
 | **PLAYER** | jugador | RPM máx. | peso | ataque | defensa | humano o dummy, piezas, poder, arquetipo, velocidad, cargas, dash, desgaste (se repite al cambiar piezas) |
-| **CLASH** | A / B | velocidad de A hacia B (m/s) | velocidad de B hacia A | RPM que pierde A | RPM que pierde B | tipo (Normal, Even = parejo, Parry, DoubleParry, Launched, Stuck = peonzas pegadas que se separan), empuje a cada una, nivel de carga, dash, % de RPM tras el choque |
+| **CLASH** | A / B | velocidad de A hacia B (m/s) | velocidad de B hacia A | RPM que pierde A | RPM que pierde B | tipo (Normal, Even = parejo, Parry, DoubleParry, Block = parry contra un cargado de nivel 2 o más, Launched, Stuck = peonzas pegadas que se separan), empuje a cada una, nivel de carga, dash, % de RPM tras el choque |
 | **DAMAGE** | quien pierde / quien lo causa | RPM perdidas | RPM que le quedan | — | — | estado si tiene alguno (la quemadura sale aquí, también los choques) |
 | **ATTACK** | atacante | nivel de carga (0 = rápido) | % de RPM | — | — | — |
 | **DASH** | jugador | — | % de RPM | — | — | — |

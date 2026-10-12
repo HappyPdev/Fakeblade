@@ -1048,9 +1048,19 @@ namespace FakeBlade.Core
         }
 
         /// <summary>Recompensa de un parry con éxito: energía de especial (la carga ya no se devuelve, 2026-10-11).</summary>
-        public void RegisterParry()
+        /// <summary>Le han hecho parry: algo de energía por haberse arriesgado a atacar (2026-10-12).</summary>
+        public void RegisterParried() => AddSpecialEnergy(CombatConfig.Active.parriedEnergy);
+
+        /// <summary>Aturdida unos segundos (sin control, ataques ni dash) sin cortar lo que esté haciendo.</summary>
+        public void ApplyStagger(float seconds)
         {
-            AddSpecialEnergy(CombatConfig.Active.parryEnergy * Trait(PartTraitType.SpecialEnergyParry));
+            if (seconds > 0f) _staggerEndTime = Mathf.Max(_staggerEndTime, Time.time + seconds);
+        }
+
+        /// <summary>Energía del parry; el bloqueo da solo una parte (<paramref name="energyScale"/>).</summary>
+        public void RegisterParry(float energyScale = 1f)
+        {
+            AddSpecialEnergy(CombatConfig.Active.parryEnergy * energyScale * Trait(PartTraitType.SpecialEnergyParry));
 
             if (showDebugInfo) Debug.Log($"[FakeBlade] {name} PARRY", this);
         }

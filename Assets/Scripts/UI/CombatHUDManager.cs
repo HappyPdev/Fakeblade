@@ -89,13 +89,29 @@ namespace FakeBlade.UI
             if (ensureEventSystem) MatchMenuUI.EnsureEventSystem();
         }
 
-        private void OnEnable() => CollisionResolver.OnParry += HandleParry;
-        private void OnDisable() => CollisionResolver.OnParry -= HandleParry;
+        private void OnEnable()
+        {
+            CollisionResolver.OnParry += HandleParry;
+            CollisionResolver.OnBlock += HandleBlock;
+        }
+
+        private void OnDisable()
+        {
+            CollisionResolver.OnParry -= HandleParry;
+            CollisionResolver.OnBlock -= HandleBlock;
+        }
 
         private void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry)
         {
             if (_centerText == null) return;
             ShowCenter(Loc.Get("PARRY"), 0.6f, 14, VfxSystem.ParryColor);
+        }
+
+        /// <summary>Bloqueo: parry contra un cargado fuerte (2026-10-12).</summary>
+        private void HandleBlock(FakeBladeController parrier, FakeBladeController attacker)
+        {
+            if (_centerText == null) return;
+            ShowCenter(Loc.Get("BLOCK"), 0.6f, 14, VfxSystem.ParryColor);
         }
 
         private void Start()

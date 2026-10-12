@@ -16,6 +16,8 @@ namespace FakeBlade.Core
     /// Capa táctica (Difícil, Experto): una agresividad (EvaluateAggression) según la vida, los parrys que le
     /// hace el rival, si está quieto o junto a la pared, que decide si guarda carga, cuánto carga y si coge carrerilla.
     /// El nivel (AILevel) fija reacción, puntería, probabilidades y qué datos lee.
+    /// Fallos humanos del nivel (2026-10-12): ve al rival con retraso (AIPerception), la predicción se pasa o se queda
+    /// corta, se despista a ratos, el stick deriva y, rodeando o llegando al rival, a veces se pasa (UpdateSlips).
     ///
     /// Es también el perfil Balanceado y la clase base de los demás perfiles por arquetipo (D3, AIProfiles):
     /// cambian el estilo (dónde se coloca, cuándo y cómo ataca, especial) con los métodos virtuales y retocan
@@ -103,6 +105,14 @@ namespace FakeBlade.Core
         private bool _special;
         private Vector2 _move;
 
+        // Fallos humanos (2026-10-12): predicción que se pasa o se queda corta, despistes, deriva del stick y pasarse
+        private float _predictionScale = 1f;
+        private float _nextLapse;
+        private float _lapseUntil;
+        private float _overshootUntil;
+        private Vector3 _overshootDir;
+        private float _noiseSeed;
+
         public AIDifficulty Difficulty
         {
             get => difficulty;
@@ -110,6 +120,7 @@ namespace FakeBlade.Core
             {
                 difficulty = value;
                 Level = AILevel.Get(value);
+                ScheduleLapse();
             }
         }
 
@@ -172,6 +183,7 @@ namespace FakeBlade.Core
             _aimTimer = 0f;
             _engageUntil = 0f;
             _move = Vector2.zero;
+            _overshootUntil = _lapseUntil = 0f;
         }
 
         public void Vibrate(float lowFrequency, float highFrequency, float duration) { }
@@ -182,6 +194,8 @@ namespace FakeBlade.Core
             Blade = GetComponent<FakeBladeController>();
             Level = AILevel.Get(difficulty);
             _orbitSign = Random.value < 0.5f ? -1f : 1f;
+            _noiseSeed = Random.Range(0f, 100f);
+            ScheduleLapse();
             _thinkTimer = Random.Range(0f, ReactionTime);
         }
 
@@ -222,6 +236,9 @@ namespace FakeBlade.Core
 
             Perception.Refresh(Blade, _arena, Level);
             UpdateAttack(dt);
+            UpdateSlips(dt);
+            // Despistada: ni se defiende ni decide, y el stick se queda como estaba
+            if (Lapsing) return;
             UpdateDefense();
             if (_intent == Intent.Engage) UpdateEngage();
             else if (_intent == Intent.RunUp) UpdateRunUp();
@@ -386,6 +403,15 @@ namespace FakeBlade.Core
                 return;
             }
 
+            // Contra un cargado fuerte el parry solo bloquea (recibe la mitad): si lo ve venir, primero intenta esquivarlo
+            if (Level.readsCharging && Perception.Target != null &&
+                Perception.Target.ChargeLevel >= CombatConfig.Active.parryBlockMinLevel &&
+                Blade.CanDash && Random.value < DodgeChance)
+            {
+                Dodge();
+                return;
+            }
+
             if (Blade.Attack.CurrentCharges > 0 && Random.value < ParryChance)
             {
                 // Con el error de timing del nivel: demasiado pronto o tarde, el parry falla
@@ -434,6 +460,7 @@ namespace FakeBlade.Core
             _pressFrame = Time.frameCount;
             _chargeTarget = level;
             _aimError = Random.Range(-Level.aimErrorDegrees, Level.aimErrorDegrees);
+            _predictionScale = 1f + Random.Range(-Level.predictionError, Level.predictionError);
             _aimTracksTarget = true;
             _aimDir = AimDirection();
             return true;
@@ -489,6 +516,7 @@ namespace FakeBlade.Core
             _intent = Intent.Engage;
             _engageUntil = Time.time + EngageTime;
             _aimError = Random.Range(-Level.aimErrorDegrees, Level.aimErrorDegrees);
+            _predictionScale = 1f + Random.Range(-Level.predictionError, Level.predictionError);
         }
 
         /// <summary>
@@ -576,7 +604,7 @@ namespace FakeBlade.Core
             {
                 // Tiempo que tarda en llegar: hueco / (impulso del ataque + lo que ya avanza hacia él)
                 float speed = Mathf.Max(4f, CombatConfig.Active.quickAttackImpulse + Vector3.Dot(Blade.Velocity, p.ToTarget));
-                aimPoint += p.TargetVelocity * (p.Gap / speed);
+                aimPoint += p.TargetVelocity * (p.Gap / speed * _predictionScale);
             }
 
             Vector3 dir = aimPoint - Blade.Position;
@@ -590,7 +618,12 @@ namespace FakeBlade.Core
             Vector3 dir;
             if (_attackHeld || _aimTimer > 0f || (_aimTracksTarget && Blade.Attack.IsAttacking))
             {
-                dir = _aimDir;
+                return new Vector2(_aimDir.x, _aimDir.z);
+            }
+            if (Time.time < _overshootUntil)
+            {
+                // Se ha pasado: sigue recta (aunque vaya hacia la pared)
+                dir = _overshootDir;
             }
             else
             {
@@ -624,7 +657,44 @@ namespace FakeBlade.Core
                         break;
                 }
             }
+            // Pulso imperfecto: el stick deriva despacio a un lado y a otro (ruido suave, sin asignaciones)
+            float wobble = (Mathf.PerlinNoise(Time.time * 0.8f, _noiseSeed) * 2f - 1f) * Level.steerWobbleDegrees;
+            dir = Quaternion.AngleAxis(wobble, Vector3.up) * dir;
             return new Vector2(dir.x, dir.z);
+        }
+
+        /// <summary>Despistada: un rato en que ni se defiende ni decide y el stick se queda como estaba.</summary>
+        protected bool Lapsing => Time.time < _lapseUntil;
+
+        private void ScheduleLapse() =>
+            _nextLapse = Level != null && Level.lapseInterval > 0f
+                ? Time.time + Level.lapseInterval * Random.Range(0.6f, 1.4f)
+                : float.PositiveInfinity;
+
+        /// <summary>
+        /// Fallos humanos del nivel: despistes cada cierto tiempo y, rodeando al rival o llegando a él, pasarse
+        /// (sigue recta un momento: abre el círculo y puede rozar la pared, o se pasa de frenada).
+        /// </summary>
+        private void UpdateSlips(float dt)
+        {
+            if (Time.time >= _nextLapse)
+            {
+                _lapseUntil = Time.time + Level.lapseDuration * Random.Range(0.7f, 1.3f);
+                ScheduleLapse();
+            }
+
+            AIPerception p = Perception;
+            if (Lapsing || Time.time < _overshootUntil || Level.overshootRate <= 0f || _intent != Intent.Approach ||
+                Busy || p.Target == null || _move.sqrMagnitude < 0.25f)
+                return;
+
+            bool orbiting = p.Distance < AttackRange * 1.3f;
+            bool arriving = p.ClosingSpeed > 3f && p.Distance < AttackRange * 1.5f;
+            if ((orbiting || arriving) && Random.value < Level.overshootRate * dt)
+            {
+                _overshootDir = new Vector3(_move.x, 0f, _move.y).normalized;
+                _overshootUntil = Time.time + Random.Range(0.5f, 0.9f);
+            }
         }
 
         /// <summary>

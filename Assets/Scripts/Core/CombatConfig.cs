@@ -174,10 +174,28 @@ namespace FakeBlade.Core
         public float parryStagger = 0.3f;
         [Tooltip("Fracción de ese rebote que recibe quien hace el parry (casi no se mueve)")]
         [Range(0f, 1f)] public float parryDefenderKnockbackFraction = 0.1f;
-        [Tooltip("Energía de especial que gana quien hace el parry (1 = esfera llena)")]
-        [Range(0f, 1f)] public float parryEnergy = 0.2f;
+        [Tooltip("Energía de especial que gana quien hace el parry (1 = esfera llena). 2026-10-12: 0,2 → 0,12, " +
+                 "porque contra quien para todo no se cargaba nunca el especial")]
+        [Range(0f, 1f)] public float parryEnergy = 0.12f;
+        [Tooltip("Energía de especial que gana a quien le hacen parry: recompensa el riesgo de atacar (2026-10-12)")]
+        [Range(0f, 1f)] public float parriedEnergy = 0.06f;
         [Tooltip("Pausa breve del juego al hacer parry (segundos reales). 0 = sin pausa")]
         public float parryHitStop = 0.08f;
+        [Tooltip("Bloqueo (2026-10-12): un parry contra un cargado de este nivel o más no lo refleja; quien para " +
+                 "recibe parte del daño y del empuje, y el atacante ni recibe daño ni queda aturdido")]
+        [Min(1)] public int parryBlockMinLevel = 2;
+        [Tooltip("Fracción del daño del golpe que recibe quien bloquea")]
+        [Range(0f, 1f)] public float blockDamageFraction = 0.5f;
+        [Tooltip("Fracción del empuje del golpe que recibe quien bloquea")]
+        [Range(0f, 1f)] public float blockKnockbackFraction = 0.5f;
+        [Tooltip("Fracción de la energía del parry (parryEnergy) que gana quien bloquea")]
+        [Range(0f, 1f)] public float blockEnergyFraction = 0.5f;
+        [Tooltip("Aturdimiento (s) del atacante bloqueado con el peso de referencia; se multiplica por " +
+                 "referenceWeight ÷ peso (las ligeras, más). Simbólico: da impacto al bloqueo")]
+        public float blockStagger = 0.15f;
+        [Tooltip("Límites del aturdimiento del bloqueo (s)")]
+        public float blockStaggerMin = 0.08f;
+        public float blockStaggerMax = 0.25f;
 
         [Header("=== COMBOS ===")]
         [Tooltip("Tiempo máximo entre golpes para encadenar combo")]

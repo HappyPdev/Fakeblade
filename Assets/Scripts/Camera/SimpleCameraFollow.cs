@@ -5,8 +5,10 @@ namespace FakeBlade.Core
 {
     /// <summary>
     /// Cámara dinámica que encuadra a todas las peonzas vivas (GDD 6 / v2).
-    /// Mantiene la dirección de vista inicial y ajusta la distancia según la dispersión.
-    /// El temblor de CameraShake se suma encima sin acumular deriva.
+    /// Ángulo fijo (2026-10-12): nunca gira; mantiene la dirección de vista inicial y solo se desplaza y hace
+    /// zoom según la dispersión, las dos cosas suavizadas por separado. El punto que sigue tira un poco hacia el
+    /// centro de la arena para moverse menos. Antes miraba cada frame al centro exacto de las peonzas y "se
+    /// movía un poco loca". El temblor de CameraShake se suma encima sin acumular deriva.
     /// </summary>
     [DisallowMultipleComponent]
     public class SimpleCameraFollow : MonoBehaviour
@@ -18,15 +20,29 @@ namespace FakeBlade.Core
         public float maxZoom = 22f;
         [Tooltip("Separación a partir de la cual se usa la distancia máxima")]
         public float zoomLimiter = 12f;
-        [Tooltip("Velocidad de suavizado")]
-        public float smoothSpeed = 5f;
+        [Tooltip("Segundos que tarda (aprox.) en alcanzar el punto que sigue. Más = más suave")]
+        public float followSmoothTime = 0.4f;
+        [Tooltip("Segundos que tarda (aprox.) en ajustar el zoom. Más = más suave")]
+        public float zoomSmoothTime = 0.6f;
+        [Tooltip("Cuánto tira el punto que sigue hacia el centro de la arena (0 = el centro de las peonzas, 1 = fijo en la arena)")]
+        [Range(0f, 1f)] public float arenaCenterPull = 0.25f;
         [Tooltip("Offset vertical extra")]
         public float heightOffset = 2f;
 
+        /// <summary>Altura sobre el suelo del punto al que mira (centro de la pantalla).</summary>
+        private const float LookHeight = 0.5f;
+
         private readonly List<Transform> _targets = new List<Transform>(4);
         private Vector3 _viewDirection = new Vector3(0f, 1f, -0.5f).normalized;
+        private bool _hasView;
+        private Quaternion _rotation;
+        private Vector3 _focus;
+        private Vector3 _focusVelocity;
+        private float _zoom;
+        private float _zoomVelocity;
+        private bool _hasFocus;
+        private ArenaDefinition _arena;
         private Vector3 _basePosition;
-        private bool _hasBase;
 
         public void SetTargets(GameObject[] targets)
         {
@@ -37,38 +53,48 @@ namespace FakeBlade.Core
                     if (targets[i] != null) _targets.Add(targets[i].transform);
             }
 
-            _basePosition = transform.position;
-            _hasBase = true;
-
-            if (TryGetBounds(out Vector3 center, out _))
+            // La dirección de vista se toma una sola vez, de la posición inicial de la cámara en la escena
+            if (!_hasView && TryGetBounds(out Vector3 center, out _))
             {
-                Vector3 offset = _basePosition - center;
+                Vector3 offset = transform.position - center;
                 if (offset.sqrMagnitude > 0.01f) _viewDirection = offset.normalized;
+                _hasView = true;
             }
         }
 
         private void LateUpdate()
         {
-            if (!_hasBase)
+            if (!TryGetBounds(out Vector3 center, out float spread))
             {
-                _basePosition = transform.position;
-                _hasBase = true;
+                if (_hasFocus) transform.SetPositionAndRotation(_basePosition + CameraShake.CurrentOffset, _rotation);
+                return;
             }
 
-            if (TryGetBounds(out Vector3 center, out float spread))
-            {
-                float zoom = Mathf.Lerp(minZoom, maxZoom, spread / Mathf.Max(0.01f, zoomLimiter));
-                Vector3 target = center + _viewDirection * zoom + Vector3.up * heightOffset;
-                _basePosition = Vector3.Lerp(_basePosition, target, 1f - Mathf.Exp(-smoothSpeed * Time.deltaTime));
+            if (_arena == null) _arena = FindAnyObjectByType<ArenaDefinition>();
+            Vector3 targetFocus = _arena != null ? Vector3.Lerp(center, _arena.Center, arenaCenterPull) : center;
+            float targetZoom = Mathf.Lerp(minZoom, maxZoom, spread / Mathf.Max(0.01f, zoomLimiter));
 
-                transform.position = _basePosition + CameraShake.CurrentOffset;
-                transform.LookAt(center + Vector3.up * 0.5f);
+            if (!_hasFocus)
+            {
+                _focus = targetFocus;
+                _zoom = targetZoom;
+                _rotation = Quaternion.LookRotation(-CameraOffset(minZoom));
+                _hasFocus = true;
             }
             else
             {
-                transform.position = _basePosition + CameraShake.CurrentOffset;
+                _focus = Vector3.SmoothDamp(_focus, targetFocus, ref _focusVelocity, followSmoothTime);
+                _zoom = Mathf.SmoothDamp(_zoom, targetZoom, ref _zoomVelocity, zoomSmoothTime);
             }
+
+            // Ángulo fijo: el punto que sigue queda siempre en el centro de la pantalla
+            Vector3 lookPoint = _focus + Vector3.up * LookHeight;
+            _basePosition = lookPoint - _rotation * Vector3.forward * CameraOffset(_zoom).magnitude;
+            transform.SetPositionAndRotation(_basePosition + CameraShake.CurrentOffset, _rotation);
         }
+
+        /// <summary>De lo que mira a la cámara, con un zoom dado (la misma geometría de antes: vista + altura extra).</summary>
+        private Vector3 CameraOffset(float zoom) => _viewDirection * zoom + Vector3.up * (heightOffset - LookHeight);
 
         /// <summary>Centro de las peonzas activas y separación máxima (diámetro).</summary>
         private bool TryGetBounds(out Vector3 center, out float spread)

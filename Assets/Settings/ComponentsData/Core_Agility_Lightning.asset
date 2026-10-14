@@ -28,5 +28,6 @@ MonoBehaviour:
   dashForceModifier: 0
   attackChargesModifier: 0
   parryWindowModifier: 0
+  gripModifier: 0
   traits: []
   specialAbility: 4

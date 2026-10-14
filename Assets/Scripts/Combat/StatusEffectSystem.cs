@@ -11,7 +11,12 @@ namespace FakeBlade.Core
         /// <summary>Hielo: se mueve más lento y recarga los ataques más despacio.</summary>
         Frozen = 2,
         /// <summary>Rayos: sin prioridad por velocidad; recibe el golpe al chocar.</summary>
-        Launched = 3
+        Launched = 3,
+        /// <summary>
+        /// Rastro de agua: resbala (casi sin agarre). Va aparte del estado principal: se puede estar mojada a la vez
+        /// que congelada o lanzada; mojarse apaga la quemadura y mojada no se quema (2026-10-14).
+        /// </summary>
+        Wet = 4
     }
 
     /// <summary>
@@ -22,9 +27,14 @@ namespace FakeBlade.Core
     ///   congelada no se lanza y lanzada no se quema.
     /// - El mismo estado otra vez reinicia la duración (no se acumula).
     /// - Los valores los pone quien aplica el estado (el poder que golpea).
+    /// - Mojada (Rastro de agua) va aparte: convive con el estado principal, pero apaga la quemadura y la impide.
     /// </summary>
     public sealed class StatusEffectSystem
     {
+        // Mojada: independiente del estado principal
+        private float _wetDuration;
+        private float _wetTime;
+        private float _wetGrip = 1f;
         private StatusEffectType _current;
         private FakeBladeController _source;
         private float _duration;
@@ -53,6 +63,12 @@ namespace FakeBlade.Core
         public bool IsFrozen => _current == StatusEffectType.Frozen;
         public bool IsLaunched => _current == StatusEffectType.Launched;
 
+        public bool IsWet => _wetTime > 0f;
+        /// <summary>0-1: lo que le queda de estar mojada (el icono parpadea al acabar).</summary>
+        public float WetRemainingFraction => _wetDuration > 0f ? Mathf.Clamp01(_wetTime / _wetDuration) : 0f;
+        /// <summary>Agarre (giro y frenado) mientras está mojada.</summary>
+        public float WetGripMultiplier => IsWet ? _wetGrip : 1f;
+
         /// <summary>Velocidad de movimiento (congelación).</summary>
         public float MoveSpeedMultiplier => IsFrozen ? _freezeMoveMultiplier : 1f;
         /// <summary>Velocidad de recarga de los ataques (congelación).</summary>
@@ -66,7 +82,23 @@ namespace FakeBlade.Core
                    (current == StatusEffectType.Launched && incoming == StatusEffectType.Burning);
         }
 
-        public bool CanApply(StatusEffectType type) => type != StatusEffectType.None && !Blocks(_current, type);
+        public bool CanApply(StatusEffectType type) =>
+            type != StatusEffectType.None && !Blocks(_current, type) && !(type == StatusEffectType.Burning && IsWet);
+
+        /// <summary>
+        /// Mojada: el agarre se multiplica por gripMultiplier durante duration (volver a mojarse lo renueva). Apaga la
+        /// quemadura. Devuelve true si ha apagado una quemadura (cambia el estado principal).
+        /// </summary>
+        public bool Wet(float gripMultiplier, float duration)
+        {
+            if (duration <= 0f) return false;
+            _wetGrip = Mathf.Clamp01(gripMultiplier);
+            _wetDuration = duration;
+            _wetTime = duration;
+            return IsBurning && Clear();
+        }
+
+        public void ClearWet() => _wetTime = _wetDuration = 0f;
 
         /// <summary>Quemadura: pierde damagePctPerTick de sus RPM máximas cada tickInterval segundos.</summary>
         public bool TryBurn(FakeBladeController source, float damagePctPerTick, float tickInterval, float duration)
@@ -107,6 +139,7 @@ namespace FakeBlade.Core
         /// </summary>
         public bool Tick(float dt, FakeBladeController owner)
         {
+            if (_wetTime > 0f) _wetTime = Mathf.Max(0f, _wetTime - dt);
             if (_current == StatusEffectType.None) return false;
             _elapsed += dt;
 

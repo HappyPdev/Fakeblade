@@ -39,6 +39,35 @@ namespace FakeBlade.Core
 
         /// <summary>Clon fantasma que molesta a los rivales. Quehaceres C5.</summary>
         [InspectorName("Fantasma")]
-        Ghost = 7
+        Ghost = 7,
+
+        /// <summary>Pinchos que giran alrededor: refleja parte de los ataques recibidos (Fase L, L3).</summary>
+        [InspectorName("Pinchos")]
+        Spikes = 8,
+
+        /// <summary>Quien la embiste sale despedido y ella no pierde RPM en ese choque (Fase L, L2).</summary>
+        [InspectorName("Rebote")]
+        Bounce = 9,
+
+        /// <summary>Tres escudos que giran, paran y apartan a quien choca con ellos y se rompen (Fase L, L6).
+        /// En plural para no confundirlo con el antiguo Shield, que hoy es Defensa.</summary>
+        [InspectorName("Escudo")]
+        Shields = 10,
+
+        /// <summary>Atrae a las peonzas cercanas y después las expulsa con un empujón (Fase L, L1).</summary>
+        [InspectorName("Tornado")]
+        Tornado = 11,
+
+        /// <summary>Salta hacia delante y al caer hace una onda pequeña y fuerte (Fase L, L5).</summary>
+        [InspectorName("Salto")]
+        Leap = 12,
+
+        /// <summary>Deja un rastro de agua que hace resbalar a quien lo pisa (Fase L, L4).</summary>
+        [InspectorName("Rastro de agua")]
+        WaterTrail = 13,
+
+        /// <summary>Tres embestidas con mucho empuje que no admiten parry (2026-10-14).</summary>
+        [InspectorName("Embestida")]
+        Ram = 14
     }
 }

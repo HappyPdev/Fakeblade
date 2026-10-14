@@ -38,6 +38,8 @@ namespace FakeBlade.Core
             public float CostPerHit;
             /// <summary>Barra del especial (0-1) que gana por cada golpe suyo que entra.</summary>
             public float EnergyPerHit;
+            /// <summary>Barra del especial (0-1) que gana sola por segundo (con el desgaste).</summary>
+            public float EnergyPerSecond;
             /// <summary>Segundos que dura su especial (sin ganar energía mientras tanto).</summary>
             public float SpecialDuration;
             /// <summary>RPM que recupera cada vez que activa el especial (curación común + la del poder).</summary>
@@ -73,6 +75,7 @@ namespace FakeBlade.Core
                            PassiveHitsPerHit * cfg.specialEnergyPassiveHit;
             float required = special != null ? Mathf.Max(0.1f, special.energyRequired) : 1f;
             energy *= cfg.specialEnergyMultiplier * t.Multiplier(PartTraitType.SpecialEnergyAll) / required;
+            float energyPerSecond = cfg.specialEnergyPerSecond * t.Multiplier(PartTraitType.SpecialEnergyAll) / required;
 
             float duration = (special != null ? special.duration : 5f) * t.Multiplier(PartTraitType.SpecialDuration);
             float heal = s.MaxSpin * cfg.specialActivationSpinPct;
@@ -87,6 +90,7 @@ namespace FakeBlade.Core
                 SelfDamagePerHit = selfDamagePerHit,
                 CostPerHit = AttacksPerHit * attackCost + DashesPerHit * dashCost,
                 EnergyPerHit = energy,
+                EnergyPerSecond = energyPerSecond,
                 SpecialDuration = duration,
                 HealPerSpecial = heal
             };
@@ -106,6 +110,8 @@ namespace FakeBlade.Core
                 spinB -= b.Decay * Step;
                 activeA = Mathf.Max(0f, activeA - Step);
                 activeB = Mathf.Max(0f, activeB - Step);
+                if (activeA <= 0f) energyA += a.EnergyPerSecond * Step;
+                if (activeB <= 0f) energyB += b.EnergyPerSecond * Step;
 
                 if (t >= nextHit)
                 {

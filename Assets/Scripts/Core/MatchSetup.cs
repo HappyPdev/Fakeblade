@@ -9,7 +9,7 @@ namespace FakeBlade.Core
         Human = 0,
         /// <summary>Peonza de práctica que no se mueve.</summary>
         Dummy = 1,
-        /// <summary>Reservado para rivales con IA (GDD 10).</summary>
+        /// <summary>Rival con IA añadido en la selección de peonzas (D7, GDD 6.4).</summary>
         AI = 2
     }
 
@@ -32,6 +32,13 @@ namespace FakeBlade.Core
         public int ColorIndex;
         public Color Color = Color.white;
         public int Team;
+
+        /// <summary>Nivel de la IA (solo si Controller = AI). Su perfil sale del arquetipo de la peonza.</summary>
+        public AIDifficulty Difficulty = AIDifficulty.Normal;
+        /// <summary>Número de la IA entre las IA de la partida (IA 1, IA 2...), para su nombre.</summary>
+        public int CpuNumber;
+
+        public bool IsCpu => Controller == ControllerType.AI;
 
         public FakeBladeComponentData GetPart(ComponentSlot slot)
         {

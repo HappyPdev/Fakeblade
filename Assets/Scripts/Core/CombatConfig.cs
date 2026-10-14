@@ -286,8 +286,11 @@ namespace FakeBlade.Core
         public float specialEnergyPerChargeLevel = 0.05f;
         [Tooltip("Energía por ganar un choque sin atacar ni hacer dash")]
         public float specialEnergyPassiveHit = 0.03f;
-        [Tooltip("Multiplica toda la energía ganada (ritmo general del especial)")]
+        [Tooltip("Multiplica la energía ganada con los golpes (ritmo general del especial)")]
         public float specialEnergyMultiplier = 1.2f;
+        [Tooltip("Energía que se gana sola por segundo en combate, a la vez que el desgaste (2026-10-13). " +
+                 "No la multiplica specialEnergyMultiplier. 0,04 = la barra estándar en 25 s solo con el tiempo")]
+        [Min(0f)] public float specialEnergyPerSecond = 0.04f;
         // Duración, energía necesaria y valores propios de cada poder: en su asset de
         // Resources/SpecialAbilities (SpecialAbilityData)
 

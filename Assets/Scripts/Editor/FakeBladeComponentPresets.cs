@@ -151,6 +151,65 @@ namespace FakeBlade.Core.Editor
                 attack: 0, defense: 0, dash: 0,
                 ability: SpecialAbilityType.Ice);
 
+            // Fase L (2026-10-13): valores provisionales, se ajustan en el Inspector y en C7
+            CreateComponent("Core_Defense_Spikes", "Spike Core",
+                "Núcleo con púas. Poder: Pinchos (devuelve parte de los ataques que recibe).",
+                ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
+                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0,
+                attack: 2f, defense: 3f, dash: 0,
+                ability: SpecialAbilityType.Spikes);
+
+            CreateComponent("Core_Defense_Bounce", "Rebound Core",
+                "Núcleo elástico. Poder: Rebote (quien la embiste sale despedido).",
+                ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Defense,
+                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.2f,
+                attack: 0, defense: 0, dash: 0,
+                ability: SpecialAbilityType.Bounce);
+
+            CreateComponent("Core_Balanced_Shields", "Aegis Core",
+                "Núcleo protector. Poder: Escudo (tres escudos que giran y paran los choques).",
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
+                maxSpin: 75, spinDecay: 0, moveSpeed: 0, weight: 0,
+                attack: -4f, defense: 3f, dash: 0,
+                ability: SpecialAbilityType.Shields);
+
+            CreateComponent("Core_Balanced_Tornado", "Cyclone Core",
+                "Núcleo de viento. Poder: Tornado (atrae y después expulsa).",
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Balanced,
+                maxSpin: 50, spinDecay: 0.4f, moveSpeed: 0, weight: 0,
+                attack: 0, defense: 0, dash: 2f,
+                ability: SpecialAbilityType.Tornado);
+
+            CreateComponent("Core_Attack_Leap", "Meteor Core",
+                "Núcleo de impacto aéreo. Poder: Salto (cae con una onda fuerte).",
+                ComponentSlot.Core, WeightClass.Medium, BladeArchetype.Attack,
+                maxSpin: 50, spinDecay: 0, moveSpeed: 0, weight: 0.1f,
+                attack: 2f, defense: -3f, dash: -1f,
+                ability: SpecialAbilityType.Leap);
+
+            CreateComponent("Core_Agility_WaterTrail", "Tide Core",
+                "Núcleo de agua. Poder: Rastro de agua (quien lo pisa resbala).",
+                ComponentSlot.Core, WeightClass.Light, BladeArchetype.Agility,
+                maxSpin: 50, spinDecay: 0, moveSpeed: 0.5f, weight: 0,
+                attack: 0, defense: -6f, dash: 1f,
+                ability: SpecialAbilityType.WaterTrail);
+
+            // Fantasma (C5): la tabla de núcleos de GDD 3 (Ligera, +2 dash, +0,4 desgaste)
+            CreateComponent("Core_Agility_Ghost", "Phantom Core",
+                "Núcleo espectral. Poder: Fantasma (un clon que molesta a los rivales).",
+                ComponentSlot.Core, WeightClass.Light, BladeArchetype.Agility,
+                maxSpin: 50, spinDecay: 0.4f, moveSpeed: 0, weight: 0,
+                attack: 0, defense: 0, dash: 2f,
+                ability: SpecialAbilityType.Ghost);
+
+            // Embestida (2026-10-14): valores provisionales
+            CreateComponent("Core_Attack_Ram", "Rhino Core",
+                "Núcleo de embestida. Poder: Embestida (tres embestidas con mucho empuje).",
+                ComponentSlot.Core, WeightClass.Heavy, BladeArchetype.Attack,
+                maxSpin: 50, spinDecay: 0, moveSpeed: -1f, weight: 0.2f,
+                attack: 0, defense: 0, dash: 0,
+                ability: SpecialAbilityType.Ram);
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 

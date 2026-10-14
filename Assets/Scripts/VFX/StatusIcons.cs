@@ -15,6 +15,24 @@ namespace FakeBlade.Core
         private static Sprite s_burn;
         private static Sprite s_freeze;
         private static Sprite s_launch;
+        private static Sprite s_wet;
+
+        // Mojada: gota
+        private static readonly string[] Drop =
+        {
+            "     oo     ",
+            "    o##o    ",
+            "    o##o    ",
+            "   o####o   ",
+            "  o######o  ",
+            " o########o ",
+            " o###oo###o ",
+            "o####o#####o",
+            "o####o#####o",
+            " o###oo###o ",
+            "  o######o  ",
+            "   oooooo   ",
+        };
 
         public static Sprite Get(StatusEffectType status)
         {
@@ -26,6 +44,8 @@ namespace FakeBlade.Core
                     return s_freeze != null ? s_freeze : s_freeze = PixelUI.FromPattern("Status_Freeze", Snowflake, PixelsPerUnit);
                 case StatusEffectType.Launched:
                     return s_launch != null ? s_launch : s_launch = PixelUI.FromPattern("Status_Launch", Bolt, PixelsPerUnit);
+                case StatusEffectType.Wet:
+                    return s_wet != null ? s_wet : s_wet = PixelUI.FromPattern("Status_Wet", Drop, PixelsPerUnit);
                 default:
                     return null;
             }

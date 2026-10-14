@@ -410,7 +410,7 @@ namespace FakeBlade.UI
             if (_player == null) return;
 
             int number = _player.PlayerID + 1;
-            _badgeText.text = Loc.Format("PLAYER_BADGE", number);
+            _badgeText.text = _player.IsCpu ? Loc.Get("CPU_BADGE") : Loc.Format("PLAYER_BADGE", number);
 
             string playerName = _player.PlayerName;
             bool isDefaultName = string.IsNullOrEmpty(playerName) || playerName.StartsWith("Player ");

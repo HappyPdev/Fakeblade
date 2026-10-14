@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2af35ceda99d6244906940f3cd53e58, type: 3}
+  m_Name: Shields
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.ShieldsData
+  nameEs: ESCUDO
+  nameEn: SHIELD
+  color: {r: 1, g: 0.78, b: 0.2, a: 1}
+  icon: {fileID: 0}
+  energyRequired: 0.6
+  duration: 0.5
+  activationBurst: 1.5
+  shieldCount: 3
+  shieldArc: 60
+  turnsPerSecond: 1
+  radius: 0.95
+  minAttackerSpeed: 1
+  knockbackMultiplier: 1.8
+  damageToAttackerMultiplier: 0

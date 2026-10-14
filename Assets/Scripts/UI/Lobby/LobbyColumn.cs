@@ -12,6 +12,8 @@ namespace FakeBlade.UI
     /// Vista vacía:  "Mantén A / Espacio / Ctrl der. para unirte" + barra de progreso.
     /// Vista jugador: cabecera (J1 + dispositivo), vista previa 3D, arquetipo, stats y filas
     ///                Preset / Punta / Cuerpo / Disco / Núcleo / Color / Equipo / Confirmar.
+    /// Vista IA (D7): igual, con «IA» en la cabecera y la fila Nivel IA en vez de Confirmar.
+    ///                Solo enseña el foco mientras un jugador la edita (SetFocusVisible).
     /// Capa "¡LISTO!" cuando el jugador confirma.
     ///
     /// Solo es vista: la lógica (qué valor tiene cada fila) la lleva LobbyController.
@@ -54,6 +56,7 @@ namespace FakeBlade.UI
 
         private readonly List<PixelOptionRow> _rows = new List<PixelOptionRow>(8);
         private int _focus;
+        private bool _focusVisible = true;
 
         public PixelOptionRow PresetRow { get; private set; }
         public PixelOptionRow TipRow { get; private set; }
@@ -62,6 +65,8 @@ namespace FakeBlade.UI
         public PixelOptionRow CoreRow { get; private set; }
         public PixelOptionRow ColorRow { get; private set; }
         public PixelOptionRow TeamRow { get; private set; }
+        /// <summary>Solo en la vista IA (D7).</summary>
+        public PixelOptionRow LevelRow { get; private set; }
         public PixelOptionRow ConfirmRow { get; private set; }
 
         public PixelOptionRow FocusedRow => _rows[_focus];
@@ -187,9 +192,11 @@ namespace FakeBlade.UI
             CoreRow = AddRow(view, false, PartRowHeight);
             ColorRow = AddRow(view, false);
             TeamRow = AddRow(view, false);
+            LevelRow = AddRow(view, false);
             ConfirmRow = AddRow(view, true);
 
-            _hintText = FixedText("Hint", view, 6, 3.5f, _theme.textDimColor);
+            // Dos líneas: listo / salir y añadir IA / cambiar de columna
+            _hintText = FixedText("Hint", view, 9, 3.5f, _theme.textDimColor);
 
             RectTransform leave = Fixed("LeaveBar", view, 1);
             _leaveFill = PixelUI.CreateFilledImage("Fill", leave, _theme.healthLow, null,
@@ -250,13 +257,27 @@ namespace FakeBlade.UI
 
         public void ShowPlayer(int playerNumber, Color color, string deviceLabel)
         {
+            Show(Loc.Format("PLAYER_BADGE", playerNumber), color, deviceLabel, false);
+        }
+
+        /// <summary>Columna de un rival con IA (D7): sin Confirmar (siempre está lista) y con su nivel.</summary>
+        public void ShowCpu(Color color, string name)
+        {
+            Show(Loc.Get("CPU_BADGE"), color, name, true);
+        }
+
+        private void Show(string badge, Color color, string deviceLabel, bool cpu)
+        {
             _emptyView.SetActive(false);
             _playerView.SetActive(true);
             _border.color = color;
             _badge.color = color;
-            _badgeText.text = Loc.Format("PLAYER_BADGE", playerNumber);
+            _badgeText.text = badge;
             _deviceText.text = deviceLabel;
             _readyText.color = color;
+
+            LevelRow.gameObject.SetActive(cpu);
+            ConfirmRow.gameObject.SetActive(!cpu);
 
             PresetRow.SetLabel(Loc.Get("LOBBY_PRESET"));
             TipRow.SetLabel(Loc.Get("SLOT_TIP"));
@@ -265,11 +286,13 @@ namespace FakeBlade.UI
             CoreRow.SetLabel(Loc.Get("SLOT_CORE"));
             ColorRow.SetLabel(Loc.Get("LOBBY_COLOR"));
             TeamRow.SetLabel(Loc.Get("LOBBY_TEAM"));
+            LevelRow.SetLabel(Loc.Get("LOBBY_AI_LEVEL"));
             ConfirmRow.SetLabel(Loc.Get("LOBBY_CONFIRM"));
-            _hintText.text = Loc.Get("LOBBY_HINT");
 
             for (int i = 0; i < _rows.Count; i++) _rows[i].SetAccentColor(color);
         }
+
+        public void SetDeviceText(string text) => _deviceText.text = text;
 
         public void SetBorderColor(Color color)
         {
@@ -349,14 +372,29 @@ namespace FakeBlade.UI
         {
             for (int i = 0; i < _rows.Count; i++) _rows[i].SetFocused(false);
             _focus = 0;
-            _rows[0].SetFocused(true);
+            _rows[0].SetFocused(_focusVisible);
         }
 
+        /// <summary>Salta las filas ocultas (Nivel IA en la vista jugador, Confirmar en la vista IA).</summary>
         public void MoveFocus(int dir)
         {
             _rows[_focus].SetFocused(false);
-            _focus = (_focus + dir + _rows.Count) % _rows.Count;
-            _rows[_focus].SetFocused(true);
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                _focus = (_focus + dir + _rows.Count) % _rows.Count;
+                if (_rows[_focus].gameObject.activeSelf) break;
+            }
+            _rows[_focus].SetFocused(_focusVisible);
+        }
+
+        /// <summary>
+        /// Enseña u oculta la fila con el foco: la columna de una IA solo lo enseña mientras alguien la edita,
+        /// y la de un jugador lo oculta mientras él edita una IA (D7).
+        /// </summary>
+        public void SetFocusVisible(bool visible)
+        {
+            _focusVisible = visible;
+            _rows[_focus].SetFocused(visible);
         }
 
         /// <summary>Pieza de la fila con el foco (0-3, orden de ComponentSlot) o -1.</summary>
@@ -379,7 +417,7 @@ namespace FakeBlade.UI
             if (_playerView == null || !_playerView.activeSelf || _rows.Count == 0) return;
 
             int part = FocusedPart;
-            bool on = part >= 0 && Mathf.Repeat(Time.unscaledTime * 3f, 1f) < 0.5f;
+            bool on = part >= 0 && _focusVisible && Mathf.Repeat(Time.unscaledTime * 3f, 1f) < 0.5f;
             if (part == _blinkPart && on == _blinkOn) return;
 
             SetPartHighlight(_blinkPart, false);

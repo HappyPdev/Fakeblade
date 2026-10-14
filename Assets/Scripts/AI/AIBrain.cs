@@ -433,6 +433,12 @@ namespace FakeBlade.Core
         /// <summary>Especial según el nivel (el buen momento de cada poder llega en D5).</summary>
         protected virtual void TryUseSpecial()
         {
+            // Poderes con varios usos (Onda de choque, F1): vuelve a pulsar con el rival a su alcance
+            if (Blade.Special.WantsRepeatPress)
+            {
+                if (InSpecialRange && Random.value < 0.5f) _special = true;
+                return;
+            }
             if (!Blade.Special.IsReady) return;
             switch (Level.specialUse)
             {
@@ -443,10 +449,14 @@ namespace FakeBlade.Core
                     _special = true;
                     break;
                 case AISpecialUse.GoodMoment:
-                    if (Perception.Distance < AttackRange * 1.5f) _special = true;
+                    float range = Blade.Special.UseRange > 0f ? Blade.Special.UseRange : AttackRange * 1.5f;
+                    if (Perception.Distance < range) _special = true;
                     break;
             }
         }
+
+        /// <summary>El rival está a la distancia a la que sirve el poder (sin distancia propia, siempre).</summary>
+        protected bool InSpecialRange => Blade.Special.UseRange <= 0f || Perception.Distance < Blade.Special.UseRange;
         #endregion
 
         #region Acciones

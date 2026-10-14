@@ -38,6 +38,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 175b1150fa1760f41ab87491b11ffc57, type: 2}
   - {fileID: 11400000, guid: 8a87d7d1cc53b264d87ef3c1ae45b85e, type: 2}
   - {fileID: 11400000, guid: 0d87f2bc1ae05c14d9aab93b08bd40fa, type: 2}
+  - {fileID: 11400000, guid: 673e3756b70428f4f8c2b87eea84e0a9, type: 2}
+  - {fileID: 11400000, guid: 036e6b36ffd99724ca212264bdbadcbe, type: 2}
+  - {fileID: 11400000, guid: 9a4d763411e441944af12c6518863909, type: 2}
+  - {fileID: 11400000, guid: 802e7d436f6244a42b57bd81145e31ff, type: 2}
+  - {fileID: 11400000, guid: a98f39f056d4a3741813bff5aad3adcf, type: 2}
+  - {fileID: 11400000, guid: 9a39593e88199ce40bb4437e4c27a4ed, type: 2}
+  - {fileID: 11400000, guid: cc1bf674dc59f994c9b6b9c5e21c8c08, type: 2}
+  - {fileID: 11400000, guid: 63bbe9f50c78dec4da2059bda3b0a7b3, type: 2}
   presets:
   - nameKey: PRESET_ATTACK
     tip: {fileID: 11400000, guid: 31fc48ebe3116334e8223dd4e063e02c, type: 2}

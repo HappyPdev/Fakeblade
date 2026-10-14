@@ -28,7 +28,8 @@ namespace FakeBlade.Core
 
         protected override void TryUseSpecial()
         {
-            if (FullStyle && Blade.Special.IsReady) PressSpecial();
+            // En cuanto lo tiene, si el rival está donde el poder sirve (Onda de choque: dentro de la onda)
+            if (FullStyle && Blade.Special.IsReady && InSpecialRange) PressSpecial();
             else base.TryUseSpecial();
         }
 

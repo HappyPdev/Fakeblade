@@ -94,10 +94,26 @@ namespace FakeBlade.Core
             player.SetPlayerColor(setup.Color);
             player.SetColorScheme(BladeColors.Get(catalog, setup.ColorIndex));
             player.SetTeamID(setup.Team);
-            player.SetInputDeviceById(setup.Device, setup.GamepadDeviceId);
-            setup.EquipOn(go.GetComponent<FakeBladeStats>());
+            var stats = go.GetComponent<FakeBladeStats>();
+            setup.EquipOn(stats);
+
+            if (setup.IsCpu) SetupCpu(player, setup, stats);
+            else player.SetInputDeviceById(setup.Device, setup.GamepadDeviceId);
 
             _spawned.Add(go);
+        }
+
+        /// <summary>
+        /// Rival con IA (D7): juega con el perfil del arquetipo de su peonza (el que más se repite entre sus piezas;
+        /// con piezas muy mezcladas, Balanceada) y con el nivel elegido en la selección.
+        /// </summary>
+        private static void SetupCpu(PlayerController player, PlayerSetup setup, FakeBladeStats stats)
+        {
+            player.SetPlayerName(Loc.Format("CPU_NAME", setup.CpuNumber));
+            player.SetCpu(true);
+            AIBrain ai = AIProfiles.Ensure(player.gameObject, AIProfiles.ForArchetype(stats.Archetype));
+            ai.Difficulty = setup.Difficulty;
+            player.SetInputSource(ai);
         }
 
         #region Sandbox

@@ -88,6 +88,11 @@ crashlytics-build.properties
 /[Aa]ssets/[Tt]hird[Pp]arty/*
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree.meta
+# Sprites gratis de itch.io para los efectos (2026-10-13): BDragon1727 no trae licencia en el paquete
+# (se acredita en los créditos) y son 85 MB de .zip/.rar; CodeManu es de dominio público, pero se
+# guardan juntos y fuera del repo hasta que se elijan los que se usan (GDD 7.4)
+/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/[Pp]ixel[Aa]rt by */
+/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/[Pp]ixel[Aa]rt by *.meta
 /[Aa]ssets/JMO Assets/
 /[Aa]ssets/JMO Assets.meta
 /[Aa]ssets/[Pp]lugins/AllIn1SpriteShader/

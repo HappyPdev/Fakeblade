@@ -20,5 +20,5 @@ MonoBehaviour:
   duration: 5
   activationBurst: 2.5
   radius: 5
-  force: 12
-  damagePct: 0.1
+  force: 14
+  damagePct: 0.06

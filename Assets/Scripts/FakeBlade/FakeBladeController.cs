@@ -154,6 +154,12 @@ namespace FakeBlade.Core
         private float _effectiveMaxSpeed;
         private float _effectiveTurnRate;
         private float _effectiveStoppingRate;
+        /// <summary>Masa física de sus piezas (sin el multiplicador del poder activo).</summary>
+        private float _baseMass = 1f;
+        /// <summary>Hasta cuándo está en el aire por un Salto.</summary>
+        private float _leapUntil = float.NegativeInfinity;
+        /// <summary>El poder activo bloqueaba las acciones el frame anterior.</summary>
+        private bool _actionsBlocked;
         private float _impulseFactor = 1f;
         #endregion
 
@@ -203,7 +209,7 @@ namespace FakeBlade.Core
         /// La masa no cuenta en el daño.</summary>
         public float EffectiveMass => Weight * (1f + _attack.MassBonus);
 
-        /// <summary>Multiplicador de daño infligido: ataque de las piezas y combo.</summary>
+        /// <summary>Multiplicador de daño infligido: ataque de las piezas, combo y poder activo (Pinchos).</summary>
         public float OffenseMultiplier
         {
             get
@@ -213,7 +219,7 @@ namespace FakeBlade.Core
                 // Las diferencias de ataque de las piezas cuentan solo en parte (attackSpread)
                 var cfg = CombatConfig.Active;
                 float attack = BladeFormulas.AttackMultiplier(cfg, attackPower);
-                return attack * combo;
+                return attack * combo * _special.DamageDealtMultiplier * _ghostDamageMultiplier;
             }
         }
 
@@ -307,6 +313,8 @@ namespace FakeBlade.Core
         {
             if (_stats != null)
                 _stats.OnStatsChanged -= ApplyStatsFromComponent;
+            // Su clon de Fantasma se va con ella
+            if (GhostClone != null) Destroy(GhostClone.gameObject);
         }
 
         private void Update()
@@ -331,6 +339,10 @@ namespace FakeBlade.Core
             if (_isDestroyed) return;
 
             ApplyMovementPhysics(Time.fixedDeltaTime);
+
+            // Masa física: la de sus piezas, por la del poder activo (Tornado: inamovible mientras atrae)
+            float mass = _baseMass * _special.PhysicalMassMultiplier;
+            if (_rb.mass != mass) _rb.mass = mass;
 
             // Velocidad con la que entra en el siguiente paso de física
             _preImpactVelocity = _rb.linearVelocity + _pendingVelocityChange;
@@ -496,7 +508,8 @@ namespace FakeBlade.Core
             if (_rb == null) return;
             var cfg = CombatConfig.Active;
 
-            _rb.mass = BladeFormulas.PhysicalMass(cfg, Weight);
+            _baseMass = BladeFormulas.PhysicalMass(cfg, Weight);
+            _rb.mass = _baseMass;
             _rb.linearDamping = cfg.linearDamping;
             _rb.angularDamping = cfg.angularDamping;
             _rb.useGravity = true;
@@ -560,6 +573,9 @@ namespace FakeBlade.Core
             float decay = (_stats != null ? _stats.SpinDecay : 2f) * _special.SpinDecayMultiplier;
             _currentSpin = Mathf.Clamp(_currentSpin - decay * dt, 0f, _maxSpin);
 
+            // A la vez que pierde RPM por desgaste, el especial se carga solo (GDD 5); con el poder activo, no
+            _special.AddEnergy(CombatConfig.Active.specialEnergyPerSecond * Trait(PartTraitType.SpecialEnergyAll) * dt);
+
             if (_currentSpin <= MIN_SPIN_THRESHOLD)
                 HandleSpinOut();
         }
@@ -577,7 +593,9 @@ namespace FakeBlade.Core
 
         private float ApplyDamageInternal(float amount, FakeBladeController source, bool ignoreDefense)
         {
-            if (_isDestroyed || amount <= 0f || _invulnerableTimer > 0f) return 0f;
+            if (_isDestroyed || amount <= 0f || _invulnerableTimer > 0f || IsGhost) return 0f;
+            // El daño del clon de Fantasma cuenta para su dueña (punto de K.O.)
+            if (source != null && source.IsGhost) source = source.GhostOwner;
 
             float defense = _stats != null && !ignoreDefense ? _stats.Defense : 0f;
             // Multiplicador global (combates más largos); la quemadura va aparte, por porcentaje
@@ -631,6 +649,18 @@ namespace FakeBlade.Core
             return true;
         }
 
+        /// <summary>
+        /// Mojada (Rastro de agua): resbala (agarre × gripMultiplier) durante duration. Va aparte del estado principal;
+        /// apaga la quemadura. Devuelve false si está invulnerable o fuera de combate.
+        /// </summary>
+        public bool TryWet(FakeBladeController source, float gripMultiplier, float duration)
+        {
+            if (!CanReceiveStatus) return false;
+            if (_status.Wet(gripMultiplier, StatusDuration(source, duration)))
+                OnStatusEffectChanged?.Invoke(StatusEffectType.None); // ha apagado la quemadura
+            return true;
+        }
+
         /// <summary>Duración de un estado con los rasgos de quien lo provoca y de quien lo sufre (H8).</summary>
         private float StatusDuration(FakeBladeController source, float duration) =>
             duration * (source != null ? source.Trait(PartTraitType.StatusDurationDealt) : 1f) * Trait(PartTraitType.StatusDurationTaken);
@@ -638,11 +668,12 @@ namespace FakeBlade.Core
         public void ClearStatus()
         {
             _particles?.HideStatusIcon();
+            _status.ClearWet();
             if (_status.Clear()) OnStatusEffectChanged?.Invoke(StatusEffectType.None);
         }
 
         /// <summary>Recién reaparecida (invulnerable) no recibe estados.</summary>
-        private bool CanReceiveStatus => !_isDestroyed && _invulnerableTimer <= 0f;
+        private bool CanReceiveStatus => !_isDestroyed && _invulnerableTimer <= 0f && !IsGhost;
 
         private bool NotifyStatusApplied(bool applied)
         {
@@ -652,7 +683,7 @@ namespace FakeBlade.Core
 
         private void UpdateStatus(float dt)
         {
-            if (!_status.HasStatus) return;
+            if (!_status.HasStatus && !_status.IsWet) return;
             StatusEffectType before = _status.Current;
             _status.Tick(dt, this);
             // Si la quemadura lo ha dejado K.O., HandleSpinOut ya avisó
@@ -686,6 +717,8 @@ namespace FakeBlade.Core
             _attack.CancelCharge();
             if (_special.Stop())
                 OnSpecialEnded?.Invoke(_special.Type);
+            // Lo que el poder deja puesto (escudos, agua, el clon de Fantasma) se va con ella
+            _special.ClearLingering();
             ClearStatus();
             if (_burstTrail != null) _burstTrail.emitting = false;
 
@@ -724,9 +757,19 @@ namespace FakeBlade.Core
             UpdateStatus(dt);
             if (_isDestroyed) return;
 
-            // Aturdida tras un parry: el botón de ataque no cuenta. La recarga depende del poder
-            // (Defensa, más rápida), del estado (congelada, más lenta) y de los rasgos de las piezas
-            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered,
+            // Un poder que bloquea las acciones (Salto): al empezar y al acabar se corta la carga y el botón
+            // no cuenta hasta soltarlo, para que no se escape un ataque al cambiar
+            bool blocked = _special.BlocksActions;
+            if (blocked != _actionsBlocked)
+            {
+                _actionsBlocked = blocked;
+                _attack.CancelCharge();
+                _attack.IgnoreHeldUntilReleased();
+            }
+
+            // Aturdida tras un parry o con las acciones bloqueadas: el botón de ataque no cuenta. La recarga depende
+            // del poder (Defensa, más rápida), del estado (congelada, más lenta) y de los rasgos de las piezas
+            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered && !blocked,
                 _special.ChargeSpeedMultiplier / Trait(PartTraitType.ChargeTime),
                 _special.AttackRechargeMultiplier * _status.AttackRechargeMultiplier / Trait(PartTraitType.AttackRechargeTime));
             if (launch != AttackSystem.NoLaunch)
@@ -770,7 +813,7 @@ namespace FakeBlade.Core
 
         private bool TryDash()
         {
-            if (!CanDash || IsStaggered) return false;
+            if (!CanDash || IsStaggered || _special.BlocksActions) return false;
 
             var cfg = CombatConfig.Active;
             float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier * Trait(PartTraitType.DashCost);
@@ -799,7 +842,9 @@ namespace FakeBlade.Core
 
         private bool TryActivateSpecial()
         {
-            if (_isDestroyed || !_simulationActive) return false;
+            if (_isDestroyed || !_simulationActive || IsGhost) return false; // el clon de Fantasma no usa especial
+            // Con el poder activo, la pulsación es para él (Onda de choque: siguiente onda)
+            if (_special.IsActive) return _special.TryPressActive();
             // Efecto común (RPM y cargas) + efecto propio del poder: SpecialAbilitySystem
             if (!_special.TryActivate()) return false;
 
@@ -910,6 +955,52 @@ namespace FakeBlade.Core
             Vector3 horizontal = _rb.linearVelocity;
             horizontal.y = 0f;
             OpenBurst((horizontal + velocityChange).magnitude, Mathf.Max(0.1f, controlLoss));
+        }
+
+        /// <summary>
+        /// Salto (poder Salto): sale con esta velocidad horizontal y hacia arriba. Mientras vuela (airTime) el stick no
+        /// la mueve ni la frena, puede pasar de su velocidad máxima y del tope de subida, y se cancela la carga de ataque.
+        /// </summary>
+        public void Leap(Vector3 horizontalVelocity, float upSpeed, float airTime)
+        {
+            if (_isDestroyed || _rb == null) return;
+            horizontalVelocity.y = 0f;
+            _leapUntil = Time.time + airTime;
+            _attack.CancelCharge();
+            LoseControl(airTime);
+            OpenBurst(horizontalVelocity.magnitude, airTime);
+            _rb.linearVelocity = horizontalVelocity + Vector3.up * upSpeed;
+        }
+
+        /// <summary>En el aire por un Salto.</summary>
+        public bool IsLeaping => Time.time < _leapUntil;
+
+        /// <summary>
+        /// Arrancada de un poder (Embestida): sale con esta velocidad; mientras dura el stick no la mueve ni la frena,
+        /// puede pasar de su velocidad máxima y se cancela la carga de ataque.
+        /// </summary>
+        public void Lunge(Vector3 velocity, float duration)
+        {
+            if (_isDestroyed || _rb == null) return;
+            velocity.y = 0f;
+            _attack.CancelCharge();
+            LoseControl(duration);
+            OpenBurst(velocity.magnitude, duration);
+            _rb.linearVelocity = new Vector3(velocity.x, _rb.linearVelocity.y, velocity.z);
+        }
+
+        /// <summary>Dirección de ataques, dash y Salto: stick → enemigo más cercano → velocidad actual → última dirección.</summary>
+        public Vector3 ActionDirection => ResolveActionDirection();
+
+        /// <summary>
+        /// Atracción continua (Tornado): cambia la velocidad poco a poco, sin quitar el control ni abrir el tope de
+        /// velocidad como un empuje. Moviéndose en contra se puede resistir.
+        /// </summary>
+        public void ApplyPull(Vector3 velocityChange)
+        {
+            if (_isDestroyed || _rb == null) return;
+            velocityChange.y = 0f;
+            _rb.AddForce(velocityChange, ForceMode.VelocityChange);
         }
 
         /// <summary>El stick deja de mover la peonza estos segundos; después el control vuelve poco a poco.</summary>
@@ -1127,7 +1218,7 @@ namespace FakeBlade.Core
 
             if (_status.IsLaunched)
             {
-                // Lanzada (Rayos, GDD 5): la pared la golpea como una peonza parada con la fuerza de
+                // Lanzada (Rayos y Onda de choque, GDD 5): la pared la golpea como una peonza parada con la fuerza de
                 // quien la lanzó (daño base + diferencia de velocidad), y el daño cuenta para él
                 FakeBladeController thrower = _status.Source;
                 float offense = thrower != null ? thrower.OffenseMultiplier : 1f;
@@ -1147,11 +1238,44 @@ namespace FakeBlade.Core
 
         public bool IsAllyOf(FakeBladeController other)
         {
-            if (other == null || other == this || _owner == null || other._owner == null) return false;
+            if (other == null || other == this) return false;
+            // El clon de Fantasma es del bando de su dueña: aliado de ella y de sus aliados
+            FakeBladeController me = IsGhost ? GhostOwner : this;
+            FakeBladeController them = other.IsGhost ? other.GhostOwner : other;
+            if (me == them) return true;
+            if (me._owner == null || them._owner == null) return false;
 
             var gm = GameManager.Instance;
-            return gm != null && gm.Rules.teams && _owner.TeamID == other._owner.TeamID;
+            return gm != null && gm.Rules.teams && me._owner.TeamID == them._owner.TeamID;
         }
+
+        /// <summary>Una es el clon de Fantasma de la otra (nunca se hacen daño, ni con fuego amigo).</summary>
+        public bool IsGhostPairWith(FakeBladeController other) =>
+            other != null && (other.GhostOwner == this || GhostOwner == other || (IsGhost && GhostOwner == other.GhostOwner));
+
+        #region Fantasma (clon)
+        /// <summary>Si esta peonza es el clon de Fantasma de otra, su dueña (si no, null).</summary>
+        public FakeBladeController GhostOwner { get; private set; }
+        public bool IsGhost => GhostOwner != null;
+        /// <summary>Ataques que ha recibido el clon desde que apareció (con 3 se deshace).</summary>
+        public int GhostHits { get; private set; }
+        /// <summary>El clon de Fantasma de esta peonza (se crea una vez y se reutiliza).</summary>
+        public FakeBladeController GhostClone { get; set; }
+        private float _ghostDamageMultiplier = 1f;
+
+        /// <summary>
+        /// Convierte esta peonza en el clon de Fantasma de owner: no pierde RPM ni recibe estados, no usa especial y su
+        /// daño (× damageMultiplier) cuenta para su dueña.
+        /// </summary>
+        public void MakeGhost(FakeBladeController owner, float damageMultiplier)
+        {
+            GhostOwner = owner;
+            _ghostDamageMultiplier = damageMultiplier;
+        }
+
+        public void ResetGhostHits() => GhostHits = 0;
+        public void RegisterGhostHit() => GhostHits++;
+        #endregion
 
         /// <summary>¿Puede quitarle RPM a esa peonza? (no es aliada, o el fuego amigo está activo)</summary>
         public bool CanHarm(FakeBladeController other) => other != null && other != this && (!IsAllyOf(other) || FriendlyFire);
@@ -1178,7 +1302,7 @@ namespace FakeBlade.Core
             var cfg = CombatConfig.Active;
 
             Vector3 velocity = _rb.linearVelocity;
-            if (velocity.y > MAX_UPWARD_VELOCITY)
+            if (velocity.y > MAX_UPWARD_VELOCITY && !IsLeaping)
             {
                 velocity.y = MAX_UPWARD_VELOCITY;
                 _rb.linearVelocity = velocity;
@@ -1223,7 +1347,7 @@ namespace FakeBlade.Core
                 // 1. Aceleración hacia el input (se reduce al acercarse al tope en esa dirección)
                 float speedInInputDir = Vector3.Dot(horizontal, inputDir);
                 float targetSpeed = maxSpeed * inputMag;
-                float accel = _effectiveAcceleration * control;
+                float accel = _effectiveAcceleration * control * _special.AccelerationMultiplier;
                 if (speedInInputDir > 0f && targetSpeed > 0f)
                     accel *= Mathf.Clamp01(1f - speedInInputDir / targetSpeed);
 
@@ -1236,7 +1360,8 @@ namespace FakeBlade.Core
                 Vector3 lateral = horizontal - inputDir * speedInInputDir;
                 if (lateral.sqrMagnitude > 0.01f)
                 {
-                    float brakeRate = _effectiveTurnRate * control;
+                    // Mojada (Rastro de agua): casi sin agarre, derrapa
+                    float brakeRate = _effectiveTurnRate * control * _status.WetGripMultiplier;
                     if (bursting) brakeRate *= 0.5f;
                     _rb.AddForce(-lateral * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }
@@ -1250,7 +1375,7 @@ namespace FakeBlade.Core
                 // Sin input (y con control): frenado progresivo (acotado igual que el lateral para que sea estable)
                 if (speed > 0.1f)
                 {
-                    float brakeRate = _effectiveStoppingRate;
+                    float brakeRate = _effectiveStoppingRate * _status.WetGripMultiplier;
                     _rb.AddForce(-horizontal * Mathf.Min(1f, brakeRate * dt), ForceMode.VelocityChange);
                 }
                 else if (speed > 0f)
@@ -1375,6 +1500,7 @@ namespace FakeBlade.Core
             _dashRefundableCost = 0f;
             _controlLossEnd = float.NegativeInfinity;
             _controlRecoverEnd = float.NegativeInfinity;
+            _leapUntil = float.NegativeInfinity;
             _burstCap = 0f;
             _burstHold = 0f;
             _moveInput = Vector3.zero;

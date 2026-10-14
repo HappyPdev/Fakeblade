@@ -25,6 +25,8 @@ namespace FakeBlade.Core
 
         /// <summary>Datos del poder equipado (null hasta el primer Reset).</summary>
         public SpecialAbilityData Data => _ability?.Data;
+        /// <summary>Comportamiento del poder equipado (para el aspecto: los escudos de Escudo).</summary>
+        public SpecialAbility Ability => _ability;
         public SpecialAbilityType Type => _ability != null ? _ability.Data.Type : SpecialAbilityType.SpinBoost;
         /// <summary>Color del poder (aura, partículas y esfera del HUD).</summary>
         public Color Color => _ability != null ? _ability.Data.color : Color.white;
@@ -38,6 +40,7 @@ namespace FakeBlade.Core
         public void Reset(FakeBladeController owner, SpecialAbilityType type)
         {
             Stop();
+            _ability?.ClearLingering();
             _owner = owner;
 
             SpecialAbilityData data = SpecialAbilities.Get(type);
@@ -78,6 +81,15 @@ namespace FakeBlade.Core
             return true;
         }
 
+        /// <summary>Especial pulsado con el poder activo: se lo pasa al poder (Onda de choque, F1).</summary>
+        public bool TryPressActive() => _isActive && _ability.OnPressedWhileActive();
+
+        /// <summary>Distancia al rival a la que conviene usarlo (0 = cualquiera). Para la IA.</summary>
+        public float UseRange => _ability != null ? _ability.UseRange : 0f;
+
+        /// <summary>Activo y con usos que se lanzan volviendo a pulsar Especial. Para la IA.</summary>
+        public bool WantsRepeatPress => _isActive && _ability.WantsRepeatPress;
+
         /// <summary>
         /// Curación de un poder (regeneración): solo si ningún golpe de ataque enemigo la ha cortado
         /// desde que se activó.
@@ -112,9 +124,15 @@ namespace FakeBlade.Core
                 _owner.AddSpin(heal);
             }
 
-            if (!_isActive) return false;
+            if (!_isActive)
+            {
+                if (_ability != null && _ability.IsLingering) _ability.TickLingering(dt);
+                return false;
+            }
 
             _ability.Tick(dt);
+            // El poder se ha terminado él mismo en su Tick (Tornado, al soltar el empujón): ya lo avisó EndSpecial
+            if (!_isActive) return false;
             // Rasgo de duración del poder (H8)
             _energy -= dt / Mathf.Max(0.1f, _ability.Data.duration * _owner.Trait(PartTraitType.SpecialDuration));
             if (_energy > 0f) return false;
@@ -144,6 +162,22 @@ namespace FakeBlade.Core
         public ClashBonus GetClashBonus(FakeBladeController target, float approachSpeed) =>
             _isActive && target != null ? _ability.GetClashBonus(target, approachSpeed) : ClashBonus.None;
 
+        /// <summary>Efecto del poder que sigue tras terminar (Escudo, Rastro de agua, Fantasma).</summary>
+        public bool IsLingering => _ability != null && _ability.IsLingering;
+
+        /// <summary>Quita lo que el poder haya dejado puesto (al caer la peonza).</summary>
+        public void ClearLingering() => _ability?.ClearLingering();
+
+        /// <summary>Defensa del poder (activo, o con su efecto todavía puesto) cuando otra peonza la embiste.</summary>
+        public ClashGuard GetClashGuard(FakeBladeController attacker, float attackerApproachSpeed) =>
+            (_isActive || IsLingering) && attacker != null ? _ability.GetClashGuard(attacker, attackerApproachSpeed) : ClashGuard.None;
+
+        /// <summary>Después de aplicar un choque con defensa.</summary>
+        public void NotifyClashGuardApplied(FakeBladeController attacker, ClashGuard guard, Vector3 contactPoint)
+        {
+            if (!guard.IsNone && _ability != null) _ability.OnClashGuardApplied(attacker, contactPoint);
+        }
+
         /// <summary>Después de aplicar un choque con bonus.</summary>
         public void NotifyClashBonusApplied(FakeBladeController target, ClashBonus bonus, Vector3 contactPoint)
         {
@@ -153,11 +187,19 @@ namespace FakeBlade.Core
         #region Modifiers (solo mientras está activo)
         /// <summary>Multiplicador del daño recibido.</summary>
         public float DamageTakenMultiplier => _isActive ? _ability.DamageTakenMultiplier : 1f;
+        /// <summary>Multiplicador del daño que hace.</summary>
+        public float DamageDealtMultiplier => _isActive ? _ability.DamageDealtMultiplier : 1f;
+        /// <summary>Fracción de los ataques recibidos que devuelve (como Espinas).</summary>
+        public float ReflectFraction => _isActive ? _ability.ReflectFraction : 0f;
         /// <summary>Multiplicador del empuje recibido.</summary>
         public float KnockbackTakenMultiplier => _isActive ? _ability.KnockbackTakenMultiplier : 1f;
+        /// <summary>Multiplicador de la masa física.</summary>
+        public float PhysicalMassMultiplier => _isActive ? _ability.PhysicalMassMultiplier : 1f;
         /// <summary>Multiplicador del desgaste de RPM con el tiempo.</summary>
         public float SpinDecayMultiplier => _isActive ? _ability.SpinDecayMultiplier : 1f;
-        public float MoveSpeedMultiplier => _isActive ? _ability.MoveSpeedMultiplier : 1f;
+        /// <summary>También con el efecto todavía puesto (Rastro de agua: patina sobre su agua mientras quede).</summary>
+        public float MoveSpeedMultiplier => _isActive || IsLingering ? _ability.MoveSpeedMultiplier : 1f;
+        public float AccelerationMultiplier => _isActive ? _ability.AccelerationMultiplier : 1f;
         /// <summary>Nivel mínimo con el que cuentan los ataques.</summary>
         public int MinAttackLevel => _isActive ? _ability.MinAttackLevel : 0;
         /// <summary>Velocidad de recarga de las cargas de ataque.</summary>
@@ -167,6 +209,10 @@ namespace FakeBlade.Core
         /// <summary>Multiplicador del coste en RPM del dash.</summary>
         public float DashCostMultiplier => _isActive ? _ability.DashCostMultiplier : 1f;
         public float ChargeSpeedMultiplier => _isActive ? _ability.ChargeSpeedMultiplier : 1f;
+        /// <summary>El poder activo no deja atacar ni hacer dash.</summary>
+        public bool BlocksActions => _isActive && _ability.BlocksActions;
+        /// <summary>Con el poder activo, sus choques no admiten parry ni bloqueo.</summary>
+        public bool PreventsParry => _isActive && _ability.PreventsParry;
         #endregion
     }
 }

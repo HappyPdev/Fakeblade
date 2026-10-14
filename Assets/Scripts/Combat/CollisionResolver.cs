@@ -26,6 +26,9 @@ namespace FakeBlade.Core
     /// velocidad: recibe el daño como la más lenta, la otra un choque parejo, y todo el daño
     /// cuenta para quien la lanzó.
     ///
+    /// PODERES en el choque normal: el de quien embiste puede subir su daño y su empuje (ClashBonus, Rayos) y el de
+    /// quien recibe la embestida puede anular su daño y despedir a la otra (ClashGuard: Rebote y Escudo).
+    ///
     /// Se ejecuta UNA vez por pareja (lo invoca la peonza con menor InstanceID).
     /// </summary>
     public static class CollisionResolver
@@ -88,16 +91,22 @@ namespace FakeBlade.Core
 
             float intensity = Mathf.Clamp01(closing / 15f);
 
-            // Aliados sin fuego amigo: choque físico sin daño
-            if (a.IsAllyOf(b) && !FriendlyFireEnabled())
+            // Aliados sin fuego amigo (y siempre una peonza y su clon de Fantasma): choque físico sin daño
+            if (a.IsAllyOf(b) && (!FriendlyFireEnabled() || a.IsGhostPairWith(b)))
             {
                 a.PlayClashFeedback(contactPoint, intensity * 0.3f);
                 return;
             }
 
-            // Parry: tiene prioridad sobre la regla de la más rápida
-            bool aParries = a.IsInParryWindow && b.IsAttacking;
-            bool bParries = b.IsInParryWindow && a.IsAttacking;
+            // Clon de Fantasma (C5): no recibe daño ni estados (lo hace FakeBladeController); cada ataque que le dan
+            // gasta uno de sus golpes, y sus choques cortan la carga de ataque del rival
+            NotifyGhostClash(a, b);
+            NotifyGhostClash(b, a);
+
+            // Parry: tiene prioridad sobre la regla de la más rápida. Con el clon de Fantasma o una Embestida no hay parry
+            bool noParry = a.IsGhost || b.IsGhost || a.Special.PreventsParry || b.Special.PreventsParry;
+            bool aParries = !noParry && a.IsInParryWindow && b.IsAttacking;
+            bool bParries = !noParry && b.IsInParryWindow && a.IsAttacking;
             if (aParries || bParries)
             {
                 ResolveParry(a, b, toB, approachA, approachB, aParries, bParries, contactPoint);
@@ -121,6 +130,9 @@ namespace FakeBlade.Core
             // Bonus de un poder activo (Rayos): más daño y empuje sobre el rival, según su velocidad hacia él
             ClashBonus fastBonus = fast.Special.GetClashBonus(slow, aIsFaster ? approachA : approachB);
             ClashBonus slowBonus = slow.Special.GetClashBonus(fast, aIsFaster ? approachB : approachA);
+            // Defensa de un poder activo (Rebote) contra la que la embiste, según la velocidad de esa otra hacia ella
+            ClashGuard fastGuard = fast.Special.GetClashGuard(slow, aIsFaster ? approachB : approachA);
+            ClashGuard slowGuard = slow.Special.GetClashGuard(fast, aIsFaster ? approachA : approachB);
 
             float diff = Mathf.Abs(approachA - approachB);
             bool neutral = diff <= cfg.equalSpeedTolerance;
@@ -155,8 +167,10 @@ namespace FakeBlade.Core
             damageToSlow *= SlowHitFactor(fast, fastDamageSpeed);
             if (neutral) damageToFast *= SlowHitFactor(slow, slowDamageSpeed);
 
-            float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier, fast);
-            float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier, slow);
+            float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier * slowGuard.DamageTakenMultiplier
+                                                 * fastGuard.DamageToAttackerMultiplier, fast);
+            float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier * fastGuard.DamageTakenMultiplier
+                                                 * slowGuard.DamageToAttackerMultiplier, slow);
             CutHealIfAttacked(slow, fast, dealtToSlow);
             CutHealIfAttacked(fast, slow, dealtToFast);
             ApplyThorns(slow, fast, dealtToSlow);
@@ -168,15 +182,20 @@ namespace FakeBlade.Core
                               * KnockbackMassRatio(fast, slow);
             knockback = Mathf.Min(knockback, cfg.maxKnockback);
 
-            float slowKnockback = knockback * slow.KnockbackResistance * fastBonus.KnockbackMultiplier;
-            float fastKnockback = knockback * (neutral ? 1f : cfg.winnerKnockbackFraction) * fast.KnockbackResistance
-                                  * slowBonus.KnockbackMultiplier;
+            float slowKnockback = knockback * slow.KnockbackResistance * fastBonus.KnockbackMultiplier
+                                  * fastGuard.KnockbackToAttackerMultiplier;
+            // La que gana el choque se lleva solo una fracción del empuje, salvo si rebota en un Rebote o un Escudo: entero
+            float winnerFraction = neutral || !slowGuard.IsNone ? 1f : cfg.winnerKnockbackFraction;
+            float fastKnockback = knockback * winnerFraction * fast.KnockbackResistance
+                                  * slowBonus.KnockbackMultiplier * slowGuard.KnockbackToAttackerMultiplier;
 
             slow.ApplyKnockback(fastToSlow * slowKnockback);
             fast.ApplyKnockback(-fastToSlow * fastKnockback);
 
             fast.Special.NotifyClashBonusApplied(slow, fastBonus, contactPoint);
             slow.Special.NotifyClashBonusApplied(fast, slowBonus, contactPoint);
+            fast.Special.NotifyClashGuardApplied(slow, fastGuard, contactPoint);
+            slow.Special.NotifyClashGuardApplied(fast, slowGuard, contactPoint);
 
             // Energía del especial (por tipo de golpe) y combos: premia al que gana el choque.
             // Golpear a un aliado (fuego amigo) no da energía
@@ -409,13 +428,24 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Rasgo Espinas (H8): quien golpea atacando recibe una parte del daño que ha hecho (daño fijo,
-        /// sin defensa). No da energía ni corta curaciones.
+        /// Choque con un clon de Fantasma: si lo golpean atacando, gasta uno de sus golpes; si es él quien choca con un
+        /// rival, le corta la carga del ataque.
+        /// </summary>
+        private static void NotifyGhostClash(FakeBladeController ghost, FakeBladeController other)
+        {
+            if (!ghost.IsGhost || other.IsGhost) return;
+            if (other.IsAttacking) ghost.RegisterGhostHit();
+            other.Attack.CancelCharge();
+        }
+
+        /// <summary>
+        /// Rasgo Espinas (H8) y poder Pinchos (L3): quien golpea atacando recibe una parte del daño que ha
+        /// hecho (daño fijo, sin defensa; cuenta como golpe de quien lo devuelve). No da energía ni corta curaciones.
         /// </summary>
         private static void ApplyThorns(FakeBladeController victim, FakeBladeController hitter, float dealt)
         {
             if (dealt <= 0f || !hitter.IsAttacking) return;
-            float thorns = victim.TraitSum(PartTraitType.Thorns);
+            float thorns = victim.TraitSum(PartTraitType.Thorns) + victim.Special.ReflectFraction;
             if (thorns > 0f) hitter.ApplyStatusDamage(dealt * thorns, victim);
         }
 

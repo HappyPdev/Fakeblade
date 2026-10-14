@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 000a67f01f3d29b45b5310b334201d93, type: 3}
+  m_Name: Leap
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.LeapData
+  nameEs: SALTO
+  nameEn: LEAP
+  color: {r: 1, g: 0.35, b: 0.45, a: 1}
+  icon: {fileID: 0}
+  energyRequired: 1
+  duration: 2
+  activationBurst: 1
+  windupTime: 0.3
+  windupBrake: 12
+  distance: 5.3
+  height: 1.1
+  knockbackTakenInAir: 0.2
+  radius: 3
+  edgeFactor: 0.5
+  damagePct: 0.1
+  force: 22
+  launchDuration: 0.4
+  landShake: 0.25
+  landHitStop: 0.05

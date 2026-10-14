@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1197c9f0158319b48a62f863617d8cd7, type: 3}
+  m_Name: Tornado
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.TornadoData
+  nameEs: TORNADO
+  nameEn: TORNADO
+  color: {r: 0.55, g: 0.9, b: 0.85, a: 1}
+  icon: {fileID: 0}
+  energyRequired: 1
+  duration: 1.8
+  activationBurst: 1.5
+  pullDuration: 1.5
+  radius: 6
+  pullAcceleration: 40
+  pullEdgeFactor: 0.5
+  minPullDistance: 1
+  pushForce: 26
+  minPushFraction: 0.5
+  launchDuration: 0.4
+  pushShake: 0.2

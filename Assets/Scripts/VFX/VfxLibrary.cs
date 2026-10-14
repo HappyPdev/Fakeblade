@@ -69,6 +69,8 @@ namespace FakeBlade.Core
         public Color burnColor = new Color(1f, 0.45f, 0.1f);
         public Color freezeColor = new Color(0.55f, 0.9f, 1f);
         public Color launchColor = new Color(1f, 0.95f, 0.3f);
+        [Tooltip("Mojada (Rastro de agua): gotas e icono")]
+        public Color wetColor = new Color(0.3f, 0.6f, 1f);
         [Tooltip("Partículas/s sobre la peonza con un estado alterado")]
         public float statusParticleRate = 22f;
 
@@ -117,6 +119,7 @@ namespace FakeBlade.Core
                 case StatusEffectType.Burning: return burnColor;
                 case StatusEffectType.Frozen: return freezeColor;
                 case StatusEffectType.Launched: return launchColor;
+                case StatusEffectType.Wet: return wetColor;
                 default: return Color.white;
             }
         }

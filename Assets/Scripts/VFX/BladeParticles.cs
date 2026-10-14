@@ -21,6 +21,7 @@ namespace FakeBlade.Core
         private const float TrailSpeedForFullAlpha = 12f;
         private const float ChargeGatherLife = 0.3f;
         private const float ShockWaveRippleInterval = 0.4f;
+        private const float BounceRingInterval = 0.25f;
         private static readonly Color FireHotColor = new Color(1f, 0.9f, 0.35f);
 
         private readonly FakeBladeController _blade;
@@ -40,6 +41,7 @@ namespace FakeBlade.Core
         private int _auraIndex;
         private int _lastChargeLevel;
         private float _statusAcc;
+        private float _wetAcc;
 
         // Icono del estado alterado (se crea la primera vez que hace falta)
         private const float IconGap = 0.35f;
@@ -251,6 +253,18 @@ namespace FakeBlade.Core
         private void UpdateAura(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
         {
             SpecialAbilitySystem special = _blade.Special;
+            // Escudo: los escudos se ven mientras sigan puestos, aunque el poder ya no esté activo
+            if (!special.IsActive && special.IsLingering && special.Type == SpecialAbilityType.Shields)
+            {
+                AuraShields(center, special.Ability as ShieldsAbility, special.Color, mul, dt);
+                return;
+            }
+            // Rastro de agua: el agua se ve hasta secarse, aunque el poder ya haya terminado
+            if (!special.IsActive && special.IsLingering && special.Type == SpecialAbilityType.WaterTrail)
+            {
+                AuraWater(tip, special.Ability as WaterTrailAbility, special.Color, mul, dt);
+                return;
+            }
             if (!special.IsActive)
             {
                 _auraAcc = _auraAcc2 = 0f;
@@ -267,6 +281,13 @@ namespace FakeBlade.Core
                 case SpecialAbilityType.Lightning: AuraLightning(center, color, mul, dt); break;
                 case SpecialAbilityType.Fire: AuraFire(center, tip, color, mul, dt); break;
                 case SpecialAbilityType.Ice: AuraIce(center, tip, color, mul, dt); break;
+                case SpecialAbilityType.Spikes: AuraSpikes(center, special.Data as SpikesData, color, mul, dt); break;
+                case SpecialAbilityType.Bounce: AuraBounce(center, color, mul, dt); break;
+                case SpecialAbilityType.Shields: AuraShields(center, special.Ability as ShieldsAbility, color, mul, dt); break;
+                case SpecialAbilityType.Tornado: AuraTornado(center, tip, special.Data as TornadoData, special.Ability as TornadoAbility, color, mul, dt); break;
+                case SpecialAbilityType.Leap: AuraLeap(center, special.Ability as LeapAbility, color, mul, dt); break;
+                case SpecialAbilityType.WaterTrail: AuraWater(tip, special.Ability as WaterTrailAbility, color, mul, dt); break;
+                case SpecialAbilityType.Ram: AuraRam(center, special.Ability as RamAbility, color, mul, dt); break;
                 default:
                     VfxSystem.EmitCount(VfxType.SpecialAura, center, color, Accumulate(ref _auraAcc, 40f * mul, dt));
                     break;
@@ -287,6 +308,207 @@ namespace FakeBlade.Core
                 Vector3 offset = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
                 Vector3 p = new Vector3(center.x, tip.y + 0.05f, center.z) + offset;
                 VfxSystem.EmitParticle(VfxType.AuraSpinBoost, p, Vector3.up * 1.8f - offset * 0.4f, color);
+            }
+        }
+
+        /// <summary>
+        /// Rebote: un anillo a la altura del disco que late (pequeño y rápido, como una goma que se tensa) y chispas
+        /// que rebotan hacia fuera. Distinto de Onda de choque, cuyas ondas van por el suelo y llegan lejos.
+        /// </summary>
+        private void AuraBounce(Vector3 center, Color color, float mul, float dt)
+        {
+            _auraTimer -= dt;
+            if (_auraTimer <= 0f)
+            {
+                _auraTimer = BounceRingInterval;
+                VfxSystem.EmitParticle(VfxType.ChargeRing, center, Vector3.zero, color, AuraRadius * 1.6f);
+            }
+
+            int sparks = Accumulate(ref _auraAcc, 10f * mul, dt);
+            for (int i = 0; i < sparks; i++)
+            {
+                Vector3 dir = RandomFlatDirection();
+                VfxSystem.EmitParticle(VfxType.Sparkle, center + dir * AuraRadius, dir * 1.5f + Vector3.up, color, 0.14f, 0.25f);
+            }
+        }
+
+        /// <summary>
+        /// Escudo: un arco de píxeles por cada escudo que queda, en su ángulo real (el mismo con el que se decide si
+        /// para un choque), así que se ve exactamente por dónde se puede entrar.
+        /// </summary>
+        private void AuraShields(Vector3 center, ShieldsAbility shields, Color color, float mul, float dt)
+        {
+            if (shields == null) return;
+            int count = shields.ShieldCount;
+            float arc = shields.ArcRadians;
+            float r = shields.Radius;
+
+            // Dos filas de píxeles por arco (una placa con algo de alto) y, en cada extremo, un destello que marca el borde
+            int n = Accumulate(ref _auraAcc, 220f * count * mul, dt);
+            for (int i = 0; i < n; i++)
+            {
+                _auraIndex++;
+                int s = _auraIndex % count;
+                if (!shields.IsUp(s)) continue;
+                float a = shields.CenterAngle(s) + (Random.value - 0.5f) * arc;
+                float h = (_auraIndex / count) % 2 == 0 ? 0f : 0.16f;
+                Vector3 p = new Vector3(center.x + Mathf.Cos(a) * r, center.y + h, center.z + Mathf.Sin(a) * r);
+                VfxSystem.EmitParticle(VfxType.AuraDefense, p, Vector3.zero, color, 0.17f, 0.06f);
+            }
+
+            int edges = Accumulate(ref _auraAcc2, 30f * count * mul, dt);
+            for (int i = 0; i < edges; i++)
+            {
+                _auraIndex++;
+                int s = _auraIndex % count;
+                if (!shields.IsUp(s)) continue;
+                float a = shields.CenterAngle(s) + ((_auraIndex / count) % 2 == 0 ? -0.5f : 0.5f) * arc;
+                Vector3 p = new Vector3(center.x + Mathf.Cos(a) * r, center.y + 0.08f, center.z + Mathf.Sin(a) * r);
+                VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.zero, color, 0.2f, 0.08f);
+            }
+        }
+
+        /// <summary>
+        /// Tornado: rayas que giran en espiral hacia la peonza desde todo su alcance (se ve hasta dónde atrae), cada
+        /// vez más, a medida que se carga el empujón.
+        /// </summary>
+        private void AuraTornado(Vector3 center, Vector3 tip, TornadoData data, TornadoAbility tornado, Color color, float mul, float dt)
+        {
+            float radius = data != null ? data.radius : 6f;
+            float progress = tornado != null ? tornado.PullProgress : 0f;
+            float groundY = tip.y + 0.1f;
+
+            int n = Accumulate(ref _auraAcc, (70f + 90f * progress) * mul, dt);
+            for (int i = 0; i < n; i++)
+            {
+                float a = Random.value * Mathf.PI * 2f;
+                float r = Mathf.Lerp(AuraRadius, radius, Mathf.Sqrt(Random.value));
+                Vector3 outward = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
+                Vector3 tangent = new Vector3(-outward.z, 0f, outward.x);
+                Vector3 p = new Vector3(center.x, groundY + Random.value * 0.4f, center.z) + outward * r;
+                VfxSystem.EmitParticle(VfxType.Dash, p, tangent * 7f - outward * 5f, color, 0.09f, 0.3f);
+            }
+
+            // Remolino pegado a la peonza
+            int swirl = Accumulate(ref _auraAcc2, 30f * mul, dt);
+            for (int i = 0; i < swirl; i++)
+            {
+                float a = Random.value * Mathf.PI * 2f;
+                Vector3 outward = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
+                Vector3 tangent = new Vector3(-outward.z, 0f, outward.x);
+                VfxSystem.EmitParticle(VfxType.Sparkle, center + outward * AuraRadius, tangent * 4f + Vector3.up * 1.5f, color, 0.14f, 0.3f);
+            }
+        }
+
+        /// <summary>
+        /// Embestida: mientras embiste, rayas que quedan atrás y chispas delante; entre embestidas, un destello girando
+        /// por cada embestida que le queda.
+        /// </summary>
+        private void AuraRam(Vector3 center, RamAbility ram, Color color, float mul, float dt)
+        {
+            if (ram == null) return;
+            if (ram.IsWindingUp)
+            {
+                // Carga: partículas que se juntan hacia ella, más cuanto más cargada
+                int g = Accumulate(ref _auraAcc, (60f + 120f * ram.WindupProgress) * mul, dt);
+                for (int i = 0; i < g; i++)
+                {
+                    Vector3 dir = RandomFlatDirection();
+                    Vector3 p = center + dir * AuraRadius * 2.2f + Vector3.up * Random.Range(0f, 0.3f);
+                    VfxSystem.EmitParticle(VfxType.ChargeGather, p, -dir * AuraRadius * 2.2f / 0.25f, color, 0.12f, 0.25f);
+                }
+                return;
+            }
+            Vector3 v = _blade.Velocity;
+            v.y = 0f;
+            Vector3 forward = v.sqrMagnitude > 0.01f ? v.normalized : _blade.Facing;
+
+            if (ram.IsLunging)
+            {
+                int n = Accumulate(ref _auraAcc, 140f * mul, dt);
+                for (int i = 0; i < n; i++)
+                {
+                    Vector3 p = center + Random.insideUnitSphere * AuraRadius * 0.6f;
+                    if (i % 3 == 0)
+                        VfxSystem.EmitParticle(VfxType.Clash, center + forward * AuraRadius, forward * 3f + Random.insideUnitSphere * 2f, color, 0.12f, 0.2f);
+                    else
+                        VfxSystem.EmitParticle(VfxType.Dash, p, -forward * 4f, color, 0.1f, 0.25f);
+                }
+                return;
+            }
+
+            int charges = ram.ChargesLeft;
+            if (charges <= 0) return;
+            const float angularSpeed = 540f * Mathf.Deg2Rad;
+            _auraAngle = Mathf.Repeat(_auraAngle + dt * angularSpeed, Mathf.PI * 2f);
+            int m = Accumulate(ref _auraAcc2, 40f * charges * mul, dt);
+            for (int i = 0; i < m; i++)
+            {
+                _auraIndex++;
+                float a = _auraAngle + (_auraIndex % charges) * (Mathf.PI * 2f / charges);
+                Vector3 p = new Vector3(center.x + Mathf.Cos(a) * AuraRadius, center.y + 0.1f, center.z + Mathf.Sin(a) * AuraRadius);
+                VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.zero, color, 0.2f, 0.08f);
+            }
+        }
+
+        /// <summary>
+        /// Rastro de agua: destellos de agua a ras de suelo sobre los trozos que siguen mojados (más tenues al secarse)
+        /// y alguna onda pequeña. Sin instanciar: se emite sobre la lista de trozos del poder.
+        /// </summary>
+        private void AuraWater(Vector3 tip, WaterTrailAbility water, Color color, float mul, float dt)
+        {
+            if (water == null) return;
+            float groundY = tip.y + 0.03f;
+            int capacity = water.PuddleCapacity;
+
+            // Cada trozo mojado emite lo suyo (unas 18 gotas/s y alguna onda), más tenue al secarse
+            float dropChance = 18f * mul * dt;
+            float rippleChance = 0.8f * mul * dt;
+            for (int index = 0; index < capacity; index++)
+            {
+                if (!water.IsPuddleAlive(index)) continue;
+                Vector3 center = water.PuddlePosition(index);
+                center.y = groundY;
+                float life = water.PuddleLife(index);
+
+                for (float chance = dropChance; chance > 0f; chance -= 1f)
+                {
+                    if (Random.value >= chance) break;
+                    Vector3 p = center + RandomFlatDirection() * Random.Range(0f, 0.5f);
+                    Color c = color;
+                    c.a = 0.4f + 0.6f * life;
+                    VfxSystem.EmitParticle(VfxType.Trail, p, Vector3.up * 0.1f, c, 0.2f, 0.5f);
+                }
+                if (Random.value < rippleChance)
+                    VfxSystem.EmitParticle(VfxType.ChargeRing, center, Vector3.zero, color, 0.8f);
+            }
+        }
+
+        /// <summary>
+        /// Salto: en la carga, partículas que se juntan hacia ella (más cuanto más cargada); mientras vuela, un rastro de
+        /// destellos y rayas que caen detrás de ella.
+        /// </summary>
+        private void AuraLeap(Vector3 center, LeapAbility leap, Color color, float mul, float dt)
+        {
+            if (leap == null) return;
+            if (leap.IsWindingUp)
+            {
+                int g = Accumulate(ref _auraAcc, (60f + 120f * leap.WindupProgress) * mul, dt);
+                for (int i = 0; i < g; i++)
+                {
+                    Vector3 dir = RandomFlatDirection();
+                    Vector3 p = center + dir * AuraRadius * 2.2f + Vector3.up * Random.Range(0f, 0.3f);
+                    VfxSystem.EmitParticle(VfxType.ChargeGather, p, -dir * AuraRadius * 2.2f / 0.25f, color, 0.12f, 0.25f);
+                }
+                return;
+            }
+            if (!leap.IsFlying) return;
+            int n = Accumulate(ref _auraAcc, 120f * mul, dt);
+            for (int i = 0; i < n; i++)
+            {
+                Vector3 p = center + Random.insideUnitSphere * AuraRadius * 0.6f;
+                if (i % 2 == 0) VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.down * 1.5f, color, 0.16f, 0.3f);
+                else VfxSystem.EmitParticle(VfxType.Dash, p, Vector3.down * 3f, color, 0.08f, 0.25f);
             }
         }
 
@@ -333,6 +555,36 @@ namespace FakeBlade.Core
                 Vector3 dir = Random.onUnitSphere;
                 dir.y = Mathf.Abs(dir.y);
                 VfxSystem.EmitParticle(VfxType.Sparkle, center + dir * r, Vector3.zero, color, 0.14f, 0.25f);
+            }
+        }
+
+        /// <summary>
+        /// Pinchos: unas puntas (destellos en estrella) que giran en círculo a la altura del disco. Cada partícula
+        /// vive muy poco y se repone en la siguiente posición, así que se ven como pinchos fijos que giran.
+        /// </summary>
+        private void AuraSpikes(Vector3 center, SpikesData data, Color color, float mul, float dt)
+        {
+            int spikes = data != null ? data.spikeCount : 6;
+            float angularSpeed = (data != null ? data.spinTurnsPerSecond : 1.2f) * Mathf.PI * 2f;
+            _auraAngle = Mathf.Repeat(_auraAngle + dt * angularSpeed, Mathf.PI * 2f);
+            float r = AuraRadius * 1.15f;
+
+            int count = Accumulate(ref _auraAcc, spikes * 22f * mul, dt);
+            for (int i = 0; i < count; i++)
+            {
+                _auraIndex++;
+                float a = _auraAngle + (_auraIndex % spikes) * (Mathf.PI * 2f / spikes);
+                Vector3 p = new Vector3(center.x + Mathf.Cos(a) * r, center.y, center.z + Mathf.Sin(a) * r);
+                VfxSystem.EmitParticle(VfxType.Attack, p, Vector3.zero, color, 0.36f, 0.08f);
+            }
+
+            // Alguna chispa suelta que sale despedida
+            int sparks = Accumulate(ref _auraAcc2, 8f * mul, dt);
+            for (int i = 0; i < sparks; i++)
+            {
+                float a = Random.value * Mathf.PI * 2f;
+                Vector3 dir = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
+                VfxSystem.EmitParticle(VfxType.Clash, center + dir * r, dir * 2.5f, color, 0.1f, 0.2f);
             }
         }
 
@@ -420,6 +672,20 @@ namespace FakeBlade.Core
         /// </summary>
         private void UpdateStatusParticles(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
         {
+            // Mojada (aparte del estado principal): gotas que caen y salpican
+            if (_blade.Status.IsWet)
+            {
+                Color wet = lib.GetStatusColor(StatusEffectType.Wet);
+                int drops = Accumulate(ref _wetAcc, lib.statusParticleRate * mul, dt);
+                for (int i = 0; i < drops; i++)
+                {
+                    Vector3 dir = RandomFlatDirection();
+                    VfxSystem.EmitParticle(VfxType.Trail, center + dir * (_radius * Random.Range(0.3f, 1f)) + Vector3.up * 0.15f,
+                        dir * 1.2f + Vector3.down * 1.5f, wet, 0.08f, 0.35f);
+                }
+            }
+            else _wetAcc = 0f;
+
             StatusEffectType status = _blade.Status.Current;
             if (status == StatusEffectType.None)
             {
@@ -478,7 +744,9 @@ namespace FakeBlade.Core
         private void UpdateStatusIcon(VfxLibrary lib)
         {
             StatusEffectSystem status = _blade.Status;
-            if (!status.HasStatus)
+            // El estado principal manda; si no hay, la gota de Mojada
+            StatusEffectType shown = status.HasStatus ? status.Current : status.IsWet ? StatusEffectType.Wet : StatusEffectType.None;
+            if (shown == StatusEffectType.None)
             {
                 if (_statusIcon != null && _statusIcon.enabled) _statusIcon.enabled = false;
                 return;
@@ -486,14 +754,15 @@ namespace FakeBlade.Core
 
             if (_statusIcon == null) CreateStatusIcon();
 
-            if (_iconStatus != status.Current)
+            if (_iconStatus != shown)
             {
-                _iconStatus = status.Current;
+                _iconStatus = shown;
                 _statusIcon.sprite = StatusIcons.Get(_iconStatus);
                 _statusIcon.color = lib.GetStatusColor(_iconStatus);
             }
 
-            _statusIcon.enabled = status.RemainingFraction > 0.3f || Mathf.FloorToInt(Time.time * 12f) % 2 == 0;
+            float remaining = status.HasStatus ? status.RemainingFraction : status.WetRemainingFraction;
+            _statusIcon.enabled = remaining > 0.3f || Mathf.FloorToInt(Time.time * 12f) % 2 == 0;
 
             // Encima de la peonza en pantalla (hacia el "arriba" de la cámara), mirando a la cámara
             Transform icon = _statusIcon.transform;

@@ -33,6 +33,13 @@ namespace FakeBlade.Core
                 case SpecialAbilityType.ShockWave: pattern = Wave; break;
                 case SpecialAbilityType.Defense: pattern = Shield; break;
                 case SpecialAbilityType.Ghost: pattern = Ghost; break;
+                case SpecialAbilityType.Spikes: pattern = Spikes; break;
+                case SpecialAbilityType.Bounce: pattern = Bounce; break;
+                case SpecialAbilityType.Shields: pattern = Shields; break;
+                case SpecialAbilityType.Tornado: pattern = Tornado; break;
+                case SpecialAbilityType.Leap: pattern = Leap; break;
+                case SpecialAbilityType.Ram: pattern = Ram; break;
+                case SpecialAbilityType.WaterTrail: return StatusIcons.Get(StatusEffectType.Wet);
                 default: pattern = Boost; break;
             }
             sprite = PixelUI.FromPattern("Power_" + type, pattern, PixelsPerUnit);
@@ -104,6 +111,108 @@ namespace FakeBlade.Core
             " o########o ",
             " o#o##o##o#o",
             " oo oo oo oo",
+        };
+
+        // Embestida: tres flechas que avanzan
+        private static readonly string[] Ram =
+        {
+            "oo   oo   oo",
+            "o#o  o#o  o#",
+            " o#o  o#o  o",
+            "  o#o  o#o  ",
+            "   o#o  o#o ",
+            "    o#o  o#o",
+            "    o#o  o#o",
+            "   o#o  o#o ",
+            "  o#o  o#o  ",
+            " o#o  o#o  o",
+            "o#o  o#o  o#",
+            "oo   oo   oo",
+        };
+
+        // Salto: flecha en arco que cae sobre el suelo
+        private static readonly string[] Leap =
+        {
+            "   oooo     ",
+            "  o####o    ",
+            " o#oooo#o   ",
+            "o#o    o#o  ",
+            "o#o     o#o ",
+            "oo    oo#o#o",
+            "      o####o",
+            "       o##o ",
+            "        oo  ",
+            "            ",
+            "oooooooooooo",
+            "o##########o",
+        };
+
+        // Tornado: embudo de viento
+        private static readonly string[] Tornado =
+        {
+            "oooooooooooo",
+            "o##########o",
+            "oooooooooooo",
+            " o########o ",
+            " oooooooooo ",
+            "  o######o  ",
+            "  oooooooo  ",
+            "   o####o   ",
+            "   oooooo   ",
+            "    o##o    ",
+            "    oooo    ",
+            "     oo     ",
+        };
+
+        // Escudo: tres arcos alrededor de un punto
+        private static readonly string[] Shields =
+        {
+            "   oooooo   ",
+            "  o######o  ",
+            " o#oooooo#o ",
+            " oo      oo ",
+            "o#o      o#o",
+            "o#o  oo  o#o",
+            "o#o  oo  o#o",
+            "oo        oo",
+            "            ",
+            "  oo    oo  ",
+            "  o######o  ",
+            "   oooooo   ",
+        };
+
+        // Rebote: flecha que choca contra una barra y vuelve
+        private static readonly string[] Bounce =
+        {
+            "        oo  ",
+            "   oo   o#o ",
+            "  o#o   o#o ",
+            " o##oooooo#o",
+            "o##########o",
+            " o##oooooo#o",
+            "  o#o   o#o ",
+            "   oo   o#o ",
+            "        o#o ",
+            "        o#o ",
+            "        o#o ",
+            "        oo  ",
+        };
+
+        // Pinchos: bola con púas
+        private static readonly string[] Spikes =
+        {
+            "     oo     ",
+            " oo  o#o oo ",
+            " o#o o#oo#o ",
+            "  o#oo##o#o ",
+            "ooo#######o ",
+            "o#########oo",
+            "oo#########o",
+            " o#######ooo",
+            " o#o##oo#o  ",
+            " o#oo#o o#o ",
+            " oo o#o  oo ",
+            "     oo     ",
         };
     }
 }

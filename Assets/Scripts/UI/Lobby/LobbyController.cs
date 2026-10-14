@@ -12,6 +12,9 @@ namespace FakeBlade.UI
     /// 1. Columnas: empiezan 2; cada jugador se une manteniendo el botón de ataque de su
     ///    dispositivo (A / Espacio / Ctrl der.). Se añade una columna por jugador (máx. 4).
     ///    Cada uno monta su peonza (preset + piezas), elige color (sin repetir) y equipo, y confirma.
+    ///    Rivales con IA (D7): un jugador añade una con Select (Tab / Num +) y va a su columna con LB/RB
+    ///    (Q/E / Num 7/9) para elegir sus piezas, color, equipo y nivel; Ataque vuelve a la suya y mantener
+    ///    Atrás la quita. Las IA siempre están listas y van detrás de los jugadores; sin jugadores, se quitan.
     /// 2. Con todos listos, J1 configura la partida (modo, vidas, tiempo, puntos, fuego amigo, escenario).
     /// 3. ¡Empezar! guarda todo en MatchSetup y carga la batalla.
     /// </summary>
@@ -33,11 +36,18 @@ namespace FakeBlade.UI
         private sealed class Slot
         {
             public PlayerSetup Setup;
+            /// <summary>Null en las IA.</summary>
             public DeviceMenuInput Input;
             public bool Ready;
             public float LeaveTimer;
+            /// <summary>Tras quitar una IA, Atrás no cuenta hasta soltarlo (para no salir de la columna propia).</summary>
+            public bool LeaveBlocked;
+            /// <summary>IA cuya columna edita este jugador (null = la suya).</summary>
+            public Slot Editing;
             public LobbyColumn Column;
             public BladePreviewStage Stage;
+
+            public bool IsCpu => Setup.IsCpu;
         }
 
         // Parámetros recordados entre visitas (p. ej. tras "Cambiar peonzas")
@@ -47,6 +57,10 @@ namespace FakeBlade.UI
         private static int s_pointsIndex;
         private static bool s_friendlyFire;
         private static int s_arena;
+
+        /// <summary>Nombres de los niveles de IA, en el orden de AIDifficulty.</summary>
+        private static readonly string[] AILevelKeys = { "AI_EASY", "AI_NORMAL", "AI_HARD", "AI_EXPERT", "AI_IMPOSSIBLE" };
+        private static readonly int AILevelCount = AILevelKeys.Length;
 
         private static readonly int[] TimeOptions = { 0, 60, 120, 180, 300, 600 };
         private static readonly int[] PointOptions = { 0, 3, 5, 10, 15, 20 };
@@ -199,12 +213,14 @@ namespace FakeBlade.UI
         {
             UpdateJoin(dt);
 
+            // Salir de la última columna humana quita también las IA: se comprueba el índice
             for (int i = _slots.Count - 1; i >= 0; i--)
-                UpdateSlot(_slots[i], dt);
+                if (i < _slots.Count && !_slots[i].IsCpu) UpdateSlot(_slots[i], dt);
 
-            bool allReady = _slots.Count > 0;
+            // Las IA siempre están listas
+            bool allReady = HumanCount > 0;
             for (int i = 0; i < _slots.Count; i++)
-                allReady &= _slots[i].Ready;
+                allReady &= _slots[i].IsCpu || _slots[i].Ready;
 
             if (allReady)
             {
@@ -264,13 +280,25 @@ namespace FakeBlade.UI
         private bool IsAssigned(InputDeviceKind kind, int deviceId)
         {
             for (int i = 0; i < _slots.Count; i++)
-                if (_slots[i].Input.Matches(kind, deviceId)) return true;
+                if (_slots[i].Input != null && _slots[i].Input.Matches(kind, deviceId)) return true;
             return false;
+        }
+
+        private int HumanCount
+        {
+            get
+            {
+                int count = 0;
+                for (int i = 0; i < _slots.Count; i++)
+                    if (!_slots[i].IsCpu) count++;
+                return count;
+            }
         }
 
         private void Join(InputDeviceKind kind, int deviceId)
         {
-            int index = _slots.Count;
+            // Los jugadores van delante de las IA (J1, J2... y luego IA 1, IA 2...)
+            int index = HumanCount;
             int presetCount = Mathf.Max(1, catalog.presets.Count);
             var setup = new PlayerSetup
             {
@@ -285,7 +313,7 @@ namespace FakeBlade.UI
             setup.Color = catalog.GetColor(setup.ColorIndex);
             setup.ApplyPreset(catalog.GetPreset(setup.PresetIndex));
 
-            AddSlot(setup);
+            AddSlot(setup, index);
             RebuildColumns();
 
             if (kind == InputDeviceKind.Gamepad)
@@ -305,36 +333,78 @@ namespace FakeBlade.UI
             if (pad != null) pad.SetMotorSpeeds(0f, 0f);
         }
 
-        private void AddSlot(PlayerSetup setup)
+        private void AddSlot(PlayerSetup setup, int index = -1)
         {
-            _slots.Add(new Slot
+            var slot = new Slot
             {
                 Setup = setup,
-                Input = new DeviceMenuInput(setup.Device, setup.GamepadDeviceId)
-            });
+                Input = setup.IsCpu ? null : new DeviceMenuInput(setup.Device, setup.GamepadDeviceId)
+            };
+            if (index < 0 || index > _slots.Count) _slots.Add(slot);
+            else _slots.Insert(index, slot);
         }
 
         private void Leave(Slot slot)
         {
             _slots.Remove(slot);
+            // Sin jugadores no queda quien maneje a las IA
+            if (HumanCount == 0) _slots.Clear();
             _allReadyTimer = 0f;
+            RebuildColumns();
+        }
+
+        /// <summary>Añade una IA al final (D7), con un preset al azar y nivel Normal. El jugador sigue en su columna.</summary>
+        private void AddCpu()
+        {
+            if (_slots.Count >= MaxPlayers) return;
+
+            int index = _slots.Count;
+            int presetCount = Mathf.Max(1, catalog.presets.Count);
+            var setup = new PlayerSetup
+            {
+                PlayerIndex = index,
+                Controller = ControllerType.AI,
+                PresetIndex = Random.Range(0, presetCount),
+                ColorIndex = FirstFreeColor(),
+                Team = index % 2,
+                Difficulty = AIDifficulty.Normal
+            };
+            setup.Color = catalog.GetColor(setup.ColorIndex);
+            setup.ApplyPreset(catalog.GetPreset(setup.PresetIndex));
+
+            AddSlot(setup);
+            RebuildColumns();
+        }
+
+        private void RemoveCpu(Slot cpu, Slot remover)
+        {
+            _slots.Remove(cpu);
+            for (int i = 0; i < _slots.Count; i++)
+                if (_slots[i].Editing == cpu) _slots[i].Editing = null;
+            remover.LeaveBlocked = true;
             RebuildColumns();
         }
 
         private void RebuildColumns()
         {
             int visible = Mathf.Clamp(_slots.Count + 1, 2, MaxPlayers);
+            int cpuNumber = 0;
             for (int i = 0; i < _columns.Count; i++)
             {
                 LobbyColumn column = _columns[i];
                 bool active = i < visible;
                 column.gameObject.SetActive(active);
 
-                if (i < _slots.Count) BindSlot(_slots[i], i);
+                if (i < _slots.Count)
+                {
+                    if (_slots[i].IsCpu) _slots[i].Setup.CpuNumber = ++cpuNumber;
+                    BindSlot(_slots[i], i);
+                }
                 else if (active) column.ShowEmpty(0f);
 
                 if (i >= _slots.Count && _stages[i] != null) _stages[i].SetVisible(false);
             }
+            RefreshEditing();
         }
 
         private void BindSlot(Slot slot, int index)
@@ -346,12 +416,75 @@ namespace FakeBlade.UI
             slot.LeaveTimer = 0f;
 
             LobbyColumn column = slot.Column;
-            column.ShowPlayer(index + 1, slot.Setup.Color, InputDeviceUtil.DeviceLabel(slot.Setup.Device, slot.Setup.GamepadDeviceId));
+            if (slot.IsCpu) column.ShowCpu(slot.Setup.Color, CpuName(slot));
+            else column.ShowPlayer(index + 1, slot.Setup.Color, InputDeviceUtil.DeviceLabel(slot.Setup.Device, slot.Setup.GamepadDeviceId));
             column.SetPreview(slot.Stage.Texture);
             column.ResetFocus();
             column.SetReady(slot.Ready);
             column.SetLeaveProgress(0f);
             RefreshSlot(slot);
+        }
+
+        private static string CpuName(Slot cpu) => Loc.Format("CPU_NAME", cpu.Setup.CpuNumber);
+
+        /// <summary>
+        /// LB/RB: el jugador pasa de su columna a las de las IA, en bucle (D7). En la columna de una IA, las
+        /// direcciones la editan a ella; Ataque vuelve a la suya.
+        /// </summary>
+        private void StepEditing(Slot slot, int dir)
+        {
+            // Opciones: su columna (índice -1) y cada IA, en el orden de las columnas
+            int current = slot.Editing != null ? _slots.IndexOf(slot.Editing) : -1;
+            int next = current;
+            for (int i = 0; i <= _slots.Count; i++)
+            {
+                next += dir;
+                if (next >= _slots.Count) next = -1;
+                else if (next < -1) next = _slots.Count - 1;
+                if (next == -1 || _slots[next].IsCpu) break;
+            }
+            SetEditing(slot, next >= 0 ? _slots[next] : null);
+        }
+
+        private void SetEditing(Slot slot, Slot cpu)
+        {
+            Slot previous = slot.Editing ?? slot;
+            previous.Column.SetLeaveProgress(0f);
+            slot.LeaveTimer = 0f;
+            slot.Editing = cpu;
+            RefreshEditing();
+        }
+
+        /// <summary>Foco visible, cabecera y ayuda de cada columna según quién edita qué.</summary>
+        private void RefreshEditing()
+        {
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                Slot slot = _slots[i];
+                if (slot.Column == null) continue;
+
+                if (!slot.IsCpu)
+                {
+                    slot.Column.SetFocusVisible(slot.Editing == null);
+                    DeviceMenuInput.LobbyExtrasLabels(slot.Setup.Device, out string addCpu, out string columns);
+                    slot.Column.SetHint(slot.Editing == null
+                        ? Loc.Get("LOBBY_HINT") + "\n" + Loc.Format("LOBBY_HINT_CPU", addCpu, columns)
+                        : Loc.Format("LOBBY_EDITING_CPU", CpuName(slot.Editing), columns));
+                    continue;
+                }
+
+                // Quién la edita, en la cabecera (J1 · J2...)
+                string editors = null;
+                for (int j = 0; j < _slots.Count; j++)
+                {
+                    if (_slots[j].Editing != slot) continue;
+                    string badge = Loc.Format("PLAYER_BADGE", j + 1);
+                    editors = editors == null ? badge : editors + " " + badge;
+                }
+                slot.Column.SetFocusVisible(editors != null);
+                slot.Column.SetDeviceText(editors == null ? CpuName(slot) : CpuName(slot) + " · " + editors);
+                slot.Column.SetHint(Loc.Get(editors == null ? "LOBBY_CPU_HINT_IDLE" : "LOBBY_CPU_HINT_EDIT"));
+            }
         }
 
         private BladePreviewStage GetStage(int index)
@@ -376,22 +509,44 @@ namespace FakeBlade.UI
                 return;
             }
 
-            if (input.Up) column.MoveFocus(-1);
-            if (input.Down) column.MoveFocus(1);
-            if (input.Left) StepRow(slot, -1);
-            if (input.Right) StepRow(slot, 1);
-            if (input.Confirm)
+            if (input.AddCpu)
             {
-                SetReady(slot, true);
+                AddCpu();
+                return;
+            }
+            if (input.ColumnStep != 0)
+            {
+                StepEditing(slot, input.ColumnStep);
                 return;
             }
 
-            // Mantener Atrás para abandonar la columna
-            if (input.BackHeld)
+            // Editando una IA, las órdenes van a su columna
+            Slot target = slot.Editing ?? slot;
+            column = target.Column;
+
+            if (input.Up) column.MoveFocus(-1);
+            if (input.Down) column.MoveFocus(1);
+            if (input.Left) StepRow(target, -1);
+            if (input.Right) StepRow(target, 1);
+            if (input.Confirm)
+            {
+                if (target == slot) SetReady(slot, true);
+                else SetEditing(slot, null);
+                return;
+            }
+
+            if (slot.LeaveBlocked && !input.BackHeld) slot.LeaveBlocked = false;
+
+            // Mantener Atrás para abandonar la columna (o quitar la IA que se edita)
+            if (input.BackHeld && !slot.LeaveBlocked)
             {
                 slot.LeaveTimer += dt;
                 column.SetLeaveProgress(slot.LeaveTimer / leaveHoldTime);
-                if (slot.LeaveTimer >= leaveHoldTime) Leave(slot);
+                if (slot.LeaveTimer >= leaveHoldTime)
+                {
+                    if (target == slot) Leave(slot);
+                    else RemoveCpu(target, slot);
+                }
             }
             else if (slot.LeaveTimer > 0f)
             {
@@ -420,6 +575,7 @@ namespace FakeBlade.UI
             else if (row == column.CoreRow) StepPart(s, ComponentSlot.Core, dir);
             else if (row == column.ColorRow) StepColor(slot, dir);
             else if (row == column.TeamRow) s.Team = 1 - s.Team;
+            else if (row == column.LevelRow) s.Difficulty = (AIDifficulty)(((int)s.Difficulty + dir + AILevelCount) % AILevelCount);
             else return;
 
             RefreshSlot(slot);
@@ -511,6 +667,7 @@ namespace FakeBlade.UI
             column.ColorRow.SetValueColor(s.Color);
             column.TeamRow.SetValueText(s.Team == 0 ? "A" : "B");
             column.TeamRow.SetValueColor(catalog.GetTeamColor(s.Team));
+            if (s.IsCpu) column.LevelRow.SetValueText(Loc.Get(AILevelKeys[(int)s.Difficulty]));
             column.SetBorderColor(s.Color);
 
             BladeStatBlock stats = FakeBladeStats.Calculate(catalog.GetBaseStats(), s.Tip, s.Body, s.Blade, s.Core);
@@ -757,7 +914,7 @@ namespace FakeBlade.UI
         #endregion
 
         #region Restore / navigation
-        /// <summary>Al volver de una partida ("Cambiar peonzas") se recuperan los jugadores y su montaje.</summary>
+        /// <summary>Al volver de una partida ("Cambiar peonzas") se recuperan los jugadores, las IA y su montaje.</summary>
         private void RestoreFromSetup()
         {
             if (!MatchSetup.HasPlayers) return;
@@ -770,6 +927,11 @@ namespace FakeBlade.UI
                 if (setup.Device == InputDeviceKind.Gamepad && InputDeviceUtil.FindGamepad(setup.GamepadDeviceId) == null) continue;
                 AddSlot(setup);
             }
+
+            // Las IA, detrás y solo si queda algún jugador que las maneje
+            if (_slots.Count == 0) return;
+            for (int i = 0; i < MatchSetup.Players.Count && _slots.Count < MaxPlayers; i++)
+                if (MatchSetup.Players[i].IsCpu) AddSlot(MatchSetup.Players[i]);
         }
 
         private void BackToMenu()

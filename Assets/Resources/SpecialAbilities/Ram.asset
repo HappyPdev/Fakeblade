@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 183f5e7201a27fa488eb6641465d2ad1, type: 3}
+  m_Name: Ram
+  m_EditorClassIdentifier: FakeBlade.Runtime::FakeBlade.Core.RamData
+  nameEs: EMBESTIDA
+  nameEn: RAM
+  color: {r: 0.7, g: 1, b: 0.25, a: 1}
+  icon: {fileID: 0}
+  energyRequired: 1
+  duration: 6
+  activationBurst: 1.5
+  charges: 2
+  windupTime: 0.3
+  windupBrake: 12
+  speed: 13
+  lungeTime: 0.45
+  hitRadius: 1.8
+  force: 24
+  damagePct: 0.06
+  launchDuration: 0.4
+  speedKeptOnHit: 0.35
+  hitShake: 0.2
+  hitStop: 0.04

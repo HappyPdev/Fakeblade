@@ -46,6 +46,8 @@ namespace FakeBlade.Core
         /// <summary>Último nivel de carga que ya ha dado su pulso de vibración.</summary>
         private int _vibratedChargeLevel;
         private bool _inputAssignedExternally;
+        /// <summary>Se registra en el GameManager al empezar (falso en el clon de Fantasma: no cuenta como jugador).</summary>
+        private bool _registerInMatch = true;
         #endregion
 
         #region Properties
@@ -98,7 +100,7 @@ namespace FakeBlade.Core
             _blade.OnHealCut += HandleHealCut;
 
             var gm = GameManager.Instance;
-            if (gm != null) _registered = gm.RegisterPlayer(this);
+            if (gm != null && _registerInMatch) _registered = gm.RegisterPlayer(this);
 
             if (debugMode)
                 Debug.Log($"[PlayerController] P{playerID} ({playerName}) input:{_input.DeviceKind}", this);
@@ -261,6 +263,12 @@ namespace FakeBlade.Core
 
         public void SetTeamID(int team) => teamID = team;
 
+        /// <summary>
+        /// Llamar antes de su Start. Falso = no se registra en la partida (sin panel del HUD, no cuenta para ganar ni
+        /// para las vidas): el clon de Fantasma.
+        /// </summary>
+        public void SetRegisterInMatch(bool register) => _registerInMatch = register;
+
         /// <summary>Asigna el dispositivo (menú de selección). Desactiva la asignación automática.</summary>
         public void SetInputDevice(InputDeviceKind kind, int gamepadIndex = 0)
         {
@@ -290,6 +298,11 @@ namespace FakeBlade.Core
         }
 
         public bool IsHumanControlled => ReferenceEquals(_source, _input);
+
+        /// <summary>Rival con IA de la selección de peonzas (D7): el HUD lo marca como IA en vez de J1-J4.</summary>
+        public bool IsCpu { get; private set; }
+
+        public void SetCpu(bool cpu) => IsCpu = cpu;
         #endregion
 
         #region Visual

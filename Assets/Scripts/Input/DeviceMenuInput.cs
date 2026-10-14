@@ -45,9 +45,17 @@ namespace FakeBlade.Core
     /// Teclado: movimiento del esquema; confirmar = ataque; atrás = dash (+ Esc en J1, Retroceso en J2).
     /// Mando:   stick/cruceta; confirmar = A; atrás = B.
     /// Las direcciones se repiten al mantenerlas (retardo + cadencia).
+    /// Selección de peonzas (D7): añadir IA = Select / Tab / Num +; cambiar de columna = LB-RB / Q-E / Num 7-9.
     /// </summary>
     public sealed class DeviceMenuInput
     {
+        private const Key LeftAddCpuKey = Key.Tab;
+        private const Key LeftPrevColumnKey = Key.Q;
+        private const Key LeftNextColumnKey = Key.E;
+        private const Key RightAddCpuKey = Key.NumpadPlus;
+        private const Key RightPrevColumnKey = Key.Numpad7;
+        private const Key RightNextColumnKey = Key.Numpad9;
+
         private const float RepeatDelay = 0.35f;
         private const float RepeatRate = 0.11f;
         private const float StickThreshold = 0.55f;
@@ -63,6 +71,9 @@ namespace FakeBlade.Core
         public bool Back { get; private set; }
         public bool ConfirmHeld { get; private set; }
         public bool BackHeld { get; private set; }
+        public bool AddCpu { get; private set; }
+        /// <summary>Columna anterior (-1), siguiente (1) o ninguna (0).</summary>
+        public int ColumnStep { get; private set; }
 
         private Vector2Int _heldDir;
         private float _repeatTimer;
@@ -113,6 +124,50 @@ namespace FakeBlade.Core
             Back = BackPressed(Kind, GamepadDeviceId);
             ConfirmHeld = IsConfirmHeld(Kind, GamepadDeviceId);
             BackHeld = IsBackHeld(Kind, GamepadDeviceId);
+            ReadLobbyExtras();
+        }
+
+        private void ReadLobbyExtras()
+        {
+            AddCpu = false;
+            ColumnStep = 0;
+
+            if (Kind == InputDeviceKind.Gamepad)
+            {
+                Gamepad pad = InputDeviceUtil.FindGamepad(GamepadDeviceId);
+                if (pad == null) return;
+                AddCpu = pad.selectButton.wasPressedThisFrame;
+                if (pad.leftShoulder.wasPressedThisFrame) ColumnStep = -1;
+                else if (pad.rightShoulder.wasPressedThisFrame) ColumnStep = 1;
+                return;
+            }
+
+            Keyboard kb = Keyboard.current;
+            if (kb == null) return;
+            bool left = Kind == InputDeviceKind.KeyboardLeft;
+            AddCpu = Pressed(kb, left ? LeftAddCpuKey : RightAddCpuKey);
+            if (Pressed(kb, left ? LeftPrevColumnKey : RightPrevColumnKey)) ColumnStep = -1;
+            else if (Pressed(kb, left ? LeftNextColumnKey : RightNextColumnKey)) ColumnStep = 1;
+        }
+
+        /// <summary>Botones de añadir IA y de cambiar de columna de un dispositivo, para la ayuda de la columna.</summary>
+        public static void LobbyExtrasLabels(InputDeviceKind kind, out string addCpu, out string columns)
+        {
+            switch (kind)
+            {
+                case InputDeviceKind.Gamepad:
+                    addCpu = "SELECT";
+                    columns = "LB/RB";
+                    break;
+                case InputDeviceKind.KeyboardRight:
+                    addCpu = "NUM +";
+                    columns = "NUM 7/9";
+                    break;
+                default:
+                    addCpu = "TAB";
+                    columns = "Q/E";
+                    break;
+            }
         }
 
         #region Static readers

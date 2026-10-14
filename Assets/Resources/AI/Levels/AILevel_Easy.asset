@@ -28,6 +28,8 @@ MonoBehaviour:
   keepsDistance: 0
   tactical: 0
   fullProfile: 0
+  readsSpecials: 0
+  specialDodgeChance: 0
   perceptionDelay: 0.35
   predictionError: 0
   lapseInterval: 5

@@ -46,6 +46,11 @@ namespace FakeBlade.Core
 
         public override bool WantsRepeatPress => _wavesLeft > 0;
 
+        /// <summary>Ondas que le quedan por lanzar.</summary>
+        public int WavesLeft => _wavesLeft;
+        /// <summary>Radio de cada onda (m).</summary>
+        public float Radius => Config.radius;
+
         public override void OnActivate()
         {
             _wavesLeft = Mathf.Max(0, Config.waves - 1);

@@ -52,11 +52,26 @@ namespace FakeBlade.Core
         private float _airTime;
         private float _windup;
         private bool _flying;
+        private Vector3 _landing;
 
         public LeapAbility(LeapData data, FakeBladeController owner) : base(data, owner) { }
 
-        /// <summary>La IA salta con el rival a la distancia del salto.</summary>
-        public override float UseRange => Config.distance * 1.1f;
+        /// <summary>La IA salta con el rival a la distancia del salto: ni tan cerca que se pase de largo ni fuera de la onda.</summary>
+        public override float UseRange => Config.distance + Config.radius * 0.7f;
+        public override float UseRangeMin => Config.distance - Config.radius * 0.7f;
+
+        /// <summary>Segundos de carga que le quedan (0 si ya ha saltado).</summary>
+        public float WindupLeft => _windup;
+        /// <summary>Dónde caerá (en el aire; lo que recorre el salto desde el despegue). Para la IA del rival.</summary>
+        public Vector3 LandingPoint => _landing;
+        /// <summary>Segundos que le quedan en el aire (aproximado).</summary>
+        public float TimeToLand => _flying ? Mathf.Max(0f, _airTime - _elapsed) : 0f;
+        /// <summary>Distancia horizontal del salto (m, nominal).</summary>
+        public float JumpDistance => Config.distance;
+        /// <summary>Radio de la onda al caer (m).</summary>
+        public float WaveRadius => Config.radius;
+        /// <summary>Segundos en el aire de un salto (sale de la altura).</summary>
+        public float AirTime => 2f * Mathf.Sqrt(2f * Config.height / -Physics.gravity.y);
 
         /// <summary>Ni en la carga ni en el aire se puede atacar o hacer dash (no cambia la dirección del salto).</summary>
         public override bool BlocksActions => true;
@@ -110,6 +125,8 @@ namespace FakeBlade.Core
             float k = CombatConfig.Active.linearDamping;
             float speed = k > 0.001f ? Config.distance * k / (1f - Mathf.Exp(-k * _airTime)) : Config.distance / _airTime;
             Owner.Leap(dir * speed, up, _airTime);
+            _landing = Owner.Position + dir * Config.distance;
+            _landing.y = Owner.Position.y;
             _elapsed = 0f;
             _flying = true;
         }

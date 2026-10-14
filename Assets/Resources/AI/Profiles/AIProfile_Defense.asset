@@ -21,6 +21,7 @@ MonoBehaviour:
   attackChanceScale: 0.8
   chargedChanceScale: 1.2
   aggressionBias: -0.1
+  defensiveRivalAttackScale: 0.5
   keepDistance: 2.8
   approachDashChance: 0.15
   pressure:

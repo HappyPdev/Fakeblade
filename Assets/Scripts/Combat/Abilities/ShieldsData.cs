@@ -49,6 +49,18 @@ namespace FakeBlade.Core
         /// <summary>Escudos que hay (para el aspecto).</summary>
         public int ShieldCount => Mathf.Min(Config.shieldCount, MaxShields);
         public bool IsUp(int index) => index >= 0 && index < MaxShields && _up[index];
+
+        /// <summary>Escudos que siguen puestos.</summary>
+        public int ShieldsUp
+        {
+            get
+            {
+                int count = 0;
+                for (int i = 0; i < ShieldCount; i++)
+                    if (_up[i]) count++;
+                return count;
+            }
+        }
         /// <summary>Ángulo del centro de un escudo (radianes, en el plano XZ).</summary>
         public float CenterAngle(int index) =>
             _phase + Time.time * Config.turnsPerSecond * Mathf.PI * 2f + index * Mathf.PI * 2f / ShieldCount;

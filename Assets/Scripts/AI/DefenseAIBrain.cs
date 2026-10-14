@@ -66,7 +66,19 @@ namespace FakeBlade.Core
             bool goForIt = Time.time - _lastCloseTime > Center.patience ||
                            (FullStyle && (((Counter || CanPin) && p.Distance < AttackRange) || Aggression >= Center.leaveCenterAggression));
             if (goForIt || p.TargetOutward == Vector3.zero) return base.ApproachDirection();
+            return CenterGoal();
+        }
 
+        /// <summary>Con Pinchos o Rebote propios aguanta en el centro sin salir (D11): que la ataquen allí.</summary>
+        protected override bool HoldsGround => base.HoldsGround || (FullStyle && ActivePower is SpikesAbility);
+
+        protected override Vector3 HoldGroundDirection() =>
+            Perception.TargetOutward == Vector3.zero ? base.HoldGroundDirection() : CenterGoal();
+
+        /// <summary>Hacia su sitio: a centerHold m del centro, del lado del rival.</summary>
+        private Vector3 CenterGoal()
+        {
+            AIPerception p = Perception;
             Vector3 toGoal = p.ToCenter * p.CenterDistance + p.TargetOutward * Center.centerHold;
             return Vector3.ClampMagnitude(toGoal, 1f);
         }

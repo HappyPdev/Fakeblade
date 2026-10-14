@@ -96,6 +96,9 @@ namespace FakeBlade.Core
         public float chargedChanceScale = 1f;
         [Tooltip("Se suma a la agresividad de la capa táctica (0,5 = neutral)")]
         [Range(-0.5f, 0.5f)] public float aggressionBias;
+        [Tooltip("Multiplica la probabilidad de atacar mientras el rival tiene un poder defensivo activo (Defensa, " +
+                 "Pinchos, Rebote): atacarle sirve de poco (D11). Solo si el nivel lee todos los especiales")]
+        [Range(0f, 1f)] public float defensiveRivalAttackScale = 0.5f;
 
         [Header("=== COLOCACIÓN ===")]
         [Tooltip("Distancia entre centros que guarda mientras no ataca (m): pegada al rival, un ataque suyo llega " +
@@ -122,13 +125,16 @@ namespace FakeBlade.Core
             orbit = new AIOrbitStyle();
             keepDistance = 2.8f;
             approachDashChance = 0.15f;
+            defensiveRivalAttackScale = 0.5f;
             switch (profileStyle)
             {
                 case AIStyle.Attack:
-                    // Presión: guarda menos distancia, ataca y carga más, para menos
+                    // Presión: guarda menos distancia, ataca y carga más, para menos; espera menos a que acabe un
+                    // poder defensivo del rival (D11)
                     nameKey = "ARCHETYPE_ATTACK";
                     Set(0.7f, 0.8f, 1f, 1.25f, 1.6f, 0.15f);
                     keepDistance = 2.2f;
+                    defensiveRivalAttackScale = 0.75f;
                     break;
                 case AIStyle.Defense:
                     // Aguanta el golpe: para algo más y casi no esquiva; sin el perfil entero (Fácil) ataca ×0,8

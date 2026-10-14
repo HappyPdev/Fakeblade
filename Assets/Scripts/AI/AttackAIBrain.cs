@@ -28,8 +28,9 @@ namespace FakeBlade.Core
 
         protected override void TryUseSpecial()
         {
-            // En cuanto lo tiene, si el rival está donde el poder sirve (Onda de choque: dentro de la onda)
-            if (FullStyle && Blade.Special.IsReady && InSpecialRange) PressSpecial();
+            // En cuanto lo tiene, si el rival está donde el poder sirve (Onda de choque: dentro de la onda), salvo el
+            // Escudo con escudos puestos (D11)
+            if (FullStyle && Blade.Special.IsReady && InSpecialRange && !ShieldsStillUp) PressSpecial();
             else base.TryUseSpecial();
         }
 

@@ -63,6 +63,11 @@ namespace FakeBlade.Core
         public float TargetWallDistance { get; private set; }
         /// <summary>Del centro de la arena hacia el rival, en el plano y normalizado.</summary>
         public Vector3 TargetOutward { get; private set; }
+        /// <summary>
+        /// Poder del rival que la IA sabe leer (D11): activo o con su efecto todavía puesto. Null si no tiene ninguno o
+        /// si el nivel no lo lee (con Obvious, solo Embestida, Salto y Onda de choque).
+        /// </summary>
+        public SpecialAbility TargetPower { get; private set; }
 
         /// <summary>Hacia el centro de la arena, en el plano y normalizado.</summary>
         public Vector3 ToCenter { get; private set; }
@@ -117,6 +122,7 @@ namespace FakeBlade.Core
                 TargetSpin = 0f;
                 TargetWallDistance = float.PositiveInfinity;
                 TargetOutward = Vector3.zero;
+                TargetPower = null;
                 return;
             }
 
@@ -151,6 +157,7 @@ namespace FakeBlade.Core
             TargetSpin = Target.SpinSpeedPercentage;
             TargetIdle = targetVelocity.sqrMagnitude < IdleSpeed * IdleSpeed && !TargetAttacking && !Target.Attack.IsCharging;
             TargetStaggered = Target.IsStaggered;
+            TargetPower = ReadPower(Target.Special, level.readsSpecials);
 
             TargetWallDistance = float.PositiveInfinity;
             TargetOutward = Vector3.zero;
@@ -162,6 +169,15 @@ namespace FakeBlade.Core
                 TargetOutward = radius > 0.01f ? fromCenter / radius : Vector3.zero;
                 TargetWallDistance = arena.InnerRadius - radius - BladeRadius;
             }
+        }
+
+        /// <summary>El poder del rival si está en marcha y el nivel lo lee (lo que se ve venir, o todos).</summary>
+        private static SpecialAbility ReadPower(SpecialAbilitySystem special, AISpecialReading reading)
+        {
+            if (reading == AISpecialReading.None || special == null || (!special.IsActive && !special.IsLingering)) return null;
+            SpecialAbility power = special.Ability;
+            if (reading == AISpecialReading.All) return power;
+            return power is RamAbility || power is LeapAbility || power is ShockWaveAbility ? power : null;
         }
 
         /// <summary>Guarda la posición y la velocidad del rival en este frame (empieza de cero si cambia de rival).</summary>

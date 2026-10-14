@@ -120,6 +120,12 @@ namespace FakeBlade.Core
         /// </summary>
         public virtual float UseRange => 0f;
 
+        /// <summary>
+        /// Distancia mínima al rival (entre centros, m) a la que conviene activarlo; 0 = sin mínimo. La usa la IA
+        /// (Salto: con el rival demasiado cerca, el salto se pasa de largo).
+        /// </summary>
+        public virtual float UseRangeMin => 0f;
+
         /// <summary>Quedan usos que se lanzan pulsando Especial con el poder activo (la IA vuelve a pulsar).</summary>
         public virtual bool WantsRepeatPress => false;
 

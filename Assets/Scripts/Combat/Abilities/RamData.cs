@@ -62,6 +62,14 @@ namespace FakeBlade.Core
         public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
         /// <summary>Embestidas que le quedan (para el aspecto).</summary>
         public int ChargesLeft => _left;
+        /// <summary>Segundos de carga que le quedan (0 si no está cargando).</summary>
+        public float WindupLeft => _windup;
+        /// <summary>Hacia dónde embiste (la de la última embestida). Para la IA del rival.</summary>
+        public Vector3 LungeDirection => _dir;
+        /// <summary>Velocidad de la embestida (m/s).</summary>
+        public float LungeSpeed => Config.speed;
+        /// <summary>Distancia entre centros a la que golpea (m).</summary>
+        public float HitRadius => Config.hitRadius;
 
         private bool Busy => IsLunging || IsWindingUp;
 

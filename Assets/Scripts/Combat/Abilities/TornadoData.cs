@@ -54,6 +54,12 @@ namespace FakeBlade.Core
 
         /// <summary>Fracción de la atracción que ha pasado (0-1), para el aspecto.</summary>
         public float PullProgress => Mathf.Clamp01(_elapsed / Config.pullDuration);
+        /// <summary>Está atrayendo (aún no ha soltado el empujón).</summary>
+        public bool IsPulling => !_pushed;
+        /// <summary>Alcance (m).</summary>
+        public float Radius => Config.radius;
+        /// <summary>Más cerca de esto (m, entre centros) ya no atrae.</summary>
+        public float MinPullDistance => Config.minPullDistance;
 
         /// <summary>
         /// Mientras atrae, nada la mueve: es el ojo del tornado (2026-10-13, tras probarlo con mando). Sin empuje de

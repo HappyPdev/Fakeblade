@@ -87,6 +87,9 @@ namespace FakeBlade.Core
         /// <summary>Distancia al rival a la que conviene usarlo (0 = cualquiera). Para la IA.</summary>
         public float UseRange => _ability != null ? _ability.UseRange : 0f;
 
+        /// <summary>Distancia mínima al rival a la que conviene activarlo (0 = sin mínimo). Para la IA.</summary>
+        public float UseRangeMin => _ability != null ? _ability.UseRangeMin : 0f;
+
         /// <summary>Activo y con usos que se lanzan volviendo a pulsar Especial. Para la IA.</summary>
         public bool WantsRepeatPress => _isActive && _ability.WantsRepeatPress;
 

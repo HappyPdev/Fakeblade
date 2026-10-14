@@ -25,7 +25,7 @@ namespace FakeBlade.Core
     /// Se leen en cada decisión, así que los cambios en el Inspector se notan en Play. Sin asignaciones por frame.
     /// </summary>
     [RequireComponent(typeof(FakeBladeController))]
-    public class AIBrain : MonoBehaviour, IBladeInputSource
+    public partial class AIBrain : MonoBehaviour, IBladeInputSource
     {
         /// <summary>Distancia entre centros a la que intenta atacar.</summary>
         protected const float AttackRange = 4f;
@@ -148,8 +148,8 @@ namespace FakeBlade.Core
         /// <summary>El perfil se juega entero (desde Normal); en Fácil solo se nota su tendencia (GDD 6.4).</summary>
         protected bool FullStyle => Level.fullProfile;
 
-        /// <summary>Atacando, cargando, preparando un parry o aturdida: no empieza otra acción.</summary>
-        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered;
+        /// <summary>Atacando, cargando, preparando un parry, aturdida o con su poder bloqueando las acciones: no empieza otra acción.</summary>
+        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered || Blade.Special.BlocksActions;
 
         /// <summary>Sentido en que rodea al rival (1 o -1).</summary>
         protected float OrbitSign => _orbitSign;
@@ -246,6 +246,7 @@ namespace FakeBlade.Core
             // Despistada: ni se defiende ni decide, y el stick se queda como estaba
             if (Lapsing) return;
             UpdateDefense();
+            UpdateSpecials();
             if (_intent == Intent.Engage) UpdateEngage();
             else if (_intent == Intent.RunUp) UpdateRunUp();
 
@@ -292,13 +293,14 @@ namespace FakeBlade.Core
 
             TryUseSpecial();
 
-            // 2. La defensa va cada frame (UpdateDefense): mientras prepara un parry o ataca, no empieza otro
-            if (Busy) return;
+            // 2. La defensa va cada frame (UpdateDefense): mientras prepara un parry o ataca, no empieza otro.
+            // Tampoco mientras se aparta de un poder del rival (UpdateSpecials)
+            if (Busy || Evading) return;
 
             // 3. Atacar (sin gastar las cargas que guarda para el parry)
             if (p.Distance < AttackRange && Blade.Attack.CurrentCharges > ReservedCharges())
             {
-                float chance = Level.attackChance * AggressionScale(0.7f, 1.2f) * AttackChanceScale();
+                float chance = Level.attackChance * AggressionScale(0.7f, 1.2f) * AttackChanceScale() * SpecialAttackScale();
                 // Sin cargas, el rival no puede hacer parry: es un buen momento
                 if (p.TargetCharges == 0) chance += 0.3f;
                 if (Random.value < chance)
@@ -349,7 +351,7 @@ namespace FakeBlade.Core
         /// y el rival puede atacar (si el nivel no lee sus cargas, supone que sí).
         /// </summary>
         protected virtual int ReservedCharges() =>
-            ParryChance >= 0.4f && Perception.TargetCharges != 0 &&
+            ParryChance >= 0.4f && Perception.TargetCharges != 0 && !PowerTakesTheHit &&
             (Aggression < BoldAggression || Time.time - _lastThreatTime < RecentThreatTime) ? 1 : 0;
 
         /// <summary>
@@ -392,6 +394,7 @@ namespace FakeBlade.Core
             if (p.TargetIdle) aggression += 0.25f;
             // Rival cerca de la pared y la IA empujando hacia ella
             if (p.TargetWallDistance < PinWallDistance && Vector3.Dot(p.ToTarget, p.TargetOutward) > 0.5f) aggression += 0.2f;
+            aggression += SpecialAggressionBonus();
             return Mathf.Clamp01(aggression);
         }
 
@@ -402,12 +405,20 @@ namespace FakeBlade.Core
         /// <summary>Un ataque del rival viene hacia la IA (ya ha pasado su tiempo de reacción).</summary>
         protected virtual void OnIncomingAttack()
         {
+            // Su poder no le deja atacar ni hacer dash (Salto, Embestida): no hay nada que hacer
+            if (Blade.Special.BlocksActions) return;
+
             // Cargando: suelta lo que lleve para chocar atacando
             if (_attackHeld)
             {
                 if (_chargeTarget > 0) ReleaseAttack();
                 return;
             }
+
+            // Poder de guardia guardado para esto (Defensa, Pinchos, Rebote): lo usa ahora
+            if (TryGuardPower()) return;
+            // Su poder ya aguanta el golpe (Defensa, Rebote): ni parry ni esquiva
+            if (PowerTakesTheHit) return;
 
             // Contra un cargado fuerte el parry solo bloquea (recibe la mitad): si lo ve venir, primero intenta esquivarlo
             if (Level.readsCharging && Perception.Target != null &&
@@ -426,42 +437,64 @@ namespace FakeBlade.Core
                 return;
             }
 
-            if (Blade.CanDash && Random.value < DodgeChance)
+            // Con Pinchos, que la golpeen le devuelve el daño: no esquiva
+            if (!PowerWelcomesHits && Blade.CanDash && Random.value < DodgeChance)
                 Dodge();
         }
 
-        /// <summary>Especial según el nivel (el buen momento de cada poder llega en D5).</summary>
+        /// <summary>
+        /// Especial según el nivel y el poder (D5, D11): cuándo lo activa. Los que se guardan (KeepsSpecial) esperan;
+        /// el Salto solo con el rival a la distancia del salto.
+        /// </summary>
         protected virtual void TryUseSpecial()
         {
-            // Poderes con varios usos (Onda de choque, F1): vuelve a pulsar con el rival a su alcance
+            // Poderes con varios usos (Onda de choque, Embestida): vuelve a pulsar con el rival a su alcance; con capa
+            // táctica, seguro si el rival está junto a la pared (la onda o la embestida lo lanzan contra ella)
             if (Blade.Special.WantsRepeatPress)
             {
-                if (InSpecialRange && Random.value < 0.5f) _special = true;
+                float chance = Level.tactical && Perception.TargetWallDistance < PinWallDistance * 2f ? 1f : 0.5f;
+                if (InSpecialRange && Random.value < chance) PressSpecial();
                 return;
             }
-            if (!Blade.Special.IsReady) return;
+            if (!Blade.Special.IsReady)
+            {
+                _readySince = -1f;
+                return;
+            }
+            if (KeepsSpecial()) return;
             switch (Level.specialUse)
             {
                 case AISpecialUse.Random:
-                    if (Random.value < 0.15f) _special = true;
+                    if (Random.value < 0.15f) PressSpecial();
                     break;
                 case AISpecialUse.WhenFull:
-                    _special = true;
+                    PressSpecial();
                     break;
                 case AISpecialUse.GoodMoment:
                     float range = Blade.Special.UseRange > 0f ? Blade.Special.UseRange : AttackRange * 1.5f;
-                    if (Perception.Distance < range) _special = true;
+                    float distance = SpecialDistance;
+                    if (distance < range && distance >= Blade.Special.UseRangeMin) PressSpecial();
                     break;
             }
         }
 
         /// <summary>El rival está a la distancia a la que sirve el poder (sin distancia propia, siempre).</summary>
-        protected bool InSpecialRange => Blade.Special.UseRange <= 0f || Perception.Distance < Blade.Special.UseRange;
+        protected bool InSpecialRange =>
+            Blade.Special.UseRange <= 0f ||
+            (SpecialDistance < Blade.Special.UseRange && SpecialDistance >= Blade.Special.UseRangeMin);
         #endregion
 
         #region Acciones
-        /// <summary>Pulsa el especial (lo recoge el controller en el frame siguiente).</summary>
-        protected void PressSpecial() => _special = true;
+        /// <summary>
+        /// Pulsa el especial (lo recoge el controller en el frame siguiente). Saca el error de puntería y de predicción
+        /// con el que apuntará la carga del Salto o de la Embestida.
+        /// </summary>
+        protected void PressSpecial()
+        {
+            _special = true;
+            _aimError = Random.Range(-Level.aimErrorDegrees, Level.aimErrorDegrees);
+            _predictionScale = 1f + Random.Range(-Level.predictionError, Level.predictionError);
+        }
 
         /// <summary>
         /// Pulsa ataque: rápido (nivel 0) o cargado hasta el nivel pedido. Con <paramref name="evenIfAttacking"/>
@@ -632,6 +665,8 @@ namespace FakeBlade.Core
         private Vector2 Steer()
         {
             Vector3 dir;
+            // Apuntar la carga de su poder o apartarse del poder del rival manda sobre todo lo demás
+            if (TrySpecialSteer(out dir)) return new Vector2(dir.x, dir.z);
             if (_attackHeld || _aimTimer > 0f || (_aimTracksTarget && Blade.Attack.IsAttacking))
             {
                 return new Vector2(_aimDir.x, _aimDir.z);
@@ -666,7 +701,7 @@ namespace FakeBlade.Core
                         dir = (-p.ToTarget * 0.8f + side * sideWeight).normalized;
                         break;
                     case Intent.Approach:
-                        dir = ApproachDirection();
+                        dir = HoldsGround ? HoldGroundDirection() : ApproachDirection();
                         break;
                     default:
                         dir = p.ToCenter * 0.4f;

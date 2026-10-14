@@ -24,6 +24,17 @@ namespace FakeBlade.Core
         GoodMoment = 2
     }
 
+    /// <summary>Qué especiales del rival lee la IA (D11, 2026-10-14).</summary>
+    public enum AISpecialReading
+    {
+        /// <summary>Ninguno: juega como si el rival no tuviera poder.</summary>
+        None = 0,
+        /// <summary>Lo que se ve venir: la carga de la Embestida y del Salto y las ondas de Onda de choque.</summary>
+        Obvious = 1,
+        /// <summary>Todos los poderes.</summary>
+        All = 2
+    }
+
     /// <summary>
     /// Un nivel de IA (GDD 6.4, D2): lo bien que juega, con cualquier perfil. La IA puede leer cualquier dato interno
     /// del juego; cada nivel decide cuáles ignora (los "Lee...") y con qué retraso y error reacciona.
@@ -74,6 +85,12 @@ namespace FakeBlade.Core
         [Tooltip("Juega su perfil entero (D3): carrerillas, golpes y huidas, contraataques. Sin él (Fácil), " +
                  "solo se nota la tendencia del perfil: dónde se coloca y cuánto ataca o carga")]
         public bool fullProfile = true;
+        [Tooltip("Especiales del rival que lee (D11): con Obvious, solo lo que se ve venir (Embestida, Salto, Onda de " +
+                 "choque); con All, todos. Reacciona con su tiempo de reacción y su esquiva")]
+        public AISpecialReading readsSpecials = AISpecialReading.Obvious;
+        [Tooltip("Probabilidad de intentar esquivar un poder del rival que lee y que no admite parry (Embestida, Salto, " +
+                 "Tornado); la multiplica la esquiva del perfil")]
+        [Range(0f, 1f)] public float specialDodgeChance = 0.4f;
 
         [Header("=== FALLOS HUMANOS (2026-10-12) ===")]
         [Tooltip("Ve la posición y la velocidad del rival con este retraso (s): las fintas y los cambios de dirección la engañan")]
@@ -159,6 +176,18 @@ namespace FakeBlade.Core
                     Errors(0f, 0f, 0f, 0f, 0f, 0f);
                     break;
             }
+            // Especiales del rival (D11): Fácil ninguno, Normal lo que se ve venir, desde Difícil todos
+            readsSpecials = level == AIDifficulty.Easy ? AISpecialReading.None
+                : level == AIDifficulty.Normal ? AISpecialReading.Obvious
+                : AISpecialReading.All;
+            specialDodgeChance = level switch
+            {
+                AIDifficulty.Easy => 0f,
+                AIDifficulty.Normal => 0.4f,
+                AIDifficulty.Hard => 0.7f,
+                AIDifficulty.Expert => 0.85f,
+                _ => 0.95f
+            };
         }
 
         private void Set(float reaction, float aimError, float attack, float charged, float parry, float parryError,

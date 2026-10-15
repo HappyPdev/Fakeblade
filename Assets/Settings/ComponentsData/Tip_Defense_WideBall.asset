@@ -22,7 +22,7 @@ MonoBehaviour:
   maxSpinModifier: 25
   spinDecayModifier: -1.5
   moveSpeedModifier: 0.2
-  weightModifier: 0.2
+  weightModifier: 0.3
   attackPowerModifier: 1
   defenseModifier: 3
   dashForceModifier: -2

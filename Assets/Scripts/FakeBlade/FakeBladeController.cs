@@ -60,6 +60,8 @@ namespace FakeBlade.Core
         public event Action OnHealCut;
         /// <summary>Ha perdido RPM por daño (cantidad real, quién lo ha causado o null). Golpes, paredes y quemadura.</summary>
         public event Action<float, FakeBladeController> OnDamaged;
+        /// <summary>Ha recuperado RPM (cantidad real): curación de los poderes. Lo usa la telemetría.</summary>
+        public event Action<float> OnHealed;
         public event Action OnSpinOut;
         #endregion
 
@@ -701,7 +703,9 @@ namespace FakeBlade.Core
         public void AddSpin(float amount)
         {
             if (_isDestroyed) return;
+            float before = _currentSpin;
             _currentSpin = Mathf.Min(_maxSpin, _currentSpin + amount);
+            if (_currentSpin > before) OnHealed?.Invoke(_currentSpin - before);
         }
 
         /// <summary>Coste propio de RPM (no le afecta la defensa).</summary>

@@ -70,6 +70,9 @@ namespace FakeBlade.Core
             if (CombatHUDManager.Instance == null)
                 CombatHUDManager.Create(catalog.uiTheme);
 
+            // Telemetría de la partida (C19); el sandbox tiene su propia grabación
+            if (!_sandbox) MatchTelemetry.Create(transform, catalog, _arena);
+
             StartCoroutine(BeginWhenReady());
         }
 

@@ -14,7 +14,7 @@ namespace FakeBlade.UI
 
         private List<Vector2Int> _resolutions;
         private PixelOptionRow _resolution, _fullscreen, _quality, _shadows, _antialiasing, _bloom,
-            _particles, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage;
+            _particles, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage, _telemetry;
 
         private FakeBladeCatalog _catalog;
         private BladeColorsScreen _bladeColors;
@@ -64,6 +64,11 @@ namespace FakeBlade.UI
             _vibration = List.AddSelector("OPT_VIBRATION", YesNo(), s.vibration ? 1 : 0, i => Set(() => s.vibration = i == 1), RowHeight);
             _shake = List.AddSelector("OPT_SHAKE", YesNo(), s.cameraShake ? 1 : 0, i => Set(() => s.cameraShake = i == 1), RowHeight);
             _coreImage = List.AddSelector("OPT_CORE_IMAGE", YesNo(), s.showCoreImage ? 1 : 0, i => Set(() => s.showCoreImage = i == 1), RowHeight);
+            _telemetry = List.AddSelector("OPT_TELEMETRY", YesNo(), s.telemetry ? 1 : 0, i => Set(() => s.telemetry = i == 1), RowHeight);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // En el navegador no se graba (J3)
+            _telemetry.gameObject.SetActive(false);
+#endif
 
             if (_catalog != null) List.AddButton("OPT_BLADE_COLORS", OpenBladeColors, RowHeight);
 
@@ -110,6 +115,7 @@ namespace FakeBlade.UI
             _vibration.SetOptions(YesNo(), s.vibration ? 1 : 0);
             _shake.SetOptions(YesNo(), s.cameraShake ? 1 : 0);
             _coreImage.SetOptions(YesNo(), s.showCoreImage ? 1 : 0);
+            _telemetry.SetOptions(YesNo(), s.telemetry ? 1 : 0);
         }
 
         #region Labels

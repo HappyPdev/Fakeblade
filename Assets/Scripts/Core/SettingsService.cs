@@ -38,6 +38,8 @@ namespace FakeBlade.Core
         public bool cameraShake = true;
         /// <summary>Icono del poder sobre el núcleo de las peonzas (CoreImage). Desactivado por defecto.</summary>
         public bool showCoreImage = false;
+        /// <summary>Telemetría (C19): un archivo por partida con datos para el equilibrio. Activada por defecto.</summary>
+        public bool telemetry = true;
 
         [Header("Colores de peonza")]
         /// <summary>Colores por pieza personalizados (por color de la paleta). Los que no estén usan los de por defecto.</summary>

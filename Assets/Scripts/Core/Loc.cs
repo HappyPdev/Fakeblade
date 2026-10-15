@@ -144,6 +144,7 @@ namespace FakeBlade.Core
             ["OPT_VIBRATION"] = new[] { "VIBRACIÓN MANDO", "GAMEPAD RUMBLE" },
             ["OPT_SHAKE"] = new[] { "SACUDIDA CÁMARA", "CAMERA SHAKE" },
             ["OPT_CORE_IMAGE"] = new[] { "ICONO DEL NÚCLEO", "CORE ICON" },
+            ["OPT_TELEMETRY"] = new[] { "GUARDAR DATOS DE PARTIDA", "SAVE MATCH DATA" },
             ["OPT_BLADE_COLORS"] = new[] { "COLORES DE PEONZA", "BLADE COLORS" },
             ["BLADE_COLORS"] = new[] { "COLORES DE PEONZA", "BLADE COLORS" },
             ["BLADE_COLORS_PALETTE"] = new[] { "COLOR", "COLOR" },

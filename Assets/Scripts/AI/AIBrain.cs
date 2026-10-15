@@ -247,6 +247,7 @@ namespace FakeBlade.Core
             if (Lapsing) return;
             UpdateDefense();
             UpdateSpecials();
+            UpdateShieldGap();
             if (_intent == Intent.Engage) UpdateEngage();
             else if (_intent == Intent.RunUp) UpdateRunUp();
 
@@ -296,6 +297,8 @@ namespace FakeBlade.Core
             // 2. La defensa va cada frame (UpdateDefense): mientras prepara un parry o ataca, no empieza otro.
             // Tampoco mientras se aparta de un poder del rival (UpdateSpecials)
             if (Busy || Evading) return;
+            // Mojada (resbala): ni ataca ni hace dash
+            if (Soaked) return;
 
             // 3. Atacar (sin gastar las cargas que guarda para el parry)
             if (p.Distance < AttackRange && Blade.Attack.CurrentCharges > ReservedCharges())
@@ -317,6 +320,12 @@ namespace FakeBlade.Core
                     // El cargado se acerca mientras carga; el rápido, si no llega, embiste primero
                     else if (level > 0 || p.Distance <= StrikeDistance)
                     {
+                        // Rápido contra el Escudo del rival: espera a tener un hueco delante (UpdateShieldGap)
+                        if (level == 0 && RivalShieldBlocks(StrikeTime(0)))
+                        {
+                            WaitForShieldGap();
+                            return;
+                        }
                         StartAttack(level);
                     }
                     else
@@ -332,9 +341,10 @@ namespace FakeBlade.Core
                 DashTowards(AimDirection(), false);
         }
 
-        /// <summary>Coger carrerilla antes de este golpe. Balanceada: con capa táctica, solo contra un rival quieto.</summary>
+        /// <summary>Coger carrerilla antes de este golpe. Balanceada: con capa táctica, solo contra un rival quieto; con Rayos, siempre que haya sitio.</summary>
         protected virtual bool WantsRunUp(int level) =>
-            Level.tactical && Perception.TargetIdle && Aggression >= BoldAggression && Perception.Distance < RunUpDistance;
+            LightningRunUp ||
+            (Level.tactical && Perception.TargetIdle && Aggression >= BoldAggression && Perception.Distance < RunUpDistance);
 
         /// <summary>Ataque rápido con el rival a tiro pero aún lejos para soltarlo: embestir primero.</summary>
         protected virtual void BeginQuickStrike() => BeginEngage();
@@ -423,7 +433,7 @@ namespace FakeBlade.Core
             // Contra un cargado fuerte el parry solo bloquea (recibe la mitad): si lo ve venir, primero intenta esquivarlo
             if (Level.readsCharging && Perception.Target != null &&
                 Perception.Target.ChargeLevel >= CombatConfig.Active.parryBlockMinLevel &&
-                Blade.CanDash && Random.value < DodgeChance)
+                !Soaked && Blade.CanDash && Random.value < DodgeChance)
             {
                 Dodge();
                 return;
@@ -438,7 +448,7 @@ namespace FakeBlade.Core
             }
 
             // Con Pinchos, que la golpeen le devuelve el daño: no esquiva
-            if (!PowerWelcomesHits && Blade.CanDash && Random.value < DodgeChance)
+            if (!PowerWelcomesHits && !Soaked && Blade.CanDash && Random.value < DodgeChance)
                 Dodge();
         }
 
@@ -555,7 +565,7 @@ namespace FakeBlade.Core
             // Rápido: suelta en el frame siguiente (el ataque sale al soltar; PlayerController ya ha visto la pulsación)
             bool release = _chargeTarget <= 0
                 ? Time.frameCount > _pressFrame
-                : Blade.Attack.ChargeLevel >= _chargeTarget || Blade.Attack.IsAttacking || _holdTimer >= MaxChargeHold;
+                : (Blade.Attack.ChargeLevel >= _chargeTarget && !HoldsForShieldGap()) || Blade.Attack.IsAttacking || _holdTimer >= MaxChargeHold;
             if (release || Blade.IsStaggered) ReleaseAttack();
         }
 
@@ -602,7 +612,9 @@ namespace FakeBlade.Core
             if (Perception.Distance <= StrikeDistance)
             {
                 _intent = Intent.Approach;
-                StartAttack(0);
+                // Escudo del rival sin hueco delante: la deja (seguir de frente lo choca contra el escudo sin atacar) y espera el hueco
+                if (!RivalShieldBlocks(StrikeTime(0))) StartAttack(0);
+                else WaitForShieldGap();
             }
         }
 
@@ -701,7 +713,7 @@ namespace FakeBlade.Core
                         dir = (-p.ToTarget * 0.8f + side * sideWeight).normalized;
                         break;
                     case Intent.Approach:
-                        dir = HoldsGround ? HoldGroundDirection() : ApproachDirection();
+                        dir = SpecialApproachDirection();
                         break;
                     default:
                         dir = p.ToCenter * 0.4f;

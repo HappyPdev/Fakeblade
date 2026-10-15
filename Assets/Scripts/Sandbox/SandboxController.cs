@@ -56,6 +56,7 @@ namespace FakeBlade.Core
         private PixelOptionRow _aiLevelRow;
         private PixelOptionRow _aiProfileRow;
         private PixelOptionRow _dummyPresetRow;
+        private PixelOptionRow _dummyCoreRow;
         private TextMeshProUGUI _maxHint;
 
         private PixelOptionRow _playerRow;
@@ -433,6 +434,17 @@ namespace FakeBlade.Core
             for (int i = 0; i < presets.Count; i++) presetNames[i] = Loc.Get(presets[i].nameKey);
             _dummyPresetRow.SetOptions(presetNames, DummyPresetIndex());
 
+            // Núcleo: el del preset o cualquiera del catálogo, con el nombre de su poder
+            List<FakeBladeComponentData> cores = _bootstrap.Catalog.GetParts(ComponentSlot.Core);
+            var coreNames = new string[cores.Count + 1];
+            coreNames[0] = Loc.Get("DUMMY_CORE_PRESET");
+            for (int i = 0; i < cores.Count; i++)
+            {
+                SpecialAbilityData power = SpecialAbilities.Get(cores[i].SpecialAbility);
+                coreNames[i + 1] = power != null ? power.DisplayName.ToUpperInvariant() : cores[i].ComponentName.ToUpperInvariant();
+            }
+            _dummyCoreRow.SetOptions(coreNames, DummyCoreOption(cores.Count));
+
             // Decimales con coma en español y con punto en inglés
             char separator = Loc.Current == Language.English ? '.' : ',';
             var intervals = new string[SandboxSettings.Intervals.Length];
@@ -459,7 +471,9 @@ namespace FakeBlade.Core
             while (_dummies.Count < count)
             {
                 int playerIndex = MatchSetup.Players.Count + _dummies.Count;
-                _dummies.Add(_bootstrap.SpawnDummy(playerIndex, _dummies.Count + 1, DummyPresetIndex()));
+                PlayerController dummy = _bootstrap.SpawnDummy(playerIndex, _dummies.Count + 1, DummyPresetIndex());
+                EquipDummyCore(dummy);
+                _dummies.Add(dummy);
             }
 
             ApplyDummyBrains();
@@ -484,8 +498,39 @@ namespace FakeBlade.Core
             var setup = new PlayerSetup();
             setup.ApplyPreset(preset);
             for (int i = 0; i < _dummies.Count; i++)
-                if (_dummies[i] != null) setup.EquipOn(_dummies[i].Stats);
+            {
+                if (_dummies[i] == null) continue;
+                setup.EquipOn(_dummies[i].Stats);
+                EquipDummyCore(_dummies[i]);
+            }
             ApplyDummyBrains();
+        }
+
+        /// <summary>Opción elegida en la fila del núcleo (0 = el del preset; i = el núcleo i - 1 del catálogo).</summary>
+        private static int DummyCoreOption(int coreCount) =>
+            SandboxSettings.DummyCore < 0 || SandboxSettings.DummyCore >= coreCount ? 0 : SandboxSettings.DummyCore + 1;
+
+        /// <summary>Núcleo de los dummies (para probar cada poder contra la IA): se cambia al momento.</summary>
+        private void SetDummyCore(int option)
+        {
+            SandboxSettings.DummyCore = option - 1;
+            if (option == 0)
+            {
+                // Vuelve el núcleo de su preset
+                SetDummyPreset(SandboxSettings.DummyPreset);
+                return;
+            }
+            for (int i = 0; i < _dummies.Count; i++) EquipDummyCore(_dummies[i]);
+            ApplyDummyBrains();
+        }
+
+        /// <summary>Pone el núcleo elegido en el panel (si no es el de su preset).</summary>
+        private void EquipDummyCore(PlayerController dummy)
+        {
+            if (dummy == null) return;
+            List<FakeBladeComponentData> cores = _bootstrap.Catalog.GetParts(ComponentSlot.Core);
+            if (SandboxSettings.DummyCore < 0 || SandboxSettings.DummyCore >= cores.Count) return;
+            dummy.Stats.EquipComponent(cores[SandboxSettings.DummyCore]);
         }
 
         /// <summary>
@@ -708,6 +753,7 @@ namespace FakeBlade.Core
                 ApplyDummyBrains();
             });
             _dummyPresetRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_BLADE", new[] { "-" }, 0, SetDummyPreset);
+            _dummyCoreRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_CORE", new[] { "-" }, 0, SetDummyCore);
             AddBack(_rivalsPanel);
 
             // Mi peonza

@@ -23,6 +23,7 @@ MonoBehaviour:
   windupBrake: 12
   distance: 5.3
   height: 1.1
+  gravityScale: 2
   knockbackTakenInAir: 0.2
   radius: 3
   edgeFactor: 0.5

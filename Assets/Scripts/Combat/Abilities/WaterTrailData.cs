@@ -50,6 +50,8 @@ namespace FakeBlade.Core
         public WaterTrailAbility(WaterTrailData data, FakeBladeController owner) : base(data, owner) { }
 
         public int PuddleCapacity => MaxPuddles;
+        /// <summary>Radio de cada trozo (m, desde el centro de la peonza que lo pisa).</summary>
+        public float PuddleRadius => Config.puddleRadius;
         /// <summary>Trozo i del anillo: posición y si sigue mojado.</summary>
         public bool IsPuddleAlive(int index) => index < _count && Time.time - _times[index] < Config.puddleLifetime;
         public Vector3 PuddlePosition(int index) => _points[index];

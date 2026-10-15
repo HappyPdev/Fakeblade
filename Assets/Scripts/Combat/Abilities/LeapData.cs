@@ -5,7 +5,7 @@ namespace FakeBlade.Core
     /// <summary>
     /// Salto (GDD 5, Fase L, L5; decidido el 2026-10-13). Primero se carga 0,3 s (se frena hasta quedarse quieta;
     /// mientras, se apunta con el stick) y después salta unos 0,9 m de alto y 5 m hacia el stick (sin stick, hacia el
-    /// rival más cercano). En el aire, si choca con otras peonzas las empuja sin daño para nadie, y no se le puede
+    /// rival más cercano), con el doble de gravedad para que dure 0,67 s en el aire (2026-10-15). En el aire, si choca con otras peonzas las empuja sin daño para nadie, y no se le puede
     /// hacer parry ni bloquearla. Al caer hace una onda pequeña y fuerte: 10% de las RPM en el centro (la mitad en el
     /// borde de 3 m), empuje de 22 m/s y las deja lanzadas (daño de pared si chocan). Un salto por activación: al
     /// caer, el poder termina.
@@ -24,6 +24,8 @@ namespace FakeBlade.Core
         public float distance = 5.3f;
         [Tooltip("Altura del salto (m, nominal: la fricción del aire la recorta; 1,1 ≈ 0,9 m reales, el doble del salto bajo inicial)")]
         [Min(0.1f)] public float height = 1.1f;
+        [Tooltip("Gravedad en el aire (×; 2 = cae el doble de rápido: misma altura y distancia en menos tiempo, 0,67 s en vez de 0,95 s)")]
+        [Min(1f)] public float gravityScale = 2f;
         [Tooltip("Empuje que recibe en el aire al chocar (para que el choque no le corte el salto)")]
         [Range(0f, 1f)] public float knockbackTakenInAir = 0.2f;
 
@@ -71,7 +73,10 @@ namespace FakeBlade.Core
         /// <summary>Radio de la onda al caer (m).</summary>
         public float WaveRadius => Config.radius;
         /// <summary>Segundos en el aire de un salto (sale de la altura).</summary>
-        public float AirTime => 2f * Mathf.Sqrt(2f * Config.height / -Physics.gravity.y);
+        public float AirTime => 2f * Mathf.Sqrt(2f * Config.height / Gravity);
+
+        /// <summary>Gravedad en el aire del salto (m/s²).</summary>
+        private float Gravity => -Physics.gravity.y * Config.gravityScale;
 
         /// <summary>Ni en la carga ni en el aire se puede atacar o hacer dash (no cambia la dirección del salto).</summary>
         public override bool BlocksActions => true;
@@ -119,12 +124,12 @@ namespace FakeBlade.Core
 
             // Subida para llegar a la altura y tiempo en el aire que sale de ella; velocidad para recorrer la distancia
             // en ese tiempo contando la fricción del aire del Rigidbody (v·(1 − e^(−k·t))/k = distancia)
-            float g = -Physics.gravity.y;
+            float g = Gravity;
             float up = Mathf.Sqrt(2f * g * Config.height);
             _airTime = 2f * up / g;
             float k = CombatConfig.Active.linearDamping;
             float speed = k > 0.001f ? Config.distance * k / (1f - Mathf.Exp(-k * _airTime)) : Config.distance / _airTime;
-            Owner.Leap(dir * speed, up, _airTime);
+            Owner.Leap(dir * speed, up, _airTime, Config.gravityScale);
             _landing = Owner.Position + dir * Config.distance;
             _landing.y = Owner.Position.y;
             _elapsed = 0f;

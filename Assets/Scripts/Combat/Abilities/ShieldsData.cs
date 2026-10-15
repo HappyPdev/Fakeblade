@@ -9,7 +9,7 @@ namespace FakeBlade.Core
     /// entero ×1,8 y ese escudo se rompe. Si entra por un hueco, es un choque normal.
     /// Duración indefinida (2026-10-13, tras probarlo con mando): el poder activo dura muy poco (duration del asset)
     /// y los escudos se quedan hasta romperse; mientras, la esfera se vuelve a cargar, y activarlo otra vez rellena
-    /// los tres. Necesita menos energía (0,6): es un poder flojo, sin ventaja de daño y difícil de controlar.
+    /// los tres. Necesita menos energía (0,8; era 0,6, que se llenaba con dos golpes cargados): es un poder sin ventaja de daño y difícil de controlar.
     /// </summary>
     [CreateAssetMenu(fileName = "Shields", menuName = "FakeBlade/Specials/Escudo")]
     public class ShieldsData : SpecialAbilityData
@@ -62,10 +62,26 @@ namespace FakeBlade.Core
             }
         }
         /// <summary>Ángulo del centro de un escudo (radianes, en el plano XZ).</summary>
-        public float CenterAngle(int index) =>
-            _phase + Time.time * Config.turnsPerSecond * Mathf.PI * 2f + index * Mathf.PI * 2f / ShieldCount;
+        public float CenterAngle(int index) => CenterAngleAt(index, Time.time);
+        private float CenterAngleAt(int index, float time) =>
+            _phase + time * Config.turnsPerSecond * Mathf.PI * 2f + index * Mathf.PI * 2f / ShieldCount;
         public float ArcRadians => Config.shieldArc * Mathf.Deg2Rad;
         public float Radius => Config.radius;
+
+        /// <summary>
+        /// Si un choque que llegue desde <paramref name="from"/> dentro de <paramref name="seconds"/> s entraría por un
+        /// escudo (con <paramref name="marginDegrees"/> de margen a cada lado). Para la IA del rival: atacar por los huecos.
+        /// </summary>
+        public bool CoversAt(Vector3 from, float seconds, float marginDegrees)
+        {
+            Vector3 offset = from - Owner.Position;
+            float hitAngle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
+            float half = Config.shieldArc * 0.5f + marginDegrees;
+            float time = Time.time + seconds;
+            for (int i = 0; i < ShieldCount; i++)
+                if (_up[i] && Mathf.Abs(Mathf.DeltaAngle(hitAngle, CenterAngleAt(i, time) * Mathf.Rad2Deg)) <= half) return true;
+            return false;
+        }
 
         public override void OnActivate()
         {

@@ -158,6 +158,8 @@ namespace FakeBlade.Core
         private float _baseMass = 1f;
         /// <summary>Hasta cuándo está en el aire por un Salto.</summary>
         private float _leapUntil = float.NegativeInfinity;
+        /// <summary>Gravedad de más mientras salta (×gravedad; 1 = la normal).</summary>
+        private float _leapGravityScale = 1f;
         /// <summary>El poder activo bloqueaba las acciones el frame anterior.</summary>
         private bool _actionsBlocked;
         private float _impulseFactor = 1f;
@@ -339,6 +341,10 @@ namespace FakeBlade.Core
             if (_isDestroyed) return;
 
             ApplyMovementPhysics(Time.fixedDeltaTime);
+
+            // Salto: la gravedad de más que lo hace caer antes
+            if (_leapGravityScale > 1f && IsLeaping)
+                _rb.AddForce(Physics.gravity * (_leapGravityScale - 1f), ForceMode.Acceleration);
 
             // Masa física: la de sus piezas, por la del poder activo (Tornado: inamovible mientras atrae)
             float mass = _baseMass * _special.PhysicalMassMultiplier;
@@ -960,12 +966,14 @@ namespace FakeBlade.Core
         /// <summary>
         /// Salto (poder Salto): sale con esta velocidad horizontal y hacia arriba. Mientras vuela (airTime) el stick no
         /// la mueve ni la frena, puede pasar de su velocidad máxima y del tope de subida, y se cancela la carga de ataque.
+        /// gravityScale: gravedad en el aire (×), para un salto más rápido con la misma altura.
         /// </summary>
-        public void Leap(Vector3 horizontalVelocity, float upSpeed, float airTime)
+        public void Leap(Vector3 horizontalVelocity, float upSpeed, float airTime, float gravityScale = 1f)
         {
             if (_isDestroyed || _rb == null) return;
             horizontalVelocity.y = 0f;
             _leapUntil = Time.time + airTime;
+            _leapGravityScale = gravityScale;
             _attack.CancelCharge();
             LoseControl(airTime);
             OpenBurst(horizontalVelocity.magnitude, airTime);
@@ -1501,6 +1509,7 @@ namespace FakeBlade.Core
             _controlLossEnd = float.NegativeInfinity;
             _controlRecoverEnd = float.NegativeInfinity;
             _leapUntil = float.NegativeInfinity;
+            _leapGravityScale = 1f;
             _burstCap = 0f;
             _burstHold = 0f;
             _moveInput = Vector3.zero;

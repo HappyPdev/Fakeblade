@@ -38,6 +38,7 @@ Todo lo que eliges se mantiene mientras sigas en el sandbox (también si reinici
 | **Nivel IA** | Con **IA**: Fácil, Normal, Difícil, Experto o Imposible (sin ningún fallo) (GDD 6.4). Se aplica al momento. |
 | **Perfil IA** | Con **IA**: **Según peonza** (el arquetipo de la peonza de cada dummy) o Balanceada, Ataque, Defensa o Agilidad a mano (GDD 6.4). Se aplica al momento. |
 | **Su peonza** | La peonza de los dummies: uno de los presets (Ataque, Defensa, Agilidad, Balanceada). Se cambia al momento, con cualquier comportamiento. |
+| **Su núcleo** | El núcleo de los dummies: **El de su peonza** (el del preset) o cualquier núcleo del catálogo, por el nombre de su poder. Sirve para probar cada poder en manos de la IA. Se cambia al momento y se mantiene al cambiar de peonza o de número de rivales. |
 
 ## 4. Mi peonza
 

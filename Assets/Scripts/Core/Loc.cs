@@ -249,6 +249,8 @@ namespace FakeBlade.Core
             ["SANDBOX_AI_PROFILE"] = new[] { "PERFIL IA", "AI STYLE" },
             ["AI_PROFILE_AUTO"] = new[] { "SEGÚN PEONZA", "FROM TOP" },
             ["SANDBOX_DUMMY_BLADE"] = new[] { "SU PEONZA", "THEIR TOP" },
+            ["SANDBOX_DUMMY_CORE"] = new[] { "SU NÚCLEO", "THEIR CORE" },
+            ["DUMMY_CORE_PRESET"] = new[] { "EL DE SU PEONZA", "TOP'S OWN" },
             ["DEVICE_KB_LEFT"] = new[] { "TECLADO J1", "KEYBOARD P1" },
             ["DEVICE_KB_RIGHT"] = new[] { "TECLADO J2", "KEYBOARD P2" },
             ["DEVICE_PAD"] = new[] { "MANDO {0}", "GAMEPAD {0}" },

@@ -85,6 +85,8 @@ namespace FakeBlade.Core
         public static int AIProfile;
         /// <summary>Preset de la peonza de los dummies (índice del catálogo; -1 = el último, la Balanceada).</summary>
         public static int DummyPreset = -1;
+        /// <summary>Núcleo de los dummies (índice entre los núcleos del catálogo; -1 = el de su preset).</summary>
+        public static int DummyCore = -1;
 
         /// <summary>Segundos entre acciones de los dummies (atacar, dash, especial).</summary>
         public static float Interval => Intervals[UnityEngine.Mathf.Clamp(IntervalIndex, 0, Intervals.Length - 1)];

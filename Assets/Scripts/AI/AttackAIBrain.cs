@@ -29,8 +29,8 @@ namespace FakeBlade.Core
         protected override void TryUseSpecial()
         {
             // En cuanto lo tiene, si el rival está donde el poder sirve (Onda de choque: dentro de la onda), salvo el
-            // Escudo con escudos puestos (D11)
-            if (FullStyle && Blade.Special.IsReady && InSpecialRange && !ShieldsStillUp) PressSpecial();
+            // Escudo con escudos puestos o el Fantasma con el clon fuera (D11)
+            if (FullStyle && Blade.Special.IsReady && InSpecialRange && !PowerStillOut) PressSpecial();
             else base.TryUseSpecial();
         }
 

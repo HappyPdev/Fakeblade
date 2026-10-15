@@ -68,6 +68,13 @@ namespace FakeBlade.Core
         /// si el nivel no lo lee (con Obvious, solo Embestida, Salto y Onda de choque).
         /// </summary>
         public SpecialAbility TargetPower { get; private set; }
+        /// <summary>
+        /// Poder de otro rival (no el más cercano) que la amenaza desde lejos: Embestida, Salto, Tornado u Onda de choque
+        /// (D11.3; el del rival más cercano a la IA de las que lo usan). Null si no hay o si el nivel no lo lee.
+        /// </summary>
+        public SpecialAbility OtherPower { get; private set; }
+        /// <summary>Peonza que usa OtherPower.</summary>
+        public FakeBladeController OtherPowerOwner { get; private set; }
 
         /// <summary>Hacia el centro de la arena, en el plano y normalizado.</summary>
         public Vector3 ToCenter { get; private set; }
@@ -112,6 +119,12 @@ namespace FakeBlade.Core
             }
 
             Target = self.FindNearestEnemy();
+            // El clon del Fantasma: desde que lee todos los poderes, va a por la peonza de verdad (D11.3)
+            if (Target != null && Target.IsGhost && level.readsSpecials == AISpecialReading.All &&
+                Target.GhostOwner != null && !Target.GhostOwner.IsDestroyed)
+                Target = Target.GhostOwner;
+            ReadOtherPowers(self, level.readsSpecials);
+
             if (Target == null)
             {
                 Distance = Gap = TimeToImpact = float.PositiveInfinity;
@@ -170,6 +183,32 @@ namespace FakeBlade.Core
                 TargetWallDistance = arena.InnerRadius - radius - BladeRadius;
             }
         }
+
+        /// <summary>El poder que amenaza desde lejos del rival más cercano que lo esté usando, sin contar a Target.</summary>
+        private void ReadOtherPowers(FakeBladeController self, AISpecialReading reading)
+        {
+            OtherPower = null;
+            OtherPowerOwner = null;
+            if (reading == AISpecialReading.None) return;
+            float bestSqr = float.MaxValue;
+            var blades = FakeBladeController.ActiveBlades;
+            for (int i = 0; i < blades.Count; i++)
+            {
+                FakeBladeController other = blades[i];
+                if (other == Target || other.IsDestroyed || other.IsGhost || !self.CanHarm(other)) continue;
+                SpecialAbility power = ReadPower(other.Special, reading);
+                if (!IsRangedThreat(power)) continue;
+                float sqr = (other.Position - self.Position).sqrMagnitude;
+                if (sqr >= bestSqr) continue;
+                bestSqr = sqr;
+                OtherPower = power;
+                OtherPowerOwner = other;
+            }
+        }
+
+        /// <summary>Poderes que alcanzan desde lejos (hay que apartarse aunque no sea el rival más cercano).</summary>
+        public static bool IsRangedThreat(SpecialAbility power) =>
+            power is RamAbility || power is LeapAbility || power is TornadoAbility || power is ShockWaveAbility;
 
         /// <summary>El poder del rival si está en marcha y el nivel lo lee (lo que se ve venir, o todos).</summary>
         private static SpecialAbility ReadPower(SpecialAbilitySystem special, AISpecialReading reading)

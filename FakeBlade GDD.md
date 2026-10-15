@@ -766,7 +766,7 @@ Objetivo: builds de **Windows, Linux y WebGL**, y más adelante **Android**. Est
 
 **Windows**
 
-- Sin limitaciones conocidas. Es la plataforma de referencia: lo que se mide en el editor vale aquí.
+- Sin limitaciones conocidas. Es la plataforma de referencia: lo que se mide en el editor vale aquí. Primera build hecha y probada en otro ordenador el 2026-10-15 (J1): mandos detectados, 3 jugadores y una IA sin problemas.
 
 **Linux**
 
@@ -1188,6 +1188,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-14 | IA: Onda de choque y Tornado, tras medirlos | Huir de la Onda de choque del rival la llevaba contra la pared (más golpes que sin leerla): solo se coloca del lado del centro cuando está junto a la pared. Su propio Tornado lo soltaba al tener al rival pegado, casi nada más activarlo y con la mitad de fuerza: ahora deja acabar la atracción salvo para estampar al rival contra la pared. |
 | 2026-10-15 | Primera prueba con mando de D11 | La IA esquiva bien la Embestida y el Salto. El **Salto** era lento y costaba acertar: cae con el **doble de gravedad** (0,64 s en el aire en vez de 0,95; misma altura y distancia). El **Escudo** se cargaba con dos golpes cargados: su energía sube de **0,6 a 0,8** (más adelante, quizá que curar al reactivarlo pronto dé menos). En el Sandbox, fila **«Su núcleo»** para elegir el núcleo de los dummies (antes solo venía con su preset). |
 | 2026-10-15 | IA y especiales (D11.3), segunda parte | Hecha la lista de 13 (D11.3) tal cual. Decidido al medir: la lectura del Escudo, del Rastro de agua, del Fantasma y de Fuego, Hielo y Spin Boost del rival va **desde Difícil** (como el resto de lo que no se ve venir); mojada sigue haciendo **parry** y esquivando poderes. El golpe contra el Escudo se calcula con el impulso del nivel y sin la velocidad que ya lleva (sumándola fallaba medio hueco) y espera el hueco mirando cada frame. Medidas en 6.4. |
+| 2026-10-15 | Primera build de Windows (J1) | DirectX 11 y Mono, tal como está en 7.5. El usuario la probó en otro ordenador: detecta los mandos y va bien con 3 jugadores y una IA. Al compilar, Unity reescribe solo algunos ajustes (variantes de shader de URP, ajustes de ejecución, el `InputSystem_Actions` precargado): se guardan en el repo. |
 
 12. # Pendiente de definir
 
@@ -1428,7 +1429,7 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 
 **Fase J. Plataformas y builds** (detalles en 7.5)
 
-- [ ] J1. Primera build de Windows (DirectX 11, Mono): partida completa, opciones, controles guardados y 4 mandos. 🎮
+- [x] J1. Primera build de Windows (DirectX 11, Mono): partida completa, opciones, controles guardados y 4 mandos. 🎮 **Hecha y probada (2026-10-15):** build de 104 MB en `Builds/Windows/` (3 min, sin errores); probada por el usuario en otro ordenador: detecta los mandos y va bien con 3 jugadores y una IA. Para pasarla, la carpeta sin `FakeBlade_BurstDebugInformation_DoNotShip`. Lleva todas las escenas de *Build Settings*, también `TestScene`.
 - [ ] J2. WebGL: `Mobile_Renderer` en Forward (o renderer Web aparte), comprobar Depth Texture si se usan partículas suaves y hacer la primera build. Probar en Chrome y Firefox: carga, mandos (aparecen al pulsar), teclas que el navegador no se quede, audio tras el primer clic, guardado de opciones y rendimiento con 4 peonzas. Decidir qué hace Opciones → Calidad. 🎮
 - [ ] J3. WebGL: desactivar los CSV del Sandbox y del banco en el navegador; revisar el tamaño de la descarga (quitar paquetes sin uso como Visual Scripting).
 - [ ] J4. Linux: instalar *Linux Build Support (Mono)*, build con Vulkan y probar aspecto, pantalla completa y mandos (Xbox y PlayStation). Si hay un Steam Deck a mano, también ahí. 🎮

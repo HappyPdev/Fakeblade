@@ -9,7 +9,7 @@ namespace FakeBlade.Core
     /// entero ×1,8 y ese escudo se rompe. Si entra por un hueco, es un choque normal.
     /// Duración indefinida (2026-10-13, tras probarlo con mando): el poder activo dura muy poco (duration del asset)
     /// y los escudos se quedan hasta romperse; mientras, la esfera se vuelve a cargar, y activarlo otra vez rellena
-    /// los tres. Necesita menos energía (0,8; era 0,6, que se llenaba con dos golpes cargados): es un poder sin ventaja de daño y difícil de controlar.
+    /// los tres. Necesita 1,2 de energía (2026-10-15, tras probarlo con mando: con 0,6 se llenaba con dos golpes cargados y con 0,8 seguía siendo muy fuerte).
     /// </summary>
     [CreateAssetMenu(fileName = "Shields", menuName = "FakeBlade/Specials/Escudo")]
     public class ShieldsData : SpecialAbilityData

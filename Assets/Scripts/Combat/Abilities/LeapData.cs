@@ -4,9 +4,10 @@ namespace FakeBlade.Core
 {
     /// <summary>
     /// Salto (GDD 5, Fase L, L5; decidido el 2026-10-13). Primero se carga 0,3 s (se frena hasta quedarse quieta;
-    /// mientras, se apunta con el stick) y después salta unos 0,9 m de alto y 5 m hacia el stick (sin stick, hacia el
-    /// rival más cercano), con el doble de gravedad para que dure 0,67 s en el aire (2026-10-15). En el aire, si choca con otras peonzas las empuja sin daño para nadie, y no se le puede
-    /// hacer parry ni bloquearla. Al caer hace una onda pequeña y fuerte: 10% de las RPM en el centro (la mitad en el
+    /// mientras, se apunta con el stick) y después salta unos 2 m de alto y 5 m hacia el stick (sin stick, hacia el
+    /// rival más cercano), con 6 veces la gravedad para que dure unos 0,55 s en el aire (2026-10-15, tras probarlo con
+    /// mando: un salto exagerado y rápido). En el aire, si choca con otras peonzas las empuja sin daño para nadie, y no
+    /// se le puede hacer parry ni bloquearla. Al caer hace una onda pequeña y fuerte: 10% de las RPM en el centro (la mitad en el
     /// borde de 3 m), empuje de 22 m/s y las deja lanzadas (daño de pared si chocan). Un salto por activación: al
     /// caer, el poder termina.
     /// </summary>
@@ -22,10 +23,10 @@ namespace FakeBlade.Core
         [Header("Salto")]
         [Tooltip("Distancia horizontal del salto (m, nominal: la fricción al subir la acorta un poco; 5,3 ≈ 5 m reales)")]
         public float distance = 5.3f;
-        [Tooltip("Altura del salto (m, nominal: la fricción del aire la recorta; 1,1 ≈ 0,9 m reales, el doble del salto bajo inicial)")]
-        [Min(0.1f)] public float height = 1.1f;
-        [Tooltip("Gravedad en el aire (×; 2 = cae el doble de rápido: misma altura y distancia en menos tiempo, 0,67 s en vez de 0,95 s)")]
-        [Min(1f)] public float gravityScale = 2f;
+        [Tooltip("Altura del salto (m, nominal: la fricción del aire la recorta un poco)")]
+        [Min(0.1f)] public float height = 2.2f;
+        [Tooltip("Gravedad en el aire (×): más gravedad, misma altura y distancia en menos tiempo. Tiempo en el aire = 2·√(2·altura / (9,81·esto))")]
+        [Min(1f)] public float gravityScale = 6f;
         [Tooltip("Empuje que recibe en el aire al chocar (para que el choque no le corte el salto)")]
         [Range(0f, 1f)] public float knockbackTakenInAir = 0.2f;
 

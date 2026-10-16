@@ -16,7 +16,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
   - 7.2 Arquitectura.
   - **11. Registro de decisiones**: cada decisión es una fila con su fecha.
   - **12. Pendiente de definir**: lo abierto, con una propuesta por defecto entre paréntesis.
-  - **13. Quehaceres**: el backlog, por fases (A-K) con casillas. 🎮 marca lo que hay que probar con mandos reales.
+  - **13. Quehaceres**: el backlog, por fases (A-O) con casillas. 🎮 marca lo que hay que probar con mandos reales.
 - Si algo no está en los documentos o es ambiguo, **preguntar al usuario** (AskUserQuestion) antes de implementarlo. Después, apuntarlo en el GDD en la misma sesión: en su sección, más una fila en §11. Al terminar una tarea, marcarla en §13.
 - El usuario prefiere añadir funciones poco a poco y probarlas con mando en sesiones posteriores.
 - `Estadísticas de las piezas.md/.html` se generan desde el editor; no se editan a mano. `Guía del Sandbox.md` explica el panel del Sandbox y su CSV.

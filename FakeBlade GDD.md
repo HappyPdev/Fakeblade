@@ -321,6 +321,15 @@ Al principio habrá un solo tipo de arena. En las opciones antes del duelo se po
 
 Las arenas serán circulares, con un **borde que impide salir** y una fricción normal que no afecta al movimiento. **Por ahora el suelo es plano**: la física es más predecible y más fácil de equilibrar. Los cuencos se dejan para arenas futuras (Quehaceres I2).
 
+**Arenas tipo olla** *(idea del usuario, 2026-10-16: varias, con más o menos inclinación)*. Cómo afectaría una pendiente real:
+
+- **Empuje hacia el centro:** la gravedad tira cuesta abajo con g·sen(ángulo): unos 0,85 m/s² a 5°, 1,7 a 10°, 2,5 a 15° y 4,9 a 30°. Las peonzas se juntan en el centro, hay **más choques** y las rápidas suben por la pared y vuelven. Con 5-10° es un empuje suave, que se nota pero no domina el movimiento.
+- **Suelo o pared:** hoy una superficie cuya normal tiene más de 0,6 hacia arriba (**menos de unos 53°** de inclinación) cuenta como suelo y no hace daño; más empinada cuenta como pared y hace daño al chocar. Una olla suave es suelo en todo su perfil.
+- **Choques:** las velocidades de choque y el empuje se miden en horizontal. Con poca pendiente el error es pequeño (a 10°, un 1,5 %); con mucha, los empujes saldrían raros.
+- **El perfil tiene que ser continuo:** sin pliegues donde se juntan el fondo, la rampa y la pared. En un pliegue la normal del contacto salta y puede contar como golpe de pared.
+- **Lo que habría que revisar:** la inclinación visual y el bamboleo de la peonza (hoy suponen el suelo plano), la aparición (altura sobre el suelo), la IA (sus posiciones y distancias son planas), la lanzada de Rayos (en un cuenco casi nunca llega a la pared, ver 12), el banco de equilibrio (supone suelo plano) y la telemetría por arena (6.6).
+- **Conclusión:** con **poca inclinación (5-10°) y un perfil continuo**, la física aguanta casi sin cambios y basta con revisar lo de arriba. Para ollas más empinadas, o para ajustar cada arena sin remodelar, está la otra opción de I2: suelo plano con una fuerza hacia el centro (cuenco simulado).
+
 Arenas actuales (cada una es un prefab con sus puntos de aparición y un asset de datos con nombre y vista previa, que aparece en la selección de escenario):
 
 - **Arena básica** (`Arena_Basic_2`, **por defecto** desde el 2026-10-11): suelo totalmente plano y paredes totalmente verticales, modelada por el usuario en dos FBX (`Assets/3D Models/Arenas/Basic 2/BattleArena Suelo 2.fbx` y `BattleArena Paredes 2.fbx`). Escalada a 7 m de radio interior (×0,34) y 2,5 m de pared; suelo con BoxCollider, pared con MeshCollider y los materiales del proyecto (`SueloMaterial 00` y `ParedMaterial Cristal 00`).
@@ -839,6 +848,108 @@ Objetivo: builds de **Windows, Linux y WebGL**, y más adelante **Android**. Est
 5. Textos y HUD que se lean en pantallas pequeñas y con cualquier relación de aspecto (anclajes, no posiciones fijas).
 6. Mantener cero GC por frame (7.3): en WebGL y Android las pausas del recolector se notan mucho más.
 7. Probar cada plataforma con una build, no solo en el editor: el editor de Windows (DirectX 11, Mono) no muestra los fallos de IL2CPP, Vulkan ni WebGL.
+8. Cada efecto visual nuevo dice en qué plataformas va y con qué nivel (tabla de 7.6) y se puede apagar o rebajar sin romper nada.
+
+**Versión de Unity** *(revisado el 2026-10-16)*. El proyecto está en **Unity 6.3 LTS** (6000.3). **Unity 6.6** ya ha salido, pero **no es LTS**: es la última versión «Update» antes de **Unity 6.7 LTS**, prevista para el último trimestre de 2026. Unity la da como *Supported* hasta que salga 6.7, y algunas funciones nuevas de 6.6 pueden cambiar o quitarse en 6.7. Propuesta (12): **seguir en 6.3 LTS** y, cuando salga 6.7 LTS y lleve un par de parches, probar la migración en una rama aparte (copia de seguridad, comprobar Coplay, los paquetes de terceros, los shaders propios, el banco y los tests) y pasar si va bien. Lo que traería: WebGPU soportada (aún no por defecto) y las mejoras de 6.4-6.6. Ojo: en 6.6, *Fast Enter Play Mode* viene activado por defecto en los proyectos nuevos (no resetea los `static` al entrar en Play); este proyecto usa estáticos (`MatchSetup`, ajustes del Sandbox), así que si se activa hay que revisarlos.
+
+## 7.6 Estilo visual, shaders y efectos *(propuestas del 2026-10-16, Fase O)*
+
+Ideas del usuario y propuestas de Claude para que el juego sea más vistoso, con su coste y cómo se harían. Nada de esto cambia el combate (daño, física o equilibrio): es solo visual.
+
+**Principio:** estilo retro con definición. La escena 3D (arena y peonzas) puede ir pixelada, con la intensidad configurable; las **partículas y la interfaz se pintan después, a resolución completa**, para que los efectos de pixel art conserven su detalle y no queden como bloques grandes.
+
+**Cómo se trabaja cada efecto:**
+
+1. Se añade **uno a uno** y se prueba en el momento (en el Sandbox o en la galería de efectos, O5), primero con el usuario mirando.
+2. Cada efecto queda apuntado en el **catálogo de efectos** (tabla de abajo): qué es, dónde está (script, asset, material), qué parámetros se tocan para ajustarlo y en qué plataformas va. Así, si más adelante no gusta, se sabe dónde cambiarlo.
+3. Cada efecto se puede apagar o rebajar y va ligado a la calidad (Opciones → Vídeo).
+
+**Orden propuesto** (de la base hacia los detalles: primero lo que está debajo de todo, después lo que se ve encima):
+
+1. **O1, giro por pieza** (rápido, no depende de nada).
+2. **O2, base de efectos de pantalla:** el sistema donde van todos los efectos de pantalla completa, con el pixelado configurable y las capas (escena pixelada, partículas e interfaz nítidas).
+3. **O3, contorno negro.**
+4. **O4, efectos de estilo:** paleta limitada con tramado, CRT y sombreado tipo cómic.
+5. **O5 y O6, galería de efectos y partículas con sprites**, efecto a efecto.
+6. **O7, efectos de impacto** (sensación de golpe).
+7. **O8, interfaz animada**, junto con la revisión de menús (N4) y los efectos de UI (G2).
+
+| Idea | Coste | Depende de | Fase |
+|---|---|---|---|
+| Cada pieza gira a su velocidad | Bajo | Nada | O1 |
+| Base de efectos de pantalla y estilo de imagen en Opciones | Medio | Nada | O2 |
+| Contorno negro (pantalla, casco y aristas marcadas) | Medio | O2; las aristas marcadas, de Blender | O3 |
+| Paleta y tramado, CRT, sombreado tipo cómic | Bajo cada uno | O2 | O4 |
+| Galería de efectos en el Sandbox | Bajo | Nada | O5 |
+| Partículas con sprites pixel art | Medio, bajo por efecto | O2 (capas), O5 | O6 |
+| Efectos de impacto | Bajo cada uno | O2 | O7 |
+| Interfaz animada | Medio, por menús | Esquemas y sprites del usuario | O8 |
+
+**Cada pieza gira a su velocidad (O1).** Cada pieza ya es un modelo aparte (`BladeModel`), pero todas giran juntas con `visualRoot` (`FakeBladeController`, velocidad visual de `CombatConfig`). Se añadiría un multiplicador por pieza (por ejemplo, el disco al 40 %, o en sentido contrario) para que se lea su dibujo: girando muy rápido, un dibujo que se repite parece quieto o girando al revés (efecto rueda de carro). Solo visual; también en la vista previa de la selección. Los multiplicadores se ajustan en el Inspector.
+
+**Base de efectos de pantalla (O2).** Con URP 17 (Unity 6) se añaden pases de pantalla completa (*Full Screen Pass Renderer Feature* con un shader propio o de Shader Graph). Los efectos se recrean con shaders propios pequeños (sin dudas de licencia, 7.4); si se toma alguno gratis de GitHub o de los ejemplos de URP, se revisa su licencia. En **Opciones → Vídeo** iría un **«Estilo de imagen»** con ajustes predefinidos (Normal, Pixel, Retro, CRT...) y la intensidad del pixelado. Hoy solo está pixelada la vista previa de la selección (`BladePreviewStage`). El pixelado **abarata** el render (se pintan menos píxeles), así que ayuda en WebGL y móvil.
+
+**Efectos de pantalla que encajan con el juego:**
+
+- **Pixelado** con intensidad (×2, ×3, ×4).
+- **Paleta limitada con tramado** (*dithering*): menos colores y un patrón de puntos, muy retro.
+- **CRT:** líneas de barrido, curvatura, separación de colores en los bordes y viñeta.
+- **Contorno** por bordes (O3).
+- **Sombreado tipo cómic** (luz en 2 o 3 tonos): en el material de las peonzas, no en la pantalla.
+- **Bloom** (ya está), grano y nitidez.
+- **Sensación de golpe** (O7): destello y separación de colores breves en un golpe fuerte, zoom con desenfoque radial en el cargado 3 y la imagen desaturada un instante en un K.O.
+
+**Contorno negro (O3).** Tres técnicas que se pueden combinar:
+
+| Técnica | Qué perfila | Trabajo en Blender | Coste | Plataformas |
+|---|---|---|---|---|
+| A. Contorno de pantalla (detecta bordes con la profundidad y las normales) | Silueta y cambios bruscos de forma de todo: peonzas y arena | Ninguno | Medio | PC; en WebGL y móvil, versión rebajada o apagado |
+| B. Casco invertido (copia negra un poco más grande detrás de cada pieza) | Solo la silueta de cada pieza | Ninguno (las normales suavizadas las calcula el script de exportación) | Bajo-medio | Todas (barato) |
+| C. Aristas marcadas | Las aristas que elija el usuario | Marcar las aristas | Medio | Todas |
+
+- **Propuesta:** A como base en PC (uniforme y muy bueno con el pixelado), B como sustituto en WebGL y móvil, y C para los detalles.
+- **Cómo se marca en Blender (C):** seleccionar las aristas y marcarlas (por ejemplo como *Freestyle Edge*, o en un grupo de vértices). `export_blade_parts.py` las convertiría al exportar en una malla fina negra aparte (tiras o tubos), con su propio material. **No necesita UV** y funciona con los colores planos.
+- **Ojo con el pixelado:** una línea más fina que un píxel de la imagen final parpadea al girar. El grosor se ajusta al probarlo.
+
+**UV de las piezas.** Hoy los modelos no tienen UV cuidadas porque se colorean con materiales planos. **Para el contorno no hacen falta.** Sí hacen falta para texturas y efectos sobre la superficie: brillos metálicos que recorren el disco, degradados, un núcleo con energía en movimiento o calcomanías. Para degradados y brillos basta un desplegado automático (*Smart UV Project*); uno cuidado solo compensa si se van a pintar texturas a mano (O9, tarea del usuario cuando haga falta).
+
+**Partículas con sprites (O5, O6).** Sprites de pixel art con más definición, no bloques grandes; en algunos efectos, mezclados con las partículas actuales.
+
+- **Packs en el proyecto** (`Assets/ThirdParty/Free/`): **CodeManu** (21 hojas de animación: golpe de arma, fuego, fuego azul, quemadura, congelación, fantasma, vórtice, burbujas mágicas, hechizos...) y **BDragon1727** (408 sprites de proyectiles y destellos de 24×24).
+- **Primera propuesta** (se decide efecto a efecto en la galería): golpe de arma → impacto; fuego o quemadura → Fuego; congelación → Hielo; fantasma → Fantasma; vórtice → Tornado; burbujas → Rastro de agua.
+- **Cómo:** cada efecto usa su hoja en los **mismos emisores compartidos** de ahora (`VfxSystem`, `Emit()`, animación por hoja de sprites), sin instanciar nada en combate (7.3). Importados con filtro Point y sin compresión; cada píxel del sprite ocupa un número entero de píxeles de pantalla para que se vea nítido.
+- **Galería de efectos (O5):** una sección del panel del Sandbox con un botón por efecto para lanzarlo y comparar sprites.
+
+**Interfaz animada (O8; con N4 y G2; detalles en 9.3).**
+
+- **Flujo:** el usuario pasa un esquema de cada panel (una imagen o un dibujo) y los sprites; Claude lo monta por código (los menús se construyen en `PixelUI`/`PixelMenuList`) y lo anima; se prueba con mando y se ajusta.
+- **Sprites:** PNG con transparencia, paneles y botones en **9-slice** (esquinas fijas y centro que se estira) y medidas en múltiplos del tamaño de píxel.
+- **Animaciones:** al seleccionar un botón (ratón o mando) crece un poco con un rebote; al pulsarlo se aplasta y rebota; el botón principal late suave; los paneles entran con escala y fundido; el valor de un selector salta al cambiar; destellos con el shader de sprites (G2).
+- Funcionan en pausa (tiempo sin escalar), sin GC por frame y cumpliendo las reglas de menús navegables (9.2). Opción **«Reducir animaciones»** por accesibilidad.
+
+**Niveles por plataforma** (regla 8 de 7.5). Propuesta, se confirma al probar cada efecto en su build:
+
+| Efecto | PC (Windows, Linux) | WebGL | Android |
+|---|---|---|---|
+| Pixelado de la escena | Sí | Sí (abarata) | Sí (abarata) |
+| Giro por pieza | Sí | Sí | Sí |
+| Contorno de pantalla (A) | Sí | Rebajado o apagado (necesita Depth Texture, que `Mobile_RPAsset` no tiene) | Apagado; casco invertido (B) |
+| Casco invertido (B) y aristas marcadas (C) | Sí | Sí | Sí |
+| Paleta y tramado, CRT | Sí | Sí (un pase barato) | Opcional (cuesta relleno de pantalla) |
+| Sombreado tipo cómic | Sí | Sí | Sí |
+| Bloom | Sí | Bajo | Bajo o apagado |
+| Partículas con sprites | Sí | Sí, menos cantidad (multiplicador de partículas) | Sí, menos cantidad |
+| Efectos de impacto | Sí | Sí | Sí, los más baratos |
+| Interfaz animada | Sí | Sí | Sí |
+
+- **API gráficas:** Windows DirectX 11 (DirectX 12 de reserva), Linux Vulkan, WebGL 2 (WebGPU solo tras actualizar Unity, ver arriba) y Android Vulkan con reserva OpenGL ES 3. Los shaders propios tienen que compilar en **OpenGL ES 3 / WebGL 2**: sin compute shaders, pocos muestreos de textura por píxel y probados sin Depth Texture (regla 3 de 7.5).
+- Cada efecto va ligado al nivel de calidad: el ajuste de calidad de Opciones apaga o rebaja lo que no cabe en cada plataforma.
+
+**Catálogo de efectos** *(se rellena al añadir cada uno)*:
+
+| Efecto | Dónde está | Qué se ajusta | Plataformas | Añadido |
+|---|---|---|---|---|
+| *(vacío)* | | | | |
 
 8. # Progresión y contenido
 
@@ -979,6 +1090,8 @@ Se hacen con el shader **All In 1 Sprite Shader** (ver 7.4). Reglas:
 | Columnas del lobby | `LobbyColumn` | Gris | Columna libre |
 | | | Outline o Shine | Opción seleccionada y jugador listo |
 | Transiciones | `MenuScreen` / `SceneFlow` | Pixelate creciente + fundido | Al cambiar de pantalla o de escena |
+
+**Interfaz animada** *(idea del usuario, 2026-10-16; O8, ver 7.6)*: botones que crecen un poco con rebote al seleccionarlos (ratón o mando), que se aplastan y rebotan al pulsarlos, latido suave del botón principal, paneles que entran con escala y fundido y valores que saltan al cambiar. Paneles y botones con sprites 9-slice del usuario, montados a partir de sus esquemas. Opción «Reducir animaciones». *Choca con la regla «animación por pasos» de arriba* (los valores cambian a saltos, nunca de forma continua): se decide en 12 (propuesta: escalados y movimientos ajustados a píxeles enteros de UI, que se ven suaves pero respetan la rejilla pixel).
 
 ## 9.4 Sonido *(en preparación, G4)*
 
@@ -1232,6 +1345,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-15 | Telemetría de las partidas (C19) | Tal como se propuso: un CSV por partida local (no el Sandbox), anónimo, activado por defecto y con opción para apagarlo en Opciones; en una build va a `Telemetria/` junto al ejecutable y en el editor a `Logs/Telemetria/`. El usuario pidió guardar **todo lo que ayude a analizar el equilibrio**, así que además de lo propuesto apunta cada choque, daño, ataque, dash, poder, estado, parry, bloqueo, golpe de pared y K.O., una foto por segundo de cada peonza y un resumen por jugador (6.6). Las partidas reiniciadas o dejadas a medias se guardan como abandonadas. Herramienta *Informe de telemetría* que lo junta todo, con victorias frente a las esperadas. No se graba en WebGL. |
 | 2026-10-16 | Menús: experiencia de usuario y accesibilidad (Fase N) | Al probar las Opciones con mando, el usuario pide que el mando no pierda nunca el foco aunque se haga clic fuera con el ratón, que las listas vayan en bucle (de abajo del todo a arriba y al revés) y que los textos no pisen el selector. Además, una revisión a fondo de todos los menús con el aspecto gráfico: ajustes separados por temas (General, Vídeo, Audio...), información más limpia y reglas de experiencia de usuario y accesibilidad para navegar sin problemas con mando o teclas. Nueva Fase N en 13. |
 | 2026-10-16 | Reglas de los menús navegables | El usuario pide seguir una línea clara y profesional de buenas prácticas de experiencia de usuario: nueve reglas en 9.2 (foco que nunca se pierde, navegación en bucle, foco previsible al abrir, texto que no se corta, controles iguales en todas partes, confirmación de lo irreversible, ratón que no estorba al mando, ayuda de botones y legibilidad) que cumplen todos los menús, actuales y nuevos. Para los textos largos, la solución es **un panel más ancho**, no una letra más pequeña. N1-N3 hechas; N4 sigue para el repaso del aspecto gráfico. |
+| 2026-10-16 | Estilo visual: ideas y propuestas (Fase O) | Ideas del usuario: cada pieza girando a su velocidad, contorno negro en las aristas que elija, interfaz más vistosa y animada (a partir de sus esquemas y sprites), estilo de imagen configurable en Opciones y partículas con sprites pixel art de más definición, mezcladas con las actuales. Todo apuntado en **7.6** con coste, técnica, orden y niveles por plataforma, y como Fase O en 13. **Cómo se trabaja:** cada efecto se añade uno a uno, se prueba en el momento y se apunta en el catálogo de efectos (dónde está y cómo se ajusta). **Orden:** primero la base (giro por pieza y efectos de pantalla con el pixelado), después el contorno, los efectos de estilo, las partículas, los impactos y la interfaz. Todo efecto nuevo dice en qué plataformas va (WebGL y Android incluidos) y se puede rebajar o apagar (regla 8 de 7.5). |
+| 2026-10-16 | Versión de Unity y arenas tipo olla | Unity: 6.6 no es LTS; propuesta de seguir en 6.3 LTS y probar 6.7 LTS en una rama cuando salga (7.5, 12). Arenas tipo olla: con poca inclinación (5-10°) y perfil continuo la física aguanta casi sin cambios; análisis en 4 e I2, decisión en 12. |
 
 12. # Pendiente de definir
 
@@ -1292,7 +1407,17 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Herramienta de red para la LAN de Android (propuesta: Netcode for GameObjects + Unity Transport; se decide al empezar, cuando la versión de PC esté completa).
 - Opción Calidad en WebGL: dejar elegir PC o limitarla a Mobile (propuesta: dejarla y avisar de que puede ir lento, después de probarla).
 - WebGPU (propuesta: no usarla hasta actualizar a Unity 6.6 o posterior y probarla).
+- **Actualizar Unity** (2026-10-16; 7.5): el proyecto está en 6.3 LTS; 6.6 no es LTS y 6.7 LTS sale en el último trimestre de 2026 (propuesta: seguir en 6.3 LTS y probar 6.7 LTS en una rama aparte cuando lleve un par de parches).
+- **Efectos por plataforma** (7.6): qué efectos van en WebGL y Android y con qué nivel (propuesta: la tabla de 7.6, que se confirma probando cada efecto en su build).
 - Dónde se publica la versión WebGL (propuesta: itch.io, que admite la compresión Brotli).
+
+**Estilo visual (7.6):**
+
+- **Animaciones de la interfaz: continuas o por pasos** (9.3 dice «por pasos»; el usuario quiere crecer, rebotar y latir). Propuesta: escalados y movimientos ajustados a píxeles enteros de UI, que se ven suaves pero respetan la rejilla pixel.
+- **Velocidad de giro de cada pieza** (O1; propuesta: disco al 40 % y el resto igual, y ajustarlo en Play mirándolo).
+- **Estilo de imagen por defecto** (O2; propuesta: pixelado suave ×2 con contorno en PC; el jugador elige el resto en Opciones).
+- **Qué sprite va en cada efecto** (O6; propuesta: la lista de 7.6, decidida efecto a efecto en la galería).
+- **Arenas tipo olla** (4, I2; propuesta: la primera con geometría suave de 5-10° y perfil continuo; para las más empinadas, cuenco simulado o una mezcla).
 
 13. # Quehaceres
 
@@ -1398,6 +1523,7 @@ Orden propuesto: primero la base común de los poderes, después un sandbox bás
 - [ ] I2. **Cuencos en arenas futuras.** Dos caminos, a decidir al hacer la primera:
   - **Cuenco real (geometría):** la pendiente empuja hacia el centro y provoca más choques. Necesita un perfil curvo continuo hasta la pared (sin pliegues donde se juntan suelo, rampa y pared) y es más difícil de equilibrar.
   - **Cuenco simulado (propuesta):** suelo físico plano y una fuerza hacia el centro según la distancia, con su intensidad en el asset de la arena. El cuenco se modela solo como decoración. Así la física sigue siendo estable y cada arena puede tener un cuenco más o menos agresivo sin remodelar nada.
+  - **Análisis del 2026-10-16** (el usuario quiere varias ollas, con más y menos inclinación; ver 4): un cuenco real **suave (5-10°) y con el perfil continuo** funciona casi sin cambios (empuje de 0,85-1,7 m/s² hacia el centro, sigue contando como suelo y el error de los choques es pequeño). Antes de jugarlo: revisar la inclinación visual, la aparición, la IA, la lanzada de Rayos y el banco. Para las más empinadas, el cuenco simulado. Se puede mezclar: geometría suave más fuerza extra en el asset.
 
 - [ ] I4. **Arenas con obstáculos** (idea del usuario, 2026-10-12): rampas, obstáculos diversos y elementos con los que interactúan las peonzas (rebotadores, barras que giran, paredes que se mueven, trampolines...). Ver 4.
 - [ ] I5. **Coleccionables** en el escenario (idea del usuario, 2026-10-12): pequeñas curas, escudos temporales, vida temporal, recarga del especial... Aparecen por la arena, con pool y activables en las reglas de partida. Ver 4 y 12.
@@ -1492,6 +1618,18 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [x] N3. **Textos que pisan el selector:** las etiquetas largas (por ejemplo «GUARDAR DATOS DE PARTIDA») tapan la flecha «<». **Hecho (2026-10-16, decidido por el usuario):** panel de Opciones más ancho (150 → 220 píxeles de UI). Comprobado con una captura.
 - [ ] N4. **Revisión a fondo de todos los menús:** limpiar la información y separar los ajustes por temas (General o Juego, Vídeo, Audio, Controles y, si hace falta, Accesibilidad), con pestañas o submenús, lo más profesional posible. Seguir reglas de experiencia de usuario y accesibilidad: navegación completa con mando y teclas, foco siempre visible, ayuda de botones en pantalla, una línea de descripción para cada opción, tamaño de texto y contraste legibles, y confirmación antes de lo que no se puede deshacer. Antes de empezar, proponer al usuario la estructura de cada menú (9.2) y acordarla. 🎮
 
+**Fase O. Estilo visual: shaders, cámara y efectos** (ideas del usuario y propuestas, 2026-10-16; todo en **7.6**, con costes y niveles por plataforma). Cada efecto se añade uno a uno, se prueba en el momento y se apunta en el catálogo de efectos de 7.6 (dónde está y cómo se ajusta).
+
+- [ ] O1. **Cada pieza gira a su velocidad** (coste bajo): multiplicador de giro visual por pieza (punta, cuerpo, disco y núcleo), por ejemplo el disco más lento o al revés, para que se lea su dibujo. También en la vista previa. 🎮
+- [ ] O2. **Base de efectos de pantalla** (medio): pases de pantalla completa de URP, **pixelado configurable** en Opciones → Vídeo («Estilo de imagen» e intensidad) y capas: escena pixelada, partículas e interfaz nítidas encima. Niveles por plataforma. Sustituye a «Pixelar la escena 3D» de Otros pendientes. 🎮
+- [ ] O3. **Contorno negro** (medio): contorno de pantalla (PC), casco invertido (WebGL y móvil) y aristas marcadas en Blender (`export_blade_parts.py` genera una malla de líneas, sin UV). El usuario marca las aristas que quiera.
+- [ ] O4. **Efectos de estilo** (bajo cada uno): paleta limitada con tramado, CRT y sombreado tipo cómic de las peonzas. Se eligen y combinan en «Estilo de imagen».
+- [ ] O5. **Galería de efectos en el Sandbox** (bajo): un botón por efecto para lanzarlo y comparar sprites.
+- [ ] O6. **Partículas con sprites pixel art** (medio, bajo por efecto): packs de CodeManu y BDragon1727 en los emisores compartidos, efecto a efecto, decidiendo con el usuario qué sprite va en cada uno. 🎮
+- [ ] O7. **Efectos de impacto** (bajo cada uno): destello y separación de colores en un golpe fuerte, zoom con desenfoque radial en el cargado 3, desaturación breve en un K.O. 🎮
+- [ ] O8. **Interfaz animada** (medio, por menús; con N4 y G2): crecer y rebotar al seleccionar, aplastarse al pulsar, latido, entrada de paneles y valores que saltan; sprites 9-slice y esquemas del usuario; opción «Reducir animaciones». 🎮
+- [ ] O9. **UV de las piezas** (tarea del usuario, solo si hace falta): desplegado automático para degradados y brillos; uno cuidado solo para texturas pintadas a mano.
+
 **Otros pendientes**
 
 - [ ] Modo por puntos: restar 1 punto por autoeliminación.
@@ -1499,7 +1637,7 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [ ] Asignar sonidos (choque, ataque, dash, especial, parry, K.O.) y música (ver G4 y G5).
 - [ ] Fuente pixel para los textos. Candidatas gratis con licencia OFL: Press Start 2P, Silkscreen o Pixelify Sans.
 - [ ] **Selección de peonzas: señalar las IA en la interfaz** (tras probar D7 con mando, 2026-10-13). Hoy solo lo dice la ayuda de la columna; falta algún panel o indicador que deje claro que se puede añadir una IA y pasar a su columna con LB/RB (por ejemplo, pestañas sobre las columnas o un aviso en la columna libre). Se hace cuando el usuario quiera refinar el aspecto gráfico y la interfaz.
-- [ ] Pixelar la escena 3D de batalla y el fondo del menú (pilar 1.2). Ahora solo lo tiene la vista previa del lobby (`BladePreviewStage`). Renderizar a una RenderTexture de baja resolución con escala entera y filtro Point; prueba rápida: Render Scale de URP entre 0,33 y 0,5 con filtro Nearest-Neighbor. El HUD (Overlay) no se ve afectado.
+- [ ] Pixelar la escena 3D de batalla y el fondo del menú (pilar 1.2). **Pasa a O2 (2026-10-16), configurable en Opciones.** Ahora solo lo tiene la vista previa del lobby (`BladePreviewStage`). Renderizar a una RenderTexture de baja resolución con escala entera y filtro Point; prueba rápida: Render Scale de URP entre 0,33 y 0,5 con filtro Nearest-Neighbor. El HUD (Overlay) no se ve afectado.
 - [ ] Equilibrio general. Primer ajuste hecho (2026-10-06): daño x0,8, RPM base 400, cargado = rápido × (1 + 10% por nivel) y movimiento más parejo. Siguiente: jugar con mandos y revisar los CSV del sandbox (`Logs/Sandbox/`). Antes, una peonza lanzada que chocaba a 12 m/s contra una de ataque fuerte perdía un 42%. 🎮
 - [ ] Probar menús, lobby y combate con mandos reales. 🎮
 - [ ] Probar builds de PC y WebGL (ahora en la Fase J: J1 y J2).

@@ -29,6 +29,7 @@ namespace FakeBlade.UI
         private float _angle;
         private float _time;
         private float _spinSpeed = 540f;
+        private BladePartSpin _partSpin;
 
         public RenderTexture Texture => _texture;
 
@@ -156,7 +157,8 @@ namespace FakeBlade.UI
             _blade = blade;
             _core = core;
 
-            BladeModel.Build(_model, _tilt, _modelSettings, tip, body, blade, core, _camera);
+            Transform parts = BladeModel.Build(_model, _tilt, _modelSettings, tip, body, blade, core, _camera);
+            _partSpin = parts != null ? parts.GetComponent<BladePartSpin>() : null;
             _paint = new BladePaint(_model);
             if (_hasScheme) _paint.Apply(_scheme);
             _paint.SetCoreGlow(_glowColor, _glowIntensity);
@@ -193,6 +195,8 @@ namespace FakeBlade.UI
             _time += dt;
             _angle = (_angle + _spinSpeed * dt) % 360f;
             _spin.localRotation = Quaternion.Euler(0f, _angle, 0f);
+            // Cada pieza a su velocidad (O1)
+            if (_partSpin != null) _partSpin.Tick(_spinSpeed, dt);
             // Bamboleo suave
             _tilt.localRotation = Quaternion.Euler(Mathf.Sin(_time * 1.7f) * 6f, 0f, Mathf.Cos(_time * 1.3f) * 6f);
         }

@@ -81,12 +81,33 @@ namespace FakeBlade.Core
         [Tooltip("Fracción de RPM a la que la peonza todavía gira al 90% de su velocidad visual máxima. " +
                  "Más bajo = solo se frena cuando está muy cerca de 0 (0.08 = sigue casi a tope hasta el 8%).")]
         [Range(0.005f, 0.5f)] public float visualSpinKnee = 0.08f;
+        [Tooltip("Velocidad de giro visual de las puntas respecto a la peonza (O1, GDD 7.6): 1 = igual, 0.4 = el 40%, " +
+                 "negativo = al revés. Se multiplica por el de cada pieza (su Inspector). Solo visual")]
+        [Range(-2f, 2f)] public float tipVisualSpin = 1f;
+        [Tooltip("Velocidad de giro visual de los cuerpos respecto a la peonza (O1). Ver la de las puntas")]
+        [Range(-2f, 2f)] public float bodyVisualSpin = 1f;
+        [Tooltip("Velocidad de giro visual de los discos respecto a la peonza (O1): más lentos para que se lea su dibujo")]
+        [Range(-2f, 2f)] public float bladeVisualSpin = 0.7f;
+        [Tooltip("Velocidad de giro visual de los núcleos respecto a la peonza (O1). Ver la de las puntas")]
+        [Range(-2f, 2f)] public float coreVisualSpin = 1f;
         [Tooltip("Fracción de RPM por debajo de la cual la peonza se bambolea y echa humo y chispas")]
         [Range(0f, 1f)] public float lowSpinThreshold = 0.3f;
         [Tooltip("Inclinación máxima (grados) del bamboleo cerca de 0 RPM. 0 = sin bamboleo")]
         public float lowSpinWobbleAngle = 12f;
         [Tooltip("Vueltas por segundo del bamboleo (precesión) justo al entrar en RPM bajas y cerca de 0")]
         public Vector2 lowSpinWobbleFrequency = new Vector2(3.5f, 1.6f);
+
+        /// <summary>Velocidad de giro visual de un tipo de pieza respecto a la peonza (O1).</summary>
+        public float SlotVisualSpin(ComponentSlot slot)
+        {
+            switch (slot)
+            {
+                case ComponentSlot.Tip: return tipVisualSpin;
+                case ComponentSlot.Body: return bodyVisualSpin;
+                case ComponentSlot.Blade: return bladeVisualSpin;
+                default: return coreVisualSpin;
+            }
+        }
 
         /// <summary>0 por encima del umbral de RPM bajas, 1 a 0 RPM.</summary>
         public float LowSpinFactor(float spinPercentage)

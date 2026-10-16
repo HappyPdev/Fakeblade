@@ -30,11 +30,15 @@ MonoBehaviour:
   burstRecoverTime: 0.45
   visualSpinDegreesPerRpm: 6
   visualSpinKnee: 0.08
+  tipVisualSpin: 1
+  bodyVisualSpin: 1
+  bladeVisualSpin: 0.7
+  coreVisualSpin: 1
   lowSpinThreshold: 0.3
   lowSpinWobbleAngle: 12
   lowSpinWobbleFrequency: {x: 3.5, y: 1.6}
   wallDamageScale: 1
-  wallMinDamageSpeed: 3
+  wallMinDamageSpeed: 1.02
   wallHitCooldown: 0.1
   grindDamagePerSecond: 8
   stuckRepelDelay: 0.3
@@ -42,6 +46,7 @@ MonoBehaviour:
   stuckImpactSpeed: 5
   referenceAttackPower: 15
   attackRechargeTime: 1.5
+  attackRechargeDelay: 0.5
   quickAttackImpulse: 9
   quickAttackSpinCostPct: 0.02
   quickAttackDuration: 0.35
@@ -60,7 +65,15 @@ MonoBehaviour:
   parryStagger: 0.3
   parryDefenderKnockbackFraction: 0.1
   parryEnergy: 0.12
+  parriedEnergy: 0.06
   parryHitStop: 0.08
+  parryBlockMinLevel: 2
+  blockDamageFraction: 0.5
+  blockKnockbackFraction: 0.5
+  blockEnergyFraction: 0.5
+  blockStagger: 0.15
+  blockStaggerMin: 0.08
+  blockStaggerMax: 0.25
   comboWindow: 1
   comboBonusPerHit: 0.1
   maxComboHits: 3
@@ -86,6 +99,10 @@ MonoBehaviour:
   knockbackPerSpeedDiff: 0.4
   winnerKnockbackFraction: 0.35
   maxKnockback: 18
+  knockbackControlLossBase: 0.1
+  knockbackControlLossPerSpeed: 0.015
+  knockbackControlMinSpeed: 4
+  knockbackControlRecoverTime: 0.15
   killCreditWindow: 5
   specialActivationSpinPct: 0.25
   specialHealTime: 2
@@ -95,5 +112,6 @@ MonoBehaviour:
   specialEnergyPerChargeLevel: 0.05
   specialEnergyPassiveHit: 0.03
   specialEnergyMultiplier: 1.2
+  specialEnergyPerSecond: 0.04
   cameraShake: 1
   gamepadVibration: 1

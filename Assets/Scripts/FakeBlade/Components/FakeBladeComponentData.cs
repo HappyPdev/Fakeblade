@@ -42,6 +42,9 @@ namespace FakeBlade.Core
         [SerializeField] private Sprite icon;
         [Tooltip("Modelo 3D de la pieza (FBX de Assets/3D Models/.../Parts). Todas las piezas comparten el origen: se montan solas. Vacío = modelo antiguo del prefab")]
         [SerializeField] private GameObject model;
+        [Tooltip("Velocidad de giro visual de esta pieza (O1, GDD 7.6), sobre la de su tipo en CombatConfig → Giro visual. " +
+                 "1 = igual; 0.5 = la mitad; negativo = al revés. Solo visual. Se puede cambiar en Play")]
+        [SerializeField][Range(-2f, 2f)] private float visualSpinMultiplier = 1f;
 
         [Header("=== STAT MODIFIERS ===")]
         [Tooltip("Modifica las RPM máximas (+/-)")]
@@ -92,6 +95,7 @@ namespace FakeBlade.Core
         public BladeArchetype Archetype => archetype;
         public Sprite Icon => icon;
         public GameObject Model => model;
+        public float VisualSpinMultiplier => visualSpinMultiplier;
 
         public float MaxSpinModifier => maxSpinModifier;
         public float SpinDecayModifier => spinDecayModifier;

@@ -88,10 +88,13 @@ namespace FakeBlade.Core
                 float parentScale = Mathf.Max(0.0001f, visualRoot.lossyScale.x);
                 float scale = settings.worldScale > 0f ? settings.worldScale : 1f;
                 container.localScale = Vector3.one * (scale / parentScale);
+                container.gameObject.AddComponent<BladePartSpin>();
             }
 
             GameObject instance = Object.Instantiate(part.Model, container, false);
             instance.name = $"{slot}_{part.Model.name}";
+            // Cada pieza gira a su velocidad (O1)
+            container.GetComponent<BladePartSpin>().Set(slot, instance.transform, part);
 
             // Solo visual: la física es el collider del prefab
             foreach (Collider c in instance.GetComponentsInChildren<Collider>(true)) Object.Destroy(c);

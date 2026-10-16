@@ -271,6 +271,8 @@ namespace FakeBlade.Core
         public StatusEffectSystem Status => _status;
         public FakeBladeStats Stats => _stats;
         public PlayerController Owner => _owner;
+        /// <summary>Giro de cada pieza a su velocidad (O1); lo asigna el propio componente al montarse el modelo.</summary>
+        internal BladePartSpin PartSpin { get; set; }
 
         /// <summary>Última peonza que le quitó RPM (para dar el punto de K.O.).</summary>
         public FakeBladeController LastDamageSource { get; private set; }
@@ -1413,6 +1415,8 @@ namespace FakeBlade.Core
             float visualSpeed = _maxSpin * cfg.visualSpinDegreesPerRpm * cfg.EvaluateVisualSpin(SpinSpeedPercentage);
             _spinAngle = (_spinAngle + visualSpeed * dt) % 360f;
             visualRoot.localRotation = Quaternion.Euler(0f, _spinAngle, 0f);
+            // Cada pieza a su velocidad (O1)
+            if (PartSpin != null) PartSpin.Tick(visualSpeed, dt);
 
             // Inclinación: solo el TiltPivot, según la velocidad horizontal
             Vector3 velocity = _rb.linearVelocity;

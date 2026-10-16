@@ -99,7 +99,7 @@ Cuando dos peonzas chocan, se comparan sus velocidades en el momento del choque 
 - **Daño global:** todo el daño de golpes, paredes y roce se multiplica por `damageMultiplier` (**0,5**; antes 0,8), para que un golpe normal quite 20-30 RPM y los combates sean más largos. La quemadura va aparte, por porcentaje.
 - **Peso y ataque:** la **masa solo cuenta para el empuje**, no para el daño (ni el peso de las piezas ni el bonus de masa del ataque), para que sea más sencillo equilibrar las estadísticas. En el empuje, la relación de masas está limitada a ×0,8-×1,3 (`massRatioRange`). El daño depende del golpe base, de la velocidad (±25%), del ataque (las diferencias de ataque de las piezas cuentan un 60%, `attackSpread`), de la defensa, de la carga y del tipo de golpe (ataque ×1,2, dash ×0,5).
 - **Daños de referencia:** los mide el banco de pruebas (2.7). Último informe, contra Balanceada, rápido parado / a tope y cargado 3 parado / a tope: Balanceada 17 / 25 y 27 / 44, Ataque 25 / 35 y 40 / 63, Defensa 18 / 29, Agilidad 30 / 38 y 44 / 67.
-- **Paredes:** chocar contra el borde hace el daño de un **choque parejo contra una peonza** a esa velocidad: velocidad perpendicular × `damagePerImpactSpeed` × `wallDamageScale` (1); antes era la mitad. Solo cuenta la velocidad perpendicular (rozarla no quita RPM) y desde 3 m/s. Un solo golpe de pared por peonza cada **0,1 s** (`wallHitCooldown`): al dar en la unión de dos tramos llegaban dos a la vez; si el segundo es más fuerte, solo se suma la diferencia. El suelo nunca quita RPM.
+- **Paredes:** chocar contra el borde hace el daño de un **choque parejo contra una peonza** a esa velocidad: velocidad perpendicular × `damagePerImpactSpeed` × `wallDamageScale` (1); antes era la mitad. Solo cuenta la velocidad perpendicular y desde **1,02 m/s** (`wallMinDamageSpeed`; era 3 hasta el 2026-10-16, bajado por el usuario: los golpes suaves contra la pared también quitan RPM). Un solo golpe de pared por peonza cada **0,1 s** (`wallHitCooldown`): al dar en la unión de dos tramos llegaban dos a la vez; si el segundo es más fuerte, solo se suma la diferencia. El suelo nunca quita RPM.
 - **Peonzas pegadas:** si dos peonzas siguen en contacto **0,3 s** después de un choque (sin velocidad no hay choque nuevo), se separan con un empuje de **7 m/s** (la más pesada empuja más; la resistencia al empuje lo frena como mucho a la mitad) y reciben el daño de un choque parejo a 5 m/s, con su chispazo. No da energía ni corta curaciones. El roce continuo (8 RPM/s) sigue aparte. Valores en `CombatConfig` → `stuckRepel*` y `stuckImpactSpeed`.
 
 ### Parry
@@ -200,7 +200,7 @@ Los valores (`referenceAcceleration` 24,4, `accelerationWeightExponent` 1,34, `r
 
 - **La peonza más rápida** recibe solo `velocidad de cierre × 0,25 × ofensa del rival` (con la misma defensa y el mismo daño global).
 - **Parry:** quien lo hace no recibe nada; el atacante, lo mismo que la más rápida. **Espinas:** el atacante recibe el % del rasgo del daño que ha hecho.
-- **Paredes:** `velocidad perpendicular × (1 − defensa / 100) × 0,5`, desde 3 m/s y un golpe cada 0,1 s. **Roce:** 8 RPM/s. **Quemadura:** 1,5% de las RPM máximas cada 0,5 s, sin defensa.
+- **Paredes:** `velocidad perpendicular × (1 − defensa / 100) × 0,5`, desde 1,02 m/s (antes 3) y un golpe cada 0,1 s. **Roce:** 8 RPM/s. **Quemadura:** 1,5% de las RPM máximas cada 0,5 s, sin defensa.
 
 **Empuje:** `(5 + 0,4 × diferencia de velocidad) × empuje del ataque × relación de masas`, tope 18 m/s; quien lo recibe lo multiplica por `(1 − defensa × 0,005)` y sus rasgos, y el ganador del choque se lleva el 35%. Empuje del ataque: +40% por nivel de carga, combo y rasgos. Relación de masas: masa efectiva de cada una (el peso, ×1,5 si está atacando), limitada a ×0,8-×1,3.
 
@@ -949,7 +949,7 @@ Ideas del usuario y propuestas de Claude para que el juego sea más vistoso, con
 
 | Efecto | Dónde está | Qué se ajusta | Plataformas | Añadido |
 |---|---|---|---|---|
-| *(vacío)* | | | | |
+| Giro por pieza (O1) | `BladePartSpin` (en el contenedor de modelos que crea `BladeModel`), movido por `FakeBladeController.UpdateVisuals` y `BladePreviewStage.Update` | **`Assets/Settings/CombatConfig.asset` → Giro visual**: `Tip/Body/Blade/Core Visual Spin` (1 = como la peonza, 0,4 = el 40 %, negativo = al revés; disco **0,7**, elegido por el usuario). **Inspector de cada pieza** → `Visual Spin Multiplier` (se multiplica por el de su tipo; 1 por defecto). Los dos se leen cada frame: se ajustan en Play (en el Sandbox, `CombatConfig` es una copia: el de la pieza sí cambia en vivo; el del tipo, al volver a dar a Play o en BattleArena) | Todas | 2026-10-16 |
 
 8. # Progresión y contenido
 
@@ -1347,6 +1347,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-16 | Reglas de los menús navegables | El usuario pide seguir una línea clara y profesional de buenas prácticas de experiencia de usuario: nueve reglas en 9.2 (foco que nunca se pierde, navegación en bucle, foco previsible al abrir, texto que no se corta, controles iguales en todas partes, confirmación de lo irreversible, ratón que no estorba al mando, ayuda de botones y legibilidad) que cumplen todos los menús, actuales y nuevos. Para los textos largos, la solución es **un panel más ancho**, no una letra más pequeña. N1-N3 hechas; N4 sigue para el repaso del aspecto gráfico. |
 | 2026-10-16 | Estilo visual: ideas y propuestas (Fase O) | Ideas del usuario: cada pieza girando a su velocidad, contorno negro en las aristas que elija, interfaz más vistosa y animada (a partir de sus esquemas y sprites), estilo de imagen configurable en Opciones y partículas con sprites pixel art de más definición, mezcladas con las actuales. Todo apuntado en **7.6** con coste, técnica, orden y niveles por plataforma, y como Fase O en 13. **Cómo se trabaja:** cada efecto se añade uno a uno, se prueba en el momento y se apunta en el catálogo de efectos (dónde está y cómo se ajusta). **Orden:** primero la base (giro por pieza y efectos de pantalla con el pixelado), después el contorno, los efectos de estilo, las partículas, los impactos y la interfaz. Todo efecto nuevo dice en qué plataformas va (WebGL y Android incluidos) y se puede rebajar o apagar (regla 8 de 7.5). |
 | 2026-10-16 | Versión de Unity y arenas tipo olla | Unity: 6.6 no es LTS; propuesta de seguir en 6.3 LTS y probar 6.7 LTS en una rama cuando salga (7.5, 12). Arenas tipo olla: con poca inclinación (5-10°) y perfil continuo la física aguanta casi sin cambios; análisis en 4 e I2, decisión en 12. |
+| 2026-10-16 | Giro por pieza y daño de pared | O1 hecho: cada pieza gira a su velocidad visual (`BladePartSpin`); el usuario lo probó y deja el **disco al 0,7** de la velocidad de la peonza, a revisar con los shaders y efectos. Ajuste del usuario en `CombatConfig`: **`wallMinDamageSpeed` 3 → 1,02 m/s**, para que los golpes suaves contra la pared también quiten RPM (2.5, 2.8). Medirlo con la telemetría (C7). |
 
 12. # Pendiente de definir
 
@@ -1414,7 +1415,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 **Estilo visual (7.6):**
 
 - **Animaciones de la interfaz: continuas o por pasos** (9.3 dice «por pasos»; el usuario quiere crecer, rebotar y latir). Propuesta: escalados y movimientos ajustados a píxeles enteros de UI, que se ven suaves pero respetan la rejilla pixel.
-- **Velocidad de giro de cada pieza** (O1; propuesta: disco al 40 % y el resto igual, y ajustarlo en Play mirándolo).
+- **Velocidad de giro de cada pieza** (O1; hoy disco al 0,7, elegido por el usuario el 2026-10-16; propuesta: revisarla cuando estén los shaders y efectos de O2-O4).
 - **Estilo de imagen por defecto** (O2; propuesta: pixelado suave ×2 con contorno en PC; el jugador elige el resto en Opciones).
 - **Qué sprite va en cada efecto** (O6; propuesta: la lista de 7.6, decidida efecto a efecto en la galería).
 - **Arenas tipo olla** (4, I2; propuesta: la primera con geometría suave de 5-10° y perfil continuo; para las más empinadas, cuenco simulado o una mezcla).
@@ -1620,7 +1621,7 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 
 **Fase O. Estilo visual: shaders, cámara y efectos** (ideas del usuario y propuestas, 2026-10-16; todo en **7.6**, con costes y niveles por plataforma). Cada efecto se añade uno a uno, se prueba en el momento y se apunta en el catálogo de efectos de 7.6 (dónde está y cómo se ajusta).
 
-- [ ] O1. **Cada pieza gira a su velocidad** (coste bajo): multiplicador de giro visual por pieza (punta, cuerpo, disco y núcleo), por ejemplo el disco más lento o al revés, para que se lea su dibujo. También en la vista previa. 🎮
+- [x] O1. **Cada pieza gira a su velocidad** (coste bajo): multiplicador de giro visual por pieza (punta, cuerpo, disco y núcleo), por ejemplo el disco más lento o al revés, para que se lea su dibujo. También en la vista previa. **Hecho (2026-10-16):** `BladePartSpin`, con un valor por tipo de pieza en `CombatConfig` y un multiplicador en cada pieza; dónde se ajusta, en el catálogo de efectos (7.6). Probado por el usuario: **disco a 0,7**. Se vuelve a valorar cuando estén los shaders y efectos (O2-O4).
 - [ ] O2. **Base de efectos de pantalla** (medio): pases de pantalla completa de URP, **pixelado configurable** en Opciones → Vídeo («Estilo de imagen» e intensidad) y capas: escena pixelada, partículas e interfaz nítidas encima. Niveles por plataforma. Sustituye a «Pixelar la escena 3D» de Otros pendientes. 🎮
 - [ ] O3. **Contorno negro** (medio): contorno de pantalla (PC), casco invertido (WebGL y móvil) y aristas marcadas en Blender (`export_blade_parts.py` genera una malla de líneas, sin UV). El usuario marca las aristas que quiera.
 - [ ] O4. **Efectos de estilo** (bajo cada uno): paleta limitada con tramado, CRT y sombreado tipo cómic de las peonzas. Se eligen y combinan en «Estilo de imagen».

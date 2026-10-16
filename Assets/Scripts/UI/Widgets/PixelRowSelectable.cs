@@ -6,14 +6,23 @@ namespace FakeBlade.UI
 {
     /// <summary>
     /// Adaptador de EventSystem para PixelOptionRow (menús de un usuario: teclado, mando y ratón).
-    /// Arriba/abajo navega; izquierda/derecha cambia el valor; Submit/clic confirma.
+    /// Arriba/abajo navega por las filas de su lista, en bucle (N2, GDD 9.2); izquierda/derecha cambia el valor;
+    /// Submit/clic confirma.
     /// </summary>
     [RequireComponent(typeof(PixelOptionRow))]
     public class PixelRowSelectable : Selectable, ISubmitHandler, IPointerClickHandler
     {
         private PixelOptionRow _row;
+        private PixelMenuList _list;
 
         private PixelOptionRow Row => _row != null ? _row : (_row = GetComponent<PixelOptionRow>());
+        private PixelMenuList List => _list != null ? _list : (_list = GetComponentInParent<PixelMenuList>(true));
+
+        // Solo las filas de la misma lista (no cualquier botón de la pantalla), saltando las ocultas o desactivadas,
+        // y de la última a la primera y al revés
+        public override Selectable FindSelectableOnUp() => List != null ? List.NextSelectable(Row, -1) : base.FindSelectableOnUp();
+
+        public override Selectable FindSelectableOnDown() => List != null ? List.NextSelectable(Row, 1) : base.FindSelectableOnDown();
 
         protected override void Awake()
         {

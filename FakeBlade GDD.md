@@ -873,6 +873,18 @@ Interfaz minimalista y clara. Cada jugador tiene su panel en una esquina de la p
 
 Todos los menús se pueden recorrer con las flechas o WASD del teclado y con el stick o la cruceta de los mandos. **Confirmar** es Enter, Espacio o A, y **Atrás** es Esc, Retroceso o B. También funcionan con el ratón.
 
+**Reglas de los menús navegables** *(2026-10-16; norma para todos los menús, actuales y nuevos)*. Los menús siguen una línea clara y profesional de buenas prácticas de experiencia de usuario y accesibilidad: cualquiera tiene que poder usarlos de principio a fin solo con el mando, solo con el teclado o solo con el ratón, y cambiar de uno a otro en cualquier momento.
+
+1. **El foco nunca se pierde.** Siempre hay una opción seleccionada y visible mientras el menú está abierto. Un clic con el ratón fuera del panel, o una fila que se oculta, no deja al mando ni al teclado sin foco: vuelve a la última opción (y, si ya no existe, a la primera). *(`MenuFocusGuard` en el EventSystem; el clic en el fondo no quita la selección.)*
+2. **Navegación en bucle.** En una lista, bajar desde la última opción lleva a la primera y subir desde la primera lleva a la última. Se salta lo oculto o desactivado y no se sale nunca de la lista abierta. *(`PixelMenuList.NextSelectable`.)*
+3. **Al abrir un menú, el foco va a un sitio previsible:** la opción que se usó la última vez en ese menú o, si no, la primera. Al cerrar un submenú se vuelve a la opción que lo abrió.
+4. **El texto nunca se corta ni se pisa.** Etiqueta y valor tienen cada uno su espacio en los dos idiomas (se comprueba con el texto más largo, en español e inglés). Si no cabe, el panel se hace más ancho; no se reduce la letra.
+5. **Controles iguales en todas partes:** arriba y abajo para moverse, izquierda y derecha para cambiar un valor, Confirmar para aceptar y Atrás para volver o cerrar. Atrás nunca hace algo que no se pueda deshacer.
+6. **Confirmación** antes de lo que no se puede deshacer (salir del juego, abandonar la partida, restablecer controles o colores).
+7. **El ratón no estorba al mando:** pasar el ratón por encima selecciona, pero el mando y el teclado siguen desde ahí.
+8. **Ayuda de botones** en pantalla en los menús (qué hace Confirmar y Atrás con el dispositivo en uso).
+9. **Legible:** contraste alto entre texto y fondo, la opción seleccionada se distingue sin depender solo del color (barra lateral y fondo) y el texto tiene un tamaño mínimo cómodo a la distancia del sofá.
+
 **Menú principal:** Jugar, Opciones, Controles, Información y Salir. De fondo se ve la arena en 3D con varias peonzas controladas por la máquina combatiendo solas, pixelada, con el título encima.
 
 **Salir:** muestra una ventana de confirmación y, si se acepta, cierra la aplicación. En WebGL el navegador no deja cerrar la pestaña, así que el botón Salir se oculta.
@@ -917,7 +929,8 @@ Los ajustes se guardan entre sesiones.
 
 - **Gráficos:** resolución, pantalla completa, calidad (preset), sombras, antialiasing, bloom, cantidad de partículas, VSync y mostrar FPS. Más adelante se añadirán otros efectos de postprocesado.
 - **Audio:** volumen general, de la música y de los efectos.
-- **Juego:** idioma, vibración del mando, sacudida de cámara e **icono del núcleo** (el icono del poder sobre el núcleo de las peonzas; desactivado por defecto, se aplica al momento).
+- **Juego:** idioma, vibración del mando, sacudida de cámara, **icono del núcleo** (el icono del poder sobre el núcleo de las peonzas; desactivado por defecto, se aplica al momento) y **guardar datos de partida** (telemetría, 6.6; activada por defecto, no sale en WebGL).
+- *Pendiente (Fase N, 2026-10-16):* separar los ajustes por temas (General, Vídeo, Audio, Controles...) y revisar la navegación y la accesibilidad de todos los menús.
 - **Colores de peonza** (submenú, solo desde el menú principal): se elige un color de la paleta (1 a 8) y, para él, el color del disco, el cuerpo, la punta y el núcleo de una **lista fija de 24 colores retro** (`paintColors` del catálogo), con flechas y vista previa 3D. "Restaurar colores" vuelve a los de por defecto de ese color. Se guarda al momento y se usa en la selección, en partida y en el fondo del menú.
 
 ### 9.2.4 Controles
@@ -1217,6 +1230,8 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-15 | Primera build de Windows (J1) | DirectX 11 y Mono, tal como está en 7.5. El usuario la probó en otro ordenador: detecta los mandos y va bien con 3 jugadores y una IA. Al compilar, Unity reescribe solo algunos ajustes (variantes de shader de URP, ajustes de ejecución, el `InputSystem_Actions` precargado): se guardan en el repo. |
 | 2026-10-15 | Segunda prueba con mando: Salto, Escudo y equilibrio | La IA salta y embiste con eficacia: se queda así. El **Salto** se exagera: el doble de alto otra vez (1,9 m) y más rápido (0,54 s en el aire, con 6 veces la gravedad). El **Escudo** sigue siendo muy fuerte: energía **1,2** (como Defensa). El **equilibrio** se deja para más adelante, con datos de partidas reales: **telemetría** en la build que guarde archivos de cada partida jugada en local, también con jugadores nuevos (C19). |
 | 2026-10-15 | Telemetría de las partidas (C19) | Tal como se propuso: un CSV por partida local (no el Sandbox), anónimo, activado por defecto y con opción para apagarlo en Opciones; en una build va a `Telemetria/` junto al ejecutable y en el editor a `Logs/Telemetria/`. El usuario pidió guardar **todo lo que ayude a analizar el equilibrio**, así que además de lo propuesto apunta cada choque, daño, ataque, dash, poder, estado, parry, bloqueo, golpe de pared y K.O., una foto por segundo de cada peonza y un resumen por jugador (6.6). Las partidas reiniciadas o dejadas a medias se guardan como abandonadas. Herramienta *Informe de telemetría* que lo junta todo, con victorias frente a las esperadas. No se graba en WebGL. |
+| 2026-10-16 | Menús: experiencia de usuario y accesibilidad (Fase N) | Al probar las Opciones con mando, el usuario pide que el mando no pierda nunca el foco aunque se haga clic fuera con el ratón, que las listas vayan en bucle (de abajo del todo a arriba y al revés) y que los textos no pisen el selector. Además, una revisión a fondo de todos los menús con el aspecto gráfico: ajustes separados por temas (General, Vídeo, Audio...), información más limpia y reglas de experiencia de usuario y accesibilidad para navegar sin problemas con mando o teclas. Nueva Fase N en 13. |
+| 2026-10-16 | Reglas de los menús navegables | El usuario pide seguir una línea clara y profesional de buenas prácticas de experiencia de usuario: nueve reglas en 9.2 (foco que nunca se pierde, navegación en bucle, foco previsible al abrir, texto que no se corta, controles iguales en todas partes, confirmación de lo irreversible, ratón que no estorba al mando, ayuda de botones y legibilidad) que cumplen todos los menús, actuales y nuevos. Para los textos largos, la solución es **un panel más ancho**, no una letra más pequeña. N1-N3 hechas; N4 sigue para el repaso del aspecto gráfico. |
 
 12. # Pendiente de definir
 
@@ -1469,6 +1484,13 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 **Fase K. Aspecto visual del combate** (después de terminar la IA, 2026-10-12)
 
 - [ ] K1. **Anticipación de los ataques:** efectos más claros o llamativos al lanzar un ataque rápido (y al empezar un cargado), para verlos venir y poder hacer parry. Jugando contra la IA (2026-10-12) cuesta hacerle parry porque sus ataques no se anticipan. 🎮
+
+**Fase N. Menús e interfaz: experiencia de usuario y accesibilidad** (pedido el 2026-10-16, al probar las Opciones con mando; va con el repaso del aspecto gráfico)
+
+- [x] N1. **El mando y el teclado no pierden nunca el foco:** si se hace clic con el ratón fuera del panel, el mando ya no puede llegar a los botones. Al usar el mando o las teclas, la selección debe volver siempre al último botón (o al primero). **Hecho (2026-10-16):** el clic en el fondo ya no quita la selección y `MenuFocusGuard` (en el EventSystem de todas las escenas) la devuelve a la última opción si se pierde. Probado en Play con un probe (selección quitada → vuelve al frame siguiente). Probado con mando por el usuario (2026-10-16): funciona.
+- [x] N2. **Navegación en bucle:** en todas las listas, bajar desde la última fila lleva a la primera y subir desde la primera lleva a la última (hoy se queda parada en los extremos). **Hecho (2026-10-16):** las filas de `PixelMenuList` (menú principal, Opciones, Controles, Colores, Información y panel del Sandbox) navegan dentro de su lista, en bucle y saltando las ocultas. La pausa, la confirmación y los resultados ya iban en bucle; los parámetros de partida también. Probado en Opciones. Probado con mando por el usuario (2026-10-16): funciona.
+- [x] N3. **Textos que pisan el selector:** las etiquetas largas (por ejemplo «GUARDAR DATOS DE PARTIDA») tapan la flecha «<». **Hecho (2026-10-16, decidido por el usuario):** panel de Opciones más ancho (150 → 220 píxeles de UI). Comprobado con una captura.
+- [ ] N4. **Revisión a fondo de todos los menús:** limpiar la información y separar los ajustes por temas (General o Juego, Vídeo, Audio, Controles y, si hace falta, Accesibilidad), con pestañas o submenús, lo más profesional posible. Seguir reglas de experiencia de usuario y accesibilidad: navegación completa con mando y teclas, foco siempre visible, ayuda de botones en pantalla, una línea de descripción para cada opción, tamaño de texto y contraste legibles, y confirmación antes de lo que no se puede deshacer. Antes de empezar, proponer al usuario la estructura de cada menú (9.2) y acordarla. 🎮
 
 **Otros pendientes**
 

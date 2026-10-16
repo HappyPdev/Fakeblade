@@ -24,7 +24,8 @@ namespace FakeBlade.UI
         {
             var screen = CreateScreen<OptionsScreen>("OptionsScreen", parent);
             screen._catalog = catalog;
-            screen.Initialize(theme, "OPTIONS", 150, onClose);
+            // Más ancha que las demás: las etiquetas largas («Guardar datos de partida») no deben pisar el selector (N3)
+            screen.Initialize(theme, "OPTIONS", 220, onClose);
             return screen;
         }
 

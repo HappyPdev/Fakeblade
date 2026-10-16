@@ -77,13 +77,22 @@ namespace FakeBlade.UI
             return menus;
         }
 
-        /// <summary>Crea un EventSystem con el módulo del Input System si no existe ninguno.</summary>
+        /// <summary>
+        /// Crea un EventSystem con el módulo del Input System si no existe ninguno, y lo prepara para que el mando y el
+        /// teclado no pierdan nunca el foco (N1, GDD 9.2): un clic en el fondo no quita la selección.
+        /// </summary>
         public static void EnsureEventSystem()
         {
-            if (EventSystem.current != null || FindFirstObjectByType<EventSystem>() != null) return;
+            EventSystem events = EventSystem.current != null ? EventSystem.current : FindFirstObjectByType<EventSystem>();
+            if (events == null)
+            {
+                var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                go.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+                events = go.GetComponent<EventSystem>();
+            }
 
-            var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            go.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+            if (events.TryGetComponent(out InputSystemUIInputModule module)) module.deselectOnBackgroundClick = false;
+            if (!events.TryGetComponent(out MenuFocusGuard _)) events.gameObject.AddComponent<MenuFocusGuard>();
         }
 
         private void Build(HUDTheme theme)

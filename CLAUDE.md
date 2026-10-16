@@ -29,6 +29,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 - Las piezas se llaman `Tipo_Arquetipo_Nombre` (por ejemplo `Tip_Attack_StrikerPoint`). Los arquetipos son Ataque, Balanceada, Defensa y Agilidad.
 - **`BladeFormulas` y el JavaScript de `ComponentsStatsHtml` (Editor) son la misma fórmula escrita dos veces**: si se cambia una, hay que cambiar la otra y el GDD 2.8.
 - Rendimiento: cero asignaciones (GC) por frame en gameplay, HUD y efectos; partículas con emisores compartidos (`Emit()`), sin instanciar nada en combate. Mantenerlo (GDD 7.3).
+- Menús: cumplir las **Reglas de los menús navegables** (GDD 9.2): el foco nunca se pierde, navegación en bucle, texto que no se pisa (panel más ancho, no letra más pequeña), todo usable solo con mando, solo con teclado o solo con ratón.
 - Cada peonza recibe órdenes de un `IBladeInputSource` (jugador, dummy o IA). En las pruebas se cambia con `PlayerController.SetInputSource(...)`.
 
 ## Herramientas del editor (menú FakeBlade)

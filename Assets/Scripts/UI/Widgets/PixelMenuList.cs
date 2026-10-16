@@ -227,6 +227,25 @@ namespace FakeBlade.UI
         private bool IsNavigable(int index) =>
             index >= 0 && index < _rows.Count && _rows[index].gameObject.activeSelf && _rows[index].Interactable;
 
+        /// <summary>
+        /// Siguiente fila navegable desde <paramref name="from"/> en la dirección dir (1 abajo, -1 arriba), en bucle
+        /// (N2, GDD 9.2). Null si no hay otra.
+        /// </summary>
+        public Selectable NextSelectable(PixelOptionRow from, int dir)
+        {
+            int start = _rows.IndexOf(from);
+            if (start < 0 || _rows.Count < 2) return null;
+            int index = start;
+            for (int i = 1; i < _rows.Count; i++)
+            {
+                index = (index + dir + _rows.Count) % _rows.Count;
+                if (!IsNavigable(index)) continue;
+                var selectable = _rows[index].GetComponent<Selectable>();
+                if (selectable != null && selectable.IsInteractable()) return selectable;
+            }
+            return null;
+        }
+
         private int FirstNavigable()
         {
             for (int i = 0; i < _rows.Count; i++)

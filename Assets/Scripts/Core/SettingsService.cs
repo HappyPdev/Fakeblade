@@ -42,8 +42,11 @@ namespace FakeBlade.Core
         public bool showCoreImage = false;
         /// <summary>Telemetría (C19): un archivo por partida con datos para el equilibrio. Activada por defecto.</summary>
         public bool telemetry = true;
-        /// <summary>Números de daño en la arena (CombatPopups, 2026-10-16). Activados por defecto.</summary>
-        public bool damageNumbers = true;
+        /// <summary>
+        /// Números de daño en la arena (CombatPopups, 2026-10-16). Desactivados por defecto desde el 2026-10-17: el daño se ve
+        /// con el color de la onda del golpe sobre la peonza (BladeOverlay).
+        /// </summary>
+        public bool damageNumbers = false;
 
         [Header("Colores de peonza")]
         /// <summary>Colores por pieza personalizados (por color de la paleta). Los que no estén usan los de por defecto.</summary>

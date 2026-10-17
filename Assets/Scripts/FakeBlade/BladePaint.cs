@@ -125,7 +125,7 @@ namespace FakeBlade.Core
             for (int i = 0; i < materials.Length; i++)
             {
                 Material m = materials[i];
-                if (m == null || m.IsKeywordEnabled(EmissionKeyword)) continue;
+                if (m == null || m.IsKeywordEnabled(EmissionKeyword) || BladeOverlay.IsOverlay(m)) continue;
 
                 if (!s_glowMaterials.TryGetValue(m, out Material glow) || glow == null)
                 {

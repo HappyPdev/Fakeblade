@@ -102,6 +102,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
@@ -115,6 +116,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 0
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
@@ -128,6 +130,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
@@ -141,6 +144,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 0
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
@@ -154,6 +158,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
@@ -167,6 +172,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
@@ -180,6 +186,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
@@ -193,6 +200,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
@@ -206,6 +214,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
@@ -219,6 +228,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
@@ -232,6 +242,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
@@ -245,6 +256,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 1
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
@@ -258,6 +270,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
@@ -271,6 +284,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 3
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
@@ -284,6 +298,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 2
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
@@ -297,6 +312,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 0
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
@@ -310,6 +326,7 @@ MonoBehaviour:
     randomRotation: 1
     order: 0
     depthTested: 0
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
@@ -323,6 +340,7 @@ MonoBehaviour:
     randomRotation: 0
     order: 1
     depthTested: 1
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
@@ -336,9 +354,24 @@ MonoBehaviour:
     randomRotation: 0
     order: 1
     depthTested: 1
+    flat: 0
     gravity: 0
     drag: 0
     prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
+  - id: CircleImpact04Anillo
+    texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 2
+    frames: 7
+    life: 0.35
+    randomRotation: 1
+    order: 0
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    prefab: {fileID: 5119328486904876569, guid: db6d52e7c83aa9e439949306f155a9a5, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -435,6 +468,22 @@ MonoBehaviour:
     color: {r: 1, g: 1, b: 1, a: 1}
     lighten: 0
     rotation: 0
+  impactParticles:
+    sprite: Valo8
+    hitCount: {x: 3, y: 10}
+    chargedScale: 1.5
+    parryCount: 8
+    blockCount: 6
+    coneAngle: 35
+    elevation: 25
+    speed: {x: 3, y: 6}
+    size: {x: 0.2, y: 0.3}
+    lifetime: {x: 0, y: 0}
+    rotation: {x: 0, y: 0}
+    spawnRadius: 0.2
+    height: 0.1
+    lighten: 0.01
+    alpha: 0.7
   burnColor: {r: 1, g: 0.45, b: 0.1, a: 1}
   freezeColor: {r: 0.55, g: 0.9, b: 1, a: 1}
   launchColor: {r: 1, g: 0.95, b: 0.3, a: 1}
@@ -443,6 +492,16 @@ MonoBehaviour:
   chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
   chargeGatherRate: 30
   chargeFlameRate: 26
+  chargeRingSprite: CircleImpact04Anillo
+  chargeRingCount: 2
+  chargeRingAngleStep: 180
+  chargeRingRandomAngle: 1
+  chargeRingAngle: 0
+  chargeRingSizeScale: 1.4
+  chargeRingHeight: 0.05
+  chargeRingLifetime: 0
+  chargeRingAlpha: 0.9
+  chargeRingLighten: 0.02
   genericTrail:
     material: {fileID: 2100000, guid: 2c8ee6db74067274e8a483b94d4d8533, type: 2}
     frames: 1
@@ -509,6 +568,64 @@ MonoBehaviour:
     particleColor: {r: 1, g: 0.2627451, b: 0.24705884, a: 1}
     particleLighten: 0.018
     particleAlpha: 0.9
+  bladeOverlay:
+    material: {fileID: 2100000, guid: 258f9be97bcf472468477f2086a508ca, type: 2}
+    rimWidth: 0.45
+    rimSoftness: 0.04
+    outlineWidth: 0.05
+    outlineAlpha: 0.9
+    ringTexture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
+    ringShadowColor: {r: 0, g: 0, b: 0, a: 0.7}
+    ringShadowScale: 1.12
+    chargeRingEnabled: 1
+    chargeRingScale: {x: 0.15, y: 1.4}
+    chargeRingCycle: 0.6
+    chargeRingCycleMax: 0.35
+    chargeRingAlpha: 0.9
+    chargeRingSpin: 90
+    quickRingEnabled: 1
+    quickRingDuration: 0.3
+    impactRingEnabled: 1
+    impactRingScale: {x: 0.2, y: 2.4}
+    impactRingDuration: 0.35
+    impactRingAlpha: 1
+    impactRingLighten: 0
+    chargeEnabled: 1
+    chargePlayerColor: 0
+    chargeColor: {r: 1, g: 0.8, b: 0.3, a: 1}
+    chargeHotColor: {r: 1, g: 0.95, b: 0.75, a: 1}
+    chargeRim: {x: 1, y: 3}
+    chargePulseSpeed: 5
+    chargePulseAmount: 0.4
+    chargeLevelUp:
+      enabled: 1
+      playerColor: 0
+      color: {r: 1, g: 1, b: 1, a: 1}
+      flash: 0.4
+      rim: 3
+      duration: 0.15
+    damaged:
+      enabled: 1
+      playerColor: 0
+      color: {r: 1, g: 1, b: 1, a: 1}
+      flash: 0.8
+      rim: 2
+      duration: 0.18
+    damageForFull: 30
+    parry:
+      enabled: 1
+      playerColor: 0
+      color: {r: 1, g: 1, b: 1, a: 1}
+      flash: 0.6
+      rim: 4
+      duration: 0.35
+    block:
+      enabled: 1
+      playerColor: 0
+      color: {r: 0.75, g: 0.9, b: 1, a: 1}
+      flash: 0.45
+      rim: 3
+      duration: 0.3
   trailSpacing: 0.45
   trailAlpha: 0.4
   trailSize: 0.1

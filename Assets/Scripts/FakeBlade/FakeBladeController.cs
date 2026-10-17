@@ -141,6 +141,8 @@ namespace FakeBlade.Core
         /// cinta más ancha, sumada a la normal, y los cuencos de la punta (K7).</summary>
         private BladeTrail _burstRibbon;
         private BladeBurstTip _burstTip;
+        // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
+        private BladeOverlay _overlay;
 
         // Choques
         private Vector3 _preImpactVelocity;
@@ -296,6 +298,7 @@ namespace FakeBlade.Core
             _ribbonTrail = new BladeTrail(this);
             _burstRibbon = new BladeTrail(this, burst: true);
             _burstTip = new BladeBurstTip(this);
+            _overlay = new BladeOverlay(this);
 
             SetupVisualRoot();
         }
@@ -331,6 +334,7 @@ namespace FakeBlade.Core
             if (GhostClone != null) Destroy(GhostClone.gameObject);
             _ribbonTrail?.Dispose();
             _burstRibbon?.Dispose();
+            _overlay?.Dispose();
         }
 
         private void Update()
@@ -745,6 +749,7 @@ namespace FakeBlade.Core
             _ribbonTrail?.Stop();
             _burstRibbon?.Stop();
             _burstTip?.Hide();
+            _overlay?.Clear();
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
@@ -1468,7 +1473,11 @@ namespace FakeBlade.Core
                 _burstRibbon?.Tick(dt, _particles.TipOffset);
                 _burstTip?.Tick(dt, _particles.TipOffset);
             }
+            _overlay?.Tick(dt);
         }
+
+        /// <summary>El modelo se ha vuelto a montar (piezas nuevas): los efectos sobre la peonza ponen su material en él.</summary>
+        public void OnModelRebuilt() => _overlay?.Rebind();
 
         /// <summary>Color del jugador (efectos y HUD).</summary>
         public Color OwnerColor => _owner != null ? _owner.PlayerColor : Color.white;
@@ -1525,6 +1534,7 @@ namespace FakeBlade.Core
             _ribbonTrail?.Clear();
             _burstRibbon?.Clear();
             _burstTip?.Hide();
+            _overlay?.Clear();
 
             if (_rb != null)
             {

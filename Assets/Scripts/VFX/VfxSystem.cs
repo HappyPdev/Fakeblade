@@ -121,20 +121,27 @@ namespace FakeBlade.Core
                     if (damage < _library.impactMinDamage) return;
                     // Cargado si quien hace más daño venía con un ataque cargado
                     bool charged = (r.DamageToB >= r.DamageToA ? r.ChargeA : r.ChargeB) > 0;
-                    PlayImpact(charged ? ImpactKind.Charged : ImpactKind.Hit, point, damage, Color.white);
+                    // Las partículas salen hacia fuera de la que recibe más daño, por el lado del choque
+                    FakeBladeController victim = r.DamageToA >= r.DamageToB ? r.A : r.B;
+                    PlayImpact(charged ? ImpactKind.Charged : ImpactKind.Hit, point, damage, Color.white, point - victim.Position);
                     break;
                 }
             }
         }
 
         /// <summary>Parry: capas con el color de quien para (en un doble parry, blanco).</summary>
-        private static void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry) =>
-            PlayImpact(ImpactKind.Parry, (parrier.Position + attacker.Position) * 0.5f, 0f,
-                doubleParry ? Color.white : PlayerColorOf(parrier));
+        private static void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry)
+        {
+            Vector3 point = (parrier.Position + attacker.Position) * 0.5f;
+            PlayImpact(ImpactKind.Parry, point, 0f, doubleParry ? Color.white : PlayerColorOf(parrier), point - parrier.Position);
+        }
 
         /// <summary>Bloqueo: capas con el color de quien bloquea.</summary>
-        private static void HandleBlock(FakeBladeController blocker, FakeBladeController attacker) =>
-            PlayImpact(ImpactKind.Block, (blocker.Position + attacker.Position) * 0.5f, 0f, PlayerColorOf(blocker));
+        private static void HandleBlock(FakeBladeController blocker, FakeBladeController attacker)
+        {
+            Vector3 point = (blocker.Position + attacker.Position) * 0.5f;
+            PlayImpact(ImpactKind.Block, point, 0f, PlayerColorOf(blocker), point - blocker.Position);
+        }
 
         private static Color PlayerColorOf(FakeBladeController blade)
         {
@@ -145,9 +152,11 @@ namespace FakeBlade.Core
         /// <summary>
         /// Lanza un impacto en un punto del suelo (choques y galería del Sandbox). Sale un poco hacia la cámara
         /// (impactCameraOffset), para que se vea delante de las peonzas y no cortado por ellas. playerColor tiñe las capas
-        /// marcadas con «color del jugador» (quien hace el parry o el bloqueo).
+        /// marcadas con «color del jugador» (quien hace el parry o el bloqueo). outward: hacia dónde salen las partículas
+        /// animadas (hacia fuera de la peonza golpeada; cero = hacia arriba).
         /// </summary>
-        public static void PlayImpact(ImpactKind kind, Vector3 groundPoint, float damage, Color playerColor)
+        public static void PlayImpact(ImpactKind kind, Vector3 groundPoint, float damage, Color playerColor,
+            Vector3 outward = default)
         {
             VfxSystem system = Instance;
             if (system == null) return;
@@ -204,6 +213,61 @@ namespace FakeBlade.Core
                     rotation = (emitter.Sprite.randomRotation ? rotation : 0f) + layer.rotation
                 };
                 emitter.System.Emit(emitParams, 1);
+            }
+
+            // Partículas animadas en cono hacia arriba (las mismas que las de la punta en el acelerón)
+            bool hit = kind == ImpactKind.Hit || kind == ImpactKind.Charged;
+            system.EmitImpactParticles(lib.impactParticles, kind, groundPoint, damage, hit ? damageColor : playerColor, outward);
+        }
+
+        /// <summary>Ráfaga de ImpactParticleStyle: más partículas y más grandes cuanto más daño. Escalada con Opciones.</summary>
+        private void EmitImpactParticles(ImpactParticleStyle style, ImpactKind kind, Vector3 groundPoint, float damage, Color color,
+            Vector3 outward)
+        {
+            if (style == null || string.IsNullOrEmpty(style.sprite) || !IsVisible(groundPoint)) return;
+
+            float strength = Mathf.Clamp01(damage / Mathf.Max(1f, _library.impactMaxDamage));
+            float count;
+            switch (kind)
+            {
+                case ImpactKind.Parry: count = style.parryCount; break;
+                case ImpactKind.Block: count = style.blockCount; break;
+                case ImpactKind.Charged: count = Mathf.Lerp(style.hitCount.x, style.hitCount.y, strength) * style.chargedScale; break;
+                default: count = Mathf.Lerp(style.hitCount.x, style.hitCount.y, strength); break;
+            }
+            int total = Mathf.Min(32, Mathf.RoundToInt(count * SettingsService.ParticleMultiplier));
+            if (total <= 0) return;
+
+            if (style.lighten > 0f)
+            {
+                Color light = Color.Lerp(color, Color.white, style.lighten);
+                color = new Color(light.r, light.g, light.b, color.a);
+            }
+            color.a = style.alpha;
+            Vector3 origin = groundPoint + Vector3.up * style.height;
+            // Eje del cono: hacia fuera de la peonza golpeada (por el lado del choque), levantado «elevation» grados
+            outward.y = 0f;
+            Quaternion toAxis = Quaternion.identity;
+            if (outward.sqrMagnitude > 0.0001f)
+            {
+                float elevation = style.elevation * Mathf.Deg2Rad;
+                Vector3 axis = outward.normalized * Mathf.Cos(elevation) + Vector3.up * Mathf.Sin(elevation);
+                toAxis = Quaternion.FromToRotation(Vector3.up, axis);
+            }
+            for (int i = 0; i < total; i++)
+            {
+                // Dirección al azar dentro del cono, alrededor de su eje; salen repartidas alrededor del choque
+                float tilt = Random.Range(0f, style.coneAngle) * Mathf.Deg2Rad;
+                float turn = Random.value * Mathf.PI * 2f;
+                float sin = Mathf.Sin(tilt);
+                Vector3 direction = toAxis * new Vector3(sin * Mathf.Cos(turn), Mathf.Cos(tilt), sin * Mathf.Sin(turn));
+                if (direction.y < 0f) direction.y *= -0.3f; // que no se metan en el suelo
+                var around = new Vector3(Mathf.Cos(turn), 0f, Mathf.Sin(turn));
+                // Los golpes fuertes, con partículas más grandes (hacia el máximo del rango)
+                float size = Mathf.Lerp(style.size.x, style.size.y, Mathf.Lerp(Random.value, 1f, strength * 0.5f));
+                EmitSprite(style.sprite, origin + around * style.spawnRadius,
+                    direction * Random.Range(style.speed.x, style.speed.y), color, size,
+                    Random.Range(style.rotation.x, style.rotation.y), Random.Range(style.lifetime.x, style.lifetime.y));
             }
         }
 
@@ -304,6 +368,23 @@ namespace FakeBlade.Core
             };
             if (lifetime > 0f) emitParams.startLifetime = lifetime; // la hoja se anima durante toda la vida
             emitter.System.Emit(emitParams, 1);
+        }
+
+        /// <summary>
+        /// Anillo hecho con varias copias de un sprite animado de la lista de impactos, cada una girada angleStep grados
+        /// respecto a la anterior (p. ej. CircleImpact04Anillo, una media luna en el suelo: con 2 copias a 180° se cierra
+        /// el círculo). Devuelve false si el sprite no existe (el llamador usa entonces otro efecto).
+        /// </summary>
+        public static bool EmitSpriteRing(string id, Vector3 position, Color color, float size, int count, float startAngle,
+            float angleStep, float lifetime = 0f)
+        {
+            VfxSystem system = Instance;
+            if (system == null || string.IsNullOrEmpty(id) || !system._impactEmitters.ContainsKey(id)) return false;
+            if (!system.IsVisible(position)) return true;
+            count = Mathf.Max(1, count);
+            for (int i = 0; i < count; i++)
+                EmitSprite(id, position, Vector3.zero, color, size, startAngle + angleStep * i, lifetime);
+            return true;
         }
 
         /// <summary>¿Se ve este punto? (con margen). Crea el sistema si hace falta.</summary>

@@ -223,7 +223,14 @@ namespace FakeBlade.Core
             if (level > _lastChargeLevel)
             {
                 float ringSize = AuraRadius * ((atMax ? 4.2f : 2.6f) + 0.3f * level);
-                VfxSystem.EmitParticle(VfxType.ChargeRing, ground, Vector3.zero, color, ringSize);
+                // Medias lunas (CircleImpact04Anillo) en el suelo, giradas entre sí; si falta el sprite, el anillo plano de antes
+                Color ringColor = lib.chargeRingLighten > 0f ? Color.Lerp(color, Color.white, lib.chargeRingLighten) : color;
+                ringColor.a = lib.chargeRingAlpha;
+                float startAngle = lib.chargeRingRandomAngle ? Random.Range(0f, 360f) : lib.chargeRingAngle;
+                Vector3 ringPos = new Vector3(center.x, tip.y + lib.chargeRingHeight, center.z);
+                if (!VfxSystem.EmitSpriteRing(lib.chargeRingSprite, ringPos, ringColor, ringSize * lib.chargeRingSizeScale,
+                        lib.chargeRingCount, startAngle, lib.chargeRingAngleStep, lib.chargeRingLifetime))
+                    VfxSystem.EmitParticle(VfxType.ChargeRing, ground, Vector3.zero, color, ringSize);
                 if (atMax) VfxSystem.Play(VfxType.Sparkle, center, Vector3.up, lib.chargeHotColor);
                 _lastChargeLevel = level;
             }

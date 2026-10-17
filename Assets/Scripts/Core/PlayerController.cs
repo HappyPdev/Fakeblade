@@ -322,6 +322,7 @@ namespace FakeBlade.Core
                 _stats.EquippedTip, _stats.EquippedBody, _stats.EquippedBlade, _stats.EquippedCore);
             _paint = null; // hay renderers nuevos
             ApplyPlayerColor();
+            _blade.OnModelRebuilt(); // el material de los efectos sobre la peonza, en las piezas nuevas
         }
 
         /// <summary>El núcleo brilla con el color de su poder según la carga de la esfera.</summary>

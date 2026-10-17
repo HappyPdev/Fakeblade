@@ -36,6 +36,8 @@ namespace FakeBlade.Core.Editor
             public float Life;
             /// <summary>Siempre derecho (sin giro al azar) y tapado por lo que tenga delante (partículas que deja la peonza).</summary>
             public bool Upright, DepthTested;
+            /// <summary>Tumbado en el suelo (anillo de la carga).</summary>
+            public bool Flat;
         }
 
         // Orden: sombras y fondos 0, capas sutiles 1, impacto principal 2, capas por delante del principal 3
@@ -50,6 +52,9 @@ namespace FakeBlade.Core.Editor
             // Bloqueo: cruz rápida con un círculo detrás (2026-10-17)
             new DefaultSprite { Id = "CrossShoot", Texture = "CrossShoot", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.22f, Order = 2 },
             new DefaultSprite { Id = "CircleImpact04", Texture = "CircleImpact04", TilesX = 3, TilesY = 3, FirstFrame = 1, Frames = 8, Life = 0.3f, Order = 0 },
+            // La misma media luna desde su segundo dibujo (el primero es un punto), tumbada en el suelo: anillo al subir de nivel
+            // de carga (2 copias, la segunda girada 180°)
+            new DefaultSprite { Id = "CircleImpact04Anillo", Texture = "CircleImpact04", TilesX = 3, TilesY = 3, FirstFrame = 2, Frames = 7, Life = 0.35f, Order = 0, Flat = true, DepthTested = true },
             // Parry: anillos que se abren detrás, con el color de quien para
             new DefaultSprite { Id = "CircleImpact02", Texture = "CircleImpact02", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.34f, Order = 0 },
             new DefaultSprite { Id = "Impact05", Texture = "impact_1.1.0/Impact05", TilesX = 3, TilesY = 3, Frames = 8, Life = 0.34f, Order = 2 },
@@ -90,7 +95,7 @@ namespace FakeBlade.Core.Editor
                 library.impactSprites.Add(new ImpactSprite
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
-                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested
+                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat
                 });
                 added++;
             }
@@ -297,7 +302,7 @@ namespace FakeBlade.Core.Editor
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
-            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            renderer.renderMode = s.flat ? ParticleSystemRenderMode.HorizontalBillboard : ParticleSystemRenderMode.Billboard;
             renderer.maxParticleSize = 1f;
             renderer.sortingOrder = s.order;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

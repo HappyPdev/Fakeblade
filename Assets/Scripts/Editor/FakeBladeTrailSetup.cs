@@ -15,6 +15,7 @@ namespace FakeBlade.Core.Editor
     ///   Assets/VFX/Textures/Trails, con filtro de punto. La hoja original no se toca.
     /// - Cuencos de la punta en el acelerón de ataques y dash (VfxLibrary.burstTip): malla ImpactPlane y material
     ///   VFX_BurstTip con ImpactShotValo2, si no tienen.
+    /// - Material de los efectos sobre la peonza (VfxLibrary.bladeOverlay): VFX_BladeOverlay (shader FakeBlade/BladeOverlay).
     ///   Lo demás del rastro lo ajusta el usuario en el Inspector de la biblioteca (se lee en vivo, también en Play).
     /// Lo llama también *Setup VFX*.
     /// </summary>
@@ -38,6 +39,8 @@ namespace FakeBlade.Core.Editor
         private const string TipTexturePath = WallcoeurFolder + "03_Texture/ImpactShotValo2.png";
         private const string TipMaterialPath = "Assets/VFX/Materials/VFX_BurstTip.mat";
         private const string TipShaderName = "FakeBlade/FlipbookUnlit";
+        private const string OverlayMaterialPath = "Assets/VFX/Materials/VFX_BladeOverlay.mat";
+        private const string OverlayShaderName = "FakeBlade/BladeOverlay";
         private const string ShaderName = "FakeBlade/RibbonTrail";
         private const string LibraryPath = "Assets/Resources/VfxLibrary.asset";
 
@@ -81,7 +84,7 @@ namespace FakeBlade.Core.Editor
                 library.genericTrail.frames = 1;
             }
 
-            string tip = SetupBurstTip(library);
+            string tip = SetupBurstTip(library) + "; " + SetupBladeOverlay(library);
             EditorUtility.SetDirty(library);
             AssetDatabase.SaveAssets();
             return "rastro genérico: " + AssetDatabase.GetAssetPath(library.genericTrail.material) +
@@ -112,6 +115,21 @@ namespace FakeBlade.Core.Editor
             if (library.burstTip.mesh == null) library.burstTip.mesh = mesh;
             if (library.burstTip.material == null) library.burstTip.material = material;
             return "punta: " + TipMaterialPath;
+        }
+
+        /// <summary>Material de los efectos sobre la peonza (borde brillante y destello; BladeOverlay).</summary>
+        private static string SetupBladeOverlay(VfxLibrary library)
+        {
+            Shader shader = Shader.Find(OverlayShaderName);
+            if (shader == null) return "peonza: falta el shader " + OverlayShaderName;
+            Material material = GetMaterial(OverlayMaterialPath, shader);
+            EditorUtility.SetDirty(material);
+            library.bladeOverlay ??= new BladeOverlayStyle();
+            if (library.bladeOverlay.material == null) library.bladeOverlay.material = material;
+            // Anillos de pinchos (carga, ataque rápido y golpe recibido): Zbam, con transparencia propia
+            if (library.bladeOverlay.ringTexture == null)
+                library.bladeOverlay.ringTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(WallcoeurFolder + "03_Texture/Zbam.png");
+            return "peonza: " + OverlayMaterialPath + (library.bladeOverlay.ringTexture == null ? " (sin textura Zbam)" : "");
         }
 
         private static Material GetMaterial(string path, Shader shader)

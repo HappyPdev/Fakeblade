@@ -66,12 +66,55 @@ namespace FakeBlade.Core
         [Tooltip("Lo tapa lo que tenga delante (capa VFX). Si no, siempre por encima (capa VFXTop, como los impactos). " +
                  "Para las partículas que deja la peonza")]
         public bool depthTested;
+        [Tooltip("Tumbado en el suelo (mira hacia arriba) en vez de mirar a la cámara. Mejor con Depth Tested")]
+        public bool flat;
         [Tooltip("Gravedad de las partículas (1 = la normal; negativo = suben). Solo para las que salen con velocidad")]
         public float gravity;
         [Tooltip("Frenado de las partículas (0 = nada, 1 = se paran casi enseguida)")]
         [Range(0f, 1f)] public float drag;
         [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
         public ParticleSystem prefab;
+    }
+
+    /// <summary>
+    /// Ráfaga de partículas animadas en cada impacto (2026-10-17): el mismo sprite que las del cono de la punta
+    /// (ImpatcValo8), en cono hacia arriba desde el punto del choque. Más partículas cuanto más daño. Color del daño en
+    /// golpes y cargados; el de quien para en parry y bloqueo. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class ImpactParticleStyle
+    {
+        [Tooltip("Id del sprite (lista Impact Sprites). Vacío = sin partículas en los impactos")]
+        public string sprite = "Valo8";
+        [Tooltip("Partículas de un golpe con el daño mínimo (x) y con impactMaxDamage o más (y)")]
+        public Vector2 hitCount = new Vector2(3f, 10f);
+        [Tooltip("Multiplica las partículas de un golpe cargado")]
+        [Min(0f)] public float chargedScale = 1.5f;
+        [Tooltip("Partículas de un parry")]
+        [Min(0)] public int parryCount = 8;
+        [Tooltip("Partículas de un bloqueo")]
+        [Min(0)] public int blockCount = 6;
+        [Tooltip("Apertura del cono alrededor de su eje (grados). El eje sale hacia fuera de la peonza golpeada (o de " +
+                 "quien para), por el lado del choque, levantado Elevation grados")]
+        [Range(0f, 90f)] public float coneAngle = 35f;
+        [Tooltip("Cuánto sube el eje del cono sobre el suelo (grados; 90 = vertical)")]
+        [Range(0f, 90f)] public float elevation = 25f;
+        [Tooltip("Velocidad de salida (m/s), entre x e y")]
+        public Vector2 speed = new Vector2(2f, 6f);
+        [Tooltip("Tamaño (m), entre x e y; los golpes con más daño, hacia y")]
+        public Vector2 size = new Vector2(0.3f, 0.7f);
+        [Tooltip("Duración (s), entre x e y (0 = la del sprite)")]
+        public Vector2 lifetime = Vector2.zero;
+        [Tooltip("Giro del dibujo (grados), entre x e y (0 = derecho)")]
+        public Vector2 rotation = Vector2.zero;
+        [Tooltip("Distancia al punto del choque a la que salen (m)")]
+        [Min(0f)] public float spawnRadius = 0.2f;
+        [Tooltip("Altura de salida sobre el suelo (m)")]
+        public float height = 0.1f;
+        [Tooltip("Aclara el color hacia el blanco")]
+        [Range(0f, 1f)] public float lighten;
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float alpha = 1f;
     }
 
     /// <summary>Una capa de un impacto: qué sprite, a qué tamaño (sobre el del impacto) y de qué color.</summary>
@@ -209,6 +252,108 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float particleAlpha = 0.9f;
     }
 
+    /// <summary>Un destello sobre la peonza por un evento (golpe recibido, parry, bloqueo...): sube de golpe y se apaga.</summary>
+    [Serializable]
+    public class OverlayFlash
+    {
+        public bool enabled = true;
+        [Tooltip("Con el color del jugador de esta peonza (en el parry y el bloqueo, el de quien para). Si no, el de abajo")]
+        public bool playerColor;
+        public Color color = Color.white;
+        [Tooltip("Cuánto tiñe toda la peonza al empezar (0-1)")]
+        [Range(0f, 1f)] public float flash = 0.6f;
+        [Tooltip("Intensidad del borde brillante al empezar (más de 1 = más grueso y brillante)")]
+        [Min(0f)] public float rim = 2f;
+        [Tooltip("Lo que tarda en apagarse (s)")]
+        [Min(0.01f)] public float duration = 0.2f;
+    }
+
+    /// <summary>
+    /// Efectos sobre la propia peonza (2026-10-17, GDD 7.6, K9): un material de superposición (shader
+    /// FakeBlade/BladeOverlay) encima de cada pieza, con un borde de corte duro y un contorno grueso (tipo cómic), un
+    /// destello que tiñe toda la peonza y anillos con textura (Zbam) proyectados desde arriba. Cada evento tiene su
+    /// preset: cargar un ataque (borde que crece con el nivel y late, anillos que salen del núcleo), ataque rápido
+    /// (un anillo), golpe recibido (destello y anillo del color del daño desde el punto del choque), parry y bloqueo.
+    /// Lo aplica BladeOverlay; el material lo crea *Setup Rastros*. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class BladeOverlayStyle
+    {
+        [Tooltip("Material de superposición (shader FakeBlade/BladeOverlay). Lo crea Setup Rastros")]
+        public Material material;
+        [Header("Aspecto (tipo cómic)")]
+        [Tooltip("Ancho del borde brillante: cuánto entra desde la silueta hacia dentro (0-1)")]
+        [Range(0f, 1f)] public float rimWidth = 0.45f;
+        [Tooltip("Suavizado del borde (poco = corte duro, tipo cómic)")]
+        [Range(0.001f, 0.5f)] public float rimSoftness = 0.04f;
+        [Tooltip("Grosor del contorno alrededor de la silueta (m), con el color del borde mientras hay borde")]
+        [Min(0f)] public float outlineWidth = 0.05f;
+        [Tooltip("Transparencia del contorno cuando el borde está al máximo (0 = sin contorno)")]
+        [Range(0f, 1f)] public float outlineAlpha = 0.9f;
+
+        [Header("Anillos con textura (Zbam: anillo de pinchos, proyectado desde arriba)")]
+        [Tooltip("Textura de los anillos (su transparencia da la forma). La pone Setup Rastros (Zbam de Wallcoeur)")]
+        public Texture2D ringTexture;
+        [Tooltip("Copia más grande y oscura detrás de cada anillo, para que se lea sobre cualquier color (alfa 0 = sin sombra)")]
+        public Color ringShadowColor = new Color(0f, 0f, 0f, 0.7f);
+        [Tooltip("Tamaño de esa sombra respecto al anillo")]
+        [Min(1f)] public float ringShadowScale = 1.12f;
+        [Tooltip("Mientras se carga: un anillo que crece desde el núcleo hasta fuera de la peonza, una y otra vez")]
+        public bool chargeRingEnabled = true;
+        [Tooltip("Tamaño del anillo al empezar (x) y al acabar (y), respecto al radio de la peonza")]
+        public Vector2 chargeRingScale = new Vector2(0.15f, 1.4f);
+        [Tooltip("Lo que tarda cada anillo en crecer (s); más corto en los niveles altos (Charge Ring Cycle Max)")]
+        [Min(0.05f)] public float chargeRingCycle = 0.6f;
+        [Tooltip("Lo que tarda en el nivel de carga máximo (s)")]
+        [Min(0.05f)] public float chargeRingCycleMax = 0.35f;
+        [Tooltip("Transparencia del anillo de la carga")]
+        [Range(0f, 1f)] public float chargeRingAlpha = 0.9f;
+        [Tooltip("Giro del anillo (grados/s)")]
+        public float chargeRingSpin = 90f;
+        [Tooltip("Al lanzar un ataque rápido: un anillo igual que el de la carga, una vez")]
+        public bool quickRingEnabled = true;
+        [Tooltip("Lo que tarda el anillo del ataque rápido (s)")]
+        [Min(0.05f)] public float quickRingDuration = 0.3f;
+        [Tooltip("Al recibir un golpe: un anillo que se abre desde el punto del choque y recorre la peonza hasta la parte " +
+                 "de atrás, con el color del daño (blanco → amarillo → rojizo, como los impactos)")]
+        public bool impactRingEnabled = true;
+        [Tooltip("Tamaño del anillo del golpe al empezar (x) y al acabar (y), respecto al radio de la peonza")]
+        public Vector2 impactRingScale = new Vector2(0.2f, 2.4f);
+        [Tooltip("Lo que tarda el anillo del golpe en recorrer la peonza (s)")]
+        [Min(0.05f)] public float impactRingDuration = 0.35f;
+        [Tooltip("Transparencia del anillo del golpe")]
+        [Range(0f, 1f)] public float impactRingAlpha = 1f;
+        [Tooltip("Aclara el color del daño del anillo del golpe hacia el blanco")]
+        [Range(0f, 1f)] public float impactRingLighten;
+
+        [Header("Cargar un ataque (mientras se carga)")]
+        public bool chargeEnabled = true;
+        [Tooltip("Empieza con el color del jugador y va hacia Charge Hot Color con el nivel. Si no, empieza con Charge " +
+                 "Color (el del jugador apenas se ve sobre su propia peonza)")]
+        public bool chargePlayerColor;
+        public Color chargeColor = new Color(1f, 0.8f, 0.3f);
+        [Tooltip("Color en el nivel de carga máximo")]
+        public Color chargeHotColor = new Color(1f, 0.95f, 0.75f);
+        [Tooltip("Intensidad del borde en el nivel 1 (x) y en el máximo (y)")]
+        public Vector2 chargeRim = new Vector2(1f, 3f);
+        [Tooltip("Latidos por segundo del borde mientras se carga")]
+        [Min(0f)] public float chargePulseSpeed = 4f;
+        [Tooltip("Cuánto baja el borde en cada latido (0 = no late)")]
+        [Range(0f, 1f)] public float chargePulseAmount = 0.4f;
+        [Tooltip("Destello al subir de nivel de carga")]
+        public OverlayFlash chargeLevelUp = new OverlayFlash { color = Color.white, flash = 0.4f, rim = 3f, duration = 0.15f };
+
+        [Header("Eventos")]
+        [Tooltip("Al recibir daño de otra peonza (más fuerte cuanto más daño, hasta Damage For Full)")]
+        public OverlayFlash damaged = new OverlayFlash { color = Color.white, flash = 0.8f, rim = 2f, duration = 0.18f };
+        [Tooltip("Daño con el que el destello del golpe recibido sale entero (con menos, más suave)")]
+        [Min(1f)] public float damageForFull = 30f;
+        [Tooltip("Quien hace el parry")]
+        public OverlayFlash parry = new OverlayFlash { color = Color.white, flash = 0.6f, rim = 4f, duration = 0.35f };
+        [Tooltip("Quien bloquea")]
+        public OverlayFlash block = new OverlayFlash { color = new Color(0.75f, 0.9f, 1f), flash = 0.45f, rim = 3f, duration = 0.3f };
+    }
+
     /// <summary>Un cuenco del efecto de la punta (BurstTipStyle.cups).</summary>
     [Serializable]
     public class BurstTipCup
@@ -288,6 +433,9 @@ namespace FakeBlade.Core
         public List<ImpactLayer> parryLayers = new List<ImpactLayer>();
         public List<ImpactLayer> blockLayers = new List<ImpactLayer>();
 
+        [Header("Partículas animadas en cada impacto (cono hacia arriba)")]
+        public ImpactParticleStyle impactParticles = new ImpactParticleStyle();
+
         public ImpactSprite GetImpactSprite(string id)
         {
             for (int i = 0; i < impactSprites.Count; i++)
@@ -324,11 +472,36 @@ namespace FakeBlade.Core
         public float chargeGatherRate = 30f;
         [Tooltip("Llamas/s mientras la carga está al máximo")]
         public float chargeFlameRate = 26f;
+        [Header("Anillo al subir de nivel de carga (medias lunas en el suelo)")]
+        [Tooltip("Sprite de la lista Impact Sprites (CircleImpact04Anillo: la media luna de CircleImpact04 sin su primer " +
+                 "dibujo, un punto; tumbada en el suelo, Flat). Vacío = el anillo pixelado plano de antes")]
+        public string chargeRingSprite = "CircleImpact04Anillo";
+        [Tooltip("Copias del sprite (2 = una media luna y otra girada Charge Ring Angle Step grados: cierran el círculo)")]
+        [Range(1, 8)] public int chargeRingCount = 2;
+        [Tooltip("Giro de cada copia respecto a la anterior (grados)")]
+        public float chargeRingAngleStep = 180f;
+        [Tooltip("Gira todo el anillo al azar en cada nivel. Si no, empieza siempre en Charge Ring Angle")]
+        public bool chargeRingRandomAngle = true;
+        [Tooltip("Giro de la primera copia si no es al azar (grados)")]
+        public float chargeRingAngle;
+        [Tooltip("Tamaño del anillo respecto al anillo pixelado de antes (crece con el nivel y es mayor en el máximo). La media luna solo ocupa parte de su casilla: 1,6 la deja algo mayor que el de antes")]
+        [Min(0f)] public float chargeRingSizeScale = 1.6f;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float chargeRingHeight = 0.05f;
+        [Tooltip("Duración (s); 0 = la del sprite")]
+        [Min(0f)] public float chargeRingLifetime;
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float chargeRingAlpha = 1f;
+        [Tooltip("Aclara el color (el de la carga: del jugador hacia Charge Hot Color) hacia el blanco")]
+        [Range(0f, 1f)] public float chargeRingLighten;
 
         [Header("Rastro (cinta pegada a la peonza, K7)")]
         public RibbonTrailStyle genericTrail = new RibbonTrailStyle();
         [Tooltip("Efecto en la punta durante el acelerón de ataques y dash")]
         public BurstTipStyle burstTip = new BurstTipStyle();
+
+        [Header("Efectos sobre la peonza (borde brillante y destello)")]
+        public BladeOverlayStyle bladeOverlay = new BladeOverlayStyle();
 
         [Header("Estela (partículas)")]
         [Tooltip("Metros recorridos entre dos partículas de la estela (0,12 hasta K7; ahora la cinta es el rastro principal)")]

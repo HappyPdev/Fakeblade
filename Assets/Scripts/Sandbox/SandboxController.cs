@@ -283,7 +283,11 @@ namespace FakeBlade.Core
             var (kind, damage) = SandboxSettings.ImpactPreviews[preview];
             // Al lado de la peonza, para ver el impacto y la peonza a la vez
             // El parry y el bloqueo, con el color de la peonza del jugador (como si parase él)
-            VfxSystem.PlayImpact(kind, player.Blade.Position + Vector3.right * 1.2f, damage, player.PlayerColor, Vector3.right);
+            Vector3 point = player.Blade.Position + Vector3.right * 1.2f;
+            VfxSystem.PlayImpact(kind, point, damage, player.PlayerColor, Vector3.right);
+            // Con el Fuego activo o quemada, también su círculo de partículas (como en los choques)
+            if (kind == VfxSystem.ImpactKind.Hit || kind == VfxSystem.ImpactKind.Charged)
+                BladeSpecialFx.PlayClashImpact(player.Blade, point);
         }
         #endregion
         #endregion

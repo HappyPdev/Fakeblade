@@ -124,6 +124,9 @@ namespace FakeBlade.Core
                     // Las partículas salen hacia fuera de la que recibe más daño, por el lado del choque
                     FakeBladeController victim = r.DamageToA >= r.DamageToB ? r.A : r.B;
                     PlayImpact(charged ? ImpactKind.Charged : ImpactKind.Hit, point, damage, Color.white, point - victim.Position);
+                    // Fuego activo o peonza quemada (K8): su círculo de partículas, además del impacto genérico
+                    BladeSpecialFx.PlayClashImpact(r.A, point);
+                    BladeSpecialFx.PlayClashImpact(r.B, point);
                     break;
                 }
             }

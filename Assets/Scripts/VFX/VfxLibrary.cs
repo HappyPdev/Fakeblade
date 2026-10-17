@@ -360,6 +360,13 @@ namespace FakeBlade.Core
         public List<SpiralParticleStyle> windup = new List<SpiralParticleStyle>();
         [Tooltip("Al encenderse (al acabar la carga, o al activarlo si no tiene): explosión de partículas en espiral")]
         public List<SpiralParticleStyle> activationBurst = new List<SpiralParticleStyle>();
+        [Tooltip("Después de la carga, el remolino sigue mientras dura el poder con esta parte de su ritmo (0 = se " +
+                 "apaga; 0,25 = la cuarta parte): parece que el poder se escapa en partículas")]
+        [Range(0f, 1f)] public float windupSustain = 0.25f;
+        [Header("Al chocar (además del impacto genérico)")]
+        [Tooltip("En cada choque con daño mientras dura el poder: un círculo de partículas iguales alrededor del choque " +
+                 "(sin velocidad de giro, salen rectas hacia fuera). Usa Count, no Rate")]
+        public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
     }
 
     /// <summary>
@@ -388,9 +395,9 @@ namespace FakeBlade.Core
 
     /// <summary>
     /// Partículas en espiral alrededor de la peonza (K8, 2026-10-17): salen en un anillo y se mueven girando (velocidad
-    /// tangencial), hacia fuera o hacia dentro y hacia arriba. Un remolino mientras dura la carga del principio (ritmo) o
-    /// una explosión en espiral al encenderse (cantidad). Con un emisor de píxel de VfxSystem o un sprite animado de la
-    /// lista Impact Sprites. Escaladas con Opciones → Partículas.
+    /// tangencial), hacia fuera o hacia dentro y hacia arriba. Un remolino mientras dura la carga del principio (ritmo; y
+    /// más flojo mientras dura el poder), una explosión en espiral al encenderse o un círculo al chocar (cantidad). Con un
+    /// emisor de píxel de VfxSystem o un sprite animado de la lista Impact Sprites. Escaladas con Opciones → Partículas.
     /// </summary>
     [Serializable]
     public class SpiralParticleStyle
@@ -403,7 +410,7 @@ namespace FakeBlade.Core
         public string sprite;
         [Tooltip("Remolino: partículas por segundo mientras dura la carga")]
         [Min(0f)] public float rate = 100f;
-        [Tooltip("Explosión: partículas de golpe al encenderse (repartidas alrededor)")]
+        [Tooltip("Explosión al encenderse o choque: partículas de golpe (repartidas alrededor)")]
         [Min(0)] public int count = 40;
         [Tooltip("Distancia al centro a la que salen (m), al azar entre x e y")]
         public Vector2 radius = new Vector2(0.4f, 0.6f);
@@ -511,9 +518,15 @@ namespace FakeBlade.Core
         public SpecialOverlayStyle overlay = new SpecialOverlayStyle { baseRim = 0.4f, pulseRim = new Vector2(0.8f, 2f), pulseFlash = new Vector2(0f, 0.15f) };
         [Header("Partículas (sustituyen a las llamitas de antes si hay alguna)")]
         public List<SpecialParticleStyle> particles = new List<SpecialParticleStyle>();
+        [Tooltip("Remolino mientras dura la quemadura (como el del Fuego, con menos densidad y radio). Usa Rate, no Count")]
+        public List<SpiralParticleStyle> swirl = new List<SpiralParticleStyle>();
         [Header("Auras de paquetes (opcionales)")]
         [Tooltip("Auras de partículas (Aura Burn, Aura Smoke...) pegadas a la peonza mientras está quemada")]
         public List<AuraStyle> auras = new List<AuraStyle>();
+        [Header("Al chocar (además del impacto genérico)")]
+        [Tooltip("En cada choque con daño de la peonza quemada: un círculo de partículas, más pequeño que el del Fuego " +
+                 "activo (no sale si la peonza tiene el Fuego activo: ya sale el suyo). Usa Count, no Rate")]
+        public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
     }
 
     /// <summary>Un destello sobre la peonza por un evento (golpe recibido, parry, bloqueo...): sube de golpe y se apaga.</summary>

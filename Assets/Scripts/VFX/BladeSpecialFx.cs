@@ -7,9 +7,11 @@ namespace FakeBlade.Core
     /// Partículas, manchas y auras de los especiales y de la quemadura (K8, GDD 7.6), con los emisores compartidos de
     /// VfxSystem:
     /// - Especial (VfxLibrary.specialEffects[...]): mientras dura la carga del principio, partículas en remolino; al
-    ///   encenderse, una explosión en espiral; después, su lista de partículas (en el Fuego, chispas que crepitan y ceniza
-    ///   que sube), las manchas en el suelo por donde pasa (quemado) y sus auras de paquetes (Aura Smoke).
-    /// - Peonza quemada (VfxLibrary.burn): sus partículas (humo, chispas y ceniza) y sus auras (Aura Burn y Aura Smoke).
+    ///   encenderse, una explosión en espiral; después, el remolino más flojo, su lista de partículas (en el Fuego, chispas
+    ///   que crepitan y ceniza que sube), las manchas en el suelo por donde pasa (quemado), sus auras de paquetes (Aura
+    ///   Smoke) y un círculo de partículas en cada choque (PlayClashImpact, desde VfxSystem).
+    /// - Peonza quemada (VfxLibrary.burn): sus partículas (humo, chispas y ceniza), sus auras (Aura Burn y Aura Smoke) y
+    ///   un círculo más pequeño al chocar.
     /// Lo demás lo pintan BladeBurstTip (punta) y BladeOverlay (sobre la peonza).
     ///
     /// Clase C# pura que posee FakeBladeController. Emite partículas de pools que ya existen y la copia de cada aura se crea
@@ -42,6 +44,7 @@ namespace FakeBlade.Core
         private readonly float[] _burnAcc = new float[MaxStyles];
         private readonly float[] _burnBurst = new float[MaxStyles];
         private readonly float[] _windupAcc = new float[MaxStyles];
+        private readonly float[] _burnSwirlAcc = new float[MaxStyles];
         private readonly AuraSlot[] _specialAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _burnAuras = new AuraSlot[MaxAuras];
         private bool _effectsWereOn;
@@ -73,7 +76,9 @@ namespace FakeBlade.Core
 
             bool active = specialActive && special != null;
             bool effectsOn = active && !windingUp;
-            EmitSpirals(active && windingUp && visible ? special.windup : null, tip, dt);
+            // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
+            float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
+            EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt);
             if (effectsOn && !_effectsWereOn && visible) Burst(special.activationBurst, tip);
             _effectsWereOn = effectsOn;
             Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt);
@@ -83,6 +88,7 @@ namespace FakeBlade.Core
             BurnEffectStyle burn = lib != null ? lib.burn : null;
             bool burning = IsBurning(_blade);
             Emit(burning && visible ? burn.particles : null, _burnAcc, _burnBurst, tip, dt);
+            EmitSpirals(burning && visible ? burn.swirl : null, _burnSwirlAcc, 1f, tip, dt);
             UpdateAuras(burn != null ? burn.auras : null, _burnAuras, burning, tipOffset, dt);
         }
 
@@ -97,7 +103,7 @@ namespace FakeBlade.Core
         public void Clear()
         {
             for (int i = 0; i < MaxStyles; i++)
-                _specialAcc[i] = _specialBurst[i] = _burnAcc[i] = _burnBurst[i] = _windupAcc[i] = 0f;
+                _specialAcc[i] = _specialBurst[i] = _burnAcc[i] = _burnBurst[i] = _windupAcc[i] = _burnSwirlAcc[i] = 0f;
             _hasLastPosition = false;
             _effectsWereOn = false;
             _scorchDistance = _scorchIdle = 0f;
@@ -169,27 +175,52 @@ namespace FakeBlade.Core
             slot.Instance.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
-        /// <summary>Remolino mientras dura la carga: cada estilo a su ritmo.</summary>
-        private void EmitSpirals(List<SpiralParticleStyle> styles, Vector3 tip, float dt)
+        /// <summary>
+        /// Remolino: cada estilo a su ritmo, por rateScale (1 en la carga; menos mientras dura el poder). acc: acumulado
+        /// del ritmo de cada estilo (uno por remolino: especial y quemadura).
+        /// </summary>
+        private static void EmitSpirals(List<SpiralParticleStyle> styles, float[] acc, float rateScale, Vector3 tip, float dt)
         {
             int count = styles != null ? Mathf.Min(styles.Count, MaxStyles) : 0;
-            float mul = SettingsService.ParticleMultiplier;
+            float mul = SettingsService.ParticleMultiplier * rateScale;
             for (int i = 0; i < MaxStyles; i++)
             {
                 SpiralParticleStyle style = i < count ? styles[i] : null;
                 if (style == null)
                 {
-                    _windupAcc[i] = 0f;
+                    acc[i] = 0f;
                     continue;
                 }
-                _windupAcc[i] += dt * style.rate * mul;
-                int n = Mathf.Min((int)_windupAcc[i], MaxParticlesPerFrame);
-                _windupAcc[i] -= (int)_windupAcc[i];
+                acc[i] += dt * style.rate * mul;
+                int n = Mathf.Min((int)acc[i], MaxParticlesPerFrame);
+                acc[i] -= (int)acc[i];
                 for (int k = 0; k < n; k++) EmitSpiral(style, tip, Random.value * Mathf.PI * 2f);
             }
         }
 
-        /// <summary>Explosión en espiral al encenderse: cada estilo con su cantidad, repartida alrededor.</summary>
+        /// <summary>
+        /// Choque con daño (K8, 2026-10-17): si la peonza tiene encendido un especial con efectos de choque, su círculo de
+        /// partículas (Fuego: llamas, chispas y ceniza); si no, y está quemada, el de la quemadura (más pequeño). Se suma
+        /// al impacto genérico. groundPoint: el punto del choque a ras de suelo.
+        /// </summary>
+        public static void PlayClashImpact(FakeBladeController blade, Vector3 groundPoint)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || blade == null || blade.IsDestroyed || !VfxSystem.IsOnScreen(groundPoint)) return;
+            SpecialAbilitySystem special = blade.Special;
+            if (special != null && special.IsActive && !special.IsWindingUp)
+            {
+                SpecialVfxStyle style = lib.GetSpecialEffects(special.Type);
+                if (style != null && style.impact != null && style.impact.Count > 0)
+                {
+                    Burst(style.impact, groundPoint);
+                    return;
+                }
+            }
+            if (IsBurning(blade)) Burst(lib.burn.impact, groundPoint);
+        }
+
+        /// <summary>Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor.</summary>
         private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip)
         {
             if (styles == null) return;

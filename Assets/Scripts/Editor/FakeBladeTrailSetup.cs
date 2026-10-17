@@ -205,6 +205,9 @@ namespace FakeBlade.Core.Editor
             if (fire.windup.Count == 0) fire.windup.AddRange(FireWindup());
             fire.activationBurst ??= new List<SpiralParticleStyle>();
             if (fire.activationBurst.Count == 0) fire.activationBurst.AddRange(FireActivationBurst());
+            // Círculo de llamas, chispas y ceniza en cada choque (2026-10-17)
+            fire.impact ??= new List<SpiralParticleStyle>();
+            if (fire.impact.Count == 0) fire.impact.AddRange(FireImpact());
             fire.auras ??= new List<AuraStyle>();
             ParticleSystem smoke = AuraPrefab(AuraSmokePrefabPath);
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
@@ -243,6 +246,10 @@ namespace FakeBlade.Core.Editor
 
             burn.particles ??= new List<SpecialParticleStyle>();
             if (burn.particles.Find(p => p != null && p.name == "Humo") == null) burn.particles.Add(BurnSmoke());
+            burn.impact ??= new List<SpiralParticleStyle>();
+            if (burn.impact.Count == 0) burn.impact.AddRange(BurnImpact());
+            burn.swirl ??= new List<SpiralParticleStyle>();
+            if (burn.swirl.Count == 0) burn.swirl.AddRange(BurnSwirl());
 
             // Aura Burn más rápida y girando (2026-10-17) y Aura Smoke
             burn.auras ??= new List<AuraStyle>();
@@ -285,20 +292,92 @@ namespace FakeBlade.Core.Editor
             }
         };
 
+        /// <summary>
+        /// Explosión al encenderse, compacta alrededor de la peonza (2026-10-17: antes salían muy lejos; las partículas van
+        /// en línea recta, así que la velocidad de giro también las aleja).
+        /// </summary>
         private static SpiralParticleStyle[] FireActivationBurst() => new[]
         {
             new SpiralParticleStyle
             {
                 name = "Explosión de llamas", emitter = VfxType.ChargeFlame, count = 50, radius = new Vector2(0.3f, 0.5f),
-                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(6f, 8f), outwardSpeed = new Vector2(2.5f, 4f),
-                upSpeed = new Vector2(0.8f, 1.6f), size = new Vector2(0.22f, 0.36f), lifetime = new Vector2(0.35f, 0.6f)
+                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(2.5f, 3.5f), outwardSpeed = new Vector2(0.8f, 1.5f),
+                upSpeed = new Vector2(0.6f, 1.2f), size = new Vector2(0.22f, 0.36f), lifetime = new Vector2(0.22f, 0.35f)
             },
             new SpiralParticleStyle
             {
                 name = "Explosión de chispas", emitter = VfxType.LowSpinSpark, count = 35, radius = new Vector2(0.3f, 0.5f),
-                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(6f, 9f), outwardSpeed = new Vector2(3.5f, 6f),
-                upSpeed = new Vector2(1.5f, 3f), size = new Vector2(0.08f, 0.14f), lifetime = new Vector2(0.4f, 0.8f),
+                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(3f, 4.5f), outwardSpeed = new Vector2(1.2f, 2.2f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.08f, 0.14f), lifetime = new Vector2(0.25f, 0.45f),
                 color = new Color(1f, 0.95f, 0.6f), color2 = new Color(1f, 0.6f, 0.15f)
+            }
+        };
+
+        /// <summary>
+        /// Choque con el Fuego activo (2026-10-17): un círculo de llamas que salen rectas a ras de suelo, chispas grandes que
+        /// saltan y caen y ceniza que sube y flota, más exageradas que las del aura.
+        /// </summary>
+        private static SpiralParticleStyle[] FireImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Aro de llamas", emitter = VfxType.ChargeFlame, count = 18, radius = new Vector2(0.15f, 0.25f),
+                height = new Vector2(0.05f, 0.15f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(4f, 5f),
+                upSpeed = new Vector2(0.3f, 0.8f), size = new Vector2(0.28f, 0.4f), lifetime = new Vector2(0.25f, 0.35f)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas", emitter = VfxType.LowSpinSpark, count = 24, radius = new Vector2(0.1f, 0.2f),
+                height = new Vector2(0.1f, 0.3f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(4f, 7f),
+                upSpeed = new Vector2(3f, 6f), size = new Vector2(0.1f, 0.18f), lifetime = new Vector2(0.5f, 0.9f),
+                color = new Color(1f, 0.95f, 0.6f), color2 = new Color(1f, 0.5f, 0.1f)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Ceniza", emitter = VfxType.SpecialAura, count = 16, radius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.2f, 0.4f), tangentialSpeed = new Vector2(0.3f, 0.6f), outwardSpeed = new Vector2(1.2f, 2.4f),
+                upSpeed = new Vector2(0.8f, 1.6f), size = new Vector2(0.1f, 0.18f), lifetime = new Vector2(1.2f, 2f),
+                color = new Color(0.25f, 0.23f, 0.22f), color2 = new Color(0.55f, 0.52f, 0.5f), alpha = 0.85f
+            }
+        };
+
+        /// <summary>
+        /// Remolino de la peonza quemada mientras dura la quemadura (2026-10-17): el de la carga del Fuego con menos
+        /// densidad (hacia la cuarta parte) y más cerca de la peonza.
+        /// </summary>
+        private static SpiralParticleStyle[] BurnSwirl() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Remolino de llamas", emitter = VfxType.ChargeFlame, rate = 35f, radius = new Vector2(0.45f, 0.7f),
+                height = new Vector2(0f, 0.15f), tangentialSpeed = new Vector2(4f, 6f), outwardSpeed = new Vector2(-2f, -1.2f),
+                upSpeed = new Vector2(1.5f, 3f), size = new Vector2(0.12f, 0.2f), lifetime = new Vector2(0.25f, 0.4f)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Remolino de chispas", emitter = VfxType.LowSpinSpark, rate = 15f, radius = new Vector2(0.35f, 0.6f),
+                height = new Vector2(0f, 0.2f), tangentialSpeed = new Vector2(4.5f, 6.5f), outwardSpeed = new Vector2(-1.2f, -0.6f),
+                upSpeed = new Vector2(2f, 3.5f), size = new Vector2(0.07f, 0.1f), lifetime = new Vector2(0.3f, 0.5f),
+                color = new Color(1f, 0.95f, 0.6f), color2 = new Color(1f, 0.6f, 0.15f)
+            }
+        };
+
+        /// <summary>Choque de una peonza quemada: como el del Fuego, más pequeño y sin el aro de llamas.</summary>
+        private static SpiralParticleStyle[] BurnImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Chispas", emitter = VfxType.LowSpinSpark, count = 10, radius = new Vector2(0.1f, 0.2f),
+                height = new Vector2(0.1f, 0.25f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 5f),
+                upSpeed = new Vector2(2f, 4f), size = new Vector2(0.07f, 0.12f), lifetime = new Vector2(0.4f, 0.7f),
+                color = new Color(1f, 0.95f, 0.6f), color2 = new Color(1f, 0.5f, 0.1f)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Ceniza", emitter = VfxType.SpecialAura, count = 6, radius = new Vector2(0.2f, 0.3f),
+                height = new Vector2(0.2f, 0.35f), tangentialSpeed = new Vector2(0.2f, 0.4f), outwardSpeed = new Vector2(1f, 2f),
+                upSpeed = new Vector2(0.6f, 1.2f), size = new Vector2(0.07f, 0.12f), lifetime = new Vector2(1f, 1.6f),
+                color = new Color(0.25f, 0.23f, 0.22f), color2 = new Color(0.55f, 0.52f, 0.5f), alpha = 0.85f
             }
         };
 

@@ -19,6 +19,9 @@ namespace FakeBlade.Core
         private readonly FakeBladeComponentData[] _data = new FakeBladeComponentData[Slots];
         private readonly float[] _angles = new float[Slots];
 
+        /// <summary>Multiplica el giro del disco (congelada: más lento, K8). Lo pone FakeBladeController cada frame.</summary>
+        public float DiscSpin { get; set; } = 1f;
+
         private void Awake()
         {
             // En partida, la peonza la recoge para moverla (en la selección la recoge la vista previa)
@@ -44,6 +47,7 @@ namespace FakeBlade.Core
                 Transform part = _parts[i];
                 if (part == null) continue;
                 float multiplier = cfg.SlotVisualSpin((ComponentSlot)i) * (_data[i] != null ? _data[i].VisualSpinMultiplier : 1f);
+                if (i == (int)ComponentSlot.Blade) multiplier *= DiscSpin;
                 // Lo que gira de más o de menos respecto a la peonza
                 _angles[i] = (_angles[i] + degreesPerSecond * (multiplier - 1f) * dt) % 360f;
                 part.localRotation = Quaternion.AngleAxis(_angles[i], Vector3.up) * _baseRotations[i];

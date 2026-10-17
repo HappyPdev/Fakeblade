@@ -74,6 +74,11 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float drag;
         [Tooltip("Parte final de la vida en la que se desvanece (0 = de golpe; 0,6 = el último 60%). Para las manchas")]
         [Range(0f, 1f)] public float fadeOut;
+        [Tooltip("Parte del principio de la vida en la que aparece poco a poco (0 = de golpe). Para el vaho")]
+        [Range(0f, 1f)] public float fadeIn;
+        [Tooltip("Giro de cada partícula (grados/s; negativo = hacia el otro lado), que se frena hasta la quinta parte al " +
+                 "final de su vida, como por inercia (0 = no gira). Para el vaho")]
+        public float spin;
         [Tooltip("Cuántas puede haber a la vez (entre todas las peonzas)")]
         [Min(1)] public int maxParticles = 128;
         [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
@@ -259,11 +264,16 @@ namespace FakeBlade.Core
 
         [Header("Sprite animado en el suelo, debajo de la punta (sin material = no sale)")]
         public TipGroundSprite ground = new TipGroundSprite();
+        [Tooltip("Más sprites en el suelo, encima del de arriba (Hielo: aro que late y medias lunas que giran; K8). " +
+                 "Como mucho 16 dibujos entre todos, contando las copias")]
+        public List<TipGroundSprite> groundLayers = new List<TipGroundSprite>();
     }
 
     /// <summary>
-    /// Sprite animado tumbado en el suelo debajo de la punta (BurstTipStyle.ground; K8, 2026-10-17): una hoja de
-    /// fotogramas que se repite en bucle y gira. Sale y se apaga con los cuencos.
+    /// Sprite animado tumbado en el suelo debajo de la punta (BurstTipStyle.ground y groundLayers; K8, 2026-10-17): una
+    /// hoja de fotogramas que se repite en bucle y gira. Puede salir varias veces, cada copia girada respecto a la
+    /// anterior (4 copias = una cada 90°), y latir (crece y brilla a golpes, como un corazón). Sale y se apaga con los
+    /// cuencos.
     /// </summary>
     [Serializable]
     public class TipGroundSprite
@@ -289,6 +299,15 @@ namespace FakeBlade.Core
         public Color color = Color.white;
         [Tooltip("Transparencia")]
         [Range(0f, 1f)] public float alpha = 1f;
+        [Header("Copias y latido")]
+        [Tooltip("Copias del sprite, cada una girada 360/copias grados respecto a la anterior (4 = una cada 90°)")]
+        [Min(1)] public int copies = 1;
+        [Tooltip("Latidos por segundo (0 = no late). Cada latido son dos golpes seguidos, como un corazón")]
+        [Min(0f)] public float pulseRate;
+        [Tooltip("Cuánto crece en cada golpe (0,2 = un 20% más grande)")]
+        [Min(0f)] public float pulseScale = 0.2f;
+        [Tooltip("Cuánto brilla en cada golpe: fuera de los golpes, la transparencia baja hasta (1 − esto)")]
+        [Range(0f, 1f)] public float pulseAlpha = 0.4f;
     }
 
     /// <summary>
@@ -308,6 +327,8 @@ namespace FakeBlade.Core
         [Header("Impulsos del borde")]
         [Tooltip("Intensidad del borde entre impulsos (0 = solo los impulsos)")]
         [Min(0f)] public float baseRim = 0.6f;
+        [Tooltip("Cuánto tiñe toda la peonza siempre, sin impulsos (0-1; la escarcha quieta de la congelada)")]
+        [Range(0f, 1f)] public float baseFlash;
         [Tooltip("Intensidad que suma cada impulso, al azar entre x e y")]
         public Vector2 pulseRim = new Vector2(1f, 2.5f);
         [Tooltip("Cuánto tiñe cada impulso toda la peonza, al azar entre x e y (0-1)")]
@@ -363,6 +384,9 @@ namespace FakeBlade.Core
         [Tooltip("Después de la carga, el remolino sigue mientras dura el poder con esta parte de su ritmo (0 = se " +
                  "apaga; 0,25 = la cuarta parte): parece que el poder se escapa en partículas")]
         [Range(0f, 1f)] public float windupSustain = 0.25f;
+        [Tooltip("Otro remolino propio mientras dura el poder, además del de la carga (Hielo: vaho a ras de suelo que gira " +
+                 "y se queda posado). Usa Rate, no Count")]
+        public List<SpiralParticleStyle> swirl = new List<SpiralParticleStyle>();
         [Header("Al chocar (además del impacto genérico)")]
         [Tooltip("En cada choque con daño mientras dura el poder: un círculo de partículas iguales alrededor del choque " +
                  "(sin velocidad de giro, salen rectas hacia fuera). Usa Count, no Rate")]
@@ -448,6 +472,8 @@ namespace FakeBlade.Core
         [Tooltip("Emisor (LowSpinSpark: chispa que cae con gravedad; SpecialAura: píxel que sube despacio; " +
                  "LowSpinSmoke: bocanada de humo)")]
         public VfxType emitter = VfxType.LowSpinSpark;
+        [Tooltip("Sprite de la lista Impact Sprites en vez del emisor (vacío = el emisor; Vaho: nube del Hielo)")]
+        public string sprite;
         [Tooltip("Partículas por segundo, seguidas")]
         [Min(0f)] public float rate = 10f;
         [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
@@ -502,31 +528,36 @@ namespace FakeBlade.Core
     }
 
     /// <summary>
-    /// Peonza quemada (estado Quemadura, K8, 2026-10-17): como la que quema, pero más simple. En la punta, un aro de fuego
-    /// en el suelo (BurstTipStyle, como el del Fuego activo, con otro sprite y sin cuencos); impulsos naranjas del borde;
-    /// humo, chispas y ceniza; y, si se quiere, auras de partículas de un paquete (Aura Burn y Aura Smoke de Status and
-    /// Auras FREE), que se crean una vez por peonza y se encienden mientras dura. Lo aplican BladeBurstTip, BladeOverlay
-    /// y BladeSpecialFx. Se lee en vivo.
+    /// Efectos de una peonza con un estado alterado (K8, 2026-10-17; GDD 7.6): uno para la quemada (burn) y otro para la
+    /// congelada (frozen). Como la que tiene el poder, pero más simple. En la punta, un aro en el suelo (BurstTipStyle,
+    /// como el del especial activo, con otro sprite y sin cuencos); el borde (impulsos naranjas en la quemada; escarcha
+    /// quieta en la congelada); sus partículas y su remolino; si se quiere, auras de partículas de un paquete (Aura Burn y
+    /// Aura Smoke de Status and Auras FREE), que se crean una vez por peonza y se encienden mientras dura; un círculo de
+    /// partículas al chocar; y el giro visual del disco. Lo aplican BladeBurstTip, BladeOverlay, BladeSpecialFx y
+    /// BladePartSpin. Se lee en vivo.
     /// </summary>
     [Serializable]
-    public class BurnEffectStyle
+    public class StatusVfxStyle
     {
         public bool enabled = true;
-        [Tooltip("Punta: aro de fuego en el suelo (Ground), cuencos y partículas en cono, mientras dura la quemadura")]
+        [Tooltip("Punta: aro en el suelo (Ground), cuencos y partículas en cono, mientras dura el estado")]
         public BurstTipStyle tip = new BurstTipStyle();
         [Header("Borde")]
         public SpecialOverlayStyle overlay = new SpecialOverlayStyle { baseRim = 0.4f, pulseRim = new Vector2(0.8f, 2f), pulseFlash = new Vector2(0f, 0.15f) };
-        [Header("Partículas (sustituyen a las llamitas de antes si hay alguna)")]
+        [Header("Partículas (sustituyen a las de antes del estado si hay alguna)")]
         public List<SpecialParticleStyle> particles = new List<SpecialParticleStyle>();
-        [Tooltip("Remolino mientras dura la quemadura (como el del Fuego, con menos densidad y radio). Usa Rate, no Count")]
+        [Tooltip("Remolino mientras dura el estado (como el del especial, con menos densidad y radio). Usa Rate, no Count")]
         public List<SpiralParticleStyle> swirl = new List<SpiralParticleStyle>();
         [Header("Auras de paquetes (opcionales)")]
-        [Tooltip("Auras de partículas (Aura Burn, Aura Smoke...) pegadas a la peonza mientras está quemada")]
+        [Tooltip("Auras de partículas (Aura Burn, Aura Smoke...) pegadas a la peonza mientras dura el estado")]
         public List<AuraStyle> auras = new List<AuraStyle>();
         [Header("Al chocar (además del impacto genérico)")]
-        [Tooltip("En cada choque con daño de la peonza quemada: un círculo de partículas, más pequeño que el del Fuego " +
-                 "activo (no sale si la peonza tiene el Fuego activo: ya sale el suyo). Usa Count, no Rate")]
+        [Tooltip("En cada choque con daño de la peonza con el estado: un círculo de partículas, más pequeño que el del " +
+                 "especial activo (no sale si la peonza tiene un especial con su propio círculo). Usa Count, no Rate")]
         public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
+        [Header("Giro")]
+        [Tooltip("Giro visual del disco mientras dura (1 = normal; 0,5 = la mitad, como rígido por el hielo). Solo se ve")]
+        [Range(0f, 1f)] public float discSpin = 1f;
     }
 
     /// <summary>Un destello sobre la peonza por un evento (golpe recibido, parry, bloqueo...): sube de golpe y se apaga.</summary>
@@ -782,8 +813,10 @@ namespace FakeBlade.Core
 
         [Header("Efectos de cada especial mientras está activo (K8/K9)")]
         public List<SpecialVfxStyle> specialEffects = new List<SpecialVfxStyle>();
-        [Tooltip("Peonza quemada: fuego alrededor de la silueta, borde naranja y chispas y ceniza")]
-        public BurnEffectStyle burn = new BurnEffectStyle();
+        [Tooltip("Peonza quemada: aro de fuego en el suelo, borde naranja, humo, chispas y ceniza y auras")]
+        public StatusVfxStyle burn = new StatusVfxStyle();
+        [Tooltip("Peonza congelada: aro de hielo en el suelo, escarcha quieta sobre la peonza, vaho, cristales y disco más lento")]
+        public StatusVfxStyle frozen = new StatusVfxStyle();
 
         /// <summary>Efectos del especial, o null si no tiene (sigue con su aura de partículas).</summary>
         public SpecialVfxStyle GetSpecialEffects(SpecialAbilityType type)
@@ -791,6 +824,15 @@ namespace FakeBlade.Core
             for (int i = 0; i < specialEffects.Count; i++)
                 if (specialEffects[i] != null && specialEffects[i].type == type) return specialEffects[i];
             return null;
+        }
+
+        /// <summary>Efectos del estado (quemada o congelada), o null si no tiene o están apagados.</summary>
+        public StatusVfxStyle GetStatusEffects(StatusEffectType status)
+        {
+            StatusVfxStyle style = status == StatusEffectType.Burning ? burn
+                : status == StatusEffectType.Frozen ? frozen
+                : null;
+            return style != null && style.enabled ? style : null;
         }
 
         [Header("Estela (partículas)")]

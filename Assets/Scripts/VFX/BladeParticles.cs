@@ -699,9 +699,11 @@ namespace FakeBlade.Core
             else _wetAcc = 0f;
 
             StatusEffectType status = _blade.Status.Current;
-            // La quemadura con partículas propias (chispas y ceniza) las emite BladeSpecialFx (K8)
-            bool burnFx = status == StatusEffectType.Burning && lib.burn != null && lib.burn.enabled && lib.burn.particles.Count > 0;
-            if (status == StatusEffectType.None || burnFx)
+            // La quemadura y la congelación con partículas propias (chispas y ceniza; vaho y cristales) las emite
+            // BladeSpecialFx (K8)
+            StatusVfxStyle statusFx = lib.GetStatusEffects(status);
+            bool ownFx = statusFx != null && (statusFx.particles.Count > 0 || statusFx.swirl.Count > 0);
+            if (status == StatusEffectType.None || ownFx)
             {
                 _statusAcc = 0f;
                 return;

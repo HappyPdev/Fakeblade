@@ -209,6 +209,8 @@ namespace FakeBlade.Core
         public int MinAttackLevel => _isActive ? _ability.MinAttackLevel : 0;
         /// <summary>Velocidad de recarga de las cargas de ataque.</summary>
         public float AttackRechargeMultiplier => _isActive ? _ability.AttackRechargeMultiplier : 1f;
+        /// <summary>El agua del suelo no la moja (Hielo activo).</summary>
+        public bool ImmuneToWet => _isActive && _ability.ImmuneToWet;
         public float DashCooldownMultiplier => _isActive ? _ability.DashCooldownMultiplier : 1f;
         public float DashImpulseMultiplier => _isActive ? _ability.DashImpulseMultiplier : 1f;
         /// <summary>Multiplicador del coste en RPM del dash.</summary>

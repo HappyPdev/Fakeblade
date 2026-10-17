@@ -172,6 +172,8 @@ namespace FakeBlade.Core
         public virtual bool IsWindingUp => false;
         /// <summary>Sus choques no admiten parry ni bloqueo (Embestida, mientras embiste).</summary>
         public virtual bool PreventsParry => false;
+        /// <summary>El agua del suelo no la moja mientras está activo (Hielo).</summary>
+        public virtual bool ImmuneToWet => false;
         #endregion
     }
 

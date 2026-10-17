@@ -15,7 +15,8 @@ namespace FakeBlade.Core
     /// - Parry y bloqueo (en quien para): destello.
     /// - Especial activo con efectos propios (K8/K9, VfxLibrary.specialEffects[...].overlay): impulsos del borde a ritmo
     ///   irregular, del color del poder, y un sprite animado (hoja de fotogramas) proyectado desde arriba.
-    /// - Quemada (K8, VfxLibrary.burn): impulsos naranjas del borde (el fuego y el humo, en BladeSpecialFx).
+    /// - Quemada (K8, VfxLibrary.burn): impulsos naranjas del borde (el fuego y el humo, en BladeSpecialFx). Congelada
+    ///   (VfxLibrary.frozen): borde y tinte cian quietos, como escarcha.
     ///
     /// Clase C# pura que posee FakeBladeController. El material se añade al montar el modelo (Rebind, también al cambiar
     /// de piezas); después, cada frame solo cambia valores con un MaterialPropertyBlock en el material añadido: cero GC.
@@ -77,9 +78,10 @@ namespace FakeBlade.Core
             public float Fade, Wait, Age, Strength, Heat, FxTime, FxAngle;
         }
 
-        // Especial activo y quemadura (K8/K9)
+        // Especial activo y estado (quemada o congelada; K8/K9)
         private readonly PulseState _specialPulse = new PulseState();
-        private readonly PulseState _burnPulse = new PulseState();
+        private readonly PulseState _statusPulse = new PulseState();
+        private SpecialOverlayStyle _lastStatusOverlay;
 
         public BladeOverlay(FakeBladeController blade)
         {
@@ -176,10 +178,11 @@ namespace FakeBlade.Core
             Pulses(_specialPulse, special, specialOn, dt, center, ref rim, ref rimColor, ref flash, ref flashColor,
                 ref fx, ref fxSheet, ref fxColor, ref fxTexture);
 
-            // Quemadura: impulsos naranjas del borde
-            BurnEffectStyle burn = VfxSystem.Library.burn;
-            bool burning = burn != null && burn.enabled && !_blade.IsDestroyed && _blade.Status.Current == StatusEffectType.Burning;
-            Pulses(_burnPulse, burn != null ? burn.overlay : null, burning, dt, center, ref rim, ref rimColor, ref flash,
+            // Estado: impulsos naranjas del borde (quemada) o escarcha quieta (congelada). El último sigue mandando
+            // mientras se apaga
+            StatusVfxStyle status = BladeSpecialFx.StatusStyle(_blade);
+            if (status != null) _lastStatusOverlay = status.overlay;
+            Pulses(_statusPulse, _lastStatusOverlay, status != null, dt, center, ref rim, ref rimColor, ref flash,
                 ref flashColor, ref fx, ref fxSheet, ref fxColor, ref fxTexture);
             _ringAngle += dt * style.chargeRingSpin * Mathf.Deg2Rad;
 
@@ -283,7 +286,8 @@ namespace FakeBlade.Core
                 rim = pulseRim;
                 rimColor = color;
             }
-            float pulseFlash = Mathf.Lerp(style.pulseFlash.x, style.pulseFlash.y, state.Strength) * k * state.Fade;
+            // Tinte de siempre (escarcha quieta) más el de cada impulso
+            float pulseFlash = (style.baseFlash + Mathf.Lerp(style.pulseFlash.x, style.pulseFlash.y, state.Strength) * k) * state.Fade;
             if (pulseFlash > flash)
             {
                 flash = pulseFlash;
@@ -316,7 +320,7 @@ namespace FakeBlade.Core
         {
             _eventTimer = _quickRingTimer = _impactRingTimer = 0f;
             _lastChargeLevel = 0;
-            _specialPulse.Fade = _burnPulse.Fade = 0f;
+            _specialPulse.Fade = _statusPulse.Fade = 0f;
             if (!_shown) return;
             _shown = false;
             _block.SetFloat(RimIntensityId, 0f);

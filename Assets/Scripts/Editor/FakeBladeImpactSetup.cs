@@ -42,7 +42,9 @@ namespace FakeBlade.Core.Editor
             public string CodeManu;
             /// <summary>Textura generada aquí en vez de una del pack (Quemado: mancha difusa).</summary>
             public bool GeneratedScorch;
-            public float FadeOut;
+            /// <summary>Textura generada: nube de vaho con jirones (Hielo).</summary>
+            public bool GeneratedMist;
+            public float FadeIn, FadeOut, Gravity, Drag, Spin;
             public int Max;
         }
 
@@ -82,6 +84,10 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "Llama11", CodeManu = "11_fire_spritesheet", TilesX = 8, TilesY = 8, Frames = 61, Life = 0.6f, Order = 1, Upright = true, DepthTested = true },
             // Mancha difusa de quemado en el suelo (textura generada, blanca para teñirla): rastro del Fuego (K8, 2026-10-17)
             new DefaultSprite { Id = "Quemado", GeneratedScorch = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 4f, Order = -1, Upright = true, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 600 },
+            // Vaho del Hielo (K8, 2026-10-17; textura generada, blanca para teñirla): nube que cae y se arrastra, y la misma
+            // tumbada a ras de suelo, que gira y se frena como por la inercia de la peonza y se queda posada unos instantes
+            new DefaultSprite { Id = "Vaho", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.6f, Order = 0, Upright = true, DepthTested = true, FadeIn = 0.25f, FadeOut = 0.6f, Gravity = 0.03f, Drag = 0.3f, Spin = 25f, Max = 256 },
+            new DefaultSprite { Id = "VahoSuelo", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 2f, Order = -1, Upright = true, DepthTested = true, Flat = true, FadeIn = 0.2f, FadeOut = 0.6f, Drag = 0.45f, Spin = 40f, Max = 256 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -106,7 +112,8 @@ namespace FakeBlade.Core.Editor
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
                     frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat,
-                    fadeOut = d.FadeOut, maxParticles = d.Max > 0 ? d.Max : 128
+                    fadeOut = d.FadeOut, fadeIn = d.FadeIn, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
+                    maxParticles = d.Max > 0 ? d.Max : 128
                 });
                 added++;
             }
@@ -197,6 +204,7 @@ namespace FakeBlade.Core.Editor
         {
             if (!string.IsNullOrEmpty(d.CodeManu)) return FakeBladeTrailSetup.CodeManuSheet(d.CodeManu);
             if (d.GeneratedScorch) return ScorchTexture();
+            if (d.GeneratedMist) return MistTexture();
             string source = PackFolder + d.Texture + ".png";
             if (d.Convert == Convert.None) return AssetDatabase.LoadAssetAtPath<Texture2D>(source);
 
@@ -257,6 +265,66 @@ namespace FakeBlade.Core.Editor
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.SaveAndReimport();
             return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        /// <summary>
+        /// Nube de vaho (Hielo, K8, 2026-10-17): blanca (se tiñe al usarla), con la forma redondeada de una nube que se
+        /// apaga hacia fuera, bordes deshilachados y jirones por dentro (tres capas de ruido), en 6 niveles de
+        /// transparencia y 64 × 64 con filtro de punto (pixel art con más detalle que el humo de 10 × 10). Siempre la
+        /// misma (semilla fija); el giro y el tamaño de cada partícula la hacen variar.
+        /// </summary>
+        private static Texture2D MistTexture()
+        {
+            string target = ConvertedFolder + "/Vaho.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null) return existing;
+
+            const int size = 64;
+            var random = new System.Random(31);
+            float[,] coarse = RandomLattice(random, 5), medium = RandomLattice(random, 9), fine = RandomLattice(random, 17);
+
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float d = Mathf.Sqrt((u - 0.5f) * (u - 0.5f) + (v - 0.5f) * (v - 0.5f)) * 2f; // 0 en el centro, 1 en el borde
+                float shapeNoise = Lattice(coarse, u * 4f, v * 4f) * 0.6f + Lattice(medium, u * 8f, v * 8f) * 0.4f;
+                // Forma: nube redonda con el borde deshilachado
+                float shape = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.15f, 0.95f, d + (shapeNoise - 0.5f) * 0.7f));
+                // Jirones: zonas más densas y huecos por dentro
+                float wisps = Lattice(medium, u * 8f + 3.1f, v * 8f + 1.7f) * 0.55f + Lattice(fine, u * 16f, v * 16f) * 0.45f;
+                float a = shape * Mathf.Lerp(0.3f, 1f, Mathf.SmoothStep(0.25f, 0.75f, wisps));
+                a = Mathf.Round(Mathf.Clamp01(a) * 6f) / 6f; // 6 niveles: pixel art
+                pixels[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
+
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.SetPixels32(pixels);
+            FakeBladeAssetsMenu.EnsureFolder(ConvertedFolder);
+            File.WriteAllBytes(target, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(target);
+
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        /// <summary>Rejilla de (cells + 1) × (cells + 1) valores al azar para Lattice.</summary>
+        private static float[,] RandomLattice(System.Random random, int points)
+        {
+            var values = new float[points, points];
+            for (int y = 0; y < points; y++)
+            for (int x = 0; x < points; x++)
+                values[x, y] = (float)random.NextDouble();
+            return values;
         }
 
         /// <summary>Ruido de valor: interpolación suave entre los puntos de una rejilla de valores al azar.</summary>
@@ -364,16 +432,28 @@ namespace FakeBlade.Core.Editor
             limit.limit = 1000f;
             limit.drag = s.drag * 10f;
 
-            // Desvanecido al final de la vida (manchas)
+            // Aparece poco a poco al principio (vaho) y se desvanece al final de la vida (manchas, vaho)
             var fade = ps.colorOverLifetime;
-            fade.enabled = s.fadeOut > 0f;
+            fade.enabled = s.fadeOut > 0f || s.fadeIn > 0f;
             if (fade.enabled)
             {
+                float fadeIn = Mathf.Clamp(s.fadeIn, 0f, 0.95f);
+                float fadeOutStart = Mathf.Max(fadeIn + 0.01f, 1f - s.fadeOut);
                 var gradient = new Gradient();
                 gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-                    new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f - s.fadeOut), new GradientAlphaKey(0f, 1f) });
+                    new[]
+                    {
+                        new GradientAlphaKey(fadeIn > 0f ? 0f : 1f, 0f), new GradientAlphaKey(1f, Mathf.Max(0.001f, fadeIn)),
+                        new GradientAlphaKey(1f, Mathf.Min(0.999f, fadeOutStart)), new GradientAlphaKey(s.fadeOut > 0f ? 0f : 1f, 1f)
+                    });
                 fade.color = gradient;
             }
+
+            // Giro que se frena hasta la quinta parte al final de la vida, como por inercia (vaho)
+            var rotation = ps.rotationOverLifetime;
+            rotation.enabled = s.spin != 0f;
+            if (rotation.enabled)
+                rotation.z = new ParticleSystem.MinMaxCurve(s.spin * Mathf.Deg2Rad, AnimationCurve.EaseInOut(0f, 1f, 1f, 0.2f));
 
             // La hoja entera, una vez, de principio a fin de la vida de la partícula
             var sheet = ps.textureSheetAnimation;

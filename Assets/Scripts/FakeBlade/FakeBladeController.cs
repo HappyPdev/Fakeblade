@@ -688,7 +688,7 @@ namespace FakeBlade.Core
         /// </summary>
         public bool TryWet(FakeBladeController source, float gripMultiplier, float duration)
         {
-            if (!CanReceiveStatus) return false;
+            if (!CanReceiveStatus || _special.ImmuneToWet) return false;
             if (_status.Wet(gripMultiplier, StatusDuration(source, duration)))
                 OnStatusEffectChanged?.Invoke(StatusEffectType.None); // ha apagado la quemadura
             return true;
@@ -697,6 +697,16 @@ namespace FakeBlade.Core
         /// <summary>Duración de un estado con los rasgos de quien lo provoca y de quien lo sufre (H8).</summary>
         private float StatusDuration(FakeBladeController source, float duration) =>
             duration * (source != null ? source.Trait(PartTraitType.StatusDurationDealt) : 1f) * Trait(PartTraitType.StatusDurationTaken);
+
+        /// <summary>Apaga la quemadura, si la tiene (Hielo al activarlo). Los demás estados siguen.</summary>
+        public void ClearBurning()
+        {
+            if (_status.Current == StatusEffectType.Burning && _status.Clear())
+                OnStatusEffectChanged?.Invoke(StatusEffectType.None);
+        }
+
+        /// <summary>Se seca, si estaba mojada (Hielo al activarlo).</summary>
+        public void Dry() => _status.ClearWet();
 
         public void ClearStatus()
         {
@@ -1444,8 +1454,13 @@ namespace FakeBlade.Core
             float visualSpeed = _maxSpin * cfg.visualSpinDegreesPerRpm * cfg.EvaluateVisualSpin(SpinSpeedPercentage);
             _spinAngle = (_spinAngle + visualSpeed * dt) % 360f;
             visualRoot.localRotation = Quaternion.Euler(0f, _spinAngle, 0f);
-            // Cada pieza a su velocidad (O1)
-            if (PartSpin != null) PartSpin.Tick(visualSpeed, dt);
+            // Cada pieza a su velocidad (O1); el disco, más lento con el estado que lo pida (congelada, K8), sin saltos
+            if (PartSpin != null)
+            {
+                StatusVfxStyle statusVfx = BladeSpecialFx.StatusStyle(this);
+                PartSpin.DiscSpin = Mathf.MoveTowards(PartSpin.DiscSpin, statusVfx != null ? statusVfx.discSpin : 1f, dt * 3f);
+                PartSpin.Tick(visualSpeed, dt);
+            }
 
             // Inclinación: solo el TiltPivot, según la velocidad horizontal
             Vector3 velocity = _rb.linearVelocity;
@@ -1487,7 +1502,9 @@ namespace FakeBlade.Core
                 _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
                 SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
                 _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
-                _burnTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burn?.tip : null, BladeSpecialFx.IsBurning(this));
+                // Aro del estado (quemada o congelada; los estados van de uno en uno)
+                StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
+                _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
             }
             _overlay?.Tick(dt);

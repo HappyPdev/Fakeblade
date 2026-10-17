@@ -22,14 +22,35 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _FxTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RingTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _FlashAmount: 0
+    - _OutlineWidth: 0.04
     - _RimIntensity: 0
     - _RimPower: 2.5
+    - _RimSoftness: 0.04
+    - _RimWidth: 0.45
+    - _RingShadowScale: 1.12
     m_Colors:
     - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Fx: {r: 0, g: 0, b: 0, a: 0}
+    - _FxColor: {r: 1, g: 1, b: 1, a: 0}
+    - _FxSheet: {r: 1, g: 1, b: 0, a: 0}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RingA: {r: 0, g: 0, b: 0, a: 0}
+    - _RingAColor: {r: 1, g: 1, b: 1, a: 0}
+    - _RingB: {r: 0, g: 0, b: 0, a: 0}
+    - _RingBColor: {r: 1, g: 1, b: 1, a: 0}
+    - _RingShadowColor: {r: 0, g: 0, b: 0, a: 0.7}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

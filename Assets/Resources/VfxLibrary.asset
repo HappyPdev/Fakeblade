@@ -106,6 +106,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
   - id: Impact01Sombra
@@ -122,6 +124,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
   - id: Impact10
@@ -138,6 +142,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
   - id: Impact10Sombra
@@ -154,6 +160,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
   - id: Impact05
@@ -170,6 +178,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
   - id: Impact06
@@ -186,6 +196,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
   - id: Impact04
@@ -202,6 +214,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
   - id: Impact07
@@ -218,6 +232,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
   - id: Impact08
@@ -234,6 +250,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
   - id: ShotValo
@@ -250,6 +268,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
   - id: ShotValo2
@@ -266,6 +286,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
   - id: Valo5Blanco
@@ -282,6 +304,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
   - id: MuzzleNeo
@@ -298,6 +322,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
   - id: Impact10Encima
@@ -314,6 +340,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
   - id: CrossShoot
@@ -330,6 +358,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
   - id: CircleImpact04
@@ -346,6 +376,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
   - id: CircleImpact02
@@ -362,6 +394,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
   - id: Valo4
@@ -378,6 +412,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
   - id: Valo8
@@ -394,6 +430,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
   - id: CircleImpact04Anillo
@@ -410,6 +448,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 5119328486904876569, guid: db6d52e7c83aa9e439949306f155a9a5, type: 3}
   - id: Llama11
@@ -426,6 +466,8 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0
+    fadeIn: 0
+    spin: 0
     maxParticles: 128
     prefab: {fileID: 6229379388671274524, guid: 5dc318de35c7208438c601f039695dd9, type: 3}
   - id: Quemado
@@ -442,8 +484,46 @@ MonoBehaviour:
     gravity: 0
     drag: 0
     fadeOut: 0.6
+    fadeIn: 0
+    spin: 0
     maxParticles: 600
     prefab: {fileID: 4374145376275296882, guid: e75a8ab61b50422478912f0ef3c1f2b3, type: 3}
+  - id: Vaho
+    texture: {fileID: 2800000, guid: 75441233fbfeabd4db5c4b7dbb83f6dd, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.6
+    randomRotation: 0
+    order: 0
+    depthTested: 1
+    flat: 0
+    gravity: 0.03
+    drag: 0.3
+    fadeOut: 0.6
+    fadeIn: 0.25
+    spin: 25
+    maxParticles: 256
+    prefab: {fileID: 6004662944321763171, guid: 873b56b4e480cd64092b140d427fe900, type: 3}
+  - id: VahoSuelo
+    texture: {fileID: 2800000, guid: 75441233fbfeabd4db5c4b7dbb83f6dd, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 2
+    randomRotation: 0
+    order: -1
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0.45
+    fadeOut: 0.6
+    fadeIn: 0.2
+    spin: 40
+    maxParticles: 256
+    prefab: {fileID: 7798411352100960854, guid: a503c0f82a7a68341a6ef2e31d30c3f1, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -654,6 +734,11 @@ MonoBehaviour:
       playerColor: 0
       color: {r: 1, g: 1, b: 1, a: 1}
       alpha: 1
+      copies: 1
+      pulseRate: 0
+      pulseScale: 0.2
+      pulseAlpha: 0.4
+    groundLayers: []
   bladeOverlay:
     material: {fileID: 2100000, guid: 258f9be97bcf472468477f2086a508ca, type: 2}
     rimWidth: 0.45
@@ -774,12 +859,18 @@ MonoBehaviour:
         playerColor: 0
         color: {r: 1, g: 1, b: 1, a: 1}
         alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
     overlay:
       enabled: 1
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
       hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
       baseRim: 0.6
+      baseFlash: 0
       pulseRim: {x: 1, y: 2.5}
       pulseFlash: {x: 0, y: 0.25}
       pulseInterval: {x: 0.12, y: 0.35}
@@ -796,6 +887,7 @@ MonoBehaviour:
     particles:
     - name: Chispas
       emitter: 19
+      sprite: 
       rate: 10
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
@@ -811,6 +903,7 @@ MonoBehaviour:
       alpha: 1
     - name: Ceniza
       emitter: 6
+      sprite: 
       rate: 8
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -907,6 +1000,7 @@ MonoBehaviour:
       color2: {r: 1, g: 0.6, b: 0.15, a: 1}
       alpha: 1
     windupSustain: 0.25
+    swirl: []
     impact:
     - name: Aro de llamas
       emitter: 15
@@ -956,6 +1050,284 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+  - type: 6
+    replaceAura: 1
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 20376228956c24a4f8f7bbaebf8ed67a, type: 2}
+      tilesX: 6
+      tilesY: 2
+      firstFrame: 0
+      frames: 24
+      cycle: 0.6
+      size: 1.5
+      scale: {x: 1, y: 0.5}
+      height: 0.03
+      alpha: 0.7
+      lighten: 0.02
+      fade: {x: 0.1, y: 0.25}
+      cups:
+      - angle: 0
+        spinSpeed: 160
+        scale: {x: 1, y: 1}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+      - angle: 120
+        spinSpeed: 200
+        scale: {x: 1.1, y: 1.1}
+        playerColor: 0
+        color: {r: 0.2396226, g: 0.580644, b: 1, a: 0.9}
+      - angle: 125
+        spinSpeed: 360
+        scale: {x: 1.2, y: 1.2}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 0.8}
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.35
+      baseFlash: 0
+      pulseRim: {x: 1.5, y: 3}
+      pulseFlash: {x: 0.05, y: 0.25}
+      pulseInterval: {x: 0.25, y: 0.8}
+      pulseDecay: 0.08
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Cristales
+      emitter: 20
+      sprite: 
+      rate: 14
+      burstInterval: {x: 0.3, y: 0.9}
+      burstCount: {x: 2, y: 4}
+      spawnRadius: {x: 0.3, y: 0.8}
+      height: {x: 0.05, y: 0.5}
+      coneAngle: 60
+      speed: {x: 0.1, y: 0.4}
+      inheritVelocity: 0
+      size: {x: 0.12, y: 0.22}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+    - name: Vaho que cae
+      emitter: 19
+      sprite: Vaho
+      rate: 7
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.5}
+      height: {x: 0.3, y: 0.6}
+      coneAngle: 30
+      speed: {x: 0.2, y: 0.5}
+      inheritVelocity: 0.3
+      size: {x: 0.5, y: 0.9}
+      lifetime: {x: 1.2, y: 1.8}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.45
+    scorch:
+      sprite: Quemado
+      spacing: 0.5
+      idleInterval: 0.6
+      size: {x: 0.9, y: 1.3}
+      lifetime: 3
+      color: {r: 0.75, g: 0.95, b: 1, a: 1}
+      alpha: 0.22
+      height: 0.012
+    auras: []
+    windup:
+    - name: Remolino de cristales
+      emitter: 20
+      sprite: 
+      rate: 120
+      count: 40
+      radius: {x: 0.8, y: 1.2}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 5, y: 8}
+      outwardSpeed: {x: -3, y: -2}
+      upSpeed: {x: 0.5, y: 1.5}
+      clockwise: 1
+      size: {x: 0.14, y: 0.24}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+    - name: Remolino de vaho
+      emitter: 15
+      sprite: Vaho
+      rate: 30
+      count: 40
+      radius: {x: 0.9, y: 1.3}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 3, y: 5}
+      outwardSpeed: {x: -2.5, y: -1.5}
+      upSpeed: {x: 0, y: 0.4}
+      clockwise: 1
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.5
+    activationBurst:
+    - name: Esquirlas
+      emitter: 19
+      sprite: 
+      rate: 100
+      count: 30
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: 1.2, y: 2.2}
+      upSpeed: {x: 1, y: 2}
+      clockwise: 1
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.25, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    - name: Destellos
+      emitter: 20
+      sprite: 
+      rate: 100
+      count: 24
+      radius: {x: 0.4, y: 0.7}
+      height: {x: 0.05, y: 0.4}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: 0.6, y: 1.2}
+      upSpeed: {x: 0.3, y: 0.8}
+      clockwise: 1
+      size: {x: 0.18, y: 0.3}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    - name: Bocanada de vaho
+      emitter: 15
+      sprite: VahoSuelo
+      rate: 100
+      count: 8
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.02, y: 0.05}
+      tangentialSpeed: {x: 1.5, y: 2.5}
+      outwardSpeed: {x: 1, y: 1.8}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 1, y: 1.5}
+      lifetime: {x: 1, y: 1.6}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.5
+    windupSustain: 0.25
+    swirl:
+    - name: Vaho a ras de suelo
+      emitter: 15
+      sprite: VahoSuelo
+      rate: 6
+      count: 40
+      radius: {x: 0.4, y: 0.8}
+      height: {x: 0.02, y: 0.05}
+      tangentialSpeed: {x: 1.2, y: 2}
+      outwardSpeed: {x: 0.2, y: 0.6}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 1, y: 1.6}
+      lifetime: {x: 1.5, y: 2.2}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.35
+    impact:
+    - name: Esquirlas
+      emitter: 19
+      sprite: 
+      rate: 100
+      count: 22
+      radius: {x: 0.1, y: 0.2}
+      height: {x: 0.05, y: 0.15}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 5, y: 8}
+      upSpeed: {x: 0.5, y: 1.5}
+      clockwise: 1
+      size: {x: 0.09, y: 0.16}
+      lifetime: {x: 0.35, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    - name: Destellos
+      emitter: 20
+      sprite: 
+      rate: 100
+      count: 12
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.5, y: 1.5}
+      clockwise: 1
+      size: {x: 0.2, y: 0.32}
+      lifetime: {x: 0.25, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    - name: Bocanada de vaho
+      emitter: 15
+      sprite: Vaho
+      rate: 100
+      count: 8
+      radius: {x: 0.1, y: 0.3}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 0.3, y: 0.6}
+      outwardSpeed: {x: 1.5, y: 2.5}
+      upSpeed: {x: 0.2, y: 0.6}
+      clockwise: 1
+      size: {x: 0.8, y: 1.2}
+      lifetime: {x: 0.8, y: 1.3}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.5
   burn:
     enabled: 1
     tip:
@@ -1002,12 +1374,18 @@ MonoBehaviour:
         playerColor: 0
         color: {r: 1, g: 1, b: 1, a: 1}
         alpha: 0.9
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
     overlay:
       enabled: 1
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
       hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
       baseRim: 0.4
+      baseFlash: 0
       pulseRim: {x: 0.8, y: 2}
       pulseFlash: {x: 0, y: 0.15}
       pulseInterval: {x: 0.12, y: 0.35}
@@ -1024,6 +1402,7 @@ MonoBehaviour:
     particles:
     - name: Chispas
       emitter: 19
+      sprite: 
       rate: 4
       burstInterval: {x: 0.3, y: 0.8}
       burstCount: {x: 2, y: 4}
@@ -1039,6 +1418,7 @@ MonoBehaviour:
       alpha: 1
     - name: Ceniza
       emitter: 6
+      sprite: 
       rate: 6
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -1054,6 +1434,7 @@ MonoBehaviour:
       alpha: 0.85
     - name: Humo
       emitter: 18
+      sprite: 
       rate: 6
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -1146,6 +1527,147 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+    discSpin: 1
+  frozen:
+    enabled: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 18
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 0.5}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.1, y: 0.3}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 1
+        height: 0.02
+        spinSpeed: 180
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.7411765, g: 0.92, b: 1, a: 1}
+      hotColor: {r: 0.3830188, g: 0.75096804, b: 1, a: 1}
+      baseRim: 0.8
+      baseFlash: 0.35
+      pulseRim: {x: 0, y: 0}
+      pulseFlash: {x: 0.5, y: 1}
+      pulseInterval: {x: 0.5, y: 1}
+      pulseDecay: 0.1
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Vaho que cae
+      emitter: 19
+      sprite: Vaho
+      rate: 5
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.5}
+      height: {x: 0.25, y: 0.5}
+      coneAngle: 20
+      speed: {x: 0.1, y: 0.3}
+      inheritVelocity: 0.2
+      size: {x: 0.4, y: 0.7}
+      lifetime: {x: 1, y: 1.5}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.4
+    swirl:
+    - name: Cristales lentos
+      emitter: 20
+      sprite: 
+      rate: 12
+      count: 40
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 1, y: 1.6}
+      outwardSpeed: {x: -0.3, y: 0}
+      upSpeed: {x: 0.1, y: 0.4}
+      clockwise: 1
+      size: {x: 0.1, y: 0.18}
+      lifetime: {x: 0.4, y: 0.7}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+    auras: []
+    impact:
+    - name: Esquirlas
+      emitter: 19
+      sprite: 
+      rate: 100
+      count: 10
+      radius: {x: 0.1, y: 0.2}
+      height: {x: 0.05, y: 0.15}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 0.5, y: 1.2}
+      clockwise: 1
+      size: {x: 0.07, y: 0.12}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    - name: Destellos
+      emitter: 20
+      sprite: 
+      rate: 100
+      count: 5
+      radius: {x: 0.2, y: 0.3}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 0.3, y: 1}
+      clockwise: 1
+      size: {x: 0.16, y: 0.26}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+    discSpin: 0.5
   trailSpacing: 0.45
   trailAlpha: 0.4
   trailSize: 0.1

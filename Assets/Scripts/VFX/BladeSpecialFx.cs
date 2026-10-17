@@ -4,15 +4,16 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Partículas, manchas y auras de los especiales y de la quemadura (K8, GDD 7.6), con los emisores compartidos de
+    /// Partículas, manchas y auras de los especiales y de los estados (K8, GDD 7.6), con los emisores compartidos de
     /// VfxSystem:
     /// - Especial (VfxLibrary.specialEffects[...]): mientras dura la carga del principio, partículas en remolino; al
-    ///   encenderse, una explosión en espiral; después, el remolino más flojo, su lista de partículas (en el Fuego, chispas
-    ///   que crepitan y ceniza que sube), las manchas en el suelo por donde pasa (quemado), sus auras de paquetes (Aura
-    ///   Smoke) y un círculo de partículas en cada choque (PlayClashImpact, desde VfxSystem).
-    /// - Peonza quemada (VfxLibrary.burn): sus partículas (humo, chispas y ceniza), sus auras (Aura Burn y Aura Smoke) y
-    ///   un círculo más pequeño al chocar.
-    /// Lo demás lo pintan BladeBurstTip (punta) y BladeOverlay (sobre la peonza).
+    ///   encenderse, una explosión en espiral; después, el remolino más flojo, su remolino propio (Hielo: vaho a ras de
+    ///   suelo), su lista de partículas (en el Fuego, chispas que crepitan y ceniza que sube), las manchas en el suelo por
+    ///   donde pasa (quemado, escarcha), sus auras de paquetes (Aura Smoke) y un círculo de partículas en cada choque
+    ///   (PlayClashImpact, desde VfxSystem).
+    /// - Peonza quemada o congelada (VfxLibrary.burn / frozen): sus partículas, su remolino, sus auras (Aura Burn y Aura
+    ///   Smoke en la quemada) y un círculo más pequeño al chocar.
+    /// Lo demás lo pintan BladeBurstTip (punta), BladeOverlay (sobre la peonza) y BladePartSpin (giro del disco).
     ///
     /// Clase C# pura que posee FakeBladeController. Emite partículas de pools que ya existen y la copia de cada aura se crea
     /// una sola vez, en el primer frame de la peonza: cero GC en combate. Los valores se leen en vivo de la biblioteca.
@@ -38,15 +39,19 @@ namespace FakeBlade.Core
         }
 
         private readonly FakeBladeController _blade;
-        // Por partícula de la lista: acumulado del ritmo y espera hasta el próximo chasquido (especial y quemadura)
+        // Por partícula de la lista: acumulado del ritmo y espera hasta el próximo chasquido (especial y estado; los estados
+        // van de uno en uno, así que comparten los suyos)
         private readonly float[] _specialAcc = new float[MaxStyles];
         private readonly float[] _specialBurst = new float[MaxStyles];
-        private readonly float[] _burnAcc = new float[MaxStyles];
-        private readonly float[] _burnBurst = new float[MaxStyles];
+        private readonly float[] _statusAcc = new float[MaxStyles];
+        private readonly float[] _statusBurst = new float[MaxStyles];
         private readonly float[] _windupAcc = new float[MaxStyles];
-        private readonly float[] _burnSwirlAcc = new float[MaxStyles];
+        private readonly float[] _specialSwirlAcc = new float[MaxStyles];
+        private readonly float[] _statusSwirlAcc = new float[MaxStyles];
+        // Una lista de auras por estado: cambiar de lista rehace las copias, y eso no se hace en combate
         private readonly AuraSlot[] _specialAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _burnAuras = new AuraSlot[MaxAuras];
+        private readonly AuraSlot[] _frozenAuras = new AuraSlot[MaxAuras];
         private bool _effectsWereOn;
         private float _scorchDistance;
         private float _scorchIdle;
@@ -60,6 +65,7 @@ namespace FakeBlade.Core
             {
                 _specialAuras[i] = new AuraSlot();
                 _burnAuras[i] = new AuraSlot();
+                _frozenAuras[i] = new AuraSlot();
             }
         }
 
@@ -81,29 +87,33 @@ namespace FakeBlade.Core
             EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt);
             if (effectsOn && !_effectsWereOn && visible) Burst(special.activationBurst, tip);
             _effectsWereOn = effectsOn;
+            EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt);
             Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt);
             UpdateScorch(effectsOn ? special.scorch : null, tip, dt);
             UpdateAuras(special != null ? special.auras : null, _specialAuras, effectsOn, tipOffset, dt);
 
-            BurnEffectStyle burn = lib != null ? lib.burn : null;
-            bool burning = IsBurning(_blade);
-            Emit(burning && visible ? burn.particles : null, _burnAcc, _burnBurst, tip, dt);
-            EmitSpirals(burning && visible ? burn.swirl : null, _burnSwirlAcc, 1f, tip, dt);
-            UpdateAuras(burn != null ? burn.auras : null, _burnAuras, burning, tipOffset, dt);
+            StatusVfxStyle status = StatusStyle(_blade);
+            Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt);
+            EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt);
+            UpdateAuras(lib != null ? lib.burn?.auras : null, _burnAuras, status != null && status == lib.burn, tipOffset, dt);
+            UpdateAuras(lib != null ? lib.frozen?.auras : null, _frozenAuras, status != null && status == lib.frozen, tipOffset, dt);
         }
 
-        /// <summary>¿Hay que pintar la quemadura? (estado Quemadura, con los efectos de la biblioteca encendidos)</summary>
-        public static bool IsBurning(FakeBladeController blade)
+        /// <summary>
+        /// Efectos del estado de la peonza que hay que pintar (quemada o congelada, con los de la biblioteca encendidos), o
+        /// null si no tiene.
+        /// </summary>
+        public static StatusVfxStyle StatusStyle(FakeBladeController blade)
         {
             VfxLibrary lib = VfxSystem.Library;
-            return lib != null && lib.burn != null && lib.burn.enabled && !blade.IsDestroyed &&
-                   blade.Status.Current == StatusEffectType.Burning;
+            return lib == null || blade.IsDestroyed ? null : lib.GetStatusEffects(blade.Status.Current);
         }
 
         public void Clear()
         {
             for (int i = 0; i < MaxStyles; i++)
-                _specialAcc[i] = _specialBurst[i] = _burnAcc[i] = _burnBurst[i] = _windupAcc[i] = _burnSwirlAcc[i] = 0f;
+                _specialAcc[i] = _specialBurst[i] = _statusAcc[i] = _statusBurst[i] = _windupAcc[i] =
+                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = 0f;
             _hasLastPosition = false;
             _effectsWereOn = false;
             _scorchDistance = _scorchIdle = 0f;
@@ -111,6 +121,7 @@ namespace FakeBlade.Core
             {
                 StopAura(_specialAuras[i]);
                 StopAura(_burnAuras[i]);
+                StopAura(_frozenAuras[i]);
             }
         }
 
@@ -200,8 +211,9 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// Choque con daño (K8, 2026-10-17): si la peonza tiene encendido un especial con efectos de choque, su círculo de
-        /// partículas (Fuego: llamas, chispas y ceniza); si no, y está quemada, el de la quemadura (más pequeño). Se suma
-        /// al impacto genérico. groundPoint: el punto del choque a ras de suelo.
+        /// partículas (Fuego: llamas, chispas y ceniza; Hielo: esquirlas, destellos y vaho); si no, y está quemada o
+        /// congelada, el de su estado (más pequeño). Se suma al impacto genérico. groundPoint: el punto del choque a ras
+        /// de suelo.
         /// </summary>
         public static void PlayClashImpact(FakeBladeController blade, Vector3 groundPoint)
         {
@@ -217,7 +229,8 @@ namespace FakeBlade.Core
                     return;
                 }
             }
-            if (IsBurning(blade)) Burst(lib.burn.impact, groundPoint);
+            StatusVfxStyle status = StatusStyle(blade);
+            if (status != null) Burst(status.impact, groundPoint);
         }
 
         /// <summary>Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor.</summary>
@@ -251,7 +264,7 @@ namespace FakeBlade.Core
             float size = Random.Range(style.size.x, style.size.y);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
             if (!string.IsNullOrEmpty(style.sprite))
-                VfxSystem.EmitSprite(style.sprite, position, velocity, color, size, 0f, lifetime);
+                VfxSystem.EmitSprite(style.sprite, position, velocity, color, size, Random.value * 360f, lifetime);
             else
                 VfxSystem.EmitParticle(style.emitter, position, velocity, color, size, lifetime);
         }
@@ -301,9 +314,13 @@ namespace FakeBlade.Core
             Vector3 inherited = new Vector3(velocity.x, 0f, velocity.z) * style.inheritVelocity;
             Color color = Color.Lerp(style.color, style.color2, Random.value);
             color.a = style.alpha;
-            VfxSystem.EmitParticle(style.emitter, position,
-                direction * Random.Range(style.speed.x, style.speed.y) + inherited, color,
-                Random.Range(style.size.x, style.size.y), Random.Range(style.lifetime.x, style.lifetime.y));
+            Vector3 v = direction * Random.Range(style.speed.x, style.speed.y) + inherited;
+            float size = Random.Range(style.size.x, style.size.y);
+            float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
+            if (!string.IsNullOrEmpty(style.sprite))
+                VfxSystem.EmitSprite(style.sprite, position, v, color, size, Random.value * 360f, lifetime);
+            else
+                VfxSystem.EmitParticle(style.emitter, position, v, color, size, lifetime);
         }
 
         /// <summary>Una mancha cada Spacing metros recorridos (y cada Idle Interval segundos aunque no se mueva).</summary>

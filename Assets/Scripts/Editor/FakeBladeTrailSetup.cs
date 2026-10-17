@@ -55,6 +55,11 @@ namespace FakeBlade.Core.Editor
         private const string FireCupMaterialPath = "Assets/VFX/Materials/VFX_FireTipCup.mat";
         private const string FireGroundMaterialPath = "Assets/VFX/Materials/VFX_FireGround.mat";
         private const string BurnGroundMaterialPath = "Assets/VFX/Materials/VFX_BurnGround.mat";
+        // Hielo: cuencos con el sprite 06 de BDragon (la hoja, fuera del repo, se copia a la nuestra)
+        private const string IceCupSource = "Assets/ThirdParty/Free/PixelArt by BDragon1727/Super Package Retro Pixel Effects 32x32 pack 2 Free/06.png";
+        private const string BDragonCopyFolder = "Assets/VFX/Textures/BDragon";
+        private const string IceCupTexturePath = BDragonCopyFolder + "/RetroPack2_06.png";
+        private const string IceCupMaterialPath = "Assets/VFX/Materials/VFX_IceTipCup.mat";
         // Status and Auras FREE (Matthew Guz, Asset Store: fuera del repo, en ThirdParty). Sus materiales son del render
         // antiguo: los pasa a URP ConvertBuiltInParticles
         private const string AuraPackFolder = "Assets/ThirdParty/VFX/Status and Auras FREE";
@@ -211,7 +216,8 @@ namespace FakeBlade.Core.Editor
             fire.auras ??= new List<AuraStyle>();
             ParticleSystem smoke = AuraPrefab(AuraSmokePrefabPath);
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
-            return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin);
+            return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
+                   SetupIce(library, shader);
         }
 
         /// <summary>
@@ -221,8 +227,8 @@ namespace FakeBlade.Core.Editor
         /// </summary>
         private static string SetupBurn(VfxLibrary library, Shader shader, Texture2D firespin)
         {
-            library.burn ??= new BurnEffectStyle();
-            BurnEffectStyle burn = library.burn;
+            library.burn ??= new StatusVfxStyle();
+            StatusVfxStyle burn = library.burn;
             burn.tip ??= new BurstTipStyle();
             burn.tip.ground ??= new TipGroundSprite();
 
@@ -262,6 +268,290 @@ namespace FakeBlade.Core.Editor
             }
             return "quemadura" + (auraBurn != null ? " con auras" : " (sin Status and Auras FREE en ThirdParty/VFX)");
         }
+
+        /// <summary>
+        /// Hielo (2026-10-17, ideas del usuario): en la punta, cuencos con el sprite 06 de BDragon (Super Package Retro
+        /// Pixel Effects 32x32 pack 2: un cristal de hielo que crece, estalla y se deshace), como los del Fuego (en el suelo
+        /// no gustaron 12_nebula, 19_freezing ni los proyectiles de Bullet 24x24); borde cian con destellos cortos,
+        /// cristales que brillan y vaho que cae y se arrastra (sprite Vaho de Setup Impactos), vaho a ras de suelo que gira
+        /// y se queda posado (VahoSuelo), manchas de escarcha sutiles, remolino de cristales y vaho al activarlo que se
+        /// traga hacia dentro, explosión compacta de esquirlas y círculo de esquirlas, destellos y vaho al chocar. Y la
+        /// peonza congelada (library.frozen), sin nada en el suelo. Solo añade la entrada si falta y rellena lo que esté
+        /// vacío.
+        /// </summary>
+        private static string SetupIce(VfxLibrary library, Shader shader)
+        {
+            Texture2D sheet = PackSheet(IceCupSource, IceCupTexturePath);
+            if (sheet == null) return "Hielo: no se encuentra " + IceCupSource;
+            Material cup = GetMaterial(IceCupMaterialPath, shader);
+            cup.SetTexture("_MainTex", sheet);
+            cup.SetFloat("_TilesX", 6f);
+            cup.SetFloat("_TilesY", 2f);
+            EditorUtility.SetDirty(cup);
+
+            SpecialVfxStyle ice = library.GetSpecialEffects(SpecialAbilityType.Ice);
+            bool added = ice == null;
+            if (added)
+            {
+                ice = DefaultIce();
+                library.specialEffects.Add(ice);
+            }
+            ice.tip ??= new BurstTipStyle();
+            if (ice.tip.cups.Count == 0) SetIceCups(ice.tip);
+            if (ice.tip.mesh == null) ice.tip.mesh = library.burstTip != null ? library.burstTip.mesh : null;
+            if (ice.tip.material == null) ice.tip.material = cup;
+            ice.particles ??= new List<SpecialParticleStyle>();
+            if (ice.particles.Count == 0) ice.particles.AddRange(IceParticles());
+            ice.scorch ??= new ScorchStyle();
+            if (string.IsNullOrEmpty(ice.scorch.sprite)) ice.scorch = IceFrost();
+            ice.windup ??= new List<SpiralParticleStyle>();
+            if (ice.windup.Count == 0) ice.windup.AddRange(IceWindup());
+            ice.activationBurst ??= new List<SpiralParticleStyle>();
+            if (ice.activationBurst.Count == 0) ice.activationBurst.AddRange(IceActivationBurst());
+            ice.swirl ??= new List<SpiralParticleStyle>();
+            if (ice.swirl.Count == 0) ice.swirl.AddRange(IceGroundMist());
+            ice.impact ??= new List<SpiralParticleStyle>();
+            if (ice.impact.Count == 0) ice.impact.AddRange(IceImpact());
+
+            library.frozen ??= new StatusVfxStyle();
+            StatusVfxStyle frozen = library.frozen;
+            frozen.tip ??= new BurstTipStyle();
+            frozen.swirl ??= new List<SpiralParticleStyle>();
+            if (frozen.swirl.Count == 0)
+            {
+                // Primera vez: nada en el suelo (eso solo para la peonza con el especial), escarcha quieta y disco lento
+                frozen.tip.ground = new TipGroundSprite();
+                frozen.tip.cups.Clear();
+                frozen.tip.particleSprite = "";
+                frozen.overlay = FrozenOverlay();
+                frozen.discSpin = 0.5f;
+                frozen.swirl.Add(FrozenCrystals());
+            }
+            frozen.particles ??= new List<SpecialParticleStyle>();
+            if (frozen.particles.Count == 0) frozen.particles.Add(FrozenMist());
+            frozen.impact ??= new List<SpiralParticleStyle>();
+            if (frozen.impact.Count == 0) frozen.impact.AddRange(FrozenImpact());
+            return "Hielo" + (added ? " (nuevo)" : "") + " y congelada";
+        }
+
+        /// <summary>
+        /// Cuencos del Hielo: el sprite 06 entero (10 dibujos en 6 × 2) en bucle, en tres cuencos con su giro, su velocidad
+        /// y su escala; BladeBurstTip desfasa la animación de cada uno, así que los estallidos se turnan.
+        /// </summary>
+        private static void SetIceCups(BurstTipStyle tip)
+        {
+            tip.tilesX = 6;
+            tip.tilesY = 2;
+            tip.firstFrame = 0;
+            tip.frames = 10;
+            tip.cycle = 0.7f;
+            tip.size = 2f;
+            tip.scale = new Vector2(1f, 0.7f);
+            tip.alpha = 0.95f;
+            tip.lighten = 0f;
+            tip.cups.Add(new BurstTipCup { angle = 0f, spinSpeed = 180f, scale = new Vector2(0.8f, 0.9f), playerColor = false, color = Color.white });
+            tip.cups.Add(new BurstTipCup { angle = 120f, spinSpeed = -140f, scale = Vector2.one, playerColor = false, color = new Color(0.85f, 0.97f, 1f, 0.9f) });
+            tip.cups.Add(new BurstTipCup { angle = 240f, spinSpeed = 110f, scale = new Vector2(0.9f, 1.2f), playerColor = false, color = new Color(1f, 1f, 1f, 0.8f) });
+        }
+
+        /// <summary>
+        /// Copia de una hoja de un pack de fuera del repo en Assets/VFX/Textures/BDragon, como textura normal (no como
+        /// sprites cortados) y con filtro de punto. Si ya está copiada, la de la copia.
+        /// </summary>
+        private static Texture2D PackSheet(string source, string target)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null) return existing;
+            if (!File.Exists(source)) return null;
+
+            FakeBladeAssetsMenu.EnsureFolder(BDragonCopyFolder);
+            File.Copy(source, target);
+            AssetDatabase.ImportAsset(target);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        private static readonly Color IceCyan = new Color(0.55f, 0.9f, 1f);
+        private static readonly Color IcePale = new Color(0.85f, 0.97f, 1f);
+
+        /// <summary>Valores de partida del Hielo (para ajustarlos jugando con mando).</summary>
+        private static SpecialVfxStyle DefaultIce()
+        {
+            var ice = new SpecialVfxStyle { type = SpecialAbilityType.Ice, replaceAura = true, windupSustain = 0.25f };
+            BurstTipStyle tip = ice.tip;
+            // Sin partículas en cono: cuencos con el sprite 06 de BDragon (SetIceCups, en SetupIce)
+            tip.cups.Clear();
+            tip.particleSprite = "";
+            tip.fade = new Vector2(0.1f, 0.25f);
+            // Borde cian con destellos cortos de brillo de hielo (en vez de los impulsos del fuego)
+            ice.overlay = new SpecialOverlayStyle
+            {
+                color = IceCyan, hotColor = Color.white, baseRim = 0.35f, pulseRim = new Vector2(1.5f, 3f),
+                pulseFlash = new Vector2(0.05f, 0.25f), pulseInterval = new Vector2(0.25f, 0.8f), pulseDecay = 0.08f
+            };
+            ice.particles.AddRange(IceParticles());
+            ice.scorch = IceFrost();
+            return ice;
+        }
+
+        /// <summary>Cristales que brillan alrededor y vaho frío que cae y se arrastra (se lleva parte de la velocidad).</summary>
+        private static SpecialParticleStyle[] IceParticles() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Cristales", emitter = VfxType.Sparkle, rate = 14f, burstInterval = new Vector2(0.3f, 0.9f),
+                burstCount = new Vector2(2f, 4f), spawnRadius = new Vector2(0.3f, 0.8f), height = new Vector2(0.05f, 0.5f),
+                coneAngle = 60f, speed = new Vector2(0.1f, 0.4f), inheritVelocity = 0f, size = new Vector2(0.12f, 0.22f),
+                lifetime = new Vector2(0.3f, 0.5f), color = IceCyan, color2 = Color.white, alpha = 1f
+            },
+            new SpecialParticleStyle
+            {
+                name = "Vaho que cae", sprite = "Vaho", rate = 7f, spawnRadius = new Vector2(0.2f, 0.5f),
+                height = new Vector2(0.3f, 0.6f), coneAngle = 30f, speed = new Vector2(0.2f, 0.5f), inheritVelocity = 0.3f,
+                size = new Vector2(0.5f, 0.9f), lifetime = new Vector2(1.2f, 1.8f), color = IcePale, color2 = Color.white, alpha = 0.45f
+            }
+        };
+
+        /// <summary>Manchas de escarcha: la del quemado, en cian claro, sutiles y algo más cortas.</summary>
+        private static ScorchStyle IceFrost() => new ScorchStyle
+        {
+            sprite = "Quemado", spacing = 0.5f, idleInterval = 0.6f, size = new Vector2(0.9f, 1.3f), lifetime = 3f,
+            color = new Color(0.75f, 0.95f, 1f), alpha = 0.22f, height = 0.012f
+        };
+
+        /// <summary>Al activarlo: remolino de cristales y vaho que gira y se traga hacia dentro.</summary>
+        private static SpiralParticleStyle[] IceWindup() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Remolino de cristales", emitter = VfxType.Sparkle, rate = 120f, radius = new Vector2(0.8f, 1.2f),
+                height = new Vector2(0f, 0.3f), tangentialSpeed = new Vector2(5f, 8f), outwardSpeed = new Vector2(-3f, -2f),
+                upSpeed = new Vector2(0.5f, 1.5f), size = new Vector2(0.14f, 0.24f), lifetime = new Vector2(0.25f, 0.4f),
+                color = IceCyan, color2 = Color.white
+            },
+            new SpiralParticleStyle
+            {
+                name = "Remolino de vaho", sprite = "Vaho", rate = 30f, radius = new Vector2(0.9f, 1.3f),
+                height = new Vector2(0f, 0.2f), tangentialSpeed = new Vector2(3f, 5f), outwardSpeed = new Vector2(-2.5f, -1.5f),
+                upSpeed = new Vector2(0f, 0.4f), size = new Vector2(0.6f, 1f), lifetime = new Vector2(0.3f, 0.5f),
+                color = IcePale, color2 = Color.white, alpha = 0.5f
+            }
+        };
+
+        /// <summary>Al encenderse: explosión compacta de esquirlas, destellos y una bocanada de vaho a ras de suelo.</summary>
+        private static SpiralParticleStyle[] IceActivationBurst() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Esquirlas", emitter = VfxType.LowSpinSpark, count = 30, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.1f, 0.3f), tangentialSpeed = new Vector2(2.5f, 3.5f), outwardSpeed = new Vector2(1.2f, 2.2f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.08f, 0.14f), lifetime = new Vector2(0.25f, 0.45f),
+                color = Color.white, color2 = IceCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos", emitter = VfxType.Sparkle, count = 24, radius = new Vector2(0.4f, 0.7f),
+                height = new Vector2(0.05f, 0.4f), tangentialSpeed = new Vector2(2f, 3f), outwardSpeed = new Vector2(0.6f, 1.2f),
+                upSpeed = new Vector2(0.3f, 0.8f), size = new Vector2(0.18f, 0.3f), lifetime = new Vector2(0.25f, 0.4f),
+                color = Color.white, color2 = IceCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Bocanada de vaho", sprite = "VahoSuelo", count = 8, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.02f, 0.05f), tangentialSpeed = new Vector2(1.5f, 2.5f), outwardSpeed = new Vector2(1f, 1.8f),
+                upSpeed = Vector2.zero, size = new Vector2(1f, 1.5f), lifetime = new Vector2(1f, 1.6f),
+                color = IcePale, color2 = Color.white, alpha = 0.5f
+            }
+        };
+
+        /// <summary>Mientras dura: vaho a ras de suelo que gira (frenándose, como con la inercia de la peonza) y se queda posado.</summary>
+        private static SpiralParticleStyle[] IceGroundMist() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Vaho a ras de suelo", sprite = "VahoSuelo", rate = 6f, radius = new Vector2(0.4f, 0.8f),
+                height = new Vector2(0.02f, 0.05f), tangentialSpeed = new Vector2(1.2f, 2f), outwardSpeed = new Vector2(0.2f, 0.6f),
+                upSpeed = Vector2.zero, size = new Vector2(1f, 1.6f), lifetime = new Vector2(1.5f, 2.2f),
+                color = IcePale, color2 = Color.white, alpha = 0.35f
+            }
+        };
+
+        /// <summary>Al chocar: esquirlas que salen rectas a ras de suelo, destellos de cristal y una bocanada de vaho.</summary>
+        private static SpiralParticleStyle[] IceImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Esquirlas", emitter = VfxType.LowSpinSpark, count = 22, radius = new Vector2(0.1f, 0.2f),
+                height = new Vector2(0.05f, 0.15f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(5f, 8f),
+                upSpeed = new Vector2(0.5f, 1.5f), size = new Vector2(0.09f, 0.16f), lifetime = new Vector2(0.35f, 0.6f),
+                color = Color.white, color2 = IceCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos", emitter = VfxType.Sparkle, count = 12, radius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.1f, 0.4f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1.5f, 3f),
+                upSpeed = new Vector2(0.5f, 1.5f), size = new Vector2(0.2f, 0.32f), lifetime = new Vector2(0.25f, 0.45f),
+                color = Color.white, color2 = IceCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Bocanada de vaho", sprite = "Vaho", count = 8, radius = new Vector2(0.1f, 0.3f),
+                height = new Vector2(0.1f, 0.3f), tangentialSpeed = new Vector2(0.3f, 0.6f), outwardSpeed = new Vector2(1.5f, 2.5f),
+                upSpeed = new Vector2(0.2f, 0.6f), size = new Vector2(0.8f, 1.2f), lifetime = new Vector2(0.8f, 1.3f),
+                color = IcePale, color2 = Color.white, alpha = 0.5f
+            }
+        };
+
+        /// <summary>Peonza congelada: borde y tinte cian quietos (sin latir), como cubierta de escarcha.</summary>
+        private static SpecialOverlayStyle FrozenOverlay() => new SpecialOverlayStyle
+        {
+            color = new Color(0.6f, 0.92f, 1f), hotColor = new Color(0.6f, 0.92f, 1f), baseRim = 0.8f, baseFlash = 0.35f,
+            pulseRim = Vector2.zero, pulseFlash = Vector2.zero, pulseInterval = new Vector2(0.5f, 1f), pulseDecay = 0.1f
+        };
+
+        /// <summary>Peonza congelada: vaho que cae.</summary>
+        private static SpecialParticleStyle FrozenMist() => new SpecialParticleStyle
+        {
+            name = "Vaho que cae", sprite = "Vaho", rate = 5f, spawnRadius = new Vector2(0.2f, 0.5f),
+            height = new Vector2(0.25f, 0.5f), coneAngle = 20f, speed = new Vector2(0.1f, 0.3f), inheritVelocity = 0.2f,
+            size = new Vector2(0.4f, 0.7f), lifetime = new Vector2(1f, 1.5f), color = IcePale, color2 = Color.white, alpha = 0.4f
+        };
+
+        /// <summary>Peonza congelada: remolino lento y pequeño de cristales.</summary>
+        private static SpiralParticleStyle FrozenCrystals() => new SpiralParticleStyle
+        {
+            name = "Cristales lentos", emitter = VfxType.Sparkle, rate = 12f, radius = new Vector2(0.4f, 0.6f),
+            height = new Vector2(0f, 0.3f), tangentialSpeed = new Vector2(1f, 1.6f), outwardSpeed = new Vector2(-0.3f, 0f),
+            upSpeed = new Vector2(0.1f, 0.4f), size = new Vector2(0.1f, 0.18f), lifetime = new Vector2(0.4f, 0.7f),
+            color = IceCyan, color2 = Color.white
+        };
+
+        /// <summary>Choque de una peonza congelada: un círculo pequeño de esquirlas y destellos.</summary>
+        private static SpiralParticleStyle[] FrozenImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Esquirlas", emitter = VfxType.LowSpinSpark, count = 10, radius = new Vector2(0.1f, 0.2f),
+                height = new Vector2(0.05f, 0.15f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 5f),
+                upSpeed = new Vector2(0.5f, 1.2f), size = new Vector2(0.07f, 0.12f), lifetime = new Vector2(0.3f, 0.5f),
+                color = Color.white, color2 = IceCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos", emitter = VfxType.Sparkle, count = 5, radius = new Vector2(0.2f, 0.3f),
+                height = new Vector2(0.1f, 0.3f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2f),
+                upSpeed = new Vector2(0.3f, 1f), size = new Vector2(0.16f, 0.26f), lifetime = new Vector2(0.25f, 0.4f),
+                color = Color.white, color2 = IceCyan
+            }
+        };
 
         /// <summary>Prefab de Status and Auras FREE (con sus materiales ya en URP), o null si el paquete no está.</summary>
         private static ParticleSystem AuraPrefab(string path)

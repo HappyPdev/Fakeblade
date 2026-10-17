@@ -19,6 +19,10 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 1.5
+  windupTime: 0.3
+  windupBrake: 12
+  selfMoveMultiplier: 1.2
+  selfRechargeMultiplier: 1.5
   freezeMoveMultiplier: 0.65
   freezeRechargeMultiplier: 0.5
   freezeDuration: 3

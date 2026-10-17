@@ -98,6 +98,7 @@ namespace FakeBlade.Core
             _blade.OnAttackLaunched += HandleAttackLaunched;
             _blade.OnWallHit += HandleWallHit;
             _blade.OnHealCut += HandleHealCut;
+            _blade.OnSpecialActivated += HandleSpecialActivated;
 
             var gm = GameManager.Instance;
             if (gm != null && _registerInMatch) _registered = gm.RegisterPlayer(this);
@@ -117,6 +118,7 @@ namespace FakeBlade.Core
                 _blade.OnAttackLaunched -= HandleAttackLaunched;
                 _blade.OnWallHit -= HandleWallHit;
                 _blade.OnHealCut -= HandleHealCut;
+                _blade.OnSpecialActivated -= HandleSpecialActivated;
             }
             if (_stats != null) _stats.OnStatsChanged -= RebuildModel;
 
@@ -140,6 +142,7 @@ namespace FakeBlade.Core
             _blade.HandleMovement(_source.MovementInput);
             _blade.SetAttackHeld(_source.AttackHeld);
             VibrateCharge();
+            VibrateSpecialWindup();
 
             if (_source.ConsumeDash()) _blade.ExecuteDash();
             if (_source.ConsumeSpecial()) _blade.ExecuteSpecial();
@@ -176,6 +179,20 @@ namespace FakeBlade.Core
             _source.Vibrate(0.2f + intensity * 0.5f, 0.15f + intensity * 0.3f, 0.12f);
 
         private void HandleHealCut() => _source.Vibrate(0.6f, 0.15f, 0.25f);
+
+        // Especial: vibración fuerte al activarlo, durante su carga (0,3 s; 2026-10-17). Los que no tienen carga, un golpe
+        // fuerte de lo mismo
+        private const float SpecialRumbleLow = 1f, SpecialRumbleHigh = 0.85f, SpecialRumbleTime = 0.3f;
+
+        private void HandleSpecialActivated(SpecialAbilityType type) =>
+            _source.Vibrate(SpecialRumbleLow, SpecialRumbleHigh, SpecialRumbleTime);
+
+        /// <summary>Mientras dura la carga de un especial (también las de cada embestida), la vibración fuerte sigue.</summary>
+        private void VibrateSpecialWindup()
+        {
+            if (_blade.Special != null && _blade.Special.IsWindingUp)
+                _source.Vibrate(SpecialRumbleLow, SpecialRumbleHigh, 0.06f);
+        }
 
         /// <summary>Mientras carga: zumbido suave que crece con el nivel y un pulso al subir de nivel.</summary>
         private void VibrateCharge()

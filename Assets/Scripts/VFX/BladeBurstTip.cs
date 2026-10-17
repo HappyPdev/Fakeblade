@@ -9,7 +9,8 @@ namespace FakeBlade.Core
     ///   velocidad de giro alrededor del eje vertical, su escala (ancho y alto) y su color (fijo o el del jugador). La
     ///   hoja de fotogramas (ImpactShotValo2 en el acelerón) se repite en bucle desde firstFrame, desfasada en cada
     ///   cuenco para que no parpadeen a la vez. Aparecen y se apagan con un fundido corto.
-    /// - Sprite animado tumbado en el suelo debajo de la punta (ground), que gira; sale y se apaga con los cuencos.
+    /// - Sprites animados tumbados en el suelo debajo de la punta (ground y groundLayers), que giran, pueden salir varias
+    ///   veces girados (copias) y latir; salen y se apagan con los cuencos.
     /// - Partículas en cono hacia arriba (ImpatcValo8 en el acelerón) del pool compartido de VfxSystem: se quedan en el
     ///   mundo y dejan rastro. Salen mientras está activo y, si se quiere, también al ir rápido (particleIdleRate).
     ///
@@ -20,6 +21,8 @@ namespace FakeBlade.Core
     public sealed class BladeBurstTip
     {
         private const int MaxCups = 8;
+        /// <summary>Dibujos en el suelo como mucho (el principal más las capas, contando las copias).</summary>
+        private const int MaxGround = 16;
         private const int MaxParticlesPerFrame = 6;
         /// <summary>Ancho del modelo ImpactPlane a escala 1 (m).</summary>
         private const float MeshWidth = 1.42f;
@@ -36,7 +39,7 @@ namespace FakeBlade.Core
         private readonly string _name;
         private readonly MeshRenderer[] _renderers = new MeshRenderer[MaxCups];
         private readonly MeshFilter[] _filters = new MeshFilter[MaxCups];
-        private MeshRenderer _ground;
+        private readonly MeshRenderer[] _grounds = new MeshRenderer[MaxGround];
         private MaterialPropertyBlock _block;
         private Transform _root;
         private bool _built;
@@ -71,8 +74,7 @@ namespace FakeBlade.Core
             UpdateParticles(style, tip, active, dt);
 
             bool cups = style.mesh != null && style.material != null && style.cups.Count > 0;
-            TipGroundSprite groundStyle = style.ground;
-            bool ground = groundStyle != null && groundStyle.material != null;
+            bool ground = HasGround(style);
             if (!cups && !ground)
             {
                 Hide();
@@ -133,36 +135,86 @@ namespace FakeBlade.Core
                 renderer.SetPropertyBlock(_block);
             }
 
-            UpdateGround(ground ? groundStyle : null, style.height, rootScale, owner);
+            UpdateGrounds(ground ? style : null, style.height, rootScale, owner);
             _visible = true;
         }
 
-        /// <summary>Sprite animado tumbado en el suelo, debajo de la punta; gira y se repite en bucle.</summary>
-        private void UpdateGround(TipGroundSprite style, float tipHeight, float rootScale, Color owner)
+        private static bool HasGround(BurstTipStyle style)
         {
-            bool on = style != null;
-            if (_ground.enabled != on) _ground.enabled = on;
-            if (!on) return;
+            if (style.ground != null && style.ground.material != null) return true;
+            for (int i = 0; style.groundLayers != null && i < style.groundLayers.Count; i++)
+                if (style.groundLayers[i] != null && style.groundLayers[i].material != null) return true;
+            return false;
+        }
 
-            if (_ground.sharedMaterial != style.material) _ground.sharedMaterial = style.material;
-            Transform t = _ground.transform;
-            // El sprite va a su altura sobre la punta, no a la de los cuencos
-            t.localPosition = new Vector3(0f, (style.height - tipHeight) / rootScale, 0f);
-            t.localRotation = Quaternion.Euler(0f, style.spinSpeed * _time, 0f);
-            float size = style.size / rootScale;
-            t.localScale = new Vector3(size, 1f, size);
+        /// <summary>Los sprites del suelo: el principal y las capas, cada uno con sus copias; apaga los que sobren.</summary>
+        private void UpdateGrounds(BurstTipStyle style, float tipHeight, float rootScale, Color owner)
+        {
+            int used = 0;
+            if (style != null)
+            {
+                used = DrawGround(style.ground, used, tipHeight, rootScale, owner);
+                for (int i = 0; style.groundLayers != null && i < style.groundLayers.Count; i++)
+                    used = DrawGround(style.groundLayers[i], used, tipHeight, rootScale, owner);
+            }
+            for (int i = used; i < MaxGround; i++)
+                if (_grounds[i].enabled) _grounds[i].enabled = false;
+        }
+
+        /// <summary>
+        /// Un sprite animado tumbado en el suelo, debajo de la punta, con sus copias (cada una girada 360/copias grados);
+        /// gira, se repite en bucle y, si se quiere, late. Devuelve cuántos dibujos van usados.
+        /// </summary>
+        private int DrawGround(TipGroundSprite style, int used, float tipHeight, float rootScale, Color owner)
+        {
+            if (style == null || style.material == null) return used;
 
             int tiles = Mathf.Max(1, style.tilesX * style.tilesY);
             int first = Mathf.Clamp(style.firstFrame, 0, tiles - 1);
             int frames = Mathf.Clamp(style.frames, 1, tiles - first);
             float phase = Mathf.Repeat(_time / Mathf.Max(0.05f, style.cycle), 1f);
+            float beat = style.pulseRate > 0f ? Heartbeat(_time * style.pulseRate) : 1f;
+            float size = style.size * (1f + style.pulseScale * (style.pulseRate > 0f ? beat : 0f)) / rootScale;
             Color color = style.playerColor ? new Color(owner.r, owner.g, owner.b, style.color.a) : style.color;
-            color.a *= style.alpha * _intensity;
+            color.a *= style.alpha * _intensity * (style.pulseRate > 0f ? 1f - style.pulseAlpha * (1f - beat) : 1f);
             _block.SetFloat(TilesXId, style.tilesX);
             _block.SetFloat(TilesYId, style.tilesY);
+            // Todas las copias en el mismo dibujo: así quedan a 360/copias grados entre ellas (desfasar la animación de
+            // un dibujo que ya gira, como las medias lunas, las juntaba todas en el mismo sitio)
             _block.SetFloat(FrameId, first + Mathf.Min(frames - 1, (int)(phase * frames)));
             _block.SetColor(ColorId, color);
-            _ground.SetPropertyBlock(_block);
+
+            int copies = Mathf.Max(1, style.copies);
+            float step = 360f / copies;
+            for (int c = 0; c < copies && used < MaxGround; c++, used++)
+            {
+                MeshRenderer renderer = _grounds[used];
+                if (!renderer.enabled) renderer.enabled = true;
+                if (renderer.sharedMaterial != style.material) renderer.sharedMaterial = style.material;
+                Transform t = renderer.transform;
+                // El sprite va a su altura sobre la punta, no a la de los cuencos
+                t.localPosition = new Vector3(0f, (style.height - tipHeight) / rootScale, 0f);
+                t.localRotation = Quaternion.Euler(0f, style.spinSpeed * _time + step * c, 0f);
+                t.localScale = new Vector3(size, 1f, size);
+                renderer.SetPropertyBlock(_block);
+            }
+            return used;
+        }
+
+        /// <summary>Latido de corazón (0-1): dos golpes seguidos al principio de cada vuelta y calma hasta la siguiente.</summary>
+        private static float Heartbeat(float t)
+        {
+            float p = Mathf.Repeat(t, 1f);
+            return Mathf.Clamp01(Peak(p, 0.05f) + 0.65f * Peak(p, 0.3f));
+        }
+
+        private static float Peak(float p, float at)
+        {
+            float x = p - at;
+            if (x > 0.5f) x -= 1f;
+            else if (x < -0.5f) x += 1f;
+            x /= 0.08f;
+            return Mathf.Exp(-x * x);
         }
 
         /// <summary>
@@ -215,7 +267,8 @@ namespace FakeBlade.Core
             _visible = false;
             for (int i = 0; i < MaxCups; i++)
                 if (_renderers[i] != null) _renderers[i].enabled = false;
-            if (_ground != null) _ground.enabled = false;
+            for (int i = 0; i < MaxGround; i++)
+                if (_grounds[i] != null) _grounds[i].enabled = false;
         }
 
         private void Build()
@@ -233,10 +286,13 @@ namespace FakeBlade.Core
                 _renderers[i] = CreateRenderer(cup);
             }
 
-            var ground = new GameObject("Ground");
-            ground.transform.SetParent(_root, false);
-            ground.AddComponent<MeshFilter>().sharedMesh = GroundMesh();
-            _ground = CreateRenderer(ground);
+            for (int i = 0; i < MaxGround; i++)
+            {
+                var ground = new GameObject("Ground" + i);
+                ground.transform.SetParent(_root, false);
+                ground.AddComponent<MeshFilter>().sharedMesh = GroundMesh();
+                _grounds[i] = CreateRenderer(ground);
+            }
             ScreenPixelation.MoveToVfxLayer(root); // nítido sobre la escena pixelada (O2)
         }
 

@@ -60,11 +60,13 @@ namespace FakeBlade.Core.Editor
         private const string BDragonCopyFolder = "Assets/VFX/Textures/BDragon";
         private const string IceCupTexturePath = BDragonCopyFolder + "/RetroPack2_06.png";
         private const string IceCupMaterialPath = "Assets/VFX/Materials/VFX_IceTipCup.mat";
+        private const string ArcMaterialPath = "Assets/VFX/Materials/VFX_Arc.mat";
         // Status and Auras FREE (Matthew Guz, Asset Store: fuera del repo, en ThirdParty). Sus materiales son del render
         // antiguo: los pasa a URP ConvertBuiltInParticles
         private const string AuraPackFolder = "Assets/ThirdParty/VFX/Status and Auras FREE";
         private const string AuraBurnPrefabPath = AuraPackFolder + "/Prefab/Aura Burn.prefab";
         private const string AuraSmokePrefabPath = AuraPackFolder + "/Prefab/Aura Smoke.prefab";
+        private const string AuraLightningPrefabPath = AuraPackFolder + "/Prefab/Aura Lightning.prefab";
 
         [MenuItem("FakeBlade/Setup Rastros")]
         public static void RunFromMenu()
@@ -217,7 +219,7 @@ namespace FakeBlade.Core.Editor
             ParticleSystem smoke = AuraPrefab(AuraSmokePrefabPath);
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
-                   SetupIce(library, shader);
+                   SetupIce(library, shader) + "; " + SetupLightning(library);
         }
 
         /// <summary>
@@ -552,6 +554,75 @@ namespace FakeBlade.Core.Editor
                 color = Color.white, color2 = IceCyan
             }
         };
+
+        /// <summary>
+        /// Rayos (2026-10-17, idea del usuario): arcos eléctricos como una lámpara de plasma de Tesla, alrededor de la
+        /// peonza, por el suelo al moverse y hasta la otra peonza al chocar (BladeArcs), con el material VFX_Arc; y el borde
+        /// amarillo parpadeando a golpes muy cortos e irregulares, como un cortocircuito; y el Aura Lightning de Status and Auras
+        /// FREE en amarillo. Sustituye a su aura de
+        /// partículas de antes. Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupLightning(VfxLibrary library)
+        {
+            Material arc = ArcMaterial();
+            SpecialVfxStyle lightning = library.GetSpecialEffects(SpecialAbilityType.Lightning);
+            bool added = lightning == null;
+            if (added)
+            {
+                lightning = DefaultLightning();
+                library.specialEffects.Add(lightning);
+            }
+            lightning.arcs ??= new ElectricArcStyle();
+            if (lightning.arcs.material == null) lightning.arcs.material = arc;
+            // Complemento de los arcos: el Aura Lightning del paquete, de azul a amarillo (2026-10-17)
+            lightning.auras ??= new List<AuraStyle>();
+            ParticleSystem auraLightning = AuraPrefab(AuraLightningPrefabPath);
+            if (lightning.auras.Count == 0 && auraLightning != null)
+                lightning.auras.Add(new AuraStyle { name = "Aura Lightning", prefab = auraLightning, scale = 1.1f, tint = true, tintColor = new Color(1f, 0.85f, 0.15f), hideSystems = "Smoke" });
+            return "Rayos" + (added ? " (nuevo)" : "");
+        }
+
+        /// <summary>Valores de partida de Rayos: sin nada en la punta, borde que parpadea y los arcos.</summary>
+        private static SpecialVfxStyle DefaultLightning()
+        {
+            var lightning = new SpecialVfxStyle { type = SpecialAbilityType.Lightning, replaceAura = true, windupSustain = 0.25f };
+            lightning.tip.cups.Clear();
+            lightning.tip.particleSprite = "";
+            lightning.tip.ground = new TipGroundSprite();
+            lightning.overlay = new SpecialOverlayStyle
+            {
+                color = new Color(1f, 0.85f, 0.2f), hotColor = Color.white, baseRim = 0.25f, pulseRim = new Vector2(1f, 3f),
+                pulseFlash = new Vector2(0f, 0.2f), pulseInterval = new Vector2(0.03f, 0.2f), pulseDecay = 0.05f
+            };
+            lightning.arcs = new ElectricArcStyle();
+            return lightning;
+        }
+
+        /// <summary>Material de los arcos: partículas de URP sin luz, transparente, sin textura (el color lo ponen las líneas).</summary>
+        private static Material ArcMaterial()
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            var material = AssetDatabase.LoadAssetAtPath<Material>(ArcMaterialPath);
+            if (material == null)
+            {
+                material = new Material(shader) { name = Path.GetFileNameWithoutExtension(ArcMaterialPath) };
+                AssetDatabase.CreateAsset(material, ArcMaterialPath);
+            }
+            else if (material.shader != shader)
+            {
+                material.shader = shader;
+            }
+            material.SetColor("_BaseColor", Color.white);
+            material.SetFloat("_Surface", (float)BaseShaderGUI.SurfaceType.Transparent);
+            material.SetFloat("_Blend", (float)BaseShaderGUI.BlendMode.Alpha); // aditivo, sobre el suelo gris, el amarillo salía beis
+            material.SetFloat("_ColorMode", 0f);
+            material.SetFloat("_SoftParticlesEnabled", 0f);
+            material.SetFloat("_CameraFadingEnabled", 0f);
+            material.SetFloat("_DistortionEnabled", 0f);
+            BaseShaderGUI.SetMaterialKeywords(material, null, ParticleGUI.SetMaterialKeywords);
+            EditorUtility.SetDirty(material);
+            return material;
+        }
 
         /// <summary>Prefab de Status and Auras FREE (con sus materiales ya en URP), o null si el paquete no está.</summary>
         private static ParticleSystem AuraPrefab(string path)

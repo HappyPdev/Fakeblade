@@ -117,6 +117,9 @@ namespace FakeBlade.Core
                 case CollisionResolver.ClashKind.Even:
                 case CollisionResolver.ClashKind.Launched:
                 {
+                    // Arcos eléctricos hasta la otra peonza (Rayos), en cualquier choque, también los pequeños
+                    BladeArcs.PlayClash(r.A, r.B);
+                    BladeArcs.PlayClash(r.B, r.A);
                     float damage = Mathf.Max(r.DamageToA, r.DamageToB);
                     if (damage < _library.impactMinDamage) return;
                     // Cargado si quien hace más daño venía con un ataque cargado

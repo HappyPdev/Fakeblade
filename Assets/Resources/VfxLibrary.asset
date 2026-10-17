@@ -933,6 +933,9 @@ MonoBehaviour:
       height: 0.1
       simulationSpeed: 1
       spin: 0
+      tint: 0
+      tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+      hideSystems: 
     windup:
     - name: Remolino de llamas
       emitter: 15
@@ -1050,6 +1053,43 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.85, b: 0.2, a: 1}
+      coreColor: {r: 1, g: 1, b: 0.85, a: 1}
+      glowWidth: 0.12
+      glowAlpha: 0.35
+      coreWidth: 0.04
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 8
+      jitter: 0.12
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.04, y: 0.08}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0.3
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 5
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.2
+      aroundRadius: {x: 0.4, y: 1}
+      aroundHeight: {x: 0, y: 0.3}
+      arch: 0.2
+      trailCount: 5
+      trailSpacing: 0.4
+      trailLife: 0.35
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
   - type: 6
     replaceAura: 1
     tip:
@@ -1328,6 +1368,176 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.5
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.85, b: 0.2, a: 1}
+      coreColor: {r: 1, g: 1, b: 0.85, a: 1}
+      glowWidth: 0.12
+      glowAlpha: 0.35
+      coreWidth: 0.04
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 8
+      jitter: 0.12
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.04, y: 0.08}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0.3
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 5
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.2
+      aroundRadius: {x: 0.4, y: 1}
+      aroundHeight: {x: 0, y: 0.3}
+      arch: 0.2
+      trailCount: 5
+      trailSpacing: 0.4
+      trailLife: 0.35
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+  - type: 4
+    replaceAura: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 1, g: 0.85, b: 0.2, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.25
+      baseFlash: 0
+      pulseRim: {x: 1, y: 3}
+      pulseFlash: {x: 0, y: 0.2}
+      pulseInterval: {x: 0.03, y: 0.2}
+      pulseDecay: 0.05
+      texture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 2
+      textureScale: 0.5
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles: []
+    scorch:
+      sprite: 
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras:
+    - name: Aura Lightning
+      prefab: {fileID: 3501633444184293344, guid: 88b14fae91f3b5345abdc3e7a5f29793, type: 3}
+      scale: 1.2
+      height: 0.1
+      simulationSpeed: 1
+      spin: 0
+      tint: 1
+      tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+      hideSystems: Smoke
+    windup: []
+    activationBurst: []
+    windupSustain: 0.25
+    swirl: []
+    impact: []
+    arcs:
+      enabled: 1
+      material: {fileID: 2100000, guid: b9a6649977b707b449a42d16bf78c995, type: 2}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.5
+      midWidth: {x: 0.5, y: 1.2}
+      endWidth: 0
+      segments: 5
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.02
+      refresh: {x: 0.01, y: 0.03}
+      flicker: 0.001
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 5
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.5
+      aroundRadius: {x: 0.7, y: 1.7}
+      aroundHeight: {x: 0.01, y: 0.65}
+      arch: 0.7
+      trailCount: 2
+      trailSpacing: 0.75
+      trailLife: 0.85
+      trailMinSpeed: 1
+      trailHeight: 0.04
+      clashCount: 3
+      clashDuration: 0.25
   burn:
     enabled: 1
     tip:
@@ -1488,12 +1698,18 @@ MonoBehaviour:
       height: 0.1
       simulationSpeed: 1.8
       spin: 150
+      tint: 0
+      tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+      hideSystems: 
     - name: Aura Smoke
       prefab: {fileID: 3254649496035036234, guid: 778a281a2188fc24aab47c804de7dc83, type: 3}
       scale: 1
       height: 0.1
       simulationSpeed: 1
       spin: 0
+      tint: 0
+      tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+      hideSystems: 
     impact:
     - name: Chispas
       emitter: 19

@@ -36,6 +36,12 @@ namespace FakeBlade.Core
             public bool Playing;
             public float Angle;
             public float SimulationSpeed = -1f;
+            /// <summary>Color de salida de cada sistema en el prefab (para quitar el tinte).</summary>
+            public ParticleSystem.MinMaxGradient[] Original;
+            public bool Tinted;
+            public Color TintColor;
+            /// <summary>Sistemas apagados por nombre (el texto de hideSystems aplicado; null = ninguno todavía).</summary>
+            public string Hidden;
         }
 
         private readonly FakeBladeController _blade;
@@ -163,11 +169,58 @@ namespace FakeBlade.Core
                     }
                 }
 
+                if (style.tint != slot.Tinted || (style.tint && style.tintColor != slot.TintColor))
+                    ApplyTint(slot, style.tint, style.tintColor);
+                if (!string.Equals(style.hideSystems ?? "", slot.Hidden)) ApplyHidden(slot, style.hideSystems ?? "");
+
                 if (on == slot.Playing) continue;
                 slot.Playing = on;
                 if (on) slot.Instance.Play(true);
                 else slot.Instance.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
+        }
+
+        /// <summary>
+        /// Tinte de un aura (Aura Lightning en amarillo): cambia el color de salida de cada sistema, el de los que salen
+        /// de un color y el segundo de los que salen al azar entre dos (la transparencia, la del prefab). Sin tinte, el
+        /// del prefab. Solo cuando cambia: no se hace cada frame.
+        /// </summary>
+        private static void ApplyTint(AuraSlot slot, bool tint, Color color)
+        {
+            slot.Tinted = tint;
+            slot.TintColor = color;
+            for (int k = 0; k < slot.Systems.Length; k++)
+            {
+                ParticleSystem.MinMaxGradient original = slot.Original[k];
+                ParticleSystem.MinMaxGradient result = original;
+                if (tint && original.mode == ParticleSystemGradientMode.Color)
+                    result = new ParticleSystem.MinMaxGradient(new Color(color.r, color.g, color.b, original.color.a));
+                else if (tint && original.mode == ParticleSystemGradientMode.TwoColors)
+                    result = new ParticleSystem.MinMaxGradient(original.colorMin,
+                        new Color(color.r, color.g, color.b, original.colorMax.a));
+                ParticleSystem.MainModule main = slot.Systems[k].main;
+                main.startColor = result;
+            }
+        }
+
+        /// <summary>
+        /// Apaga los sistemas del aura cuyo nombre está en la lista (separados por comas; el humo amarillo del Aura
+        /// Lightning parecía que la peonza apestaba) y enciende los demás. Solo cuando cambia la lista.
+        /// </summary>
+        private static void ApplyHidden(AuraSlot slot, string names)
+        {
+            slot.Hidden = names;
+            string[] hidden = names.Split(',');
+            for (int k = 0; k < slot.Systems.Length; k++)
+            {
+                ParticleSystem system = slot.Systems[k];
+                if (system == slot.Instance) continue; // la raíz siempre sale
+                bool hide = false;
+                for (int h = 0; h < hidden.Length && !hide; h++)
+                    hide = string.Equals(hidden[h].Trim(), system.name, System.StringComparison.OrdinalIgnoreCase);
+                if (system.gameObject.activeSelf == hide) system.gameObject.SetActive(!hide);
+            }
+            if (slot.Playing) slot.Instance.Play(true);
         }
 
         private void Rebuild(AuraSlot slot, ParticleSystem prefab)
@@ -181,6 +234,10 @@ namespace FakeBlade.Core
             if (prefab == null) return;
             slot.Instance = Object.Instantiate(prefab, _blade.transform, false);
             slot.Systems = slot.Instance.GetComponentsInChildren<ParticleSystem>(true);
+            slot.Original = new ParticleSystem.MinMaxGradient[slot.Systems.Length];
+            for (int k = 0; k < slot.Systems.Length; k++) slot.Original[k] = slot.Systems[k].main.startColor;
+            slot.Tinted = false;
+            slot.Hidden = null;
             slot.BaseRotation = slot.Instance.transform.localRotation;
             slot.BaseScale = slot.Instance.transform.localScale;
             slot.Instance.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);

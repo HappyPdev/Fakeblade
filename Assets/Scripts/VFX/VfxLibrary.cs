@@ -391,6 +391,102 @@ namespace FakeBlade.Core
         [Tooltip("En cada choque con daño mientras dura el poder: un círculo de partículas iguales alrededor del choque " +
                  "(sin velocidad de giro, salen rectas hacia fuera). Usa Count, no Rate")]
         public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
+        [Header("Arcos eléctricos (Rayos)")]
+        [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
+                 "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]
+        public ElectricArcStyle arcs = new ElectricArcStyle();
+    }
+
+    /// <summary>
+    /// Arcos eléctricos (Rayos, K8, 2026-10-17; idea del usuario: como una lámpara de plasma de Tesla): líneas quebradas
+    /// que se vuelven a dibujar al azar cada pocas centésimas. Alrededor de la peonza salen del núcleo hasta puntos que se
+    /// desplazan despacio a su alrededor (unos en el borde, otros más lejos); al moverse rápido dejan arcos a ras de suelo
+    /// entre los puntos por donde pasa, que se apagan enseguida; y al chocar saltan arcos hasta la otra peonza. Cada arco
+    /// es un halo ancho y translúcido más un núcleo fino y brillante (LineRenderer). Lo aplica BladeArcs. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class ElectricArcStyle
+    {
+        public bool enabled = true;
+        [Tooltip("Material de las líneas (VFX_Arc: transparente, sin textura; lo crea Setup Rastros). Vacío = no salen")]
+        public Material material;
+        [Tooltip("Color del halo")]
+        public Color color = new Color(1f, 0.75f, 0.05f);
+        [Tooltip("Color del núcleo de la línea")]
+        public Color coreColor = new Color(1f, 0.97f, 0.6f);
+        [Tooltip("Ancho base del halo (m); el trazo de cómic lo multiplica a lo largo del rayo")]
+        [Min(0f)] public float glowWidth = 0.14f;
+        [Tooltip("Transparencia del halo")]
+        [Range(0f, 1f)] public float glowAlpha = 0.6f;
+        [Tooltip("Ancho base del núcleo (m); el trazo de cómic lo multiplica a lo largo del rayo")]
+        [Min(0f)] public float coreWidth = 0.045f;
+        [Tooltip("Grosor mínimo de cada arco, en parte del de arriba (que es el máximo): cada arco sale con un grosor al azar")]
+        [Range(0f, 1f)] public float minWidth = 0.35f;
+        [Header("Trazo de cómic (grosor a lo largo del rayo)")]
+        [Tooltip("Grosor en cada quiebro del zigzag, en veces el ancho base (Glow y Core Width; fino = los tramos parecen " +
+                 "trazos de pincel)")]
+        [Min(0f)] public float kinkWidth = 0.25f;
+        [Tooltip("Grosor en el medio de cada tramo, en veces el ancho base, al azar entre x e y (más de 1 = más grueso que la base)")]
+        public Vector2 midWidth = new Vector2(0.45f, 1f);
+        [Tooltip("Grosor en los dos extremos del rayo, en parte del de alrededor (0 = en punta)")]
+        [Range(0f, 1f)] public float endWidth = 0.1f;
+        [Tooltip("Tramos de cada arco (más = más quebrado)")]
+        [Range(2, 16)] public int segments = 12;
+        [Tooltip("Cuánto se aparta cada pico del camino recto (m, en un rayo de 1 m; los cortos, menos)")]
+        [Min(0f)] public float jitter = 0.22f;
+        [Tooltip("Zigzag: posibilidad de que cada pico se vaya al lado contrario que el anterior (1 = zigzag puro, como en el " +
+                 "boceto del usuario; 0 = al azar)")]
+        [Range(0f, 1f)] public float zigzag = 0.85f;
+        [Tooltip("Cuánto varía la longitud de cada tramo (0 = todos iguales)")]
+        [Range(0f, 0.45f)] public float unevenSegments = 0.35f;
+        [Tooltip("Cada cuánto se vuelve a dibujar cada arco (s), al azar entre x e y")]
+        public Vector2 refresh = new Vector2(0.02f, 0.05f);
+        [Tooltip("Posibilidad de que un arco se apague un momento al volver a dibujarse (parpadeo)")]
+        [Range(0f, 1f)] public float flicker = 0.15f;
+        [Header("Ramas y chispas")]
+        [Tooltip("Posibilidad de que cada rayo saque una rama más corta desde algún punto (al volver a dibujarse)")]
+        [Range(0f, 1f)] public float branchChance = 0.5f;
+        [Tooltip("Largo de las ramas (m), al azar entre x e y")]
+        public Vector2 branchLength = new Vector2(0.25f, 0.6f);
+        [Tooltip("Posibilidad de que salte una chispa de cuatro puntas cerca del rayo (al volver a dibujarse)")]
+        [Range(0f, 1f)] public float sparkChance;
+        [Tooltip("Tamaño de las chispas (m), al azar entre x e y")]
+        public Vector2 sparkSize = new Vector2(0.12f, 0.22f);
+
+        [Header("Alrededor (lámpara de plasma)")]
+        [Tooltip("Rayos a la vez. Cada uno cae en un punto al azar, que se queda fijo mientras el otro extremo sigue al " +
+                 "núcleo (se estira), y se apaga al acabar su vida; entonces cae otro en otro sitio")]
+        [Range(0, 8)] public int aroundCount = 6;
+        [Tooltip("Lo que dura cada rayo antes de caer en otro sitio (s), al azar entre x e y")]
+        public Vector2 strikeLife = new Vector2(0.15f, 0.35f);
+        [Tooltip("Arrastre: cuánto se queda atrás el medio del rayo al moverse la peonza (s de su velocidad)")]
+        [Min(0f)] public float drag = 0.05f;
+        [Tooltip("Si el rayo se estira más que esto (m), se corta antes y cae otro")]
+        [Min(0.5f)] public float maxStretch = 2.5f;
+        [Tooltip("Altura del núcleo, de donde salen, sobre el centro de la peonza (m)")]
+        public float coreHeight = 0.4f;
+        [Tooltip("Distancia al centro a la que caen (m), al azar entre x e y")]
+        public Vector2 aroundRadius = new Vector2(0.6f, 1.3f);
+        [Tooltip("Altura a la que caen sobre la punta (m), al azar entre x e y (0 = en el suelo)")]
+        public Vector2 aroundHeight = new Vector2(0.15f, 0.45f);
+        [Tooltip("Cuánto se curva cada arco hacia arriba (m, en el medio)")]
+        public float arch = 0.6f;
+
+        [Header("Rastro por el suelo")]
+        [Range(0, 8)] public int trailCount = 5;
+        [Tooltip("Metros recorridos entre dos arcos del rastro")]
+        [Min(0.05f)] public float trailSpacing = 0.6f;
+        [Tooltip("Lo que dura cada arco del rastro (s; se apaga poco a poco)")]
+        [Min(0.05f)] public float trailLife = 0.45f;
+        [Tooltip("Velocidad mínima (m/s) para dejar rastro")]
+        [Min(0f)] public float trailMinSpeed = 3f;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float trailHeight = 0.03f;
+
+        [Header("Al chocar")]
+        [Range(0, 6)] public int clashCount = 3;
+        [Tooltip("Lo que duran los arcos hasta la otra peonza (s)")]
+        [Min(0.05f)] public float clashDuration = 0.25f;
     }
 
     /// <summary>
@@ -415,6 +511,12 @@ namespace FakeBlade.Core
         [Tooltip("Giro alrededor de la vertical (grados/s; negativo = hacia el otro lado). Con simulación local (Aura " +
                  "Burn) gira todo el fuego; con simulación de mundo (Aura Smoke), solo por dónde salen")]
         public float spin;
+        [Tooltip("Cambia el color de sus partículas: el de los sistemas que salen de un color, y el segundo de los que salen " +
+                 "al azar entre dos (Aura Lightning: de azul a amarillo)")]
+        public bool tint;
+        public Color tintColor = new Color(1f, 0.85f, 0.15f);
+        [Tooltip("Sistemas del prefab que no salen, por su nombre, separados por comas (Aura Lightning: Smoke, su humo)")]
+        public string hideSystems = "";
     }
 
     /// <summary>

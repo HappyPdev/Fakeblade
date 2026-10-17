@@ -147,6 +147,7 @@ namespace FakeBlade.Core
         private BladeBurstTip _burnTip;
         // Partículas del especial y de la quemadura, y manchas en el suelo (K8)
         private BladeSpecialFx _specialFx;
+        private BladeArcs _arcs;
         // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
         private BladeOverlay _overlay;
 
@@ -288,6 +289,9 @@ namespace FakeBlade.Core
         /// <summary>Giro de cada pieza a su velocidad (O1); lo asigna el propio componente al montarse el modelo.</summary>
         internal BladePartSpin PartSpin { get; set; }
 
+        /// <summary>Arcos eléctricos del especial (Rayos; VfxSystem los lanza al chocar).</summary>
+        public BladeArcs Arcs => _arcs;
+
         /// <summary>Última peonza que le quitó RPM (para dar el punto de K.O.).</summary>
         public FakeBladeController LastDamageSource { get; private set; }
         public float LastDamageTime { get; private set; } = float.NegativeInfinity;
@@ -307,6 +311,7 @@ namespace FakeBlade.Core
             _specialTip = new BladeBurstTip(this, "SpecialTip");
             _burnTip = new BladeBurstTip(this, "BurnTip");
             _specialFx = new BladeSpecialFx(this);
+            _arcs = new BladeArcs(this);
             _overlay = new BladeOverlay(this);
 
             SetupVisualRoot();
@@ -771,6 +776,7 @@ namespace FakeBlade.Core
             _specialTip?.Hide();
             _burnTip?.Hide();
             _specialFx?.Clear();
+            _arcs?.Hide();
             _overlay?.Clear();
 
             PlaySound(spinOutSound);
@@ -1506,6 +1512,7 @@ namespace FakeBlade.Core
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
+                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
             }
             _overlay?.Tick(dt);
         }
@@ -1571,6 +1578,7 @@ namespace FakeBlade.Core
             _specialTip?.Hide();
             _burnTip?.Hide();
             _specialFx?.Clear();
+            _arcs?.Hide();
             _overlay?.Clear();
 
             if (_rb != null)

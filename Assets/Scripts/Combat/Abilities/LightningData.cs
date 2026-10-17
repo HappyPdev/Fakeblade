@@ -59,6 +59,8 @@ namespace FakeBlade.Core
             if (!bonus.Strong || !target.TryLaunch(Owner, Config.launchDuration)) return;
 
             PlayStrike(contactPoint);
+            // Arcos hasta el rival (K8): el poder se gasta aquí, antes de que VfxSystem se entere del choque
+            BladeArcs.PlayClash(Owner, target, evenIfEnded: true);
             Owner.EndSpecial();
         }
 

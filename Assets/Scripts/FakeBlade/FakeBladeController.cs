@@ -905,7 +905,12 @@ namespace FakeBlade.Core
             // Efecto común (RPM y cargas) + efecto propio del poder: SpecialAbilitySystem
             if (!_special.TryActivate()) return false;
 
-            VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, _special.Color, _special.Data.activationBurst);
+            // Explosión de estrellas común; no en los especiales con su propia explosión al encenderse (Fuego, Hielo, Rayos: las
+            // estrellas de cuatro puntas no gustan, 2026-10-18)
+            VfxLibrary lib = VfxSystem.Library;
+            SpecialVfxStyle effects = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
+            if (effects == null || effects.activationBurst == null || effects.activationBurst.Count == 0)
+                VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, _special.Color, _special.Data.activationBurst);
 
             CameraShake.Shake(0.1f, 0.08f);
             PlaySound(specialSound);
@@ -1512,7 +1517,8 @@ namespace FakeBlade.Core
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
-                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
+                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed,
+                    _special.IsActive && _special.IsWindingUp && !_isDestroyed);
             }
             _overlay?.Tick(dt);
         }

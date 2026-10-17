@@ -3,7 +3,8 @@ using UnityEngine;
 namespace FakeBlade.Core
 {
     /// <summary>
-    /// Rayos (GDD 5; sustituye a Dash eléctrico). Modo cargado durante el poder (hasta 6 s):
+    /// Rayos (GDD 5; sustituye a Dash eléctrico). Al activarlo, una carga corta (se frena, como el Fuego y el Hielo;
+    /// 2026-10-18) y después, modo cargado durante el poder (hasta 6 s):
     /// - Choque pequeño (va hacia el rival a poca velocidad): empuja fuerte y no gasta el poder.
     /// - Choque fuerte (va hacia el rival a la velocidad mínima o más): más daño, mucho más empuje,
     ///   deja al rival lanzado y gasta el poder, con un destello.
@@ -13,6 +14,12 @@ namespace FakeBlade.Core
     [CreateAssetMenu(fileName = "Lightning", menuName = "FakeBlade/Specials/Rayos")]
     public class LightningData : SpecialAbilityData
     {
+        [Header("Encendido")]
+        [Tooltip("Carga al activarlo (s): se frena y no puede atacar ni hacer dash; el modo cargado empieza al acabar (0 = enseguida)")]
+        [Min(0f)] public float windupTime = 0.3f;
+        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
+        public float windupBrake = 12f;
+
         [Header("Choque pequeño")]
         [Tooltip("Velocidad mínima hacia el rival (m/s) para que el choque tenga efecto")]
         [Min(0f)] public float smallMinSpeed = 1f;
@@ -40,13 +47,37 @@ namespace FakeBlade.Core
 
     public sealed class LightningAbility : SpecialAbility<LightningData>
     {
-        private const int StrikeBolts = 6;
+        private float _windup;
 
         public LightningAbility(LightningData data, FakeBladeController owner) : base(data, owner) { }
 
+        public override bool IsWindingUp => _windup > 0f;
+        public override bool BlocksActions => IsWindingUp;
+
+        public override void OnActivate()
+        {
+            _windup = Config.windupTime;
+        }
+
+        public override void OnEnd()
+        {
+            _windup = 0f;
+        }
+
+        public override void Tick(float dt)
+        {
+            if (!IsWindingUp) return;
+            // Carga: se frena hasta quedarse quieta
+            Vector3 v = Owner.Velocity;
+            v.y = 0f;
+            Owner.ApplyPull(-v * Mathf.Min(1f, Config.windupBrake * dt));
+            _windup -= dt;
+        }
+
         public override ClashBonus GetClashBonus(FakeBladeController target, float approachSpeed)
         {
-            if (approachSpeed < Config.smallMinSpeed || target.Status.IsFrozen) return ClashBonus.None;
+            // En la carga todavía no está cargado: choque normal
+            if (IsWindingUp || approachSpeed < Config.smallMinSpeed || target.Status.IsFrozen) return ClashBonus.None;
 
             return approachSpeed >= Config.strongMinSpeed
                 ? new ClashBonus(Config.strongDamageMultiplier, Config.strongKnockbackMultiplier, true)
@@ -66,16 +97,9 @@ namespace FakeBlade.Core
 
         private void PlayStrike(Vector3 point)
         {
-            Color color = Data.color;
-            VfxSystem.Play(VfxType.SpecialBurst, point, Vector3.up, color, 2f);
-            VfxSystem.Play(VfxType.Sparkle, point, Vector3.up, Color.white, 1.5f);
-            for (int i = 0; i < StrikeBolts; i++)
-            {
-                Vector3 p = point + Random.insideUnitSphere * 0.8f;
-                // Giros de 90º para que el rayo pixel no se deforme
-                VfxSystem.EmitParticle(VfxType.AuraLightning, p, Vector3.zero, i % 2 == 0 ? color : Color.white,
-                    Random.Range(0.5f, 0.8f), 0.15f, 90f * Random.Range(0, 4));
-            }
+            // Círculo grande de chispas y ceniza (K8, 2026-10-18): sin las estrellas de cuatro puntas ni los rayitos pixel de
+            // antes, que no gustan; los rayos ya los dibujan los arcos (BladeArcs)
+            BladeSpecialFx.PlayStrongImpact(Owner, point);
             CameraShake.Shake(Config.strikeShake, 0.15f);
             HitStop.Trigger(Config.strikeHitStop);
         }

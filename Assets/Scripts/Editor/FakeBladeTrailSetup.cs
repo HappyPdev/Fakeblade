@@ -559,7 +559,8 @@ namespace FakeBlade.Core.Editor
         /// Rayos (2026-10-17, idea del usuario): arcos eléctricos como una lámpara de plasma de Tesla, alrededor de la
         /// peonza, por el suelo al moverse y hasta la otra peonza al chocar (BladeArcs), con el material VFX_Arc; y el borde
         /// amarillo parpadeando a golpes muy cortos e irregulares, como un cortocircuito; y el Aura Lightning de Status and Auras
-        /// FREE en amarillo. Sustituye a su aura de
+        /// FREE en amarillo. La carga de 0,3 s con su remolino y su explosión, los impactos (pequeño y fuerte) y la peonza
+        /// lanzada (2026-10-18). Sustituye a su aura de
         /// partículas de antes. Solo añade la entrada si falta y rellena lo que esté vacío.
         /// </summary>
         private static string SetupLightning(VfxLibrary library)
@@ -579,8 +580,121 @@ namespace FakeBlade.Core.Editor
             ParticleSystem auraLightning = AuraPrefab(AuraLightningPrefabPath);
             if (lightning.auras.Count == 0 && auraLightning != null)
                 lightning.auras.Add(new AuraStyle { name = "Aura Lightning", prefab = auraLightning, scale = 1.1f, tint = true, tintColor = new Color(1f, 0.85f, 0.15f), hideSystems = "Smoke" });
+            // Carga de 0,3 s (2026-10-18, tras verla el usuario): el remolino del Fuego y del Hielo en amarillo anaranjado, con
+            // ceniza que cae despacio para darle volumen (sin rayitos pixel: los rayos ya los dibujan los arcos), explosión
+            // compacta, impactos y marcas negras en el suelo por donde pasa, como el Fuego
+            lightning.windup ??= new List<SpiralParticleStyle>();
+            if (lightning.windup.Count == 0) lightning.windup.AddRange(LightningWindup());
+            lightning.activationBurst ??= new List<SpiralParticleStyle>();
+            if (lightning.activationBurst.Count == 0) lightning.activationBurst.AddRange(LightningBurst());
+            lightning.impact ??= new List<SpiralParticleStyle>();
+            if (lightning.impact.Count == 0) lightning.impact.Add(LightningSparks(12, 3f, 5f, new Vector2(0.05f, 0.08f)));
+            lightning.strongImpact ??= new List<SpiralParticleStyle>();
+            if (lightning.strongImpact.Count == 0)
+            {
+                lightning.strongImpact.Add(LightningSparks(36, 6f, 10f, new Vector2(0.06f, 0.11f)));
+                lightning.strongImpact.Add(LightningAsh(16, 1.5f, 3f));
+            }
+            lightning.scorch ??= new ScorchStyle();
+            if (string.IsNullOrEmpty(lightning.scorch.sprite)) lightning.scorch = new ScorchStyle { sprite = "Quemado" };
+
+            // Peonza lanzada: borde amarillo que parpadea, chispas que saltan y un círculo pequeño de chispas al chocar (el
+            // Stun del paquete se quitó: sus estrellas de cuatro puntas no gustan)
+            library.launched ??= new StatusVfxStyle();
+            StatusVfxStyle launched = library.launched;
+            launched.particles ??= new List<SpecialParticleStyle>();
+            if (launched.particles.Count == 0)
+            {
+                launched.tip ??= new BurstTipStyle();
+                launched.tip.cups.Clear();
+                launched.tip.particleSprite = "";
+                launched.tip.ground = new TipGroundSprite();
+                launched.overlay = new SpecialOverlayStyle
+                {
+                    color = new Color(1f, 0.85f, 0.2f), hotColor = Color.white, baseRim = 0.4f, pulseRim = new Vector2(1.5f, 3.5f),
+                    pulseFlash = new Vector2(0.1f, 0.35f), pulseInterval = new Vector2(0.03f, 0.12f), pulseDecay = 0.05f
+                };
+                launched.particles.Add(new SpecialParticleStyle
+                {
+                    name = "Chispas que saltan", sprite = "Chispa", rate = 20f, burstInterval = new Vector2(0.05f, 0.15f),
+                    burstCount = new Vector2(2f, 5f), spawnRadius = new Vector2(0.3f, 0.6f), height = new Vector2(0.05f, 0.35f),
+                    coneAngle = 60f, speed = new Vector2(3f, 6f), inheritVelocity = 0.3f, size = new Vector2(0.05f, 0.08f),
+                    lifetime = new Vector2(0.2f, 0.4f), color = Color.white, color2 = new Color(1f, 0.8f, 0.1f)
+                });
+                launched.impact ??= new List<SpiralParticleStyle>();
+                if (launched.impact.Count == 0) launched.impact.Add(LightningSparks(10, 3f, 5f, new Vector2(0.04f, 0.07f)));
+            }
             return "Rayos" + (added ? " (nuevo)" : "");
         }
+
+        private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);
+        private static readonly Color LightningOrange = new Color(1f, 0.5f, 0.05f);
+
+        /// <summary>
+        /// Carga de Rayos: el remolino del Fuego (llamas y chispas que giran y se tragan hacia dentro) en amarillo anaranjado,
+        /// y ceniza negra y gris que sube un poco y cae despacio (sprite Ceniza de Setup Impactos).
+        /// </summary>
+        private static SpiralParticleStyle[] LightningWindup() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Remolino de llamas", emitter = VfxType.ChargeFlame, rate = 160f, radius = new Vector2(0.8f, 1.2f),
+                height = new Vector2(0f, 0.15f), tangentialSpeed = new Vector2(6f, 9f), outwardSpeed = new Vector2(-3f, -2f),
+                upSpeed = new Vector2(2f, 4f), size = new Vector2(0.16f, 0.26f), lifetime = new Vector2(0.25f, 0.4f),
+                color = LightningYellow, color2 = LightningOrange
+            },
+            new SpiralParticleStyle
+            {
+                name = "Remolino de chispas", sprite = "Chispa", rate = 70f, radius = new Vector2(0.6f, 1f),
+                height = new Vector2(0f, 0.2f), tangentialSpeed = new Vector2(7f, 10f), outwardSpeed = new Vector2(-2f, -1f),
+                upSpeed = new Vector2(3f, 5f), size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.3f, 0.5f),
+                color = Color.white, color2 = LightningYellow
+            },
+            new SpiralParticleStyle
+            {
+                name = "Ceniza", sprite = "Ceniza", rate = 30f, radius = new Vector2(0.5f, 1f),
+                height = new Vector2(0.1f, 0.4f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(-0.5f, 0.3f),
+                upSpeed = new Vector2(0.8f, 1.6f), size = new Vector2(0.12f, 0.22f), lifetime = new Vector2(1.2f, 2f),
+                color = new Color(0.08f, 0.08f, 0.08f), color2 = new Color(0.45f, 0.45f, 0.45f), alpha = 0.9f
+            }
+        };
+
+        /// <summary>Al encenderse Rayos: la explosión compacta del Fuego en amarillo anaranjado, con ceniza.</summary>
+        private static SpiralParticleStyle[] LightningBurst() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Explosión de llamas", emitter = VfxType.ChargeFlame, count = 50, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(2.5f, 3.5f), outwardSpeed = new Vector2(0.8f, 1.5f),
+                upSpeed = new Vector2(0.6f, 1.2f), size = new Vector2(0.22f, 0.36f), lifetime = new Vector2(0.22f, 0.35f),
+                color = LightningYellow, color2 = LightningOrange
+            },
+            new SpiralParticleStyle
+            {
+                name = "Explosión de chispas", sprite = "Chispa", count = 35, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(3f, 4.5f), outwardSpeed = new Vector2(1.2f, 2.2f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.05f, 0.09f), lifetime = new Vector2(0.25f, 0.45f),
+                color = Color.white, color2 = LightningYellow
+            },
+            LightningAsh(20, 0.5f, 1.5f)
+        };
+
+        /// <summary>Círculo de chispas que salen rectas a ras de suelo, saltan y caen (impactos de Rayos y de la lanzada).</summary>
+        private static SpiralParticleStyle LightningSparks(int count, float minSpeed, float maxSpeed, Vector2 size) => new SpiralParticleStyle
+        {
+            name = "Chispas", sprite = "Chispa", count = count, radius = new Vector2(0.1f, 0.2f),
+            height = new Vector2(0.05f, 0.2f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed),
+            upSpeed = new Vector2(1f, 2.5f), size = size, lifetime = new Vector2(0.25f, 0.5f), color = Color.white, color2 = LightningYellow
+        };
+
+        /// <summary>Círculo de ceniza negra y gris que sale despacio, sube un poco y cae lenta (sprite Ceniza).</summary>
+        private static SpiralParticleStyle LightningAsh(int count, float minSpeed, float maxSpeed) => new SpiralParticleStyle
+        {
+            name = "Ceniza", sprite = "Ceniza", count = count, radius = new Vector2(0.2f, 0.4f),
+            height = new Vector2(0.1f, 0.4f), tangentialSpeed = new Vector2(0.3f, 0.8f), outwardSpeed = new Vector2(minSpeed, maxSpeed),
+            upSpeed = new Vector2(1f, 2f), size = new Vector2(0.12f, 0.22f), lifetime = new Vector2(1.2f, 2f),
+            color = new Color(0.08f, 0.08f, 0.08f), color2 = new Color(0.45f, 0.45f, 0.45f), alpha = 0.9f
+        };
 
         /// <summary>Valores de partida de Rayos: sin nada en la punta, borde que parpadea y los arcos.</summary>
         private static SpecialVfxStyle DefaultLightning()

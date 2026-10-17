@@ -76,6 +76,8 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float fadeOut;
         [Tooltip("Parte del principio de la vida en la que aparece poco a poco (0 = de golpe). Para el vaho")]
         [Range(0f, 1f)] public float fadeIn;
+        [Tooltip("Parte final de la vida en la que se encoge hasta desaparecer (0 = no se encoge; 0,7 = el último 70%). Para la ceniza")]
+        [Range(0f, 1f)] public float shrinkOut;
         [Tooltip("Giro de cada partícula (grados/s; negativo = hacia el otro lado), que se frena hasta la quinta parte al " +
                  "final de su vida, como por inercia (0 = no gira). Para el vaho")]
         public float spin;
@@ -391,6 +393,8 @@ namespace FakeBlade.Core
         [Tooltip("En cada choque con daño mientras dura el poder: un círculo de partículas iguales alrededor del choque " +
                  "(sin velocidad de giro, salen rectas hacia fuera). Usa Count, no Rate")]
         public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
+        [Tooltip("En el golpe fuerte (Rayos, que gasta el poder): un círculo más grande. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> strongImpact = new List<SpiralParticleStyle>();
         [Header("Arcos eléctricos (Rayos)")]
         [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
                  "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]
@@ -456,7 +460,9 @@ namespace FakeBlade.Core
         [Header("Alrededor (lámpara de plasma)")]
         [Tooltip("Rayos a la vez. Cada uno cae en un punto al azar, que se queda fijo mientras el otro extremo sigue al " +
                  "núcleo (se estira), y se apaga al acabar su vida; entonces cae otro en otro sitio")]
-        [Range(0, 8)] public int aroundCount = 6;
+        [Range(0, 12)] public int aroundCount = 6;
+        [Tooltip("Rayos a la vez durante la carga del principio del especial (0,3 s): muchos, para que se note que se enciende")]
+        [Range(0, 12)] public int windupCount = 10;
         [Tooltip("Lo que dura cada rayo antes de caer en otro sitio (s), al azar entre x e y")]
         public Vector2 strikeLife = new Vector2(0.15f, 0.35f);
         [Tooltip("Arrastre: cuánto se queda atrás el medio del rayo al moverse la peonza (s de su velocidad)")]
@@ -919,6 +925,8 @@ namespace FakeBlade.Core
         public StatusVfxStyle burn = new StatusVfxStyle();
         [Tooltip("Peonza congelada: aro de hielo en el suelo, escarcha quieta sobre la peonza, vaho, cristales y disco más lento")]
         public StatusVfxStyle frozen = new StatusVfxStyle();
+        [Tooltip("Peonza lanzada (golpe fuerte de Rayos, onda de choque): borde amarillo que parpadea, chispas que saltan y aura")]
+        public StatusVfxStyle launched = new StatusVfxStyle();
 
         /// <summary>Efectos del especial, o null si no tiene (sigue con su aura de partículas).</summary>
         public SpecialVfxStyle GetSpecialEffects(SpecialAbilityType type)
@@ -933,6 +941,7 @@ namespace FakeBlade.Core
         {
             StatusVfxStyle style = status == StatusEffectType.Burning ? burn
                 : status == StatusEffectType.Frozen ? frozen
+                : status == StatusEffectType.Launched ? launched
                 : null;
             return style != null && style.enabled ? style : null;
         }

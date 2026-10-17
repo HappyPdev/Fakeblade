@@ -44,7 +44,11 @@ namespace FakeBlade.Core.Editor
             public bool GeneratedScorch;
             /// <summary>Textura generada: nube de vaho con jirones (Hielo).</summary>
             public bool GeneratedMist;
-            public float FadeIn, FadeOut, Gravity, Drag, Spin;
+            /// <summary>Textura generada: un punto pixel (ceniza).</summary>
+            public bool GeneratedDot;
+            /// <summary>Textura recortada: el pentágono de la segunda casilla de Impact09 (Wallcoeur), en pixel art (ceniza).</summary>
+            public bool CutShard;
+            public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut;
             public int Max;
         }
 
@@ -88,6 +92,12 @@ namespace FakeBlade.Core.Editor
             // tumbada a ras de suelo, que gira y se frena como por la inercia de la peonza y se queda posada unos instantes
             new DefaultSprite { Id = "Vaho", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.6f, Order = 0, Upright = true, DepthTested = true, FadeIn = 0.25f, FadeOut = 0.6f, Gravity = 0.03f, Drag = 0.3f, Spin = 25f, Max = 256 },
             new DefaultSprite { Id = "VahoSuelo", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 2f, Order = -1, Upright = true, DepthTested = true, Flat = true, FadeIn = 0.2f, FadeOut = 0.6f, Drag = 0.45f, Spin = 40f, Max = 256 },
+            // Ceniza (Rayos, 2026-10-18): el pentágono de Impact09 en pixel art (blanco para teñirlo), girado al azar, que sube un
+            // poco, cae despacio y se encoge hasta desaparecer
+            new DefaultSprite { Id = "Ceniza", CutShard = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.6f, Order = 0, DepthTested = true, ShrinkOut = 0.7f, Gravity = 0.12f, Drag = 0.5f, Max = 512 },
+            // Chispa simple (Rayos, 2026-10-18): el mismo punto pixel, que cae con gravedad (la textura VFX_Spark es una estrella
+            // de cuatro puntas, que no gusta)
+            new DefaultSprite { Id = "Chispa", GeneratedDot = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.45f, Order = 1, Upright = true, DepthTested = true, FadeOut = 0.3f, Gravity = 1f, Drag = 0.15f, Max = 512 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -112,7 +122,7 @@ namespace FakeBlade.Core.Editor
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
                     frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat,
-                    fadeOut = d.FadeOut, fadeIn = d.FadeIn, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
+                    fadeOut = d.FadeOut, fadeIn = d.FadeIn, shrinkOut = d.ShrinkOut, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
                     maxParticles = d.Max > 0 ? d.Max : 128
                 });
                 added++;
@@ -205,6 +215,8 @@ namespace FakeBlade.Core.Editor
             if (!string.IsNullOrEmpty(d.CodeManu)) return FakeBladeTrailSetup.CodeManuSheet(d.CodeManu);
             if (d.GeneratedScorch) return ScorchTexture();
             if (d.GeneratedMist) return MistTexture();
+            if (d.GeneratedDot) return DotTexture();
+            if (d.CutShard) return ShardTexture();
             string source = PackFolder + d.Texture + ".png";
             if (d.Convert == Convert.None) return AssetDatabase.LoadAssetAtPath<Texture2D>(source);
 
@@ -306,6 +318,99 @@ namespace FakeBlade.Core.Editor
             Object.DestroyImmediate(tex);
             AssetDatabase.ImportAsset(target);
 
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        /// <summary>
+        /// Pentágono de ceniza (Rayos, 2026-10-18; elegido por el usuario): el dibujo de la segunda casilla de Impact09 (hoja de
+        /// 3 × 3 de Wallcoeur, fuera del repo), recortado a su tamaño y reducido a 16 × 16 en pixel art, blanco para teñirlo.
+        /// </summary>
+        private static Texture2D ShardTexture()
+        {
+            string target = ConvertedFolder + "/Ceniza_Impact09.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null) return existing;
+            string source = PackFolder + "impact_1.1.0/Impact09.png";
+            if (!File.Exists(source)) return DotTexture();
+            var sheet = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            sheet.LoadImage(File.ReadAllBytes(source));
+            int cell = sheet.width / 3;
+            // Segunda casilla de la fila de arriba (en la textura, y = 0 es la fila de abajo)
+            int x0 = cell, y0 = sheet.height - cell;
+            Color32[] all = sheet.GetPixels32();
+            int minX = int.MaxValue, minY = int.MaxValue, maxX = -1, maxY = -1;
+            for (int y = y0; y < y0 + cell; y++)
+            for (int x = x0; x < x0 + cell; x++)
+            {
+                if (all[y * sheet.width + x].a < 80) continue;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+            if (maxX < 0)
+            {
+                Object.DestroyImmediate(sheet);
+                return DotTexture();
+            }
+            // Cuadrado alrededor del dibujo, con un poco de margen
+            int side = Mathf.Max(maxX - minX, maxY - minY) + 1;
+            int margin = side / 10;
+            side += margin * 2;
+            int cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+            const int size = 16;
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                // El píxel de la hoja en el centro de cada casilla de 16 × 16 (pixel art nítido)
+                int sx = cx - side / 2 + (int)((x + 0.5f) * side / size);
+                int sy = cy - side / 2 + (int)((y + 0.5f) * side / size);
+                byte a = sx < 0 || sy < 0 || sx >= sheet.width || sy >= sheet.height ? (byte)0 : all[sy * sheet.width + sx].a;
+                pixels[y * size + x] = new Color32(255, 255, 255, a >= 128 ? (byte)255 : (byte)0);
+            }
+            Object.DestroyImmediate(sheet);
+
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.SetPixels32(pixels);
+            FakeBladeAssetsMenu.EnsureFolder(ConvertedFolder);
+            File.WriteAllBytes(target, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(target);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        /// <summary>Punto pixel de 4 × 4, blanco y opaco, con filtro de punto (ceniza; se tiñe al usarlo).</summary>
+        private static Texture2D DotTexture()
+        {
+            string target = ConvertedFolder + "/Punto.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null) return existing;
+            const int size = 4;
+            var pixels = new Color32[size * size];
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = new Color32(255, 255, 255, 255);
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.SetPixels32(pixels);
+            FakeBladeAssetsMenu.EnsureFolder(ConvertedFolder);
+            File.WriteAllBytes(target, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(target);
             var importer = (TextureImporter)AssetImporter.GetAtPath(target);
             importer.textureType = TextureImporterType.Default;
             importer.alphaIsTransparency = true;
@@ -447,6 +552,16 @@ namespace FakeBlade.Core.Editor
                         new GradientAlphaKey(1f, Mathf.Min(0.999f, fadeOutStart)), new GradientAlphaKey(s.fadeOut > 0f ? 0f : 1f, 1f)
                     });
                 fade.color = gradient;
+            }
+
+            // Se encoge hasta desaparecer al final de la vida (ceniza)
+            var shrink = ps.sizeOverLifetime;
+            shrink.enabled = s.shrinkOut > 0f;
+            if (shrink.enabled)
+            {
+                float start = Mathf.Clamp(1f - s.shrinkOut, 0f, 0.99f);
+                var curve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(start, 1f), new Keyframe(1f, 0f));
+                shrink.size = new ParticleSystem.MinMaxCurve(1f, curve);
             }
 
             // Giro que se frena hasta la quinta parte al final de la vida, como por inercia (vaho)

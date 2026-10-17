@@ -107,6 +107,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
@@ -125,6 +126,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
@@ -143,6 +145,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
@@ -161,6 +164,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
@@ -179,6 +183,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
@@ -197,6 +202,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
@@ -215,6 +221,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
@@ -233,6 +240,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
@@ -251,6 +259,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
@@ -269,6 +278,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
@@ -287,6 +297,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
@@ -305,6 +316,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
@@ -323,6 +335,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
@@ -341,6 +354,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
@@ -359,6 +373,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
@@ -377,6 +392,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
@@ -395,6 +411,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
@@ -413,6 +430,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
@@ -431,6 +449,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
@@ -449,6 +468,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 5119328486904876569, guid: db6d52e7c83aa9e439949306f155a9a5, type: 3}
@@ -467,6 +487,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 128
     prefab: {fileID: 6229379388671274524, guid: 5dc318de35c7208438c601f039695dd9, type: 3}
@@ -485,6 +506,7 @@ MonoBehaviour:
     drag: 0
     fadeOut: 0.6
     fadeIn: 0
+    shrinkOut: 0
     spin: 0
     maxParticles: 600
     prefab: {fileID: 4374145376275296882, guid: e75a8ab61b50422478912f0ef3c1f2b3, type: 3}
@@ -503,6 +525,7 @@ MonoBehaviour:
     drag: 0.3
     fadeOut: 0.6
     fadeIn: 0.25
+    shrinkOut: 0
     spin: 25
     maxParticles: 256
     prefab: {fileID: 6004662944321763171, guid: 873b56b4e480cd64092b140d427fe900, type: 3}
@@ -521,9 +544,48 @@ MonoBehaviour:
     drag: 0.45
     fadeOut: 0.6
     fadeIn: 0.2
+    shrinkOut: 0
     spin: 40
     maxParticles: 256
     prefab: {fileID: 7798411352100960854, guid: a503c0f82a7a68341a6ef2e31d30c3f1, type: 3}
+  - id: Ceniza
+    texture: {fileID: 2800000, guid: 61987c5e87c22df4b96577c15673ec00, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.6
+    randomRotation: 1
+    order: 0
+    depthTested: 1
+    flat: 0
+    gravity: 0.12
+    drag: 0.5
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0.7
+    spin: 0
+    maxParticles: 512
+    prefab: {fileID: 652739629231115821, guid: 5d0f290a621c1fa4f956dbbf09862345, type: 3}
+  - id: Chispa
+    texture: {fileID: 2800000, guid: 1f01ddd7038ae5a4aba618ac6e0aaa72, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 0.45
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 1
+    drag: 0.15
+    fadeOut: 0.3
+    fadeIn: 0
+    shrinkOut: 0
+    spin: 0
+    maxParticles: 512
+    prefab: {fileID: 2201027113043254691, guid: 1ccde8c1376105440a7a08f66bb920af, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -1053,6 +1115,7 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+    strongImpact: []
     arcs:
       enabled: 1
       material: {fileID: 0}
@@ -1076,6 +1139,7 @@ MonoBehaviour:
       sparkChance: 0.3
       sparkSize: {x: 0.12, y: 0.22}
       aroundCount: 5
+      windupCount: 10
       strikeLife: {x: 0.15, y: 0.35}
       drag: 0.05
       maxStretch: 2.5
@@ -1368,6 +1432,7 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.5
+    strongImpact: []
     arcs:
       enabled: 1
       material: {fileID: 0}
@@ -1391,6 +1456,7 @@ MonoBehaviour:
       sparkChance: 0.3
       sparkSize: {x: 0.12, y: 0.22}
       aroundCount: 5
+      windupCount: 10
       strikeLife: {x: 0.15, y: 0.35}
       drag: 0.05
       maxStretch: 2.5
@@ -1445,7 +1511,7 @@ MonoBehaviour:
         firstFrame: 0
         frames: 61
         cycle: 1
-        size: 3
+        size: 1.5
         height: 0.02
         spinSpeed: 90
         playerColor: 0
@@ -1478,7 +1544,7 @@ MonoBehaviour:
       textureColor: {r: 1, g: 1, b: 1, a: 1}
     particles: []
     scorch:
-      sprite: 
+      sprite: Quemado
       spacing: 0.4
       idleInterval: 0.5
       size: {x: 1, y: 1.5}
@@ -1496,11 +1562,156 @@ MonoBehaviour:
       tint: 1
       tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
       hideSystems: Smoke
-    windup: []
-    activationBurst: []
+    windup:
+    - name: Remolino de llamas
+      emitter: 15
+      sprite: 
+      rate: 160
+      count: 40
+      radius: {x: 0.8, y: 1.2}
+      height: {x: 0, y: 0.15}
+      tangentialSpeed: {x: 6, y: 9}
+      outwardSpeed: {x: -3, y: -2}
+      upSpeed: {x: 2, y: 4}
+      clockwise: 1
+      size: {x: 0.16, y: 0.26}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.25, a: 1}
+      color2: {r: 1, g: 0.5, b: 0.05, a: 1}
+      alpha: 1
+    - name: Remolino de chispas
+      emitter: 15
+      sprite: Chispa
+      rate: 70
+      count: 40
+      radius: {x: 0.6, y: 1}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 7, y: 10}
+      outwardSpeed: {x: -2, y: -1}
+      upSpeed: {x: 3, y: 5}
+      clockwise: 1
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.25, a: 1}
+      alpha: 1
+    - name: Ceniza
+      emitter: 15
+      sprite: Ceniza
+      rate: 30
+      count: 40
+      radius: {x: 0.5, y: 1}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -0.5, y: 0.3}
+      upSpeed: {x: 0.8, y: 1.6}
+      clockwise: 1
+      size: {x: 0.06, y: 0.16}
+      lifetime: {x: 0.8, y: 2}
+      color: {r: 0.21509439, g: 0.20900682, b: 0.20900682, a: 1}
+      color2: {r: 0.381132, g: 0.36746877, b: 0.36746877, a: 1}
+      alpha: 0.7
+    activationBurst:
+    - name: "Explosi\xF3n de llamas"
+      emitter: 15
+      sprite: 
+      rate: 100
+      count: 50
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.3}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: 0.8, y: 1.5}
+      upSpeed: {x: 0.6, y: 1.2}
+      clockwise: 1
+      size: {x: 0.22, y: 0.36}
+      lifetime: {x: 0.22, y: 0.35}
+      color: {r: 1, g: 0.85, b: 0.25, a: 1}
+      color2: {r: 1, g: 0.5, b: 0.05, a: 1}
+      alpha: 1
+    - name: "Explosi\xF3n de chispas"
+      emitter: 15
+      sprite: Chispa
+      rate: 100
+      count: 35
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.3}
+      tangentialSpeed: {x: 3, y: 4.5}
+      outwardSpeed: {x: 1.2, y: 2.2}
+      upSpeed: {x: 1, y: 2}
+      clockwise: 1
+      size: {x: 0.05, y: 0.09}
+      lifetime: {x: 0.25, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.25, a: 1}
+      alpha: 1
+    - name: Ceniza
+      emitter: 15
+      sprite: Ceniza
+      rate: 100
+      count: 20
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0.3, y: 0.8}
+      outwardSpeed: {x: 0.5, y: 1.5}
+      upSpeed: {x: 1, y: 2}
+      clockwise: 1
+      size: {x: 0.12, y: 0.22}
+      lifetime: {x: 1.2, y: 2}
+      color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
+      color2: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+      alpha: 0.9
     windupSustain: 0.25
     swirl: []
-    impact: []
+    impact:
+    - name: Chispas
+      emitter: 15
+      sprite: Chispa
+      rate: 100
+      count: 12
+      radius: {x: 0.1, y: 0.2}
+      height: {x: 0.05, y: 0.2}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 1, y: 2.5}
+      clockwise: 1
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.25, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.25, a: 1}
+      alpha: 1
+    strongImpact:
+    - name: Chispas
+      emitter: 15
+      sprite: Chispa
+      rate: 100
+      count: 36
+      radius: {x: 0.1, y: 0.2}
+      height: {x: 0.05, y: 0.2}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 6, y: 10}
+      upSpeed: {x: 1, y: 2.5}
+      clockwise: 1
+      size: {x: 0.06, y: 0.11}
+      lifetime: {x: 0.25, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.25, a: 1}
+      alpha: 1
+    - name: Ceniza
+      emitter: 15
+      sprite: Ceniza
+      rate: 100
+      count: 16
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0.3, y: 0.8}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 1, y: 2}
+      clockwise: 1
+      size: {x: 0.12, y: 0.22}
+      lifetime: {x: 1.2, y: 2}
+      color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
+      color2: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+      alpha: 0.9
     arcs:
       enabled: 1
       material: {fileID: 2100000, guid: b9a6649977b707b449a42d16bf78c995, type: 2}
@@ -1524,6 +1735,7 @@ MonoBehaviour:
       sparkChance: 0
       sparkSize: {x: 0.12, y: 0.22}
       aroundCount: 5
+      windupCount: 10
       strikeLife: {x: 0.15, y: 0.35}
       drag: 0.05
       maxStretch: 2.5
@@ -1884,6 +2096,114 @@ MonoBehaviour:
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
     discSpin: 0.5
+  launched:
+    enabled: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 1.5
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 1, g: 0.85, b: 0.2, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.4
+      baseFlash: 0
+      pulseRim: {x: 1.5, y: 3.5}
+      pulseFlash: {x: 0.1, y: 0.35}
+      pulseInterval: {x: 0.03, y: 0.12}
+      pulseDecay: 0.05
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Chispas que saltan
+      emitter: 19
+      sprite: Chispa
+      rate: 20
+      burstInterval: {x: 0.05, y: 0.15}
+      burstCount: {x: 2, y: 5}
+      spawnRadius: {x: 0.3, y: 0.6}
+      height: {x: 0.05, y: 0.35}
+      coneAngle: 60
+      speed: {x: 3, y: 6}
+      inheritVelocity: 0.3
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.2, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.8, b: 0.1, a: 1}
+      alpha: 1
+    swirl: []
+    auras: []
+    impact:
+    - name: Chispas
+      emitter: 15
+      sprite: Chispa
+      rate: 100
+      count: 10
+      radius: {x: 0.1, y: 0.2}
+      height: {x: 0.05, y: 0.2}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 1, y: 2.5}
+      clockwise: 1
+      size: {x: 0.04, y: 0.07}
+      lifetime: {x: 0.25, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.25, a: 1}
+      alpha: 1
+    discSpin: 1
   trailSpacing: 0.45
   trailAlpha: 0.4
   trailSize: 0.1

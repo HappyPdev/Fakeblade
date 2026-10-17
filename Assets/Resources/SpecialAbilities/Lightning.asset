@@ -19,6 +19,8 @@ MonoBehaviour:
   energyRequired: 0.8
   duration: 6
   activationBurst: 1
+  windupTime: 0.3
+  windupBrake: 12
   smallMinSpeed: 1
   smallKnockbackMultiplier: 1.8
   strongMinSpeed: 6

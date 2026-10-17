@@ -58,6 +58,7 @@ namespace FakeBlade.Core
         private readonly AuraSlot[] _specialAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _burnAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _frozenAuras = new AuraSlot[MaxAuras];
+        private readonly AuraSlot[] _launchedAuras = new AuraSlot[MaxAuras];
         private bool _effectsWereOn;
         private float _scorchDistance;
         private float _scorchIdle;
@@ -72,6 +73,7 @@ namespace FakeBlade.Core
                 _specialAuras[i] = new AuraSlot();
                 _burnAuras[i] = new AuraSlot();
                 _frozenAuras[i] = new AuraSlot();
+                _launchedAuras[i] = new AuraSlot();
             }
         }
 
@@ -103,6 +105,7 @@ namespace FakeBlade.Core
             EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt);
             UpdateAuras(lib != null ? lib.burn?.auras : null, _burnAuras, status != null && status == lib.burn, tipOffset, dt);
             UpdateAuras(lib != null ? lib.frozen?.auras : null, _frozenAuras, status != null && status == lib.frozen, tipOffset, dt);
+            UpdateAuras(lib != null ? lib.launched?.auras : null, _launchedAuras, status != null && status == lib.launched, tipOffset, dt);
         }
 
         /// <summary>
@@ -128,6 +131,7 @@ namespace FakeBlade.Core
                 StopAura(_specialAuras[i]);
                 StopAura(_burnAuras[i]);
                 StopAura(_frozenAuras[i]);
+                StopAura(_launchedAuras[i]);
             }
         }
 
@@ -272,6 +276,18 @@ namespace FakeBlade.Core
         /// congelada, el de su estado (más pequeño). Se suma al impacto genérico. groundPoint: el punto del choque a ras
         /// de suelo.
         /// </summary>
+        /// <summary>
+        /// Golpe fuerte de un especial (Rayos, que gasta el poder en ese golpe; 2026-10-18): su círculo grande
+        /// (strongImpact), aunque el poder ya no esté activo.
+        /// </summary>
+        public static void PlayStrongImpact(FakeBladeController blade, Vector3 groundPoint)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || blade == null || blade.Special == null || !VfxSystem.IsOnScreen(groundPoint)) return;
+            SpecialVfxStyle style = lib.GetSpecialEffects(blade.Special.Type);
+            if (style != null) Burst(style.strongImpact, groundPoint);
+        }
+
         public static void PlayClashImpact(FakeBladeController blade, Vector3 groundPoint)
         {
             VfxLibrary lib = VfxSystem.Library;

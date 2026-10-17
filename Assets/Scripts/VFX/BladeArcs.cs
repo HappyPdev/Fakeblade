@@ -21,7 +21,7 @@ namespace FakeBlade.Core
     /// </summary>
     public sealed class BladeArcs
     {
-        private const int MaxAround = 8;
+        private const int MaxAround = 12;
         private const int MaxTrail = 8;
         private const int MaxClash = 6;
         private const int MaxArcs = MaxAround + MaxTrail + MaxClash;
@@ -115,9 +115,10 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// tipOffset: altura de la punta respecto al pivote (BladeParticles). style: los arcos del especial (o null).
-        /// active: el poder está encendido (no en la carga del principio).
+        /// active: el poder está encendido (no en la carga del principio). windingUp: en la carga del principio (sin rastro
+        /// ni choques; alrededor, windupCount rayos).
         /// </summary>
-        public void Tick(float dt, float tipOffset, ElectricArcStyle style, bool active)
+        public void Tick(float dt, float tipOffset, ElectricArcStyle style, bool active, bool windingUp = false)
         {
             if (style == null || !style.enabled || style.material == null)
             {
@@ -136,7 +137,7 @@ namespace FakeBlade.Core
             var drag = new Vector3(-velocity.x, 0f, -velocity.z) * style.drag;
 
             // Alrededor: cada rayo cae en un punto fijo, el otro extremo sigue al núcleo; al acabar su vida, otro
-            int around = active && visible ? Mathf.Min(style.aroundCount, MaxAround) : 0;
+            int around = !visible ? 0 : Mathf.Min(active ? style.aroundCount : windingUp ? style.windupCount : 0, MaxAround);
             float maxStretch = style.maxStretch * style.maxStretch;
             for (int i = 0; i < MaxAround; i++)
             {

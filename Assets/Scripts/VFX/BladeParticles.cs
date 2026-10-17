@@ -58,6 +58,9 @@ namespace FakeBlade.Core
 
         private float AuraRadius => Mathf.Max(0.5f, _radius * 1.5f);
 
+        /// <summary>Altura de la punta respecto al pivote (para el rastro tipo cinta, BladeTrail).</summary>
+        public float TipOffset => _tipOffset;
+
         /// <summary>Limpia el estado (al empezar, reaparecer o cambiar piezas).</summary>
         public void Reset()
         {
@@ -116,7 +119,7 @@ namespace FakeBlade.Core
         /// <summary>Estela: una partícula cada trailSpacing metros (densidad independiente de los FPS).</summary>
         private void UpdateTrail(VfxLibrary lib, Vector3 tip, float speed, float mul, Color owner)
         {
-            if (!_hasTrailPos || speed < lib.trailMinSpeed)
+            if (!_hasTrailPos || speed < lib.trailMinSpeed || !BladeTrail.ShowParticles)
             {
                 _lastTrailPos = tip;
                 _hasTrailPos = true;
@@ -131,8 +134,8 @@ namespace FakeBlade.Core
 
             bool attacking = _blade.IsAttacking;
             Color color = owner;
-            color.a = attacking ? 1f : Mathf.Lerp(0.35f, 0.8f, speed / TrailSpeedForFullAlpha);
-            float size = attacking ? 0.16f : 0.1f;
+            color.a = (attacking ? 1f : Mathf.Lerp(0.35f, 0.8f, speed / TrailSpeedForFullAlpha)) * lib.trailAlpha;
+            float size = (attacking ? 0.16f : 0.1f) * lib.trailSize;
             Vector3 step = delta / dist * spacing;
 
             int count = Mathf.Min(MaxPerFrame, (int)(dist / spacing));

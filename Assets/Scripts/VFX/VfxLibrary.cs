@@ -63,6 +63,13 @@ namespace FakeBlade.Core
         public bool randomRotation = true;
         [Tooltip("Orden de pintado entre impactos: más alto, más delante (las sombras, por detrás)")]
         public int order;
+        [Tooltip("Lo tapa lo que tenga delante (capa VFX). Si no, siempre por encima (capa VFXTop, como los impactos). " +
+                 "Para las partículas que deja la peonza")]
+        public bool depthTested;
+        [Tooltip("Gravedad de las partículas (1 = la normal; negativo = suben). Solo para las que salen con velocidad")]
+        public float gravity;
+        [Tooltip("Frenado de las partículas (0 = nada, 1 = se paran casi enseguida)")]
+        [Range(0f, 1f)] public float drag;
         [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
         public ParticleSystem prefab;
     }
@@ -85,6 +92,137 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float lighten;
         [Tooltip("Giro extra respecto a las demás capas del impacto (grados)")]
         public float rotation;
+    }
+
+    /// <summary>
+    /// Rastro tipo cinta pegado a la peonza (K7, 2026-10-17), teñido con el color del jugador. Aparece al pasar de cierta
+    /// velocidad; cuanto más rápido, más larga, más ancha y más opaca. Hoy es una cinta **lisa** (material
+    /// VFX_TrailBasic): la versión con el pixel art de los Bullet Trails (VFX_TrailGeneric, una tira de fotogramas
+    /// animada) se descartó por ahora porque, tan larga, el dibujo se deformaba. Los materiales los crea *Setup Rastros*.
+    /// Se lee en vivo: se puede ajustar en Play desde el Inspector.
+    /// </summary>
+    [Serializable]
+    public class RibbonTrailStyle
+    {
+        [Tooltip("Material (shader FakeBlade/RibbonTrail): VFX_TrailBasic (lisa) o VFX_TrailGeneric (pixel art). Los crea Setup Rastros")]
+        public Material material;
+        [Tooltip("Fotogramas de la tira (en horizontal; 1 en la lisa)")]
+        [Min(1)] public int frames = 1;
+        [Tooltip("Da la vuelta al dibujo (con pixel art: la cabeza del proyectil tiene que quedar en la peonza)")]
+        public bool flip = true;
+        [Tooltip("Velocidad (m/s) a la que aparece (x) y a la que llega al máximo (y)")]
+        public Vector2 speedRange = new Vector2(3f, 9f);
+        [Tooltip("Fotogramas por segundo de la animación a la velocidad mínima (x) y máxima (y); solo con pixel art")]
+        public Vector2 fps = new Vector2(8f, 24f);
+        [Tooltip("Lo que dura cada punto de la cinta (s) a velocidad mínima (x) y máxima (y): más = más larga")]
+        public Vector2 time = new Vector2(0.12f, 0.25f);
+        [Tooltip("Ancho de la cinta (m) junto a la peonza, a velocidad mínima (x) y máxima (y)")]
+        public Vector2 width = new Vector2(0.35f, 0.5f);
+        [Tooltip("Ancho al final de la cinta, como fracción del de la cabeza (0 = acaba en punta)")]
+        [Range(0f, 1f)] public float tailWidth = 0.2f;
+        [Tooltip("Transparencia junto a la peonza a velocidad mínima (x) y máxima (y)")]
+        public Vector2 alpha = new Vector2(0.55f, 0.85f);
+        [Tooltip("Transparencia al final de la cinta, como fracción de la de la cabeza (0 = se desvanece)")]
+        [Range(0f, 1f)] public float tailAlpha;
+        [Tooltip("Aclara el color del jugador hacia el blanco (0 = nada, 1 = blanco). Sobre el suelo claro, mejor poco")]
+        [Range(0f, 1f)] public float lighten;
+        [Tooltip("Altura sobre la punta de la peonza (m)")]
+        public float height = 0.04f;
+        [Tooltip("Tumbada en el suelo. Si no, la cinta mira a la cámara")]
+        public bool flat = true;
+
+        [Header("Acelerón de ataques y dash (una segunda cinta igual, sumada a la normal)")]
+        [Tooltip("Ancho de la cinta del acelerón respecto a la normal")]
+        [Min(0f)] public float burstWidthScale = 2f;
+        [Tooltip("Transparencia de la cinta del acelerón respecto a la normal")]
+        [Range(0f, 1f)] public float burstAlphaScale = 0.8f;
+    }
+
+    /// <summary>
+    /// Efecto en la punta durante el acelerón de ataques y dash (K7, 2026-10-17): varios cuencos (modelo ImpactPlane de
+    /// Wallcoeur) abiertos hacia arriba, cada uno con su giro, su velocidad de giro, su escala y su color, con una hoja de
+    /// fotogramas (ImpactShotValo2) que se repite en bucle, desfasada en cada cuenco; y partículas en cono hacia arriba
+    /// que se quedan atrás como rastro. Malla y material los pone *Setup Rastros*. Se lee en vivo (también en Play).
+    /// </summary>
+    [Serializable]
+    public class BurstTipStyle
+    {
+        [Tooltip("Modelo (ImpactPlane: rejilla curvada en cuenco, de 1,42 m de ancho)")]
+        public Mesh mesh;
+        [Tooltip("Material con la hoja de fotogramas (shader FakeBlade/FlipbookUnlit, pinta las dos caras)")]
+        public Material material;
+        [Min(1)] public int tilesX = 3;
+        [Min(1)] public int tilesY = 3;
+        [Tooltip("Fotogramas con dibujo desde el primero (como mucho, casillas en horizontal × en vertical: 9 en " +
+                 "ImpactShotValo2). Para que vaya más rápida, bajar Cycle")]
+        [Min(1)] public int frames = 9;
+        [Tooltip("Lo que dura una vuelta de la animación (s); se repite mientras dura el acelerón")]
+        [Min(0.05f)] public float cycle = 0.25f;
+        [Tooltip("Ancho del cuenco (m). Más pequeño que la peonza, queda tapado por ella")]
+        [Min(0f)] public float size = 2f;
+        [Tooltip("Escala de todos los cuencos sobre ese tamaño: en ancho (x) y en alto (y). Cada cuenco tiene además la suya")]
+        public Vector2 scale = Vector2.one;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float height = 0.03f;
+        [Tooltip("Transparencia de todos los cuencos (multiplica la del color de cada uno)")]
+        [Range(0f, 1f)] public float alpha = 0.9f;
+        [Tooltip("Aclara el color hacia el blanco (0 = nada, 1 = blanco)")]
+        [Range(0f, 1f)] public float lighten;
+        [Tooltip("Lo que tarda en aparecer (x) y en apagarse (y) al empezar y acabar el acelerón (s)")]
+        public Vector2 fade = new Vector2(0.04f, 0.12f);
+        [Tooltip("Cuencos (como mucho 8): cada uno con su giro, velocidad de giro, escala y color")]
+        public List<BurstTipCup> cups = new List<BurstTipCup>();
+
+        [Header("Partículas en cono hacia arriba (se quedan atrás: rastro)")]
+        [Tooltip("Id del sprite (lista Impact Sprites: Valo8 = ImpatcValo8, Valo4 = ImpactValo4). Vacío = sin partículas. " +
+                 "Su duración, gravedad y frenado por defecto están en el sprite (Setup Impactos)")]
+        public string particleSprite = "Valo8";
+        [Tooltip("Partículas por segundo durante el acelerón (antes del ajuste de Opciones → Partículas)")]
+        [Min(0f)] public float particleRate = 30f;
+        [Tooltip("Partículas por segundo fuera del acelerón, al ir por encima de Particle Idle Min Speed (0 = solo en el acelerón)")]
+        [Min(0f)] public float particleIdleRate;
+        [Tooltip("Velocidad (m/s) a partir de la que salen las partículas fuera del acelerón")]
+        [Min(0f)] public float particleIdleMinSpeed = 6f;
+        [Tooltip("Apertura del cono respecto a la vertical (grados)")]
+        [Range(0f, 90f)] public float particleConeAngle = 25f;
+        [Tooltip("Velocidad de salida (m/s), entre x e y")]
+        public Vector2 particleSpeed = new Vector2(1.5f, 3f);
+        [Tooltip("Parte de la velocidad de la peonza que se llevan (0 = se quedan donde salen; negativo = salen hacia atrás)")]
+        [Range(-1f, 1f)] public float particleInheritVelocity;
+        [Tooltip("Tamaño (m), entre x e y")]
+        public Vector2 particleSize = new Vector2(0.5f, 0.9f);
+        [Tooltip("Duración (s), entre x e y (0 = la del sprite). La animación de la hoja dura toda la vida")]
+        public Vector2 particleLifetime = Vector2.zero;
+        [Tooltip("Giro del dibujo (grados), entre x e y (0 = derecho)")]
+        public Vector2 particleRotation = Vector2.zero;
+        [Tooltip("Distancia al centro de la punta a la que salen (m)")]
+        [Min(0f)] public float particleSpawnRadius = 0.3f;
+        [Tooltip("Altura de salida sobre la punta (m)")]
+        public float particleHeight;
+        [Tooltip("Con el color del jugador. Si no, el color de abajo")]
+        public bool particlePlayerColor = true;
+        [Tooltip("Color fijo de las partículas (por defecto, el de las chispas contra el suelo)")]
+        public Color particleColor = new Color(1f, 0.8f, 0.45f);
+        [Tooltip("Aclara el color de las partículas hacia el blanco")]
+        [Range(0f, 1f)] public float particleLighten;
+        [Tooltip("Transparencia de las partículas")]
+        [Range(0f, 1f)] public float particleAlpha = 0.9f;
+    }
+
+    /// <summary>Un cuenco del efecto de la punta (BurstTipStyle.cups).</summary>
+    [Serializable]
+    public class BurstTipCup
+    {
+        [Tooltip("Giro inicial alrededor del eje vertical (grados)")]
+        public float angle;
+        [Tooltip("Velocidad de giro alrededor del eje vertical (grados/s; negativo = hacia el otro lado)")]
+        public float spinSpeed;
+        [Tooltip("Escala sobre la general: en ancho (x) y en alto (y)")]
+        public Vector2 scale = Vector2.one;
+        [Tooltip("Con el color del jugador. Si no, el color de abajo")]
+        public bool playerColor = true;
+        [Tooltip("Color fijo (su alfa multiplica la transparencia general)")]
+        public Color color = new Color(1f, 0.8f, 0.45f);
     }
 
     /// <summary>
@@ -187,9 +325,18 @@ namespace FakeBlade.Core
         [Tooltip("Llamas/s mientras la carga está al máximo")]
         public float chargeFlameRate = 26f;
 
-        [Header("Estela")]
-        [Tooltip("Metros recorridos entre dos partículas de la estela")]
-        public float trailSpacing = 0.12f;
+        [Header("Rastro (cinta pegada a la peonza, K7)")]
+        public RibbonTrailStyle genericTrail = new RibbonTrailStyle();
+        [Tooltip("Efecto en la punta durante el acelerón de ataques y dash")]
+        public BurstTipStyle burstTip = new BurstTipStyle();
+
+        [Header("Estela (partículas)")]
+        [Tooltip("Metros recorridos entre dos partículas de la estela (0,12 hasta K7; ahora la cinta es el rastro principal)")]
+        public float trailSpacing = 0.45f;
+        [Tooltip("Transparencia de las partículas de la estela (multiplica la de siempre; 1 = como antes de la cinta)")]
+        [Range(0f, 1f)] public float trailAlpha = 0.4f;
+        [Tooltip("Tamaño de las partículas de la estela (multiplica el de siempre)")]
+        [Min(0f)] public float trailSize = 0.7f;
         [Tooltip("Velocidad mínima (m/s) para dejar estela")]
         public float trailMinSpeed = 2.5f;
 

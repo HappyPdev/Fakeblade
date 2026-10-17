@@ -101,6 +101,9 @@ MonoBehaviour:
     life: 0.28
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
   - id: Impact01Sombra
     texture: {fileID: 2800000, guid: 916e700735e73d54eabaef966d440fba, type: 3}
@@ -111,6 +114,9 @@ MonoBehaviour:
     life: 0.28
     randomRotation: 1
     order: 0
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
   - id: Impact10
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -121,6 +127,9 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
   - id: Impact10Sombra
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -131,6 +140,9 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 0
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
   - id: Impact05
     texture: {fileID: 2800000, guid: 0c150b922ed7f8e4f9d639f4bdbbf6ca, type: 3}
@@ -141,6 +153,9 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
   - id: Impact06
     texture: {fileID: 2800000, guid: baace82a6fd0890409bf2342ae47aeb0, type: 3}
@@ -151,6 +166,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
   - id: Impact04
     texture: {fileID: 2800000, guid: 54a3f30885e6df14bb341d22b0e67c27, type: 3}
@@ -161,6 +179,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
   - id: Impact07
     texture: {fileID: 2800000, guid: 13f3d2707b216a94ba4d5eaabc0cc812, type: 3}
@@ -171,6 +192,9 @@ MonoBehaviour:
     life: 0.32
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
   - id: Impact08
     texture: {fileID: 2800000, guid: 811d5a445e39c194d90f059c61d2f543, type: 3}
@@ -181,6 +205,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
   - id: ShotValo
     texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
@@ -191,6 +218,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
   - id: ShotValo2
     texture: {fileID: 2800000, guid: 4d186aafd82497d47a28abb13c9e0e98, type: 3}
@@ -201,6 +231,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
   - id: Valo5Blanco
     texture: {fileID: 2800000, guid: 5706d8da1c2de9748a8f0660f488c93e, type: 3}
@@ -211,6 +244,9 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 1
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
   - id: MuzzleNeo
     texture: {fileID: 2800000, guid: 00668c216132a9b46b34ea8a88a9f47a, type: 3}
@@ -221,6 +257,9 @@ MonoBehaviour:
     life: 0.16
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
   - id: Impact10Encima
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -231,6 +270,9 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 3
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
   - id: CrossShoot
     texture: {fileID: 2800000, guid: 428be4e2fb9b24944a267eba76ab2bc6, type: 3}
@@ -241,6 +283,9 @@ MonoBehaviour:
     life: 0.22
     randomRotation: 1
     order: 2
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
   - id: CircleImpact04
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -251,6 +296,9 @@ MonoBehaviour:
     life: 0.3
     randomRotation: 1
     order: 0
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
   - id: CircleImpact02
     texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
@@ -261,7 +309,36 @@ MonoBehaviour:
     life: 0.34
     randomRotation: 1
     order: 0
+    depthTested: 0
+    gravity: 0
+    drag: 0
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
+  - id: Valo4
+    texture: {fileID: 2800000, guid: 18448b2385b81ab42ad1e124af522620, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 8
+    life: 0.4
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    gravity: 0
+    drag: 0
+    prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
+  - id: Valo8
+    texture: {fileID: 2800000, guid: ab41667d3e5495147a0b5ed61c88c5e4, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.4
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    gravity: 0
+    drag: 0
+    prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -366,10 +443,78 @@ MonoBehaviour:
   chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
   chargeGatherRate: 30
   chargeFlameRate: 26
-  trailSpacing: 0.12
-  trailMinSpeed: 2.5
+  genericTrail:
+    material: {fileID: 2100000, guid: 2c8ee6db74067274e8a483b94d4d8533, type: 2}
+    frames: 1
+    flip: 0
+    speedRange: {x: 3, y: 9}
+    fps: {x: 8, y: 16}
+    time: {x: 0.12, y: 0.25}
+    width: {x: 0.35, y: 0.5}
+    tailWidth: 0.2
+    alpha: {x: 0.55, y: 0.85}
+    tailAlpha: 0
+    lighten: 0
+    height: 0.04
+    flat: 1
+    burstWidthScale: 2
+    burstAlphaScale: 0.735
+  burstTip:
+    mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+    material: {fileID: 2100000, guid: 5e1958466733ff849a1427671a2d0ab7, type: 2}
+    tilesX: 3
+    tilesY: 3
+    frames: 16
+    cycle: 0.25
+    size: 2
+    scale: {x: 1, y: 0.5}
+    height: 0.03
+    alpha: 0.9
+    lighten: 0.02
+    fade: {x: 0.04, y: 0.12}
+    cups:
+    - angle: 0
+      spinSpeed: 180
+      scale: {x: 0.5, y: 0.6}
+      playerColor: 0
+      color: {r: 1, g: 0.8, b: 0.45, a: 1}
+    - angle: 90
+      spinSpeed: -180
+      scale: {x: 0.7, y: 0.8}
+      playerColor: 0
+      color: {r: 1, g: 0.26081944, b: 0.2471698, a: 1}
+    - angle: 180
+      spinSpeed: 150
+      scale: {x: 1, y: 1}
+      playerColor: 0
+      color: {r: 1, g: 0.8, b: 0.45, a: 1}
+    - angle: 270
+      spinSpeed: -150
+      scale: {x: 0.9, y: 0.6}
+      playerColor: 0
+      color: {r: 1, g: 0.2627451, b: 0.24705884, a: 1}
+    particleSprite: Valo8
+    particleRate: 20
+    particleIdleRate: 0
+    particleIdleMinSpeed: 6
+    particleConeAngle: 80.9
+    particleSpeed: {x: 1.5, y: 8}
+    particleInheritVelocity: 0
+    particleSize: {x: 0.1, y: 0.3}
+    particleLifetime: {x: 0, y: 0}
+    particleRotation: {x: 0, y: 0}
+    particleSpawnRadius: 0.3
+    particleHeight: 0
+    particlePlayerColor: 0
+    particleColor: {r: 1, g: 0.2627451, b: 0.24705884, a: 1}
+    particleLighten: 0.018
+    particleAlpha: 0.9
+  trailSpacing: 0.45
+  trailAlpha: 0.4
+  trailSize: 0.1
+  trailMinSpeed: 2
   groundSparkColor: {r: 1, g: 0.8, b: 0.45, a: 1}
-  groundSparkRate: 30
+  groundSparkRate: 45
   groundSparkMinSpeed: 4
   groundSparkMinSpin: 0.5
   smokeColor: {r: 0.32, g: 0.32, b: 0.36, a: 0.85}

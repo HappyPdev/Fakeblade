@@ -34,6 +34,8 @@ namespace FakeBlade.Core.Editor
             public Convert Convert;
             public int TilesX, TilesY, FirstFrame, Frames, Order;
             public float Life;
+            /// <summary>Siempre derecho (sin giro al azar) y tapado por lo que tenga delante (partículas que deja la peonza).</summary>
+            public bool Upright, DepthTested;
         }
 
         // Orden: sombras y fondos 0, capas sutiles 1, impacto principal 2, capas por delante del principal 3
@@ -61,6 +63,10 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "Valo5Blanco", Texture = "ImpactValo5", Convert = Convert.White, TilesX = 3, TilesY = 3, Frames = 9, Life = 0.34f, Order = 1 },
             // Fondo negro opaco: el brillo pasa a transparencia (choques pequeños)
             new DefaultSprite { Id = "MuzzleNeo", Texture = "MuzzleCanonNeo", Convert = Convert.LumaToAlpha, TilesX = 2, TilesY = 2, Frames = 4, Life = 0.16f, Order = 2 },
+            // Llama hacia arriba: partículas de la punta en el acelerón de ataques y dash (K7, 2026-10-17)
+            new DefaultSprite { Id = "Valo4", Texture = "ImpactValo4", TilesX = 3, TilesY = 3, Frames = 8, Life = 0.4f, Order = 1, Upright = true, DepthTested = true },
+            // Tajo hacia arriba (ImpatcValo8, con la errata del pack; ImpactValo8 es otro, un rombo): partículas de la punta
+            new DefaultSprite { Id = "Valo8", Texture = "ImpatcValo8", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = 1, Upright = true, DepthTested = true },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -84,7 +90,7 @@ namespace FakeBlade.Core.Editor
                 library.impactSprites.Add(new ImpactSprite
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
-                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = true
+                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested
                 });
                 added++;
             }
@@ -258,9 +264,9 @@ namespace FakeBlade.Core.Editor
             main.startSpeed = 0f;
             main.startSize = 1.5f;
             main.startColor = Color.white;
-            main.gravityModifier = 0f;
+            main.gravityModifier = s.gravity;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.maxParticles = 24;
+            main.maxParticles = 128; // también las partículas de la punta de varias peonzas a la vez
             main.scalingMode = ParticleSystemScalingMode.Hierarchy;
             main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
 
@@ -269,6 +275,12 @@ namespace FakeBlade.Core.Editor
             emission.rateOverTime = 0f;
             var shape = ps.shape;
             shape.enabled = false;
+
+            // Frenado (partículas que salen con velocidad, como las de la punta en el acelerón)
+            var limit = ps.limitVelocityOverLifetime;
+            limit.enabled = s.drag > 0f;
+            limit.limit = 1000f;
+            limit.drag = s.drag * 10f;
 
             // La hoja entera, una vez, de principio a fin de la vida de la partícula
             var sheet = ps.textureSheetAnimation;

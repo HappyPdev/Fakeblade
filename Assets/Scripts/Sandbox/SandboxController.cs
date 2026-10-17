@@ -78,6 +78,7 @@ namespace FakeBlade.Core
         private PixelMenuList _effectsPanel;
         private PixelOptionRow _impactRow;
         private PixelOptionRow _impactIntervalRow;
+        private PixelOptionRow _trailRow;
         private float _impactTimer;
         private PixelOptionRow _arenaRow;
         private readonly PixelOptionRow[] _tuningRows = new PixelOptionRow[Tunables.Length];
@@ -131,6 +132,7 @@ namespace FakeBlade.Core
             {
                 if (SandboxSettings.OriginalConfig != null) CombatConfig.SetActive(SandboxSettings.OriginalConfig);
                 SandboxSettings.ResetSession();
+                BladeTrail.Mode = BladeTrail.Display.RibbonAndParticles;
                 GameTime.SetNormalScale(1f, false);
             }
         }
@@ -260,6 +262,9 @@ namespace FakeBlade.Core
                 intervals[i] = SandboxSettings.Intervals[i].ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
                     .Replace('.', separator) + " S";
             _impactIntervalRow.SetOptions(intervals, SandboxSettings.ImpactIntervalIndex);
+
+            _trailRow.SetOptions(new[] { Loc.Get("TRAIL_BOTH"), Loc.Get("TRAIL_RIBBON"), Loc.Get("TRAIL_PARTICLES"), Loc.Get("NO") },
+                (int)BladeTrail.Mode);
         }
 
         /// <summary>Con el panel cerrado, repite el impacto elegido junto a la peonza del jugador.</summary>
@@ -851,8 +856,10 @@ namespace FakeBlade.Core
             _tuningPanel.AddButton("TUNE_RESET", ResetTuning);
             AddBack(_tuningPanel);
 
-            // Efectos (O5): galería para ver cada impacto repetido junto a la peonza, con el panel cerrado
+            // Efectos (O5): galería para ver cada impacto repetido junto a la peonza, con el panel cerrado, y qué rastro
+            // se ve (K7: cinta, partículas o los dos)
             _effectsPanel = CreatePanel(canvas, "SANDBOX_SECTION_EFFECTS");
+            _trailRow = _effectsPanel.AddSelector("SANDBOX_TRAIL", new[] { "-" }, 0, i => BladeTrail.Mode = (BladeTrail.Display)i);
             _impactRow = _effectsPanel.AddSelector("SANDBOX_IMPACT", new[] { "-" }, 0, i => SandboxSettings.ImpactPreview = i);
             _impactIntervalRow = _effectsPanel.AddSelector("SANDBOX_INTERVAL", new[] { "-" }, 0,
                 i => SandboxSettings.ImpactIntervalIndex = i);

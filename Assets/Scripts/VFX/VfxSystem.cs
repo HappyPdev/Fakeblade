@@ -84,7 +84,8 @@ namespace FakeBlade.Core
             BuildImpactEmitters(library);
             // Las partículas se pintan nítidas encima de la escena pixelada (O2); los impactos, además, siempre delante
             ScreenPixelation.MoveToVfxLayer(gameObject);
-            foreach (ImpactEmitter impact in _impactEmitters.Values) ScreenPixelation.MoveToVfxTopLayer(impact.System.gameObject);
+            foreach (ImpactEmitter impact in _impactEmitters.Values)
+                if (!impact.Sprite.depthTested) ScreenPixelation.MoveToVfxTopLayer(impact.System.gameObject);
             CollisionResolver.OnClashResolved += HandleClash;
             CollisionResolver.OnParry += HandleParry;
             CollisionResolver.OnBlock += HandleBlock;
@@ -282,6 +283,27 @@ namespace FakeBlade.Core
             if (lifetime > 0f) emitParams.startLifetime = lifetime;
             if (rotation > 0f) emitParams.rotation = rotation;
             emitter.Emit(emitParams, 1);
+        }
+
+        /// <summary>
+        /// Una partícula con un sprite animado de la lista de impactos (partículas de la punta en el acelerón, K7): se
+        /// queda en el mundo y anima su hoja durante su vida. Sin culling: el llamador lo comprueba con IsOnScreen.
+        /// </summary>
+        public static void EmitSprite(string id, Vector3 position, Vector3 velocity, Color color, float size, float rotation,
+            float lifetime = 0f)
+        {
+            VfxSystem system = _instance;
+            if (system == null || string.IsNullOrEmpty(id) || !system._impactEmitters.TryGetValue(id, out ImpactEmitter emitter)) return;
+            var emitParams = new ParticleSystem.EmitParams
+            {
+                position = position,
+                velocity = velocity,
+                startColor = color,
+                startSize = size,
+                rotation = rotation
+            };
+            if (lifetime > 0f) emitParams.startLifetime = lifetime; // la hoja se anima durante toda la vida
+            emitter.System.Emit(emitParams, 1);
         }
 
         /// <summary>¿Se ve este punto? (con margen). Crea el sistema si hace falta.</summary>

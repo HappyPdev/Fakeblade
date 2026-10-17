@@ -100,6 +100,8 @@ namespace FakeBlade.Core
         private readonly StatusEffectSystem _status = new StatusEffectSystem();
         // Estela, chispas, humo, carga, auras y estados: todo con el pool de VfxSystem
         private BladeParticles _particles;
+        // Rastro tipo cinta pegado a la punta (K7)
+        private BladeTrail _ribbonTrail;
 
         // RPM
         private float _currentSpin;
@@ -135,8 +137,10 @@ namespace FakeBlade.Core
         private float _burstCap;
         private float _burstCapStart;
         private float _burstHold;
-        /// <summary>Estela mientras dura el acelerón de un ataque o dash (se nota el impulso aunque ya vaya rápida).</summary>
-        private TrailRenderer _burstTrail;
+        /// <summary>Mientras dura el acelerón de un ataque o dash (se nota el impulso aunque ya vaya rápida): una segunda
+        /// cinta más ancha, sumada a la normal, y los cuencos de la punta (K7).</summary>
+        private BladeTrail _burstRibbon;
+        private BladeBurstTip _burstTip;
 
         // Choques
         private Vector3 _preImpactVelocity;
@@ -188,6 +192,8 @@ namespace FakeBlade.Core
         public bool IsInParryWindow => !_isDestroyed && _attack.IsInParryWindow(ParryWindow);
         /// <summary>Ataque con botón o dash en curso (cuenta como ataque en los choques).</summary>
         public bool IsAttacking => _attack.IsAttacking || IsDashAttacking;
+        /// <summary>En el acelerón de un ataque o dash (cinta ancha y cuencos en la punta, K7).</summary>
+        public bool IsBursting => !_isDestroyed && _burstHold > 0f && IsAttacking;
 
         /// <summary>Nivel de carga del ataque en curso (0 = rápido, dash o sin atacar).</summary>
         public int ChargeLevel => _attack.IsAttacking ? _attack.AttackLevel : 0;
@@ -287,9 +293,11 @@ namespace FakeBlade.Core
             _stats = GetComponent<FakeBladeStats>();
             _owner = GetComponent<PlayerController>();
             _particles = new BladeParticles(this);
+            _ribbonTrail = new BladeTrail(this);
+            _burstRibbon = new BladeTrail(this, burst: true);
+            _burstTip = new BladeBurstTip(this);
 
             SetupVisualRoot();
-            SetupBurstTrail();
         }
 
         private void OnEnable()
@@ -321,6 +329,8 @@ namespace FakeBlade.Core
                 _stats.OnStatsChanged -= ApplyStatsFromComponent;
             // Su clon de Fantasma se va con ella
             if (GhostClone != null) Destroy(GhostClone.gameObject);
+            _ribbonTrail?.Dispose();
+            _burstRibbon?.Dispose();
         }
 
         private void Update()
@@ -732,7 +742,9 @@ namespace FakeBlade.Core
             // Lo que el poder deja puesto (escudos, agua, el clon de Fantasma) se va con ella
             _special.ClearLingering();
             ClearStatus();
-            if (_burstTrail != null) _burstTrail.emitting = false;
+            _ribbonTrail?.Stop();
+            _burstRibbon?.Stop();
+            _burstTip?.Hide();
 
             PlaySound(spinOutSound);
             VfxSystem.Play(VfxType.SpinOut, _transform.position, Vector3.up, OwnerColor);
@@ -1450,36 +1462,12 @@ namespace FakeBlade.Core
 
             // null solo tras recompilar en Play (no se serializa)
             _particles?.Tick(dt);
-
-            if (_burstTrail != null)
+            if (_particles != null)
             {
-                bool emit = _burstHold > 0f && IsAttacking;
-                if (emit && !_burstTrail.emitting)
-                {
-                    Color color = OwnerColor;
-                    _burstTrail.startColor = new Color(color.r, color.g, color.b, 0.7f);
-                    _burstTrail.endColor = new Color(color.r, color.g, color.b, 0f);
-                }
-                _burstTrail.emitting = emit;
+                _ribbonTrail?.Tick(dt, _particles.TipOffset);
+                _burstRibbon?.Tick(dt, _particles.TipOffset);
+                _burstTip?.Tick(dt, _particles.TipOffset);
             }
-        }
-
-        private void SetupBurstTrail()
-        {
-            var go = new GameObject("BurstTrail");
-            go.transform.SetParent(_transform, false);
-            go.transform.localPosition = new Vector3(0f, 0.25f, 0f);
-
-            ScreenPixelation.MoveToVfxLayer(go); // estela nítida sobre la escena pixelada (O2)
-            _burstTrail = go.AddComponent<TrailRenderer>();
-            _burstTrail.time = 0.2f;
-            _burstTrail.minVertexDistance = 0.1f;
-            _burstTrail.widthMultiplier = 0.8f;
-            _burstTrail.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
-            _burstTrail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            _burstTrail.receiveShadows = false;
-            _burstTrail.material = new Material(Shader.Find("Sprites/Default"));
-            _burstTrail.emitting = false;
         }
 
         /// <summary>Color del jugador (efectos y HUD).</summary>
@@ -1534,6 +1522,9 @@ namespace FakeBlade.Core
             ClearStatus();
             _particles?.Reset();
             _wobblePhase = 0f;
+            _ribbonTrail?.Clear();
+            _burstRibbon?.Clear();
+            _burstTip?.Hide();
 
             if (_rb != null)
             {
@@ -1551,6 +1542,8 @@ namespace FakeBlade.Core
         {
             // El root nunca rota: la rotación del spawn se ignora a propósito
             _transform.SetPositionAndRotation(position, Quaternion.identity);
+            _ribbonTrail?.Clear(); // sin una cinta que cruce la arena
+            _burstRibbon?.Clear();
             if (_rb == null) return;
 
             _rb.position = position;

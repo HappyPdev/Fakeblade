@@ -263,6 +263,8 @@ namespace FakeBlade.Core.Editor
 
             // Impactos con sprites animados (pack de Wallcoeur): sus entradas se borraron arriba
             log.Append(FakeBladeImpactSetup.Setup(library));
+            // Rastro tipo cinta de las peonzas (K7)
+            log.Append("; ").Append(FakeBladeTrailSetup.Setup(library));
 
             // Material del sistema anterior (cuadrado opaco sin textura), ya sin uso
             if (AssetDatabase.LoadAssetAtPath<Material>(LegacyMaterialPath) != null)

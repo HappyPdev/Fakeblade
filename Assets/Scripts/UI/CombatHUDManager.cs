@@ -50,6 +50,7 @@ namespace FakeBlade.UI
         private int _lastTimerSeconds = -1;
 
         private MatchMenuUI _menus;
+        private CombatPopups _popups;
         private GameManager _gm;
         private int _px;
         #endregion
@@ -84,35 +85,14 @@ namespace FakeBlade.UI
             BuildCanvas();
             BuildCenter();
             BuildTimer();
+            // Números de daño y ¡PARRY!/¡BLOQUEO! en la arena, por debajo de los menús
+            _popups = CombatPopups.Create(_canvas.transform, theme);
 
             _menus = MatchMenuUI.Create(_canvas.transform, theme);
             if (ensureEventSystem) MatchMenuUI.EnsureEventSystem();
         }
 
-        private void OnEnable()
-        {
-            CollisionResolver.OnParry += HandleParry;
-            CollisionResolver.OnBlock += HandleBlock;
-        }
-
-        private void OnDisable()
-        {
-            CollisionResolver.OnParry -= HandleParry;
-            CollisionResolver.OnBlock -= HandleBlock;
-        }
-
-        private void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry)
-        {
-            if (_centerText == null) return;
-            ShowCenter(Loc.Get("PARRY"), 0.6f, 14, VfxSystem.ParryColor);
-        }
-
-        /// <summary>Bloqueo: parry contra un cargado fuerte (2026-10-12).</summary>
-        private void HandleBlock(FakeBladeController parrier, FakeBladeController attacker)
-        {
-            if (_centerText == null) return;
-            ShowCenter(Loc.Get("BLOCK"), 0.6f, 14, VfxSystem.ParryColor);
-        }
+        // ¡PARRY! y ¡BLOQUEO! ya no van en el centro: saltan en la arena sobre quien para (CombatPopups, 2026-10-16)
 
         private void Start()
         {
@@ -147,6 +127,8 @@ namespace FakeBlade.UI
             _gm = gm;
 
             _gm.OnMatchPrepared += HandleMatchPrepared;
+            _gm.OnPlayerRegistered += _popups.Add;
+            _gm.OnPlayerUnregistered += _popups.Remove;
             _gm.OnCountdownTick += HandleCountdown;
             _gm.OnPlayerKO += HandlePlayerKO;
             _gm.OnPlayerRespawned += HandlePlayerRespawned;
@@ -160,6 +142,8 @@ namespace FakeBlade.UI
             if (_gm == null) return;
 
             _gm.OnMatchPrepared -= HandleMatchPrepared;
+            _gm.OnPlayerRegistered -= _popups.Add;
+            _gm.OnPlayerUnregistered -= _popups.Remove;
             _gm.OnCountdownTick -= HandleCountdown;
             _gm.OnPlayerKO -= HandlePlayerKO;
             _gm.OnPlayerRespawned -= HandlePlayerRespawned;
@@ -190,6 +174,7 @@ namespace FakeBlade.UI
                 _panelByPlayer[player] = _panels[slot];
             }
 
+            _popups.Track(players);
             _menus.HideAll();
             _lastTimerSeconds = -1;
             _timerRoot.gameObject.SetActive(_gm != null && _gm.Rules.HasTimeLimit);

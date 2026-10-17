@@ -1470,6 +1470,7 @@ namespace FakeBlade.Core
             go.transform.SetParent(_transform, false);
             go.transform.localPosition = new Vector3(0f, 0.25f, 0f);
 
+            ScreenPixelation.MoveToVfxLayer(go); // estela nítida sobre la escena pixelada (O2)
             _burstTrail = go.AddComponent<TrailRenderer>();
             _burstTrail.time = 0.2f;
             _burstTrail.minVertexDistance = 0.1f;

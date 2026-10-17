@@ -75,6 +75,10 @@ namespace FakeBlade.Core
         private bool _stepping;
 
         private PixelMenuList _tuningPanel;
+        private PixelMenuList _effectsPanel;
+        private PixelOptionRow _impactRow;
+        private PixelOptionRow _impactIntervalRow;
+        private float _impactTimer;
         private PixelOptionRow _arenaRow;
         private readonly PixelOptionRow[] _tuningRows = new PixelOptionRow[Tunables.Length];
         private int _pendingArena;
@@ -152,6 +156,7 @@ namespace FakeBlade.Core
 
             UpdateFrameStep(gm);
             ApplyCheats(gm);
+            UpdateImpactPreview(gm);
         }
         #endregion
 
@@ -232,7 +237,50 @@ namespace FakeBlade.Core
             RefreshDebug();
             RefreshTuning();
             RefreshSpeed();
+            RefreshEffects();
         }
+
+        #region Efectos (O5)
+        private void RefreshEffects()
+        {
+            var labels = new string[SandboxSettings.ImpactPreviews.Length];
+            labels[0] = Loc.Get("NO");
+            for (int i = 1; i < labels.Length; i++)
+            {
+                var (kind, damage) = SandboxSettings.ImpactPreviews[i];
+                labels[i] = kind == VfxSystem.ImpactKind.Hit ? Loc.Format("IMPACT_HIT", damage)
+                    : kind == VfxSystem.ImpactKind.Charged ? Loc.Format("IMPACT_CHARGED", damage)
+                    : kind == VfxSystem.ImpactKind.Parry ? Loc.Get("IMPACT_PARRY") : Loc.Get("IMPACT_BLOCK");
+            }
+            _impactRow.SetOptions(labels, SandboxSettings.ImpactPreview);
+
+            char separator = Loc.Current == Language.English ? '.' : ',';
+            var intervals = new string[SandboxSettings.Intervals.Length];
+            for (int i = 0; i < intervals.Length; i++)
+                intervals[i] = SandboxSettings.Intervals[i].ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
+                    .Replace('.', separator) + " S";
+            _impactIntervalRow.SetOptions(intervals, SandboxSettings.ImpactIntervalIndex);
+        }
+
+        /// <summary>Con el panel cerrado, repite el impacto elegido junto a la peonza del jugador.</summary>
+        private void UpdateImpactPreview(GameManager gm)
+        {
+            int preview = SandboxSettings.ImpactPreview;
+            if (_open || preview <= 0 || preview >= SandboxSettings.ImpactPreviews.Length ||
+                gm.CurrentState != GameManager.GameState.InMatch) return;
+
+            _impactTimer -= Time.deltaTime;
+            if (_impactTimer > 0f) return;
+            _impactTimer = SandboxSettings.Intervals[Mathf.Clamp(SandboxSettings.ImpactIntervalIndex, 0, SandboxSettings.Intervals.Length - 1)];
+
+            PlayerController player = BladePlayer;
+            if (player == null || player.Blade == null) return;
+            var (kind, damage) = SandboxSettings.ImpactPreviews[preview];
+            // Al lado de la peonza, para ver el impacto y la peonza a la vez
+            // El parry y el bloqueo, con el color de la peonza del jugador (como si parase él)
+            VfxSystem.PlayImpact(kind, player.Blade.Position + Vector3.right * 1.2f, damage, player.PlayerColor);
+        }
+        #endregion
         #endregion
 
         #region Debug (E4, E5)
@@ -725,6 +773,7 @@ namespace FakeBlade.Core
             _main.AddButton("SANDBOX_SECTION_CHEATS", () => ShowPanel(_cheatsPanel));
             _main.AddButton("SANDBOX_SECTION_DEBUG", () => ShowPanel(_debugPanel));
             _main.AddButton("SANDBOX_SECTION_TUNING", () => ShowPanel(_tuningPanel));
+            _main.AddButton("SANDBOX_SECTION_EFFECTS", () => ShowPanel(_effectsPanel));
             _speedRow = _main.AddSelector("SANDBOX_SPEED", new[] { "-" }, 0, SetSpeed);
             _main.AddButton("SANDBOX_RESET", ResetAll);
             _main.AddSpacer(2);
@@ -801,6 +850,14 @@ namespace FakeBlade.Core
             _tuningPanel.AddSpacer(2);
             _tuningPanel.AddButton("TUNE_RESET", ResetTuning);
             AddBack(_tuningPanel);
+
+            // Efectos (O5): galería para ver cada impacto repetido junto a la peonza, con el panel cerrado
+            _effectsPanel = CreatePanel(canvas, "SANDBOX_SECTION_EFFECTS");
+            _impactRow = _effectsPanel.AddSelector("SANDBOX_IMPACT", new[] { "-" }, 0, i => SandboxSettings.ImpactPreview = i);
+            _impactIntervalRow = _effectsPanel.AddSelector("SANDBOX_INTERVAL", new[] { "-" }, 0,
+                i => SandboxSettings.ImpactIntervalIndex = i);
+            _effectsPanel.AddText("SANDBOX_IMPACT_HINT", 5, _theme.textColor, TextAlignmentOptions.Center, 13);
+            AddBack(_effectsPanel);
 
             // Recordatorio del botón del panel, abajo en el centro
             _hint = PixelUI.CreateText("SandboxHint", canvas.transform, _theme, 5 * _px, TextAlignmentOptions.Center, _theme.textColor);

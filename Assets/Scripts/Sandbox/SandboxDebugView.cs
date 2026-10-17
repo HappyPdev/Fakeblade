@@ -302,7 +302,8 @@ namespace FakeBlade.Core
         #region Números de daño
         private void SpawnNumber(Vector3 position, float amount)
         {
-            if (!SandboxSettings.ShowDamageNumbers) return;
+            // Con los números de daño del juego activados (CombatPopups) no se repiten
+            if (!SandboxSettings.ShowDamageNumbers || SettingsService.Current.damageNumbers) return;
 
             Number n = _numbers[_nextNumber];
             _nextNumber = (_nextNumber + 1) % NumberPool;

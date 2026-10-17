@@ -76,7 +76,293 @@ MonoBehaviour:
   - type: 20
     prefab: {fileID: 8859113551543651562, guid: 5ead5788400569b4a9860b22cb709d63, type: 3}
     burstCount: 14
-  parryColor: {r: 0.55, g: 0.95, b: 1, a: 1}
+  parryColor: {r: 1, g: 1, b: 1, a: 1}
+  impactColorLow: {r: 0.9622642, g: 0.9205056, b: 0.9205056, a: 1}
+  impactColorMid: {r: 1, g: 0.8063239, b: 0.34901965, a: 1}
+  impactColorHigh: {r: 0.8490566, g: 0.18567677, b: 0.062477656, a: 1}
+  impactMidDamage: 10
+  impactHighDamage: 30
+  impactSize: {x: 1.2, y: 2.4}
+  impactMaxDamage: 45
+  chargedImpactScale: 1.2
+  impactMinDamage: 1
+  impactHeight: 0.15
+  impactCameraOffset: 0.6
+  parryImpactSize: 1.8
+  blockImpactSize: 1.8
+  smallHitMaxDamage: 8
+  impactSprites:
+  - id: Impact01
+    texture: {fileID: 2800000, guid: 916e700735e73d54eabaef966d440fba, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.28
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
+  - id: Impact01Sombra
+    texture: {fileID: 2800000, guid: 916e700735e73d54eabaef966d440fba, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.28
+    randomRotation: 1
+    order: 0
+    prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
+  - id: Impact10
+    texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.34
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
+  - id: Impact10Sombra
+    texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.34
+    randomRotation: 1
+    order: 0
+    prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
+  - id: Impact05
+    texture: {fileID: 2800000, guid: 0c150b922ed7f8e4f9d639f4bdbbf6ca, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 8
+    life: 0.34
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
+  - id: Impact06
+    texture: {fileID: 2800000, guid: baace82a6fd0890409bf2342ae47aeb0, type: 3}
+    tilesX: 3
+    tilesY: 2
+    firstFrame: 0
+    frames: 5
+    life: 0.3
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
+  - id: Impact04
+    texture: {fileID: 2800000, guid: 54a3f30885e6df14bb341d22b0e67c27, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.3
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
+  - id: Impact07
+    texture: {fileID: 2800000, guid: 13f3d2707b216a94ba4d5eaabc0cc812, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.32
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
+  - id: Impact08
+    texture: {fileID: 2800000, guid: 811d5a445e39c194d90f059c61d2f543, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 8
+    life: 0.3
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
+  - id: ShotValo
+    texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.3
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
+  - id: ShotValo2
+    texture: {fileID: 2800000, guid: 4d186aafd82497d47a28abb13c9e0e98, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.3
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
+  - id: Valo5Blanco
+    texture: {fileID: 2800000, guid: 5706d8da1c2de9748a8f0660f488c93e, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.34
+    randomRotation: 1
+    order: 1
+    prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
+  - id: MuzzleNeo
+    texture: {fileID: 2800000, guid: 00668c216132a9b46b34ea8a88a9f47a, type: 3}
+    tilesX: 2
+    tilesY: 2
+    firstFrame: 0
+    frames: 4
+    life: 0.16
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
+  - id: Impact10Encima
+    texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 7
+    life: 0.34
+    randomRotation: 1
+    order: 3
+    prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
+  - id: CrossShoot
+    texture: {fileID: 2800000, guid: 428be4e2fb9b24944a267eba76ab2bc6, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.22
+    randomRotation: 1
+    order: 2
+    prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
+  - id: CircleImpact04
+    texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 1
+    frames: 8
+    life: 0.3
+    randomRotation: 1
+    order: 0
+    prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
+  - id: CircleImpact02
+    texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.34
+    randomRotation: 1
+    order: 0
+    prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
+  smallHitLayers:
+  - sprite: MuzzleNeo
+    size: 0.8
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  hitLayers:
+  - sprite: Impact01Sombra
+    size: 1.08
+    damageColor: 0
+    playerColor: 0
+    color: {r: 0, g: 0, b: 0, a: 0.45}
+    lighten: 0
+    rotation: 0
+  - sprite: Impact01
+    size: 1
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  - sprite: Impact04
+    size: 1.15
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 0.6}
+    lighten: 0
+    rotation: 0
+  chargedLayers:
+  - sprite: Impact10Sombra
+    size: 1.08
+    damageColor: 0
+    playerColor: 0
+    color: {r: 0, g: 0, b: 0, a: 0.45}
+    lighten: 0
+    rotation: 0
+  - sprite: Impact10
+    size: 1
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  - sprite: ShotValo
+    size: 0.9
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 0.85}
+    lighten: 0
+    rotation: 0
+  - sprite: Impact10Encima
+    size: 0.7
+    damageColor: 1
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 0.6}
+    lighten: 0.5
+    rotation: 90
+  parryLayers:
+  - sprite: CircleImpact02
+    size: 1.3
+    damageColor: 0
+    playerColor: 1
+    color: {r: 1, g: 1, b: 1, a: 0.9}
+    lighten: 0
+    rotation: 0
+  - sprite: Valo5Blanco
+    size: 1.15
+    damageColor: 0
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  - sprite: Impact05
+    size: 1
+    damageColor: 0
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  blockLayers:
+  - sprite: CircleImpact04
+    size: 1.25
+    damageColor: 0
+    playerColor: 1
+    color: {r: 1, g: 1, b: 1, a: 0.9}
+    lighten: 0
+    rotation: 0
+  - sprite: CrossShoot
+    size: 1
+    damageColor: 0
+    playerColor: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    lighten: 0
+    rotation: 0
+  burnColor: {r: 1, g: 0.45, b: 0.1, a: 1}
+  freezeColor: {r: 0.55, g: 0.9, b: 1, a: 1}
+  launchColor: {r: 1, g: 0.95, b: 0.3, a: 1}
+  wetColor: {r: 0.3, g: 0.6, b: 1, a: 1}
+  statusParticleRate: 22
   chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
   chargeGatherRate: 30
   chargeFlameRate: 26

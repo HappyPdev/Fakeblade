@@ -37,6 +37,54 @@ namespace FakeBlade.Core
 
         /// <summary>Destellos en estrella (carga al máximo, escudo...).</summary>
         Sparkle = 20
+
+        // Los impactos con sprites animados no van aquí: tienen sus propios emisores (VfxLibrary.impactSprites)
+    }
+
+    /// <summary>
+    /// Sprite animado de impacto (hoja de fotogramas en rejilla), 2026-10-17. Cada uno tiene su emisor; las capas de
+    /// cada tipo de impacto (VfxLibrary) lo usan por su id. El prefab y el material los crea *Setup Impactos (sprites)*.
+    /// </summary>
+    [Serializable]
+    public class ImpactSprite
+    {
+        [Tooltip("Nombre con el que lo usan las capas")]
+        public string id;
+        public Texture2D texture;
+        [Min(1)] public int tilesX = 3;
+        [Min(1)] public int tilesY = 3;
+        [Tooltip("Primera casilla con dibujo (0 = la de arriba a la izquierda; algunas hojas empiezan vacías)")]
+        [Min(0)] public int firstFrame;
+        [Tooltip("Fotogramas con dibujo desde el primero (las últimas casillas de la rejilla pueden estar vacías)")]
+        [Min(1)] public int frames = 9;
+        [Tooltip("Lo que dura la animación (s)")]
+        [Min(0.05f)] public float life = 0.3f;
+        [Tooltip("Gira al azar en cada impacto (todas las capas del mismo impacto giran igual). Si no, siempre derecho")]
+        public bool randomRotation = true;
+        [Tooltip("Orden de pintado entre impactos: más alto, más delante (las sombras, por detrás)")]
+        public int order;
+        [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
+        public ParticleSystem prefab;
+    }
+
+    /// <summary>Una capa de un impacto: qué sprite, a qué tamaño (sobre el del impacto) y de qué color.</summary>
+    [Serializable]
+    public class ImpactLayer
+    {
+        [Tooltip("Id del sprite (lista Impact Sprites)")]
+        public string sprite;
+        [Tooltip("Tamaño respecto al del impacto (1 = igual)")]
+        [Min(0f)] public float size = 1f;
+        [Tooltip("Color según el daño (blanco → amarillo → rojizo). Si no, el color fijo de abajo")]
+        public bool damageColor = true;
+        [Tooltip("Color del jugador que hace el parry o el bloqueo (manda sobre los otros dos)")]
+        public bool playerColor;
+        [Tooltip("Color fijo, o solo su transparencia (alfa) si usa el color del daño o del jugador")]
+        public Color color = Color.white;
+        [Tooltip("Aclara el color hacia el blanco (0 = nada, 1 = blanco)")]
+        [Range(0f, 1f)] public float lighten;
+        [Tooltip("Giro extra respecto a las demás capas del impacto (grados)")]
+        public float rotation;
     }
 
     /// <summary>
@@ -63,7 +111,64 @@ namespace FakeBlade.Core
         // Los colores de los poderes están en su asset (SpecialAbilityData.color)
 
         [Header("Parry")]
-        public Color parryColor = new Color(0.55f, 0.95f, 1f);
+        [Tooltip("Chispas del parry (blancas desde el 2026-10-17, con el impacto del parry)")]
+        public Color parryColor = Color.white;
+
+        [Header("Impactos (sprites animados, 2026-10-17)")]
+        [Tooltip("Color del impacto con poco daño (por debajo de impactMidDamage)")]
+        public Color impactColorLow = Color.white;
+        [Tooltip("Color desde impactMidDamage: amarillo")]
+        public Color impactColorMid = new Color(1f, 0.88f, 0.35f);
+        [Tooltip("Color desde impactHighDamage: rojizo")]
+        public Color impactColorHigh = new Color(1f, 0.45f, 0.35f);
+        public float impactMidDamage = 10f;
+        public float impactHighDamage = 30f;
+        [Tooltip("Tamaño del impacto (m) con daño mínimo y con impactMaxDamage o más")]
+        public Vector2 impactSize = new Vector2(1.1f, 2.4f);
+        public float impactMaxDamage = 45f;
+        [Tooltip("Los golpes cargados salen más grandes")]
+        public float chargedImpactScale = 1.2f;
+        [Tooltip("Daño mínimo para que salga el impacto (el roce no)")]
+        public float impactMinDamage = 1f;
+        [Tooltip("Altura del impacto sobre el suelo (m)")]
+        public float impactHeight = 0.3f;
+        [Tooltip("Cuánto se acerca el impacto a la cámara (m), para que se vea delante de las peonzas y no cortado por " +
+                 "ellas. Más alto = sale más arriba en pantalla")]
+        public float impactCameraOffset = 0.8f;
+        [Tooltip("Tamaño del impacto del parry (las capas lo multiplican)")]
+        public float parryImpactSize = 1.8f;
+        [Tooltip("Tamaño del impacto del bloqueo (las capas lo multiplican)")]
+        public float blockImpactSize = 1.8f;
+        [Tooltip("Por debajo de este daño, el golpe usa las capas de golpe pequeño")]
+        public float smallHitMaxDamage = 8f;
+
+        [Header("Capas de cada impacto (se pintan todas a la vez, con la misma rotación)")]
+        public List<ImpactSprite> impactSprites = new List<ImpactSprite>();
+        public List<ImpactLayer> smallHitLayers = new List<ImpactLayer>();
+        public List<ImpactLayer> hitLayers = new List<ImpactLayer>();
+        public List<ImpactLayer> chargedLayers = new List<ImpactLayer>();
+        public List<ImpactLayer> parryLayers = new List<ImpactLayer>();
+        public List<ImpactLayer> blockLayers = new List<ImpactLayer>();
+
+        public ImpactSprite GetImpactSprite(string id)
+        {
+            for (int i = 0; i < impactSprites.Count; i++)
+                if (impactSprites[i] != null && impactSprites[i].id == id) return impactSprites[i];
+            return null;
+        }
+
+        /// <summary>Color del impacto según el daño: blanco, amarillo desde el umbral medio y rojizo desde el alto.</summary>
+        public Color ImpactColor(float damage)
+        {
+            if (damage >= impactHighDamage) return impactColorHigh;
+            if (damage >= impactMidDamage)
+                return Color.Lerp(impactColorMid, impactColorHigh, (damage - impactMidDamage) / Mathf.Max(1f, impactHighDamage - impactMidDamage) * 0.5f);
+            return Color.Lerp(impactColorLow, impactColorMid, damage / Mathf.Max(1f, impactMidDamage) * 0.5f);
+        }
+
+        /// <summary>Tamaño del impacto según el daño.</summary>
+        public float ImpactSize(float damage) =>
+            Mathf.Lerp(impactSize.x, impactSize.y, Mathf.Clamp01(damage / Mathf.Max(1f, impactMaxDamage)));
 
         [Header("Estados alterados (partículas, icono y HUD)")]
         public Color burnColor = new Color(1f, 0.45f, 0.1f);

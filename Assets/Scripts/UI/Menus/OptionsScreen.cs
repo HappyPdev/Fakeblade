@@ -14,7 +14,7 @@ namespace FakeBlade.UI
 
         private List<Vector2Int> _resolutions;
         private PixelOptionRow _resolution, _fullscreen, _quality, _shadows, _antialiasing, _bloom,
-            _particles, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage, _telemetry;
+            _particles, _pixelation, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage, _damageNumbers, _telemetry;
 
         private FakeBladeCatalog _catalog;
         private BladeColorsScreen _bladeColors;
@@ -54,7 +54,8 @@ namespace FakeBlade.UI
             _antialiasing = List.AddSelector("OPT_AA", AALabels(), s.antialiasing, i => Set(() => s.antialiasing = i), RowHeight);
             _bloom = List.AddSelector("OPT_BLOOM", YesNo(), s.bloom ? 1 : 0, i => Set(() => s.bloom = i == 1), RowHeight);
             _particles = List.AddSelector("OPT_PARTICLES", LevelLabels(), s.particles, i => Set(() => s.particles = i), RowHeight);
-            _vsync = List.AddSelector("OPT_VSYNC", YesNo(), s.vsync ? 1 : 0, i => Set(() => s.vsync = i == 1), RowHeight);
+            _pixelation = List.AddSelector("OPT_PIXELATION", PixelationLabels(), s.pixelation, i => Set(() => s.pixelation = i), RowHeight);
+            _vsync =List.AddSelector("OPT_VSYNC", YesNo(), s.vsync ? 1 : 0, i => Set(() => s.vsync = i == 1), RowHeight);
             _fps = List.AddSelector("OPT_FPS", YesNo(), s.showFps ? 1 : 0, i => Set(() => s.showFps = i == 1), RowHeight);
 
             _master = List.AddSelector("OPT_MASTER", VolumeLabels(), VolumeIndex(s.masterVolume), i => Set(() => s.masterVolume = i / 10f), RowHeight);
@@ -65,6 +66,7 @@ namespace FakeBlade.UI
             _vibration = List.AddSelector("OPT_VIBRATION", YesNo(), s.vibration ? 1 : 0, i => Set(() => s.vibration = i == 1), RowHeight);
             _shake = List.AddSelector("OPT_SHAKE", YesNo(), s.cameraShake ? 1 : 0, i => Set(() => s.cameraShake = i == 1), RowHeight);
             _coreImage = List.AddSelector("OPT_CORE_IMAGE", YesNo(), s.showCoreImage ? 1 : 0, i => Set(() => s.showCoreImage = i == 1), RowHeight);
+            _damageNumbers = List.AddSelector("OPT_DAMAGE_NUMBERS", YesNo(), s.damageNumbers ? 1 : 0, i => Set(() => s.damageNumbers = i == 1), RowHeight);
             _telemetry = List.AddSelector("OPT_TELEMETRY", YesNo(), s.telemetry ? 1 : 0, i => Set(() => s.telemetry = i == 1), RowHeight);
 #if UNITY_WEBGL && !UNITY_EDITOR
             // En el navegador no se graba (J3)
@@ -107,6 +109,7 @@ namespace FakeBlade.UI
             _antialiasing.SetOptions(AALabels(), s.antialiasing);
             _bloom.SetOptions(YesNo(), s.bloom ? 1 : 0);
             _particles.SetOptions(LevelLabels(), s.particles);
+            _pixelation.SetOptions(PixelationLabels(), s.pixelation);
             _vsync.SetOptions(YesNo(), s.vsync ? 1 : 0);
             _fps.SetOptions(YesNo(), s.showFps ? 1 : 0);
             _master.SetOptions(VolumeLabels(), VolumeIndex(s.masterVolume));
@@ -116,6 +119,7 @@ namespace FakeBlade.UI
             _vibration.SetOptions(YesNo(), s.vibration ? 1 : 0);
             _shake.SetOptions(YesNo(), s.cameraShake ? 1 : 0);
             _coreImage.SetOptions(YesNo(), s.showCoreImage ? 1 : 0);
+            _damageNumbers.SetOptions(YesNo(), s.damageNumbers ? 1 : 0);
             _telemetry.SetOptions(YesNo(), s.telemetry ? 1 : 0);
         }
 
@@ -150,6 +154,8 @@ namespace FakeBlade.UI
         private static string[] ShadowLabels() => new[] { Loc.Get("OFF"), Loc.Get("SHADOWS_HARD"), Loc.Get("SHADOWS_SOFT") };
         private static string[] AALabels() => new[] { Loc.Get("OFF"), "FXAA", "SMAA" };
         private static string[] LevelLabels() => new[] { Loc.Get("LEVEL_LOW"), Loc.Get("LEVEL_MEDIUM"), Loc.Get("LEVEL_HIGH") };
+        private static string[] PixelationLabels() =>
+            new[] { Loc.Get("NO"), Loc.Get("PIX_SOFT"), Loc.Get("PIX_MEDIUM"), Loc.Get("PIX_STRONG") };
         private static string[] LanguageLabels() => new[] { "ESPAÑOL", "ENGLISH" };
 
         private static string[] VolumeLabels()

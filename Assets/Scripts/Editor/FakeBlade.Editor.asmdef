@@ -5,7 +5,9 @@
         "FakeBlade.Runtime",
         "Unity.TextMeshPro",
         "UnityEngine.UI",
-        "Unity.RenderPipelines.Universal.Editor"
+        "Unity.RenderPipelines.Universal.Editor",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [
         "Editor"

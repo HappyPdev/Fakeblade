@@ -73,6 +73,22 @@ namespace FakeBlade.Core
 
         public static readonly float[] Intervals = { 0.5f, 1f, 2f, 3f };
 
+        /// <summary>
+        /// Galería de efectos (O5, 2026-10-17): impacto que se repite junto a la peonza del jugador con el panel cerrado.
+        /// 0 = ninguno; los demás, ImpactPreviews.
+        /// </summary>
+        public static int ImpactPreview;
+        public static int ImpactIntervalIndex = 1;
+
+        /// <summary>Impactos de la galería: tipo y daño (el daño decide el color y el tamaño de los golpes).</summary>
+        public static readonly (VfxSystem.ImpactKind Kind, float Damage)[] ImpactPreviews =
+        {
+            (VfxSystem.ImpactKind.Hit, 0f), // sin uso: la opción 0 es «No»
+            (VfxSystem.ImpactKind.Hit, 5f), (VfxSystem.ImpactKind.Hit, 20f), (VfxSystem.ImpactKind.Hit, 40f),
+            (VfxSystem.ImpactKind.Charged, 20f), (VfxSystem.ImpactKind.Charged, 40f),
+            (VfxSystem.ImpactKind.Parry, 0f), (VfxSystem.ImpactKind.Block, 0f)
+        };
+
         public static int DummyCount = 1;
         public static DummyBehaviour Behaviour = DummyBehaviour.Idle;
         public static int IntervalIndex = 1;

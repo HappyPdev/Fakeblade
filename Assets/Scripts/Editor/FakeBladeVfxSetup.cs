@@ -261,6 +261,9 @@ namespace FakeBlade.Core.Editor
                 log.Append(spec.Type).Append(' ');
             }
 
+            // Impactos con sprites animados (pack de Wallcoeur): sus entradas se borraron arriba
+            log.Append(FakeBladeImpactSetup.Setup(library));
+
             // Material del sistema anterior (cuadrado opaco sin textura), ya sin uso
             if (AssetDatabase.LoadAssetAtPath<Material>(LegacyMaterialPath) != null)
                 AssetDatabase.DeleteAsset(LegacyMaterialPath);

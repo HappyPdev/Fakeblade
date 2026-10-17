@@ -792,6 +792,7 @@ namespace FakeBlade.Core
             _statusIcon = go.AddComponent<SpriteRenderer>();
             _statusIcon.sortingOrder = 50;
             _iconStatus = StatusEffectType.None;
+            ScreenPixelation.MoveToVfxLayer(go); // nítido sobre la escena pixelada (O2)
         }
 
         private static Camera MainCamera

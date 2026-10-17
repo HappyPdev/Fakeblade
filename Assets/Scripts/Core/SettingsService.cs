@@ -27,6 +27,8 @@ namespace FakeBlade.Core
         public int particles = 2;
         public bool vsync = true;
         public bool showFps = false;
+        /// <summary>Pixelado de la escena 3D (O2): 0 = no, 1 = suave, 2 = medio, 3 = fuerte (ScreenPixelation).</summary>
+        public int pixelation = 1;
 
         [Header("Audio")]
         public float masterVolume = 1f;
@@ -40,6 +42,8 @@ namespace FakeBlade.Core
         public bool showCoreImage = false;
         /// <summary>Telemetría (C19): un archivo por partida con datos para el equilibrio. Activada por defecto.</summary>
         public bool telemetry = true;
+        /// <summary>Números de daño en la arena (CombatPopups, 2026-10-16). Activados por defecto.</summary>
+        public bool damageNumbers = true;
 
         [Header("Colores de peonza")]
         /// <summary>Colores por pieza personalizados (por color de la paleta). Los que no estén usan los de por defecto.</summary>

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FakeBlade.Core
@@ -70,18 +71,174 @@ namespace FakeBlade.Core
                 main.simulationSpace = ParticleSystemSimulationSpace.World;
                 main.playOnAwake = false;
                 main.loop = true;
-                main.cullingMode = ParticleSystemCullingMode.Automatic;
+                // Siempre simulando: con Automatic, un emisor vacío y fuera de la vista se pausa y, al volver a emitir,
+                // «se pone al día» con todo el tiempo pausado y la partícula nueva envejece de golpe (los impactos no
+                // se llegaban a ver). El culling ya lo hace IsVisible al emitir; sin partículas no cuesta nada
+                main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
                 var emission = emitter.emission;
                 emission.rateOverTime = 0f; // solo emite por código (Emit)
                 emitter.Play(); // siempre "vivo" para que Emit simule las partículas
                 _emitters[i] = emitter;
                 _burstCounts[i] = Mathf.Max(1, entry.burstCount);
             }
+            BuildImpactEmitters(library);
+            // Las partículas se pintan nítidas encima de la escena pixelada (O2); los impactos, además, siempre delante
+            ScreenPixelation.MoveToVfxLayer(gameObject);
+            foreach (ImpactEmitter impact in _impactEmitters.Values) ScreenPixelation.MoveToVfxTopLayer(impact.System.gameObject);
+            CollisionResolver.OnClashResolved += HandleClash;
+            CollisionResolver.OnParry += HandleParry;
+            CollisionResolver.OnBlock += HandleBlock;
         }
 
         private void OnDestroy()
         {
+            CollisionResolver.OnClashResolved -= HandleClash;
+            CollisionResolver.OnParry -= HandleParry;
+            CollisionResolver.OnBlock -= HandleBlock;
             if (_instance == this) _instance = null;
+        }
+
+        /// <summary>Tipo de impacto con sprite (2026-10-17).</summary>
+        public enum ImpactKind { Hit, Charged, Parry, Block }
+
+        /// <summary>
+        /// Impacto con sprite animado en cada choque (2026-10-17), entre las dos peonzas: golpe normal o cargado con el
+        /// color y el tamaño según el daño, parry (círculo blanco) o bloqueo (cruz). Se suma a las chispas de siempre.
+        /// </summary>
+        private void HandleClash(CollisionResolver.ClashReport r)
+        {
+            if (r.A == null || r.B == null) return;
+            Vector3 point = (r.A.Position + r.B.Position) * 0.5f;
+            switch (r.Kind)
+            {
+                // El parry y el bloqueo van por sus eventos, que dicen quién para (su color)
+                case CollisionResolver.ClashKind.Normal:
+                case CollisionResolver.ClashKind.Even:
+                case CollisionResolver.ClashKind.Launched:
+                {
+                    float damage = Mathf.Max(r.DamageToA, r.DamageToB);
+                    if (damage < _library.impactMinDamage) return;
+                    // Cargado si quien hace más daño venía con un ataque cargado
+                    bool charged = (r.DamageToB >= r.DamageToA ? r.ChargeA : r.ChargeB) > 0;
+                    PlayImpact(charged ? ImpactKind.Charged : ImpactKind.Hit, point, damage, Color.white);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>Parry: capas con el color de quien para (en un doble parry, blanco).</summary>
+        private static void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry) =>
+            PlayImpact(ImpactKind.Parry, (parrier.Position + attacker.Position) * 0.5f, 0f,
+                doubleParry ? Color.white : PlayerColorOf(parrier));
+
+        /// <summary>Bloqueo: capas con el color de quien bloquea.</summary>
+        private static void HandleBlock(FakeBladeController blocker, FakeBladeController attacker) =>
+            PlayImpact(ImpactKind.Block, (blocker.Position + attacker.Position) * 0.5f, 0f, PlayerColorOf(blocker));
+
+        private static Color PlayerColorOf(FakeBladeController blade)
+        {
+            if (blade.IsGhost && blade.GhostOwner != null) blade = blade.GhostOwner;
+            return blade.Owner != null ? blade.Owner.PlayerColor : Color.white;
+        }
+
+        /// <summary>
+        /// Lanza un impacto en un punto del suelo (choques y galería del Sandbox). Sale un poco hacia la cámara
+        /// (impactCameraOffset), para que se vea delante de las peonzas y no cortado por ellas. playerColor tiñe las capas
+        /// marcadas con «color del jugador» (quien hace el parry o el bloqueo).
+        /// </summary>
+        public static void PlayImpact(ImpactKind kind, Vector3 groundPoint, float damage, Color playerColor)
+        {
+            VfxSystem system = Instance;
+            if (system == null) return;
+            VfxLibrary lib = system._library;
+
+            Vector3 point = groundPoint + Vector3.up * lib.impactHeight;
+            if (system._camera == null || !system._camera.isActiveAndEnabled) system._camera = Camera.main;
+            if (system._camera != null)
+                point += (system._camera.transform.position - point).normalized * lib.impactCameraOffset;
+
+            List<ImpactLayer> layers;
+            float size;
+            switch (kind)
+            {
+                case ImpactKind.Parry:
+                    layers = lib.parryLayers;
+                    size = lib.parryImpactSize;
+                    break;
+                case ImpactKind.Block:
+                    layers = lib.blockLayers;
+                    size = lib.blockImpactSize;
+                    break;
+                case ImpactKind.Charged:
+                    layers = lib.chargedLayers;
+                    size = lib.ImpactSize(damage) * lib.chargedImpactScale;
+                    break;
+                default:
+                    layers = damage < lib.smallHitMaxDamage && lib.smallHitLayers.Count > 0 ? lib.smallHitLayers : lib.hitLayers;
+                    size = lib.ImpactSize(damage);
+                    break;
+            }
+
+            // Todas las capas con la misma rotación, para que se superpongan bien (la sombra, detrás de su impacto)
+            float rotation = Random.Range(0f, 360f);
+            Color damageColor = lib.ImpactColor(damage);
+            for (int i = 0; i < layers.Count; i++)
+            {
+                ImpactLayer layer = layers[i];
+                if (layer == null || !system._impactEmitters.TryGetValue(layer.sprite ?? "", out ImpactEmitter emitter)) continue;
+                Color color = layer.playerColor ? new Color(playerColor.r, playerColor.g, playerColor.b, layer.color.a)
+                    : layer.damageColor ? new Color(damageColor.r, damageColor.g, damageColor.b, layer.color.a)
+                    : layer.color;
+                if (layer.lighten > 0f)
+                {
+                    Color light = Color.Lerp(color, Color.white, layer.lighten);
+                    color = new Color(light.r, light.g, light.b, color.a);
+                }
+                var emitParams = new ParticleSystem.EmitParams
+                {
+                    position = point,
+                    velocity = Vector3.zero,
+                    startColor = color,
+                    startSize = size * layer.size,
+                    rotation = (emitter.Sprite.randomRotation ? rotation : 0f) + layer.rotation
+                };
+                emitter.System.Emit(emitParams, 1);
+            }
+        }
+
+        private readonly struct ImpactEmitter
+        {
+            public readonly ParticleSystem System;
+            public readonly ImpactSprite Sprite;
+
+            public ImpactEmitter(ParticleSystem system, ImpactSprite sprite)
+            {
+                System = system;
+                Sprite = sprite;
+            }
+        }
+
+        private readonly Dictionary<string, ImpactEmitter> _impactEmitters = new Dictionary<string, ImpactEmitter>();
+
+        /// <summary>Un emisor por sprite de impacto (las capas los buscan por id al lanzar cada impacto).</summary>
+        private void BuildImpactEmitters(VfxLibrary library)
+        {
+            for (int i = 0; i < library.impactSprites.Count; i++)
+            {
+                ImpactSprite sprite = library.impactSprites[i];
+                if (sprite == null || sprite.prefab == null || string.IsNullOrEmpty(sprite.id) || _impactEmitters.ContainsKey(sprite.id)) continue;
+                ParticleSystem emitter = Instantiate(sprite.prefab, transform);
+                emitter.name = "Impact_" + sprite.id;
+                var main = emitter.main;
+                main.simulationSpace = ParticleSystemSimulationSpace.World;
+                main.playOnAwake = false;
+                main.loop = true;
+                main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
+                var emission = emitter.emission;
+                emission.rateOverTime = 0f;
+                emitter.Play();
+                _impactEmitters.Add(sprite.id, new ImpactEmitter(emitter, sprite));
+            }
         }
 
         #region API

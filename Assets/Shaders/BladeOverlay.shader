@@ -5,6 +5,9 @@
 //   crece desde el núcleo hacia fuera) y B (impacto, se abre desde el punto del choque y recorre la peonza). Cada uno:
 //   _RingX = (centro x, centro z, radio, giro en radianes), _RingXColor (su alfa es la transparencia). Detrás de cada
 //   anillo, una copia más grande (_RingShadowScale) y oscura (_RingShadowColor) para que se lea mejor.
+// - Sprite animado del especial activo (K8/K9): una hoja de fotogramas en rejilla (_FxTex) proyectada desde arriba,
+//   _Fx = (centro x, centro z, radio, giro), _FxSheet = (casillas en horizontal, en vertical, fotograma), teñida con
+//   _FxColor (su alfa es la transparencia).
 // - Borde de corte duro (tipo cómic): la silueta (fresnel) por encima de 1 - _RimWidth, con _RimSoftness de suavizado.
 // Pase aparte (SRPDefaultUnlit, que URP pinta también): contorno grueso, la malla hinchada _OutlineWidth metros a lo
 // largo de las normales y con las caras de delante quitadas (casco invertido), del color _OutlineColor.
@@ -27,6 +30,10 @@ Shader "FakeBlade/BladeOverlay"
         _RingBColor ("Color del anillo B", Color) = (1, 1, 1, 0)
         _RingShadowColor ("Sombra de los anillos (color y transparencia)", Color) = (0, 0, 0, 0.7)
         _RingShadowScale ("Tamaño de la sombra respecto al anillo", Float) = 1.12
+        [NoScaleOffset] _FxTex ("Sprite del especial (hoja de fotogramas)", 2D) = "black" {}
+        _Fx ("Sprite del especial (x, z, radio, giro)", Vector) = (0, 0, 0, 0)
+        _FxSheet ("Hoja (casillas x, casillas y, fotograma)", Vector) = (1, 1, 0, 0)
+        _FxColor ("Color del sprite del especial", Color) = (1, 1, 1, 0)
         _OutlineColor ("Color del contorno", Color) = (1, 1, 1, 0)
         _OutlineWidth ("Grosor del contorno (m)", Float) = 0.04
     }
@@ -36,6 +43,8 @@ Shader "FakeBlade/BladeOverlay"
 
     TEXTURE2D(_RingTex);
     SAMPLER(sampler_RingTex);
+    TEXTURE2D(_FxTex);
+    SAMPLER(sampler_FxTex);
 
     CBUFFER_START(UnityPerMaterial)
         half4 _RimColor;
@@ -50,6 +59,9 @@ Shader "FakeBlade/BladeOverlay"
         half4 _RingBColor;
         half4 _RingShadowColor;
         float _RingShadowScale;
+        float4 _Fx;
+        float4 _FxSheet;
+        half4 _FxColor;
         half4 _OutlineColor;
         float _OutlineWidth;
     CBUFFER_END
@@ -144,6 +156,25 @@ Shader "FakeBlade/BladeOverlay"
                 return SAMPLE_TEXTURE2D(_RingTex, sampler_RingTex, uv).a;
             }
 
+            // Sprite del especial proyectado desde arriba: como un anillo, pero con la casilla del fotograma de la hoja
+            half4 Fx(float3 positionWS)
+            {
+                if (_FxColor.a <= 0.001 || _Fx.z <= 0.0001) return 0;
+                float2 d = (positionWS.xz - _Fx.xy) / (2.0 * _Fx.z);
+                float s = sin(_Fx.w), c = cos(_Fx.w);
+                float2 local = float2(d.x * c - d.y * s, d.x * s + d.y * c) + 0.5;
+                if (any(local < 0.0) || any(local > 1.0)) return 0;
+                float tilesX = max(1.0, _FxSheet.x);
+                float tilesY = max(1.0, _FxSheet.y);
+                float frame = fmod(max(0.0, floor(_FxSheet.z)), tilesX * tilesY);
+                float column = fmod(frame, tilesX);
+                float row = floor(frame / tilesX);
+                // Sin llegar al borde de la casilla, para no coger una línea de la de al lado
+                local = clamp(local, 0.002, 0.998);
+                float2 uv = float2((column + local.x) / tilesX, (tilesY - 1.0 - row + local.y) / tilesY);
+                return SAMPLE_TEXTURE2D_LOD(_FxTex, sampler_FxTex, uv, 0) * _FxColor;
+            }
+
             // Una capa encima de otra (color premultiplicado)
             void Over(inout half3 color, inout half alpha, half3 layerColor, half layerAlpha)
             {
@@ -164,6 +195,8 @@ Shader "FakeBlade/BladeOverlay"
                 Over(color, alpha, _RingAColor.rgb, Ring(input.positionWS, _RingA) * _RingAColor.a);
                 Over(color, alpha, _RingShadowColor.rgb, Ring(input.positionWS, shadowB) * _RingShadowColor.a * _RingBColor.a);
                 Over(color, alpha, _RingBColor.rgb, Ring(input.positionWS, _RingB) * _RingBColor.a);
+                half4 fx = Fx(input.positionWS);
+                Over(color, alpha, fx.rgb, fx.a);
 
                 float3 n = normalize(input.normalWS);
                 float3 v = normalize(input.viewWS);

@@ -57,7 +57,7 @@ namespace FakeBlade.Core
         public RamAbility(RamData data, FakeBladeController owner) : base(data, owner) { }
 
         public bool IsLunging => _lungeTimer > 0f;
-        public bool IsWindingUp => _windup > 0f;
+        public override bool IsWindingUp => _windup > 0f;
         /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
         public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
         /// <summary>Embestidas que le quedan (para el aspecto).</summary>

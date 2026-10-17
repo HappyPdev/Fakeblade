@@ -85,6 +85,7 @@ crashlytics-build.properties
 #   Assets/ThirdParty/Free/ y sí se suben.
 # - Paquetes de código o shaders que se quedan en su carpeta original: añadir aquí
 #   su carpeta (y su .meta) al importarlos.
+#   Por ejemplo, Assets/ThirdParty/VFX/: VFX Impact and Hit Light (Wallcoeur) y Status and Auras FREE (Matthew Guz).
 /[Aa]ssets/[Tt]hird[Pp]arty/*
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree/
 !/[Aa]ssets/[Tt]hird[Pp]arty/[Ff]ree.meta

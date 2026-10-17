@@ -141,6 +141,12 @@ namespace FakeBlade.Core
         /// cinta más ancha, sumada a la normal, y los cuencos de la punta (K7).</summary>
         private BladeTrail _burstRibbon;
         private BladeBurstTip _burstTip;
+        // Punta del especial activo (cuencos, sprite en el suelo y partículas en cono; K8)
+        private BladeBurstTip _specialTip;
+        // Punta de la peonza quemada (aro de fuego en el suelo; K8)
+        private BladeBurstTip _burnTip;
+        // Partículas del especial y de la quemadura, y manchas en el suelo (K8)
+        private BladeSpecialFx _specialFx;
         // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
         private BladeOverlay _overlay;
 
@@ -298,6 +304,9 @@ namespace FakeBlade.Core
             _ribbonTrail = new BladeTrail(this);
             _burstRibbon = new BladeTrail(this, burst: true);
             _burstTip = new BladeBurstTip(this);
+            _specialTip = new BladeBurstTip(this, "SpecialTip");
+            _burnTip = new BladeBurstTip(this, "BurnTip");
+            _specialFx = new BladeSpecialFx(this);
             _overlay = new BladeOverlay(this);
 
             SetupVisualRoot();
@@ -749,6 +758,9 @@ namespace FakeBlade.Core
             _ribbonTrail?.Stop();
             _burstRibbon?.Stop();
             _burstTip?.Hide();
+            _specialTip?.Hide();
+            _burnTip?.Hide();
+            _specialFx?.Clear();
             _overlay?.Clear();
 
             PlaySound(spinOutSound);
@@ -1471,7 +1483,12 @@ namespace FakeBlade.Core
             {
                 _ribbonTrail?.Tick(dt, _particles.TipOffset);
                 _burstRibbon?.Tick(dt, _particles.TipOffset);
-                _burstTip?.Tick(dt, _particles.TipOffset);
+                VfxLibrary lib = VfxSystem.Library;
+                _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
+                SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
+                _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
+                _burnTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burn?.tip : null, BladeSpecialFx.IsBurning(this));
+                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
             }
             _overlay?.Tick(dt);
         }
@@ -1534,6 +1551,9 @@ namespace FakeBlade.Core
             _ribbonTrail?.Clear();
             _burstRibbon?.Clear();
             _burstTip?.Hide();
+            _specialTip?.Hide();
+            _burnTip?.Hide();
+            _specialFx?.Clear();
             _overlay?.Clear();
 
             if (_rb != null)

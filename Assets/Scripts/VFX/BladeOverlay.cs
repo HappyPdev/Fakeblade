@@ -13,7 +13,9 @@ namespace FakeBlade.Core
     /// - Golpe recibido de otra peonza: destello (más fuerte cuanto más daño) y un anillo del color del daño que se abre
     ///   desde el punto del choque y recorre la peonza hasta la parte de atrás.
     /// - Parry y bloqueo (en quien para): destello.
-    /// Más adelante, los especiales (K8).
+    /// - Especial activo con efectos propios (K8/K9, VfxLibrary.specialEffects[...].overlay): impulsos del borde a ritmo
+    ///   irregular, del color del poder, y un sprite animado (hoja de fotogramas) proyectado desde arriba.
+    /// - Quemada (K8, VfxLibrary.burn): impulsos naranjas del borde (el fuego y el humo, en BladeSpecialFx).
     ///
     /// Clase C# pura que posee FakeBladeController. El material se añade al montar el modelo (Rebind, también al cambiar
     /// de piezas); después, cada frame solo cambia valores con un MaterialPropertyBlock en el material añadido: cero GC.
@@ -36,6 +38,12 @@ namespace FakeBlade.Core
         private static readonly int RingShadowScaleId = Shader.PropertyToID("_RingShadowScale");
         private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
         private static readonly int OutlineWidthId = Shader.PropertyToID("_OutlineWidth");
+        private static readonly int FxTexId = Shader.PropertyToID("_FxTex");
+        private static readonly int FxId = Shader.PropertyToID("_Fx");
+        private static readonly int FxSheetId = Shader.PropertyToID("_FxSheet");
+        private static readonly int FxColorId = Shader.PropertyToID("_FxColor");
+        /// <summary>Lo que tarda el efecto del especial en aparecer y en apagarse (s).</summary>
+        private const float SpecialFade = 0.15f;
 
         private readonly FakeBladeController _blade;
         private readonly List<Renderer> _renderers = new List<Renderer>();
@@ -63,6 +71,16 @@ namespace FakeBlade.Core
         private Color _impactColor;
         private float _impactAngle;
 
+        /// <summary>Impulsos del borde a ritmo irregular y sprite animado (especial activo o quemadura).</summary>
+        private sealed class PulseState
+        {
+            public float Fade, Wait, Age, Strength, Heat, FxTime, FxAngle;
+        }
+
+        // Especial activo y quemadura (K8/K9)
+        private readonly PulseState _specialPulse = new PulseState();
+        private readonly PulseState _burnPulse = new PulseState();
+
         public BladeOverlay(FakeBladeController blade)
         {
             _blade = blade;
@@ -88,6 +106,14 @@ namespace FakeBlade.Core
         public void Rebind() => _bound = false;
 
         private static BladeOverlayStyle Style => VfxSystem.Library != null ? VfxSystem.Library.bladeOverlay : null;
+
+        /// <summary>Efecto sobre la peonza de su especial (aunque ya no esté activo: se apaga con un fundido), o null.</summary>
+        private SpecialOverlayStyle SpecialStyle()
+        {
+            if (VfxSystem.Library == null || _blade.Special == null) return null;
+            SpecialVfxStyle effects = VfxSystem.Library.GetSpecialEffects(_blade.Special.Type);
+            return effects != null ? effects.overlay : null;
+        }
 
         public void Tick(float dt)
         {
@@ -137,6 +163,24 @@ namespace FakeBlade.Core
             }
 
             Vector3 center = _blade.Position;
+
+            // Especial activo con efectos propios: impulsos del borde (manda el más fuerte, como con la carga) y sprite
+            Color flashColor = _eventColor;
+            Vector4 fx = Vector4.zero;
+            Vector4 fxSheet = Vector4.zero;
+            Color fxColor = Color.clear;
+            Texture2D fxTexture = null;
+            SpecialOverlayStyle special = SpecialStyle();
+            bool specialOn = special != null && special.enabled && _blade.Special.IsActive && !_blade.Special.IsWindingUp &&
+                             !_blade.IsDestroyed;
+            Pulses(_specialPulse, special, specialOn, dt, center, ref rim, ref rimColor, ref flash, ref flashColor,
+                ref fx, ref fxSheet, ref fxColor, ref fxTexture);
+
+            // Quemadura: impulsos naranjas del borde
+            BurnEffectStyle burn = VfxSystem.Library.burn;
+            bool burning = burn != null && burn.enabled && !_blade.IsDestroyed && _blade.Status.Current == StatusEffectType.Burning;
+            Pulses(_burnPulse, burn != null ? burn.overlay : null, burning, dt, center, ref rim, ref rimColor, ref flash,
+                ref flashColor, ref fx, ref fxSheet, ref fxColor, ref fxTexture);
             _ringAngle += dt * style.chargeRingSpin * Mathf.Deg2Rad;
 
             // Anillo A: crece desde el núcleo hacia fuera (en bucle mientras se carga; una vez en el ataque rápido)
@@ -175,7 +219,7 @@ namespace FakeBlade.Core
                 ringBColor.a = style.impactRingAlpha * Fade(phase);
             }
 
-            bool visible = flash > 0.001f || rim > 0.001f || ringAColor.a > 0.001f || ringBColor.a > 0.001f;
+            bool visible = flash > 0.001f || rim > 0.001f || ringAColor.a > 0.001f || ringBColor.a > 0.001f || fxColor.a > 0.001f;
             if (!visible && !_shown) return; // apagado y ya se pintó apagado: nada que cambiar
             _shown = visible;
 
@@ -183,8 +227,12 @@ namespace FakeBlade.Core
             _block.SetFloat(RimIntensityId, rim);
             _block.SetFloat(RimWidthId, style.rimWidth);
             _block.SetFloat(RimSoftnessId, style.rimSoftness);
-            _block.SetColor(FlashColorId, _eventColor);
+            _block.SetColor(FlashColorId, flashColor);
             _block.SetFloat(FlashAmountId, flash);
+            if (fxTexture != null) _block.SetTexture(FxTexId, fxTexture);
+            _block.SetVector(FxId, fx);
+            _block.SetVector(FxSheetId, fxSheet);
+            _block.SetColor(FxColorId, fxColor);
             if (style.ringTexture != null) _block.SetTexture(RingTexId, style.ringTexture);
             _block.SetVector(RingAId, ringA);
             _block.SetColor(RingAColorId, ringAColor);
@@ -200,6 +248,62 @@ namespace FakeBlade.Core
                 if (_renderers[i] != null) _renderers[i].SetPropertyBlock(_block, _indices[i]);
         }
 
+        /// <summary>
+        /// Impulsos del borde (suben de golpe y se apagan, a ritmo irregular; manda el borde y el destello más fuertes) y
+        /// sprite animado proyectado desde arriba (solo uno a la vez: el primero que lo pida). Con un fundido al encender y
+        /// al apagar (on).
+        /// </summary>
+        private void Pulses(PulseState state, SpecialOverlayStyle style, bool on, float dt, Vector3 center,
+            ref float rim, ref Color rimColor, ref float flash, ref Color flashColor,
+            ref Vector4 fx, ref Vector4 fxSheet, ref Color fxColor, ref Texture2D fxTexture)
+        {
+            state.Fade = style == null || !style.enabled ? 0f : Mathf.MoveTowards(state.Fade, on ? 1f : 0f, dt / SpecialFade);
+            if (state.Fade <= 0f)
+            {
+                state.Wait = state.FxTime = 0f;
+                return;
+            }
+
+            state.Wait -= dt;
+            if (state.Wait <= 0f)
+            {
+                state.Wait = Random.Range(style.pulseInterval.x, style.pulseInterval.y);
+                state.Age = 0f;
+                state.Strength = Random.value;
+                state.Heat = Random.value;
+            }
+            state.Age += dt;
+            float k = 1f - Mathf.Clamp01(state.Age / style.pulseDecay);
+            k *= k;
+            Color baseColor = style.powerColor ? _blade.Special.Color : style.color;
+            Color color = Color.Lerp(baseColor, style.hotColor, state.Heat * k);
+            float pulseRim = (style.baseRim + Mathf.Lerp(style.pulseRim.x, style.pulseRim.y, state.Strength) * k) * state.Fade;
+            if (pulseRim > rim)
+            {
+                rim = pulseRim;
+                rimColor = color;
+            }
+            float pulseFlash = Mathf.Lerp(style.pulseFlash.x, style.pulseFlash.y, state.Strength) * k * state.Fade;
+            if (pulseFlash > flash)
+            {
+                flash = pulseFlash;
+                flashColor = color;
+            }
+
+            if (style.texture == null || fxTexture != null) return;
+            state.FxTime += dt;
+            state.FxAngle += dt * style.textureSpin * Mathf.Deg2Rad;
+            int tiles = Mathf.Max(1, style.tilesX * style.tilesY);
+            int first = Mathf.Clamp(style.firstFrame, 0, tiles - 1);
+            int frames = Mathf.Clamp(style.frames, 1, tiles - first);
+            float phase = Mathf.Repeat(state.FxTime / Mathf.Max(0.05f, style.cycle), 1f);
+            fx = Ring(center, style.textureScale, state.FxAngle);
+            fxSheet = new Vector4(style.tilesX, style.tilesY, first + Mathf.Min(frames - 1, (int)(phase * frames)), 0f);
+            fxColor = style.textureColor;
+            fxColor.a *= state.Fade;
+            fxTexture = style.texture;
+        }
+
         /// <summary>Anillo para el shader: centro (x, z), radio (escala × radio de la peonza) y giro.</summary>
         private Vector4 Ring(Vector3 center, float scale, float angle) =>
             new Vector4(center.x, center.z, Mathf.Max(0.0001f, scale * _radius), angle);
@@ -212,12 +316,14 @@ namespace FakeBlade.Core
         {
             _eventTimer = _quickRingTimer = _impactRingTimer = 0f;
             _lastChargeLevel = 0;
+            _specialPulse.Fade = _burnPulse.Fade = 0f;
             if (!_shown) return;
             _shown = false;
             _block.SetFloat(RimIntensityId, 0f);
             _block.SetFloat(FlashAmountId, 0f);
             _block.SetColor(RingAColorId, Color.clear);
             _block.SetColor(RingBColorId, Color.clear);
+            _block.SetColor(FxColorId, Color.clear);
             _block.SetColor(OutlineColorId, Color.clear);
             for (int i = 0; i < _renderers.Count; i++)
                 if (_renderers[i] != null) _renderers[i].SetPropertyBlock(_block, _indices[i]);

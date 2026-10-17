@@ -34,6 +34,8 @@ namespace FakeBlade.Core
         /// <summary>Energía 0-1 (relleno de la esfera del HUD).</summary>
         public float Energy => _energy;
         public bool IsActive => _isActive;
+        /// <summary>Activo y todavía en la carga corta del principio (los efectos del poder esperan a que acabe).</summary>
+        public bool IsWindingUp => _isActive && _ability != null && _ability.IsWindingUp;
         public bool IsReady => !_isActive && _energy >= 1f;
 
         /// <summary>Equipa un poder (o lo mantiene) y vacía la energía.</summary>

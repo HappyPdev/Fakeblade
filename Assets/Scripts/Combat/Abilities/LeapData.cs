@@ -82,7 +82,7 @@ namespace FakeBlade.Core
         /// <summary>Ni en la carga ni en el aire se puede atacar o hacer dash (no cambia la dirección del salto).</summary>
         public override bool BlocksActions => true;
 
-        public bool IsWindingUp => _windup > 0f;
+        public override bool IsWindingUp => _windup > 0f;
         public bool IsFlying => _flying;
         /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
         public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;

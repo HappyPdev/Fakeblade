@@ -275,7 +275,9 @@ namespace FakeBlade.Core
                 AuraWater(tip, special.Ability as WaterTrailAbility, special.Color, mul, dt);
                 return;
             }
-            if (!special.IsActive)
+            // Sin activar, o con efectos propios que sustituyen al aura (K8: VfxLibrary.specialEffects)
+            SpecialVfxStyle effects = special.IsActive ? lib.GetSpecialEffects(special.Type) : null;
+            if (!special.IsActive || (effects != null && effects.replaceAura))
             {
                 _auraAcc = _auraAcc2 = 0f;
                 _auraTimer = 0f;
@@ -697,7 +699,9 @@ namespace FakeBlade.Core
             else _wetAcc = 0f;
 
             StatusEffectType status = _blade.Status.Current;
-            if (status == StatusEffectType.None)
+            // La quemadura con partículas propias (chispas y ceniza) las emite BladeSpecialFx (K8)
+            bool burnFx = status == StatusEffectType.Burning && lib.burn != null && lib.burn.enabled && lib.burn.particles.Count > 0;
+            if (status == StatusEffectType.None || burnFx)
             {
                 _statusAcc = 0f;
                 return;

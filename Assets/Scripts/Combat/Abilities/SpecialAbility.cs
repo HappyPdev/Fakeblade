@@ -164,6 +164,12 @@ namespace FakeBlade.Core
         public virtual float ChargeSpeedMultiplier => 1f;
         /// <summary>Mientras está activo no se puede atacar ni hacer dash (Salto: ni en la carga ni en el aire).</summary>
         public virtual bool BlocksActions => false;
+
+        /// <summary>
+        /// Está en la carga corta del principio (frena y se prepara: Embestida, Salto, Fuego). Los efectos del poder
+        /// empiezan al acabarla (VFX).
+        /// </summary>
+        public virtual bool IsWindingUp => false;
         /// <summary>Sus choques no admiten parry ni bloqueo (Embestida, mientras embiste).</summary>
         public virtual bool PreventsParry => false;
         #endregion

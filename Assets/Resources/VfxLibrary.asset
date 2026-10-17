@@ -105,6 +105,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
   - id: Impact01Sombra
     texture: {fileID: 2800000, guid: 916e700735e73d54eabaef966d440fba, type: 3}
@@ -119,6 +121,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
   - id: Impact10
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -133,6 +137,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
   - id: Impact10Sombra
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -147,6 +153,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
   - id: Impact05
     texture: {fileID: 2800000, guid: 0c150b922ed7f8e4f9d639f4bdbbf6ca, type: 3}
@@ -161,6 +169,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
   - id: Impact06
     texture: {fileID: 2800000, guid: baace82a6fd0890409bf2342ae47aeb0, type: 3}
@@ -175,6 +185,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
   - id: Impact04
     texture: {fileID: 2800000, guid: 54a3f30885e6df14bb341d22b0e67c27, type: 3}
@@ -189,6 +201,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
   - id: Impact07
     texture: {fileID: 2800000, guid: 13f3d2707b216a94ba4d5eaabc0cc812, type: 3}
@@ -203,6 +217,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
   - id: Impact08
     texture: {fileID: 2800000, guid: 811d5a445e39c194d90f059c61d2f543, type: 3}
@@ -217,6 +233,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
   - id: ShotValo
     texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
@@ -231,6 +249,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
   - id: ShotValo2
     texture: {fileID: 2800000, guid: 4d186aafd82497d47a28abb13c9e0e98, type: 3}
@@ -245,6 +265,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
   - id: Valo5Blanco
     texture: {fileID: 2800000, guid: 5706d8da1c2de9748a8f0660f488c93e, type: 3}
@@ -259,6 +281,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
   - id: MuzzleNeo
     texture: {fileID: 2800000, guid: 00668c216132a9b46b34ea8a88a9f47a, type: 3}
@@ -273,6 +297,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
   - id: Impact10Encima
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -287,6 +313,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
   - id: CrossShoot
     texture: {fileID: 2800000, guid: 428be4e2fb9b24944a267eba76ab2bc6, type: 3}
@@ -301,6 +329,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
   - id: CircleImpact04
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -315,6 +345,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
   - id: CircleImpact02
     texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
@@ -329,6 +361,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
   - id: Valo4
     texture: {fileID: 2800000, guid: 18448b2385b81ab42ad1e124af522620, type: 3}
@@ -343,6 +377,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
   - id: Valo8
     texture: {fileID: 2800000, guid: ab41667d3e5495147a0b5ed61c88c5e4, type: 3}
@@ -357,6 +393,8 @@ MonoBehaviour:
     flat: 0
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
   - id: CircleImpact04Anillo
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -371,7 +409,41 @@ MonoBehaviour:
     flat: 1
     gravity: 0
     drag: 0
+    fadeOut: 0
+    maxParticles: 128
     prefab: {fileID: 5119328486904876569, guid: db6d52e7c83aa9e439949306f155a9a5, type: 3}
+  - id: Llama11
+    texture: {fileID: 2800000, guid: 26f2f75d2a87207499ef241e5e5782f0, type: 3}
+    tilesX: 8
+    tilesY: 8
+    firstFrame: 0
+    frames: 61
+    life: 0.6
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    maxParticles: 128
+    prefab: {fileID: 6229379388671274524, guid: 5dc318de35c7208438c601f039695dd9, type: 3}
+  - id: Quemado
+    texture: {fileID: 2800000, guid: 9a52a40080e7ffc4bb117f17bfdc27d5, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 4
+    randomRotation: 0
+    order: -1
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    maxParticles: 600
+    prefab: {fileID: 4374145376275296882, guid: e75a8ab61b50422478912f0ef3c1f2b3, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -523,6 +595,7 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 5e1958466733ff849a1427671a2d0ab7, type: 2}
     tilesX: 3
     tilesY: 3
+    firstFrame: 0
     frames: 16
     cycle: 0.25
     size: 2
@@ -568,6 +641,19 @@ MonoBehaviour:
     particleColor: {r: 1, g: 0.2627451, b: 0.24705884, a: 1}
     particleLighten: 0.018
     particleAlpha: 0.9
+    ground:
+      material: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      size: 3
+      height: 0.02
+      spinSpeed: 90
+      playerColor: 0
+      color: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
   bladeOverlay:
     material: {fileID: 2100000, guid: 258f9be97bcf472468477f2086a508ca, type: 2}
     rimWidth: 0.45
@@ -626,6 +712,324 @@ MonoBehaviour:
       flash: 0.45
       rim: 3
       duration: 0.3
+  specialEffects:
+  - type: 5
+    replaceAura: 1
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 098fe694e794c924e9e5dc2ac4075546, type: 2}
+      tilesX: 7
+      tilesY: 7
+      firstFrame: 12
+      frames: 16
+      cycle: 0.6
+      size: 2
+      scale: {x: 1, y: 0.6}
+      height: 0.03
+      alpha: 0.95
+      lighten: 0
+      fade: {x: 0.1, y: 0.25}
+      cups:
+      - angle: 0
+        spinSpeed: 200
+        scale: {x: 0.7, y: 0.8}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+      - angle: 120
+        spinSpeed: -160
+        scale: {x: 1, y: 1}
+        playerColor: 0
+        color: {r: 1, g: 0.85, b: 0.6, a: 0.9}
+      - angle: 240
+        spinSpeed: 120
+        scale: {x: 0.85, y: 1.2}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 0.8}
+      particleSprite: 
+      particleRate: 25
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 30
+      particleSpeed: {x: 1.5, y: 3.5}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.4, y: 0.8}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.45
+      particleHeight: 0
+      particlePlayerColor: 0
+      particleColor: {r: 1, g: 1, b: 1, a: 1}
+      particleLighten: 0
+      particleAlpha: 1
+      ground:
+        material: {fileID: 2100000, guid: 0a2e189e579af7145b9fa0da81aad5be, type: 2}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 60
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 1, g: 0.45, b: 0.1, a: 1}
+      hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      baseRim: 0.6
+      pulseRim: {x: 1, y: 2.5}
+      pulseFlash: {x: 0, y: 0.25}
+      pulseInterval: {x: 0.12, y: 0.35}
+      pulseDecay: 0.25
+      texture: {fileID: 2800000, guid: a8395f18d90e16f48a68038b8c768ee0, type: 3}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 0.8
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 0.9}
+    particles:
+    - name: Chispas
+      emitter: 19
+      rate: 10
+      burstInterval: {x: 0.15, y: 0.6}
+      burstCount: {x: 3, y: 7}
+      spawnRadius: {x: 0.2, y: 0.6}
+      height: {x: 0.05, y: 0.25}
+      coneAngle: 35
+      speed: {x: 3, y: 6}
+      inheritVelocity: 0.2
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.4, y: 0.8}
+      color: {r: 1, g: 0.85, b: 0.3, a: 1}
+      color2: {r: 1, g: 0.4, b: 0.05, a: 1}
+      alpha: 1
+    - name: Ceniza
+      emitter: 6
+      rate: 8
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.3, y: 0.7}
+      height: {x: 0.15, y: 0.4}
+      coneAngle: 25
+      speed: {x: 0.4, y: 1.2}
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.1}
+      lifetime: {x: 1.2, y: 2}
+      color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
+      color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
+      alpha: 0.85
+    scorch:
+      sprite: Quemado
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras:
+    - name: Aura Smoke
+      prefab: {fileID: 3254649496035036234, guid: 778a281a2188fc24aab47c804de7dc83, type: 3}
+      scale: 1
+      height: 0.1
+      simulationSpeed: 1
+      spin: 0
+    windup:
+    - name: Remolino de llamas
+      emitter: 15
+      sprite: 
+      rate: 160
+      count: 40
+      radius: {x: 0.8, y: 1.2}
+      height: {x: 0, y: 0.15}
+      tangentialSpeed: {x: 6, y: 9}
+      outwardSpeed: {x: -3, y: -2}
+      upSpeed: {x: 2, y: 4}
+      clockwise: 1
+      size: {x: 0.16, y: 0.26}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.3, a: 1}
+      color2: {r: 1, g: 0.35, b: 0.05, a: 1}
+      alpha: 1
+    - name: Remolino de chispas
+      emitter: 19
+      sprite: 
+      rate: 70
+      count: 40
+      radius: {x: 0.6, y: 1}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 7, y: 10}
+      outwardSpeed: {x: -2, y: -1}
+      upSpeed: {x: 3, y: 5}
+      clockwise: 1
+      size: {x: 0.08, y: 0.12}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 1, g: 0.95, b: 0.6, a: 1}
+      color2: {r: 1, g: 0.6, b: 0.15, a: 1}
+      alpha: 1
+    activationBurst:
+    - name: "Explosi\xF3n de llamas"
+      emitter: 15
+      sprite: 
+      rate: 100
+      count: 50
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.3}
+      tangentialSpeed: {x: 6, y: 8}
+      outwardSpeed: {x: 2.5, y: 4}
+      upSpeed: {x: 0.8, y: 1.6}
+      clockwise: 1
+      size: {x: 0.22, y: 0.36}
+      lifetime: {x: 0.35, y: 0.6}
+      color: {r: 1, g: 0.85, b: 0.3, a: 1}
+      color2: {r: 1, g: 0.35, b: 0.05, a: 1}
+      alpha: 1
+    - name: "Explosi\xF3n de chispas"
+      emitter: 19
+      sprite: 
+      rate: 100
+      count: 35
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.3}
+      tangentialSpeed: {x: 6, y: 9}
+      outwardSpeed: {x: 3.5, y: 6}
+      upSpeed: {x: 1.5, y: 3}
+      clockwise: 1
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.4, y: 0.8}
+      color: {r: 1, g: 0.95, b: 0.6, a: 1}
+      color2: {r: 1, g: 0.6, b: 0.15, a: 1}
+      alpha: 1
+  burn:
+    enabled: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.1, y: 0.3}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 2100000, guid: 3b809df9884e1124a9c18221e5badb69, type: 2}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 0.8
+        size: 2.2
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 0.9
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 1, g: 0.45, b: 0.1, a: 1}
+      hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      baseRim: 0.4
+      pulseRim: {x: 0.8, y: 2}
+      pulseFlash: {x: 0, y: 0.15}
+      pulseInterval: {x: 0.12, y: 0.35}
+      pulseDecay: 0.25
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Chispas
+      emitter: 19
+      rate: 4
+      burstInterval: {x: 0.3, y: 0.8}
+      burstCount: {x: 2, y: 4}
+      spawnRadius: {x: 0.2, y: 0.6}
+      height: {x: 0.05, y: 0.25}
+      coneAngle: 35
+      speed: {x: 3, y: 6}
+      inheritVelocity: 0.2
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.4, y: 0.8}
+      color: {r: 1, g: 0.85, b: 0.3, a: 1}
+      color2: {r: 1, g: 0.4, b: 0.05, a: 1}
+      alpha: 1
+    - name: Ceniza
+      emitter: 6
+      rate: 6
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.6}
+      height: {x: 0.15, y: 0.4}
+      coneAngle: 25
+      speed: {x: 0.4, y: 1.2}
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.1}
+      lifetime: {x: 1.2, y: 2}
+      color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
+      color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
+      alpha: 0.85
+    - name: Humo
+      emitter: 18
+      rate: 6
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.1, y: 0.4}
+      height: {x: 0.2, y: 0.4}
+      coneAngle: 20
+      speed: {x: 0.5, y: 1.2}
+      inheritVelocity: 0
+      size: {x: 0.25, y: 0.45}
+      lifetime: {x: 0.8, y: 1.4}
+      color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+      color2: {r: 0.4, g: 0.4, b: 0.42, a: 1}
+      alpha: 0.6
+    auras:
+    - name: Aura Burn
+      prefab: {fileID: 686306083764514543, guid: 5357b7f40e1451744886942913efe75f, type: 3}
+      scale: 1
+      height: 0.1
+      simulationSpeed: 1.8
+      spin: 150
+    - name: Aura Smoke
+      prefab: {fileID: 3254649496035036234, guid: 778a281a2188fc24aab47c804de7dc83, type: 3}
+      scale: 1
+      height: 0.1
+      simulationSpeed: 1
+      spin: 0
   trailSpacing: 0.45
   trailAlpha: 0.4
   trailSize: 0.1

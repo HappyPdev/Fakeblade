@@ -72,6 +72,10 @@ namespace FakeBlade.Core
         public float gravity;
         [Tooltip("Frenado de las partículas (0 = nada, 1 = se paran casi enseguida)")]
         [Range(0f, 1f)] public float drag;
+        [Tooltip("Parte final de la vida en la que se desvanece (0 = de golpe; 0,6 = el último 60%). Para las manchas")]
+        [Range(0f, 1f)] public float fadeOut;
+        [Tooltip("Cuántas puede haber a la vez (entre todas las peonzas)")]
+        [Min(1)] public int maxParticles = 128;
         [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
         public ParticleSystem prefab;
     }
@@ -196,6 +200,8 @@ namespace FakeBlade.Core
         public Material material;
         [Min(1)] public int tilesX = 3;
         [Min(1)] public int tilesY = 3;
+        [Tooltip("Primera casilla del bucle (0 = la de arriba a la izquierda): para repetir solo una parte de la hoja")]
+        [Min(0)] public int firstFrame;
         [Tooltip("Fotogramas con dibujo desde el primero (como mucho, casillas en horizontal × en vertical: 9 en " +
                  "ImpactShotValo2). Para que vaya más rápida, bajar Cycle")]
         [Min(1)] public int frames = 9;
@@ -250,6 +256,264 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float particleLighten;
         [Tooltip("Transparencia de las partículas")]
         [Range(0f, 1f)] public float particleAlpha = 0.9f;
+
+        [Header("Sprite animado en el suelo, debajo de la punta (sin material = no sale)")]
+        public TipGroundSprite ground = new TipGroundSprite();
+    }
+
+    /// <summary>
+    /// Sprite animado tumbado en el suelo debajo de la punta (BurstTipStyle.ground; K8, 2026-10-17): una hoja de
+    /// fotogramas que se repite en bucle y gira. Sale y se apaga con los cuencos.
+    /// </summary>
+    [Serializable]
+    public class TipGroundSprite
+    {
+        [Tooltip("Material con la hoja de fotogramas (shader FakeBlade/FlipbookUnlit). Vacío = no sale")]
+        public Material material;
+        [Min(1)] public int tilesX = 8;
+        [Min(1)] public int tilesY = 8;
+        [Tooltip("Primera casilla del bucle (0 = la de arriba a la izquierda)")]
+        [Min(0)] public int firstFrame;
+        [Tooltip("Fotogramas del bucle desde el primero")]
+        [Min(1)] public int frames = 61;
+        [Tooltip("Lo que dura una vuelta de la animación (s)")]
+        [Min(0.05f)] public float cycle = 1f;
+        [Tooltip("Ancho del sprite (m; la casilla entera, aunque el dibujo ocupe menos)")]
+        [Min(0f)] public float size = 3f;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float height = 0.02f;
+        [Tooltip("Giro (grados/s; negativo = hacia el otro lado)")]
+        public float spinSpeed = 90f;
+        [Tooltip("Con el color del jugador. Si no, el color de abajo (blanco = los colores del dibujo)")]
+        public bool playerColor;
+        public Color color = Color.white;
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float alpha = 1f;
+    }
+
+    /// <summary>
+    /// Efecto sobre la peonza mientras su especial está activo (K8/K9, 2026-10-17): impulsos del borde brillante que
+    /// suben de golpe y se apagan, a ritmo irregular (como el parpadeo de una llama), y un sprite animado proyectado
+    /// desde arriba sobre la peonza. Lo aplica BladeOverlay.
+    /// </summary>
+    [Serializable]
+    public class SpecialOverlayStyle
+    {
+        public bool enabled = true;
+        [Tooltip("Con el color del poder (su asset). Si no, Color y Hot Color")]
+        public bool powerColor;
+        public Color color = new Color(1f, 0.45f, 0.1f);
+        [Tooltip("Color en lo más alto de cada impulso (cada uno, al azar entre los dos)")]
+        public Color hotColor = new Color(1f, 0.85f, 0.3f);
+        [Header("Impulsos del borde")]
+        [Tooltip("Intensidad del borde entre impulsos (0 = solo los impulsos)")]
+        [Min(0f)] public float baseRim = 0.6f;
+        [Tooltip("Intensidad que suma cada impulso, al azar entre x e y")]
+        public Vector2 pulseRim = new Vector2(1f, 2.5f);
+        [Tooltip("Cuánto tiñe cada impulso toda la peonza, al azar entre x e y (0-1)")]
+        public Vector2 pulseFlash = new Vector2(0f, 0.25f);
+        [Tooltip("Tiempo entre impulsos (s), al azar entre x e y")]
+        public Vector2 pulseInterval = new Vector2(0.12f, 0.35f);
+        [Tooltip("Lo que tarda en apagarse cada impulso (s)")]
+        [Min(0.01f)] public float pulseDecay = 0.25f;
+        [Header("Sprite animado proyectado desde arriba (sin textura = no sale)")]
+        public Texture2D texture;
+        [Min(1)] public int tilesX = 8;
+        [Min(1)] public int tilesY = 8;
+        [Tooltip("Primera casilla del bucle (0 = la de arriba a la izquierda)")]
+        [Min(0)] public int firstFrame;
+        [Tooltip("Fotogramas del bucle desde el primero")]
+        [Min(1)] public int frames = 61;
+        [Tooltip("Lo que dura una vuelta de la animación (s)")]
+        [Min(0.05f)] public float cycle = 1f;
+        [Tooltip("Tamaño respecto al radio de la peonza (la casilla entera, aunque el dibujo ocupe menos)")]
+        [Min(0f)] public float textureScale = 2.2f;
+        [Tooltip("Giro (grados/s)")]
+        public float textureSpin = 120f;
+        [Tooltip("Teñido del sprite (blanco = los colores del dibujo); su alfa es la transparencia")]
+        public Color textureColor = Color.white;
+    }
+
+    /// <summary>
+    /// Efectos de un especial mientras está activo (K8/K9, 2026-10-17, GDD 7.6): punta (cuencos, sprite en el suelo y
+    /// partículas en cono, como el acelerón), efecto sobre la peonza y si sustituye a su aura de partículas de antes. Uno
+    /// por poder en VfxLibrary.specialEffects; los que no tienen entrada siguen con su aura. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class SpecialVfxStyle
+    {
+        public SpecialAbilityType type;
+        [Tooltip("Quita el aura de partículas que tenía el poder antes de estos efectos (BladeParticles)")]
+        public bool replaceAura = true;
+        [Tooltip("Punta: cuencos, sprite en el suelo y partículas en cono, mientras dura el poder")]
+        public BurstTipStyle tip = new BurstTipStyle();
+        [Tooltip("Sobre la peonza: impulsos del borde y sprite animado")]
+        public SpecialOverlayStyle overlay = new SpecialOverlayStyle();
+        [Tooltip("Partículas mientras dura el poder (chispas y ceniza en el Fuego), además de las del cono de la punta")]
+        public List<SpecialParticleStyle> particles = new List<SpecialParticleStyle>();
+        [Tooltip("Manchas en el suelo por donde pasa mientras dura el poder (sin sprite = no deja)")]
+        public ScorchStyle scorch = new ScorchStyle();
+        [Tooltip("Auras de partículas de paquetes (Status and Auras FREE) pegadas a la peonza mientras dura el poder")]
+        public List<AuraStyle> auras = new List<AuraStyle>();
+        [Header("Al activarlo (poderes con carga corta: Fuego)")]
+        [Tooltip("Mientras dura la carga del principio: partículas en remolino alrededor de la peonza")]
+        public List<SpiralParticleStyle> windup = new List<SpiralParticleStyle>();
+        [Tooltip("Al encenderse (al acabar la carga, o al activarlo si no tiene): explosión de partículas en espiral")]
+        public List<SpiralParticleStyle> activationBurst = new List<SpiralParticleStyle>();
+    }
+
+    /// <summary>
+    /// Aura de un paquete de partículas (Status and Auras FREE; K8, 2026-10-17): una copia del prefab por peonza, creada
+    /// en su primer frame, que cuelga de la punta y se enciende y apaga con el efecto. Se queda en la capa normal (el
+    /// pixelado de la escena la pasa a píxeles). Se puede acelerar (velocidad de simulación de todos sus sistemas) y girar
+    /// alrededor de la vertical. Cambiar de prefab necesita volver a dar a Play.
+    /// </summary>
+    [Serializable]
+    public class AuraStyle
+    {
+        [Tooltip("Solo para reconocerla en el Inspector")]
+        public string name;
+        [Tooltip("Prefab del paquete (Assets/ThirdParty/VFX/Status and Auras FREE/Prefab). Vacío = no sale")]
+        public ParticleSystem prefab;
+        [Tooltip("Escala (sobre la del prefab)")]
+        [Min(0.01f)] public float scale = 1f;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float height = 0.1f;
+        [Tooltip("Velocidad de la animación (1 = la del paquete; 2 = el doble de rápida)")]
+        [Min(0.05f)] public float simulationSpeed = 1f;
+        [Tooltip("Giro alrededor de la vertical (grados/s; negativo = hacia el otro lado). Con simulación local (Aura " +
+                 "Burn) gira todo el fuego; con simulación de mundo (Aura Smoke), solo por dónde salen")]
+        public float spin;
+    }
+
+    /// <summary>
+    /// Partículas en espiral alrededor de la peonza (K8, 2026-10-17): salen en un anillo y se mueven girando (velocidad
+    /// tangencial), hacia fuera o hacia dentro y hacia arriba. Un remolino mientras dura la carga del principio (ritmo) o
+    /// una explosión en espiral al encenderse (cantidad). Con un emisor de píxel de VfxSystem o un sprite animado de la
+    /// lista Impact Sprites. Escaladas con Opciones → Partículas.
+    /// </summary>
+    [Serializable]
+    public class SpiralParticleStyle
+    {
+        [Tooltip("Solo para reconocerlas en el Inspector")]
+        public string name;
+        [Tooltip("Emisor de píxel (ChargeFlame: llama; LowSpinSpark: chispa con gravedad; Sparkle: estrella)")]
+        public VfxType emitter = VfxType.ChargeFlame;
+        [Tooltip("Sprite animado de la lista Impact Sprites en vez del emisor (vacío = el emisor)")]
+        public string sprite;
+        [Tooltip("Remolino: partículas por segundo mientras dura la carga")]
+        [Min(0f)] public float rate = 100f;
+        [Tooltip("Explosión: partículas de golpe al encenderse (repartidas alrededor)")]
+        [Min(0)] public int count = 40;
+        [Tooltip("Distancia al centro a la que salen (m), al azar entre x e y")]
+        public Vector2 radius = new Vector2(0.4f, 0.6f);
+        [Tooltip("Altura de salida sobre la punta (m), al azar entre x e y")]
+        public Vector2 height = new Vector2(0.05f, 0.3f);
+        [Tooltip("Velocidad de giro alrededor de la peonza (m/s), entre x e y")]
+        public Vector2 tangentialSpeed = new Vector2(6f, 9f);
+        [Tooltip("Velocidad hacia fuera (m/s; negativo = hacia dentro, como un remolino que traga), entre x e y")]
+        public Vector2 outwardSpeed = new Vector2(4f, 7f);
+        [Tooltip("Velocidad hacia arriba (m/s), entre x e y")]
+        public Vector2 upSpeed = new Vector2(2f, 4f);
+        [Tooltip("Gira en el sentido de las agujas del reloj, visto desde arriba")]
+        public bool clockwise = true;
+        [Tooltip("Tamaño (m), entre x e y")]
+        public Vector2 size = new Vector2(0.2f, 0.35f);
+        [Tooltip("Duración (s), entre x e y (0 = la del emisor o el sprite)")]
+        public Vector2 lifetime = new Vector2(0.35f, 0.6f);
+        [Tooltip("Color de cada partícula, al azar entre este y el siguiente")]
+        public Color color = new Color(1f, 0.85f, 0.3f);
+        public Color color2 = new Color(1f, 0.35f, 0.05f);
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float alpha = 1f;
+    }
+
+    /// <summary>
+    /// Partículas de un efecto continuo (K8, 2026-10-17): un emisor de píxel de VfxSystem (sus gravedad y forma son las
+    /// del prefab) con un ritmo fijo y, si se quiere, chasquidos (varias de golpe a intervalos al azar, como la madera al
+    /// crepitar). Salen alrededor de la punta, en cono hacia arriba. Escaladas con Opciones → Partículas.
+    /// </summary>
+    [Serializable]
+    public class SpecialParticleStyle
+    {
+        [Tooltip("Solo para reconocerlas en el Inspector")]
+        public string name;
+        [Tooltip("Emisor (LowSpinSpark: chispa que cae con gravedad; SpecialAura: píxel que sube despacio; " +
+                 "LowSpinSmoke: bocanada de humo)")]
+        public VfxType emitter = VfxType.LowSpinSpark;
+        [Tooltip("Partículas por segundo, seguidas")]
+        [Min(0f)] public float rate = 10f;
+        [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
+        public Vector2 burstInterval = Vector2.zero;
+        [Tooltip("Partículas de cada chasquido, al azar entre x e y")]
+        public Vector2 burstCount = new Vector2(3f, 6f);
+        [Tooltip("Distancia al centro a la que salen (m), al azar entre x e y")]
+        public Vector2 spawnRadius = new Vector2(0.2f, 0.6f);
+        [Tooltip("Altura de salida sobre la punta (m), al azar entre x e y")]
+        public Vector2 height = new Vector2(0.05f, 0.25f);
+        [Tooltip("Apertura del cono respecto a la vertical (grados)")]
+        [Range(0f, 90f)] public float coneAngle = 35f;
+        [Tooltip("Velocidad de salida (m/s), entre x e y")]
+        public Vector2 speed = new Vector2(3f, 6f);
+        [Tooltip("Parte de la velocidad de la peonza que se llevan")]
+        [Range(-1f, 1f)] public float inheritVelocity = 0.2f;
+        [Tooltip("Tamaño (m), entre x e y")]
+        public Vector2 size = new Vector2(0.05f, 0.09f);
+        [Tooltip("Duración (s), entre x e y (0 = la del emisor)")]
+        public Vector2 lifetime = new Vector2(0.4f, 0.8f);
+        [Tooltip("Color de cada partícula, al azar entre este y el siguiente")]
+        public Color color = new Color(1f, 0.85f, 0.3f);
+        public Color color2 = new Color(1f, 0.4f, 0.05f);
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float alpha = 1f;
+    }
+
+    /// <summary>
+    /// Manchas en el suelo por donde pasa la peonza (K8, 2026-10-17; quemado del Fuego): un sprite tumbado de la lista
+    /// Impact Sprites cada pocos metros (y alguno de vez en cuando si está parada), con giro y tamaño al azar, que se
+    /// desvanece (Fade Out del sprite).
+    /// </summary>
+    [Serializable]
+    public class ScorchStyle
+    {
+        [Tooltip("Id del sprite (lista Impact Sprites; Quemado = mancha difusa que crea Setup Impactos). Vacío = sin manchas")]
+        public string sprite;
+        [Tooltip("Metros recorridos entre dos manchas")]
+        [Min(0.05f)] public float spacing = 0.4f;
+        [Tooltip("Una mancha cada tantos segundos aunque esté parada (0 = solo al moverse)")]
+        [Min(0f)] public float idleInterval = 0.5f;
+        [Tooltip("Tamaño (m), al azar entre x e y")]
+        public Vector2 size = new Vector2(1f, 1.5f);
+        [Tooltip("Lo que dura cada mancha (s), con el desvanecido del sprite al final")]
+        [Min(0.1f)] public float lifetime = 4f;
+        [Tooltip("Color (el sprite es blanco: negro = quemado)")]
+        public Color color = new Color(0.06f, 0.04f, 0.03f);
+        [Tooltip("Transparencia")]
+        [Range(0f, 1f)] public float alpha = 0.45f;
+        [Tooltip("Altura sobre la punta (m): un poco, para que no parpadee con el suelo")]
+        public float height = 0.01f;
+    }
+
+    /// <summary>
+    /// Peonza quemada (estado Quemadura, K8, 2026-10-17): como la que quema, pero más simple. En la punta, un aro de fuego
+    /// en el suelo (BurstTipStyle, como el del Fuego activo, con otro sprite y sin cuencos); impulsos naranjas del borde;
+    /// humo, chispas y ceniza; y, si se quiere, auras de partículas de un paquete (Aura Burn y Aura Smoke de Status and
+    /// Auras FREE), que se crean una vez por peonza y se encienden mientras dura. Lo aplican BladeBurstTip, BladeOverlay
+    /// y BladeSpecialFx. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class BurnEffectStyle
+    {
+        public bool enabled = true;
+        [Tooltip("Punta: aro de fuego en el suelo (Ground), cuencos y partículas en cono, mientras dura la quemadura")]
+        public BurstTipStyle tip = new BurstTipStyle();
+        [Header("Borde")]
+        public SpecialOverlayStyle overlay = new SpecialOverlayStyle { baseRim = 0.4f, pulseRim = new Vector2(0.8f, 2f), pulseFlash = new Vector2(0f, 0.15f) };
+        [Header("Partículas (sustituyen a las llamitas de antes si hay alguna)")]
+        public List<SpecialParticleStyle> particles = new List<SpecialParticleStyle>();
+        [Header("Auras de paquetes (opcionales)")]
+        [Tooltip("Auras de partículas (Aura Burn, Aura Smoke...) pegadas a la peonza mientras está quemada")]
+        public List<AuraStyle> auras = new List<AuraStyle>();
     }
 
     /// <summary>Un destello sobre la peonza por un evento (golpe recibido, parry, bloqueo...): sube de golpe y se apaga.</summary>
@@ -502,6 +766,19 @@ namespace FakeBlade.Core
 
         [Header("Efectos sobre la peonza (borde brillante y destello)")]
         public BladeOverlayStyle bladeOverlay = new BladeOverlayStyle();
+
+        [Header("Efectos de cada especial mientras está activo (K8/K9)")]
+        public List<SpecialVfxStyle> specialEffects = new List<SpecialVfxStyle>();
+        [Tooltip("Peonza quemada: fuego alrededor de la silueta, borde naranja y chispas y ceniza")]
+        public BurnEffectStyle burn = new BurnEffectStyle();
+
+        /// <summary>Efectos del especial, o null si no tiene (sigue con su aura de partículas).</summary>
+        public SpecialVfxStyle GetSpecialEffects(SpecialAbilityType type)
+        {
+            for (int i = 0; i < specialEffects.Count; i++)
+                if (specialEffects[i] != null && specialEffects[i].type == type) return specialEffects[i];
+            return null;
+        }
 
         [Header("Estela (partículas)")]
         [Tooltip("Metros recorridos entre dos partículas de la estela (0,12 hasta K7; ahora la cinta es el rastro principal)")]

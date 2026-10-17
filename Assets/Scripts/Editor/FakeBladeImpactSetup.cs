@@ -38,6 +38,12 @@ namespace FakeBlade.Core.Editor
             public bool Upright, DepthTested;
             /// <summary>Tumbado en el suelo (anillo de la carga).</summary>
             public bool Flat;
+            /// <summary>Hoja de CodeManu (nombre del archivo sin .png) en vez de una de Wallcoeur.</summary>
+            public string CodeManu;
+            /// <summary>Textura generada aquí en vez de una del pack (Quemado: mancha difusa).</summary>
+            public bool GeneratedScorch;
+            public float FadeOut;
+            public int Max;
         }
 
         // Orden: sombras y fondos 0, capas sutiles 1, impacto principal 2, capas por delante del principal 3
@@ -72,6 +78,10 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "Valo4", Texture = "ImpactValo4", TilesX = 3, TilesY = 3, Frames = 8, Life = 0.4f, Order = 1, Upright = true, DepthTested = true },
             // Tajo hacia arriba (ImpatcValo8, con la errata del pack; ImpactValo8 es otro, un rombo): partículas de la punta
             new DefaultSprite { Id = "Valo8", Texture = "ImpatcValo8", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = 1, Upright = true, DepthTested = true },
+            // Llama hacia arriba de CodeManu (11_fire, 61 dibujos en 8 × 8): llamas en cono del Fuego activo (K8, 2026-10-17)
+            new DefaultSprite { Id = "Llama11", CodeManu = "11_fire_spritesheet", TilesX = 8, TilesY = 8, Frames = 61, Life = 0.6f, Order = 1, Upright = true, DepthTested = true },
+            // Mancha difusa de quemado en el suelo (textura generada, blanca para teñirla): rastro del Fuego (K8, 2026-10-17)
+            new DefaultSprite { Id = "Quemado", GeneratedScorch = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 4f, Order = -1, Upright = true, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 600 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -95,7 +105,8 @@ namespace FakeBlade.Core.Editor
                 library.impactSprites.Add(new ImpactSprite
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
-                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat
+                    frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat,
+                    fadeOut = d.FadeOut, maxParticles = d.Max > 0 ? d.Max : 128
                 });
                 added++;
             }
@@ -184,6 +195,8 @@ namespace FakeBlade.Core.Editor
         #region Texturas
         private static Texture2D GetTexture(DefaultSprite d)
         {
+            if (!string.IsNullOrEmpty(d.CodeManu)) return FakeBladeTrailSetup.CodeManuSheet(d.CodeManu);
+            if (d.GeneratedScorch) return ScorchTexture();
             string source = PackFolder + d.Texture + ".png";
             if (d.Convert == Convert.None) return AssetDatabase.LoadAssetAtPath<Texture2D>(source);
 
@@ -192,6 +205,69 @@ namespace FakeBlade.Core.Editor
             var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
             if (existing != null) return existing;
             return ConvertTexture(source, target, d.Convert);
+        }
+
+        /// <summary>
+        /// Mancha difusa de quemado (K8, 2026-10-17): blanca (se tiñe de negro al usarla), con la transparencia de un
+        /// círculo que se apaga hacia fuera y bordes irregulares por ruido, en 4 niveles y 48 × 48 con filtro de punto
+        /// (pixel art). Siempre la misma (semilla fija); el giro y el tamaño al azar de cada mancha la hacen variar.
+        /// </summary>
+        private static Texture2D ScorchTexture()
+        {
+            string target = ConvertedFolder + "/Quemado.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null) return existing;
+
+            const int size = 48;
+            var random = new System.Random(17);
+            var lattice = new float[9, 9];
+            for (int y = 0; y < 9; y++)
+            for (int x = 0; x < 9; x++)
+                lattice[x, y] = (float)random.NextDouble();
+            var lattice2 = new float[17, 17];
+            for (int y = 0; y < 17; y++)
+            for (int x = 0; x < 17; x++)
+                lattice2[x, y] = (float)random.NextDouble();
+
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float d = Mathf.Sqrt((u - 0.5f) * (u - 0.5f) + (v - 0.5f) * (v - 0.5f)) * 2f; // 0 en el centro, 1 en el borde
+                float noise = Lattice(lattice, u * 8f, v * 8f) * 0.65f + Lattice(lattice2, u * 16f, v * 16f) * 0.35f;
+                float a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.25f, 0.95f, d + (noise - 0.5f) * 0.45f));
+                a = Mathf.Round(Mathf.Clamp01(a) * 4f) / 4f; // 4 niveles: pixel art
+                pixels[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
+
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.SetPixels32(pixels);
+            FakeBladeAssetsMenu.EnsureFolder(ConvertedFolder);
+            File.WriteAllBytes(target, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(target);
+
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
+        /// <summary>Ruido de valor: interpolación suave entre los puntos de una rejilla de valores al azar.</summary>
+        private static float Lattice(float[,] values, float x, float y)
+        {
+            int max = values.GetLength(0) - 1;
+            int x0 = Mathf.Clamp((int)x, 0, max - 1), y0 = Mathf.Clamp((int)y, 0, max - 1);
+            float fx = Mathf.SmoothStep(0f, 1f, x - x0), fy = Mathf.SmoothStep(0f, 1f, y - y0);
+            float top = Mathf.Lerp(values[x0, y0 + 1], values[x0 + 1, y0 + 1], fx);
+            float bottom = Mathf.Lerp(values[x0, y0], values[x0 + 1, y0], fx);
+            return Mathf.Lerp(bottom, top, fy);
         }
 
         /// <summary>Copia adaptada: en blanco (conservando la transparencia) o con el brillo como transparencia.</summary>
@@ -271,7 +347,8 @@ namespace FakeBlade.Core.Editor
             main.startColor = Color.white;
             main.gravityModifier = s.gravity;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.maxParticles = 128; // también las partículas de la punta de varias peonzas a la vez
+            // 128 por defecto (también si el sprite es de antes de este campo): las de la punta de varias peonzas a la vez
+            main.maxParticles = s.maxParticles > 0 ? s.maxParticles : 128;
             main.scalingMode = ParticleSystemScalingMode.Hierarchy;
             main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
 
@@ -286,6 +363,17 @@ namespace FakeBlade.Core.Editor
             limit.enabled = s.drag > 0f;
             limit.limit = 1000f;
             limit.drag = s.drag * 10f;
+
+            // Desvanecido al final de la vida (manchas)
+            var fade = ps.colorOverLifetime;
+            fade.enabled = s.fadeOut > 0f;
+            if (fade.enabled)
+            {
+                var gradient = new Gradient();
+                gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                    new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f - s.fadeOut), new GradientAlphaKey(0f, 1f) });
+                fade.color = gradient;
+            }
 
             // La hoja entera, una vez, de principio a fin de la vida de la partícula
             var sheet = ps.textureSheetAnimation;

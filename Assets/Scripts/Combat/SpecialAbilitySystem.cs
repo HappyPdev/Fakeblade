@@ -36,6 +36,12 @@ namespace FakeBlade.Core
         public bool IsActive => _isActive;
         /// <summary>Activo y todavía en la carga corta del principio (los efectos del poder esperan a que acabe).</summary>
         public bool IsWindingUp => _isActive && _ability != null && _ability.IsWindingUp;
+        /// <summary>Lo que lleva de la carga (0-1; 1 si no está cargando).</summary>
+        public float WindupProgress => IsWindingUp ? _ability.WindupProgress : 1f;
+        /// <summary>Usos en total del poder activo con varios usos (0 = no tiene, o no está activo).</summary>
+        public int MaxUses => _isActive && _ability != null ? _ability.MaxUses : 0;
+        /// <summary>Usos que le quedan por lanzar al poder activo, contando el que se está cargando.</summary>
+        public int UsesLeft => _isActive && _ability != null ? _ability.UsesLeft : 0;
         public bool IsReady => !_isActive && _energy >= 1f;
 
         /// <summary>Equipa un poder (o lo mantiene) y vacía la energía.</summary>
@@ -95,6 +101,9 @@ namespace FakeBlade.Core
         /// <summary>Activo y con usos que se lanzan volviendo a pulsar Especial. Para la IA.</summary>
         public bool WantsRepeatPress => _isActive && _ability.WantsRepeatPress;
 
+        /// <summary>Carga antes de cada uso que se lanza volviendo a pulsar (s; 0 = sin carga). Para la IA.</summary>
+        public float RepeatWindup => _ability != null ? _ability.RepeatWindup : 0f;
+
         /// <summary>
         /// Curación de un poder (regeneración): solo si ningún golpe de ataque enemigo la ha cortado
         /// desde que se activó.
@@ -141,6 +150,12 @@ namespace FakeBlade.Core
             // Rasgo de duración del poder (H8)
             _energy -= dt / Mathf.Max(0.1f, _ability.Data.duration * _owner.Trait(PartTraitType.SpecialDuration));
             if (_energy > 0f) return false;
+            // Una carga ya empezada se termina aunque se acabe el tiempo (Onda de choque: la última onda sale igual)
+            if (_ability.IsWindingUp)
+            {
+                _energy = 0f;
+                return false;
+            }
 
             Stop();
             return true;

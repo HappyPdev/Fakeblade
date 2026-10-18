@@ -19,6 +19,12 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 2.5
+  waves: 2
   radius: 5
-  force: 14
+  edgeFactor: 0.5
+  windupTime: 0.5
+  windupBrake: 12
+  force: 20
   damagePct: 0.06
+  launchDuration: 0.5
+  waveShake: 0.15

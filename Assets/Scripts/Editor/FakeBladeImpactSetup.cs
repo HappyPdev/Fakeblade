@@ -48,7 +48,17 @@ namespace FakeBlade.Core.Editor
             public bool GeneratedDot;
             /// <summary>Textura recortada: el pentágono de la segunda casilla de Impact09 (Wallcoeur), en pixel art (ceniza).</summary>
             public bool CutShard;
-            public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut;
+            /// <summary>Textura generada de Onda de choque (AroPicos, OndaChoque, NubeComic, Grietas; ver Generated).</summary>
+            public string Generated;
+            /// <summary>La hoja se anima al revés (círculos que se cierran).</summary>
+            public bool Reverse;
+            /// <summary>Textura generada de ruido con la que se disuelve (shader FakeBlade/ParticleDissolve).</summary>
+            public string Dissolve;
+            /// <summary>Degradado del humo de una explosión (blanco, amarillo, naranja y gris), como CFXR Explosion 1.</summary>
+            public bool ExplosionColors;
+            /// <summary>Cada partícula, un dibujo de la hoja al azar, sin animar.</summary>
+            public bool RandomFrame;
+            public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut, GrowIn, Stretch;
             public int Max;
         }
 
@@ -98,6 +108,25 @@ namespace FakeBlade.Core.Editor
             // Chispa simple (Rayos, 2026-10-18): el mismo punto pixel, que cae con gravedad (la textura VFX_Spark es una estrella
             // de cuatro puntas, que no gusta)
             new DefaultSprite { Id = "Chispa", GeneratedDot = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.45f, Order = 1, Upright = true, DepthTested = true, FadeOut = 0.3f, Gravity = 1f, Drag = 0.15f, Max = 512 },
+            // Onda de choque (K8, 2026-10-18; boceto del usuario; texturas generadas, blancas con contorno negro para teñirlas):
+            // aro de picos que se cierra sobre la peonza en la carga, líneas de velocidad hacia dentro, nubes de cómic que se
+            // tragan y que salen despedidas en la explosión, la onda que se abre por el suelo hasta el alcance y grietas
+            new DefaultSprite { Id = "AroPicos", Generated = "AroPicos", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, FadeIn = 0.25f, ShrinkOut = 0.99f, Max = 64 },
+            new DefaultSprite { Id = "OndaChoque", Generated = "OndaChoque", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.45f, Order = -1, DepthTested = true, Flat = true, FadeOut = 0.5f, GrowIn = 1f, Max = 32 },
+            new DefaultSprite { Id = "NubeComic", Generated = "NubeComic", Dissolve = "NubeComicDisuelve", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, DepthTested = true, FadeOut = 0.6f, Drag = 0.06f, Spin = 40f, Max = 512 },
+            // Humo de la explosión (2026-10-18; copiado de CFXR Explosion 1): sale disparado y frena, crece, pasa de blanco a
+            // amarillo, naranja y gris, y al final se rompe en pedacitos (disolución)
+            new DefaultSprite { Id = "HumoExplosion", Generated = "HumoComic", Dissolve = "HumoComicDisuelve", ExplosionColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 1.1f, Order = 1, DepthTested = true, GrowIn = 0.4f, Drag = 0.08f, Spin = 30f, Max = 512 },
+            new DefaultSprite { Id = "NubeComicTraga", Generated = "NubeComic", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = 1, DepthTested = true, FadeIn = 0.3f, ShrinkOut = 0.6f, Spin = 90f, Max = 256 },
+            new DefaultSprite { Id = "Grietas", Generated = "Grietas", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "Linea", GeneratedDot = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.3f, Order = 1, Upright = true, DepthTested = true, FadeIn = 0.2f, FadeOut = 0.3f, Stretch = 0.08f, Max = 256 },
+            // Círculos del pack tumbados en el suelo (2026-10-18, pedido por el usuario: que no sean círculos exactos): abriéndose
+            // en la explosión de Onda de choque y al revés (cerrándose) en su carga, en capas a distinta altura y tamaño
+            new DefaultSprite { Id = "CircleImpact02Suelo", Texture = "CircleImpact02", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true },
+            new DefaultSprite { Id = "FP_CircleImpactSuelo", Texture = "FP_CircleImpact", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true },
+            new DefaultSprite { Id = "ShotValo2Suelo", Texture = "ImpactShotValo2", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.35f, Order = -1, DepthTested = true, Flat = true },
+            new DefaultSprite { Id = "CircleImpact02Cierra", Texture = "CircleImpact02", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, Reverse = true },
+            new DefaultSprite { Id = "FP_CircleImpactCierra", Texture = "FP_CircleImpact", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, Reverse = true },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -122,9 +151,16 @@ namespace FakeBlade.Core.Editor
                 {
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
                     frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat,
-                    fadeOut = d.FadeOut, fadeIn = d.FadeIn, shrinkOut = d.ShrinkOut, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
+                    fadeOut = d.FadeOut, fadeIn = d.FadeIn, shrinkOut = d.ShrinkOut, growIn = d.GrowIn, stretch = d.Stretch, reverse = d.Reverse, randomFrame = d.RandomFrame, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
                     maxParticles = d.Max > 0 ? d.Max : 128
                 });
+                ImpactSprite created = library.impactSprites[library.impactSprites.Count - 1];
+                if (!string.IsNullOrEmpty(d.Dissolve)) created.dissolveTexture = GeneratedTexture(d.Dissolve);
+                if (d.ExplosionColors)
+                {
+                    created.useColorOverLife = true;
+                    created.colorOverLife = ExplosionGradient();
+                }
                 added++;
             }
             if (added > 0) log.Append(added).Append(" sprites nuevos; ");
@@ -138,7 +174,10 @@ namespace FakeBlade.Core.Editor
                     log.Append(sprite.id).Append(": sin textura; ");
                     continue;
                 }
-                sprite.prefab = CreateEffect(sprite, GetMaterial(sprite.texture));
+                Material material = sprite.dissolveTexture != null
+                    ? GetDissolveMaterial(sprite.texture, sprite.dissolveTexture, sprite.dissolveSmooth)
+                    : GetMaterial(sprite.texture);
+                sprite.prefab = CreateEffect(sprite, material);
                 built++;
             }
             log.Append(built).Append(" sprites; ");
@@ -217,6 +256,7 @@ namespace FakeBlade.Core.Editor
             if (d.GeneratedMist) return MistTexture();
             if (d.GeneratedDot) return DotTexture();
             if (d.CutShard) return ShardTexture();
+            if (!string.IsNullOrEmpty(d.Generated)) return GeneratedTexture(d.Generated);
             string source = PackFolder + d.Texture + ".png";
             if (d.Convert == Convert.None) return AssetDatabase.LoadAssetAtPath<Texture2D>(source);
 
@@ -422,6 +462,372 @@ namespace FakeBlade.Core.Editor
             return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
         }
 
+        /// <summary>
+        /// Texturas de Onda de choque (K8, 2026-10-18; boceto del usuario), en pixel art (filtro de punto, sin degradados),
+        /// blancas con el contorno negro para teñirlas (el negro se queda negro): AroPicos, un aro con picos hacia dentro (el
+        /// contorno dentado del boceto); OndaChoque, la onda de cómic que se abre por el suelo; NubeComic, una nube de cómic
+        /// (círculos juntos, con sombra abajo); Grietas, grietas que salen del centro (blancas, se tiñen de oscuro).
+        /// Siempre las mismas (semilla fija).
+        /// </summary>
+        private static Texture2D GeneratedTexture(string name, bool force = false)
+        {
+            string target = $"{ConvertedFolder}/{name}.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+            if (existing != null && !force) return existing;
+            switch (name)
+            {
+                case "AroPicos": return SaveTexture(target, 64, SpikeRingPixels(64));
+                case "OndaChoque": return SaveTexture(target, 64, ShockRingPixels(64));
+                case "NubeComic": return SaveTexture(target, 64, ComicCloudPixels(64));
+                case "Grietas": return SaveTexture(target, 64, CrackPixels(64));
+                case "LineasVelocidad": return SaveTexture(target, 128, SpeedLinePixels(128, 64), 64, TextureWrapMode.Repeat);
+                case "MarcaUso": return SaveTexture(target, 16, UseMarkPixels(16));
+                case "NubeComicDisuelve": return SaveTexture(target, 64, DissolveNoisePixels(64));
+                case "HumoComic": return SaveTexture(target, 128, SmokeSheetPixels(64));
+                case "HumoComicDisuelve": return SaveTexture(target, 128, TileSheet(64, (size, index) => DissolveNoisePixels(size, 27 + index)));
+                default: return DotTexture();
+            }
+        }
+
+        /// <summary>
+        /// Vuelve a generar una textura de las de arriba encima del mismo archivo (mismo GUID: los materiales y prefabs que la
+        /// usan la siguen teniendo). Para cambiar su dibujo desde el código.
+        /// </summary>
+        public static Texture2D RegenerateTexture(string name) => GeneratedTexture(name, true);
+
+        /// <summary>Líneas de velocidad horizontales (textura que recorre la cúpula de Onda de choque; la crea si falta).</summary>
+        public static Texture2D SpeedLinesTexture() => GeneratedTexture("LineasVelocidad");
+
+        /// <summary>
+        /// Marca del aviso de usos (2026-10-18): círculo de 16 × 16 blanco con contorno negro y un brillo, para teñirlo con el
+        /// color del poder. La usa el material VFX_UseMark (Setup Rastros).
+        /// </summary>
+        public static Texture2D UseMarkTexture() => GeneratedTexture("MarcaUso");
+
+        /// <summary>
+        /// Marca del aviso de usos (2026-10-18; la primera, con el contorno negro, no gustó): orbe de luz sin contorno, con el
+        /// centro blanco, un aro del color del poder (gris claro, se tiñe) y el borde translúcido, en pixel art.
+        /// </summary>
+        private static Color32[] UseMarkPixels(int size)
+        {
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x + 0.5f - size * 0.5f, dy = y + 0.5f - size * 0.5f;
+                float d = Mathf.Sqrt(dx * dx + dy * dy) / (size * 0.5f); // 0 en el centro, 1 en el borde
+                Color32 c = Clear;
+                if (d <= 1f) c = new Color32(200, 200, 200, 110);
+                if (d <= 0.78f) c = new Color32(215, 215, 215, 230);
+                if (d <= 0.45f) c = Paper;
+                pixels[y * size + x] = c;
+            }
+            return pixels;
+        }
+
+        private static readonly Color32 Clear = new Color32(255, 255, 255, 0);
+        private static readonly Color32 Ink = new Color32(13, 13, 13, 255);
+        private static readonly Color32 Paper = new Color32(255, 255, 255, 255);
+        private static readonly Color32 Shade = new Color32(190, 190, 190, 255);
+
+        /// <summary>Aro con 14 picos hacia dentro y el borde de fuera un poco irregular, blanco con contorno negro de 2 px.</summary>
+        private static Color32[] SpikeRingPixels(int size)
+        {
+            var random = new System.Random(5);
+            const int spikes = 14;
+            var jitter = new float[spikes];
+            for (int i = 0; i < spikes; i++) jitter[i] = (float)random.NextDouble();
+            var pixels = new Color32[size * size];
+            float half = size * 0.5f, line = 2f / half;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = (x + 0.5f - half) / half, dy = (y + 0.5f - half) / half;
+                float d = Mathf.Sqrt(dx * dx + dy * dy);
+                float turn = (Mathf.Atan2(dy, dx) / (Mathf.PI * 2f) + 1f) * spikes;
+                int index = (int)turn % spikes;
+                float f = turn - Mathf.Floor(turn);
+                // Diente de sierra: cada pico entra hacia el centro una longitud distinta
+                float tooth = 1f - Mathf.Abs(f - 0.5f) * 2f;
+                float inner = 0.78f - tooth * (0.18f + jitter[index] * 0.12f);
+                float outer = 0.93f + (jitter[(index + 3) % spikes] - 0.5f) * 0.04f;
+                Color32 c = Clear;
+                if (d >= inner && d <= outer)
+                    c = d - inner < line * 1.2f || outer - d < line ? Ink : Paper;
+                pixels[y * size + x] = c;
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Onda de cómic: banda blanca gruesa con contorno negro, y por dentro arcos sueltos más finos y translúcidos (como
+        /// líneas de movimiento).
+        /// </summary>
+        private static Color32[] ShockRingPixels(int size)
+        {
+            var random = new System.Random(9);
+            float[,] noise = RandomLattice(random, 9);
+            var pixels = new Color32[size * size];
+            float half = size * 0.5f, line = 1.5f / half;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float dx = (u - 0.5f) * 2f, dy = (v - 0.5f) * 2f;
+                float d = Mathf.Sqrt(dx * dx + dy * dy);
+                float wobble = (Lattice(noise, u * 8f, v * 8f) - 0.5f) * 0.05f;
+                float inner = 0.8f + wobble, outer = 0.97f;
+                Color32 c = Clear;
+                if (d >= inner && d <= outer) c = d - inner < line || outer - d < line ? Ink : Paper;
+                else if (d >= 0.62f && d < inner - line * 1.5f)
+                {
+                    // Arcos sueltos por dentro: solo donde el ruido lo deja
+                    float arc = Lattice(noise, u * 8f + 2.3f, v * 8f + 4.1f);
+                    if (arc > 0.55f && d > 0.66f && d < 0.72f) c = new Color32(255, 255, 255, 150);
+                }
+                pixels[y * size + x] = c;
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Nube de cómic: cuatro círculos juntos, blanca con sombra gris abajo y un contorno fino (1 px de 64) en gris medio, no
+        /// negro: al teñirla, el contorno toma el color de la nube y no queda tan marcado (2026-10-18, a petición del usuario;
+        /// la primera, de 32 px con el contorno negro, era demasiado gruesa).
+        /// </summary>
+        private static Color32[] ComicCloudPixels(int size)
+        {
+            // Centros (u, v) y radios, en partes de la textura
+            var circles = new[]
+            {
+                new Vector3(0.5f, 0.42f, 0.27f), new Vector3(0.3f, 0.5f, 0.2f),
+                new Vector3(0.7f, 0.5f, 0.2f), new Vector3(0.52f, 0.66f, 0.2f)
+            };
+            var outline = new Color32(120, 120, 120, 255);
+            var pixels = new Color32[size * size];
+            float line = 1.1f / size;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                // Distancia con signo a la unión de círculos (positiva dentro)
+                float inside = -1f;
+                for (int i = 0; i < circles.Length; i++)
+                {
+                    float du = u - circles[i].x, dv = v - circles[i].y;
+                    inside = Mathf.Max(inside, circles[i].z - Mathf.Sqrt(du * du + dv * dv));
+                }
+                Color32 c = Clear;
+                if (inside > 0f)
+                {
+                    if (inside < line) c = outline;
+                    // Sombra abajo (en la textura, v pequeña), con un borde en curva
+                    else if (v < 0.36f + (u - 0.5f) * (u - 0.5f) * 0.6f) c = Shade;
+                    else c = Paper;
+                }
+                pixels[y * size + x] = c;
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Ruido para disolver las nubes (2026-10-18; la idea del humo de CFXR Explosion 1): manchas redondeadas de ruido de dos
+        /// escalas, más claras en el centro, en 8 niveles. Al disolverse, primero se va el borde y lo oscuro, y quedan
+        /// pedacitos sueltos que se hacen pequeños. Nunca llega a 0 (con la nube entera no se come nada).
+        /// </summary>
+        private static Color32[] DissolveNoisePixels(int size, int seed = 27)
+        {
+            var random = new System.Random(seed);
+            float[,] coarse = RandomLattice(random, 7), fine = RandomLattice(random, 13);
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float d = Mathf.Sqrt((u - 0.5f) * (u - 0.5f) + (v - 0.5f) * (v - 0.5f)) * 2f;
+                float noise = Lattice(coarse, u * 6f, v * 6f) * 0.6f + Lattice(fine, u * 12f, v * 12f) * 0.4f;
+                float value = noise * 0.7f + (1f - Mathf.Clamp01(d)) * 0.3f;
+                value = Mathf.Lerp(0.05f, 1f, Mathf.Round(Mathf.Clamp01(value) * 8f) / 8f);
+                byte b = (byte)(value * 255f);
+                pixels[y * size + x] = new Color32(b, b, b, 255);
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Hoja de 2 × 2 nubes de humo distintas (humo de la explosión de Onda de choque, 2026-10-18; idea de la hoja «smoke cloud
+        /// x4» de CFXR Explosion 1): cada una, de 5 a 7 círculos al azar alrededor del centro, blanca, con una sombra suave
+        /// (gris claro, solo una media luna abajo) y un contorno fino en gris medio. Con formas distintas y solapadas, el humo no
+        /// parece piedras.
+        /// </summary>
+        private static Color32[] SmokeSheetPixels(int cell) => TileSheet(cell, (size, index) =>
+        {
+            var random = new System.Random(41 + index * 7);
+            int count = 5 + random.Next(3);
+            var circles = new Vector3[count];
+            // Uno grande en el centro y los demás alrededor, más pequeños
+            circles[0] = new Vector3(0.5f, 0.47f, 0.28f + (float)random.NextDouble() * 0.05f);
+            for (int i = 1; i < count; i++)
+            {
+                float angle = (i / (float)(count - 1) + (float)random.NextDouble() * 0.15f) * Mathf.PI * 2f;
+                float distance = 0.15f + (float)random.NextDouble() * 0.09f;
+                circles[i] = new Vector3(0.5f + Mathf.Cos(angle) * distance, 0.5f + Mathf.Sin(angle) * distance * 0.85f,
+                    0.14f + (float)random.NextDouble() * 0.08f);
+            }
+            var outline = new Color32(140, 140, 140, 255);
+            var shade = new Color32(212, 212, 212, 255);
+            var pixels = new Color32[size * size];
+            float line = 1.1f / size;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float inside = -1f, insideShifted = -1f;
+                for (int i = 0; i < count; i++)
+                {
+                    float du = u - circles[i].x, dv = v - circles[i].y;
+                    inside = Mathf.Max(inside, circles[i].z - Mathf.Sqrt(du * du + dv * dv));
+                    // La misma nube un poco más abajo: lo que queda fuera de ella es la parte de arriba (luz)
+                    float dvs = v - circles[i].y + 0.06f;
+                    insideShifted = Mathf.Max(insideShifted, circles[i].z - Mathf.Sqrt(du * du + dvs * dvs));
+                }
+                Color32 c = Clear;
+                if (inside > 0f)
+                {
+                    if (inside < line) c = outline;
+                    // Sombra: la media luna de abajo (dentro de la nube pero fuera de la copia subida)
+                    else if (insideShifted <= 0f && v < 0.5f) c = shade;
+                    else c = Paper;
+                }
+                pixels[y * size + x] = c;
+            }
+            return pixels;
+        });
+
+        /// <summary>Junta 4 dibujos de cell × cell en una hoja de 2 × 2 (el primero arriba a la izquierda, como las hojas).</summary>
+        private static Color32[] TileSheet(int cell, System.Func<int, int, Color32[]> draw)
+        {
+            int size = cell * 2;
+            var sheet = new Color32[size * size];
+            for (int index = 0; index < 4; index++)
+            {
+                Color32[] tile = draw(cell, index);
+                // En la textura, y = 0 es la fila de abajo: el dibujo 0 va arriba a la izquierda
+                int ox = (index % 2) * cell, oy = (1 - index / 2) * cell;
+                for (int y = 0; y < cell; y++)
+                for (int x = 0; x < cell; x++)
+                    sheet[(oy + y) * size + ox + x] = tile[y * cell + x];
+            }
+            return sheet;
+        }
+
+        /// <summary>
+        /// Degradado del humo de una explosión, copiado de CFXR Explosion 1: blanco, amarillo (al 10 %), naranja (17 %) y gris
+        /// (desde el 33 %); entero hasta el 60 % de su vida y después se disuelve.
+        /// </summary>
+        private static Gradient ExplosionGradient()
+        {
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0.03f), new GradientColorKey(new Color(1f, 0.81f, 0f), 0.1f),
+                    new GradientColorKey(new Color(1f, 0.38f, 0.12f), 0.17f), new GradientColorKey(new Color(0.53f, 0.53f, 0.53f), 0.33f)
+                },
+                new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            return gradient;
+        }
+
+        /// <summary>
+        /// Líneas de velocidad (cúpula de Onda de choque, 2026-10-18): trazos horizontales blancos de distinto largo y grosor, con
+        /// las puntas más finas y translúcidas, sobre transparente. Se repite sin costuras (los trazos dan la vuelta).
+        /// </summary>
+        private static Color32[] SpeedLinePixels(int width, int height)
+        {
+            var random = new System.Random(21);
+            var alpha = new byte[width * height];
+            int y = 1;
+            while (y < height - 1)
+            {
+                int strokes = 1 + random.Next(2);
+                for (int k = 0; k < strokes; k++)
+                {
+                    int length = 12 + random.Next(width / 2);
+                    int start = random.Next(width);
+                    int thick = random.NextDouble() < 0.35 ? 2 : 1;
+                    for (int i = 0; i < length; i++)
+                    {
+                        float t = i / (float)(length - 1);
+                        // Puntas: el primer y el último cuarto, más translúcidas; el centro, opaco
+                        byte a = t < 0.15f || t > 0.85f ? (byte)110 : t < 0.3f || t > 0.7f ? (byte)190 : (byte)255;
+                        int x = (start + i) % width;
+                        for (int r = 0; r < thick && y + r < height; r++)
+                        {
+                            int index = (y + r) * width + x;
+                            if (a > alpha[index]) alpha[index] = a;
+                        }
+                    }
+                }
+                y += 3 + random.Next(4);
+            }
+            var pixels = new Color32[width * height];
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = new Color32(255, 255, 255, alpha[i]);
+            return pixels;
+        }
+
+        /// <summary>Grietas: 7 líneas quebradas que salen del centro y se afinan, blancas (se tiñen de oscuro al usarlas).</summary>
+        private static Color32[] CrackPixels(int size)
+        {
+            var random = new System.Random(13);
+            var pixels = new Color32[size * size];
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = Clear;
+            float half = size * 0.5f;
+            const int cracks = 7;
+            for (int k = 0; k < cracks; k++)
+            {
+                float angle = (k + (float)random.NextDouble() * 0.6f) / cracks * Mathf.PI * 2f;
+                float length = half * (0.6f + (float)random.NextDouble() * 0.35f);
+                float r = half * 0.18f;
+                var p = new Vector2(half + Mathf.Cos(angle) * r, half + Mathf.Sin(angle) * r);
+                while (r < length)
+                {
+                    // Quiebros: el rumbo cambia un poco en cada paso
+                    angle += ((float)random.NextDouble() - 0.5f) * 0.9f;
+                    p += new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    r = Vector2.Distance(p, new Vector2(half, half));
+                    int width = r < length * 0.55f ? 2 : 1;
+                    for (int oy = 0; oy < width; oy++)
+                    for (int ox = 0; ox < width; ox++)
+                    {
+                        int px = (int)p.x + ox, py = (int)p.y + oy;
+                        if (px >= 0 && py >= 0 && px < size && py < size) pixels[py * size + px] = Paper;
+                    }
+                }
+            }
+            return pixels;
+        }
+
+        /// <summary>Guarda los píxeles como PNG y lo importa en pixel art (filtro de punto, sin mipmaps ni compresión). height 0 = cuadrada.</summary>
+        private static Texture2D SaveTexture(string target, int size, Color32[] pixels, int height = 0,
+            TextureWrapMode wrap = TextureWrapMode.Clamp)
+        {
+            var tex = new Texture2D(size, height > 0 ? height : size, TextureFormat.RGBA32, false);
+            tex.SetPixels32(pixels);
+            FakeBladeAssetsMenu.EnsureFolder(ConvertedFolder);
+            File.WriteAllBytes(target, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(target);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.textureType = TextureImporterType.Default;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = wrap;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
+
         /// <summary>Rejilla de (cells + 1) × (cells + 1) valores al azar para Lattice.</summary>
         private static float[,] RandomLattice(System.Random random, int points)
         {
@@ -504,6 +910,32 @@ namespace FakeBlade.Core.Editor
             return material;
         }
 
+        /// <summary>
+        /// Material de un sprite que se disuelve (shader FakeBlade/ParticleDissolve): VFX_[textura]_Disuelve, con la textura y su
+        /// ruido. Si falta el shader, el de siempre.
+        /// </summary>
+        private static Material GetDissolveMaterial(Texture2D texture, Texture2D dissolve, float smooth)
+        {
+            Shader shader = Shader.Find("FakeBlade/ParticleDissolve");
+            if (shader == null) return GetMaterial(texture);
+            string path = $"{MaterialFolder}/VFX_{texture.name}_Disuelve.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material == null)
+            {
+                material = new Material(shader) { name = Path.GetFileNameWithoutExtension(path) };
+                AssetDatabase.CreateAsset(material, path);
+            }
+            else if (material.shader != shader)
+            {
+                material.shader = shader;
+            }
+            material.SetTexture("_MainTex", texture);
+            material.SetTexture("_DissolveTex", dissolve);
+            material.SetFloat("_DissolveSmooth", smooth);
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
         private static ParticleSystem CreateEffect(ImpactSprite s, Material material)
         {
             var go = new GameObject("VFX_Impact_" + s.id);
@@ -539,8 +971,9 @@ namespace FakeBlade.Core.Editor
 
             // Aparece poco a poco al principio (vaho) y se desvanece al final de la vida (manchas, vaho)
             var fade = ps.colorOverLifetime;
-            fade.enabled = s.fadeOut > 0f || s.fadeIn > 0f;
-            if (fade.enabled)
+            fade.enabled = s.fadeOut > 0f || s.fadeIn > 0f || s.useColorOverLife;
+            if (s.useColorOverLife && s.colorOverLife != null) fade.color = s.colorOverLife;
+            else if (fade.enabled)
             {
                 float fadeIn = Mathf.Clamp(s.fadeIn, 0f, 0.95f);
                 float fadeOutStart = Mathf.Max(fadeIn + 0.01f, 1f - s.fadeOut);
@@ -554,13 +987,28 @@ namespace FakeBlade.Core.Editor
                 fade.color = gradient;
             }
 
-            // Se encoge hasta desaparecer al final de la vida (ceniza)
+            // Crece desde nada al principio, frenando (onda de Onda de choque), y se encoge hasta desaparecer al final de la
+            // vida (ceniza)
             var shrink = ps.sizeOverLifetime;
-            shrink.enabled = s.shrinkOut > 0f;
+            shrink.enabled = s.shrinkOut > 0f || s.growIn > 0f;
             if (shrink.enabled)
             {
-                float start = Mathf.Clamp(1f - s.shrinkOut, 0f, 0.99f);
-                var curve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(start, 1f), new Keyframe(1f, 0f));
+                var curve = new AnimationCurve();
+                float grown = Mathf.Clamp(s.growIn, 0f, 1f);
+                float start = Mathf.Clamp(1f - s.shrinkOut, grown, 1f);
+                if (grown > 0f)
+                {
+                    // Sale a toda velocidad y frena al llegar a su tamaño
+                    curve.AddKey(new Keyframe(0f, 0f, 2f / grown, 2f / grown));
+                    curve.AddKey(new Keyframe(grown, 1f, 0f, 0f));
+                }
+                else curve.AddKey(new Keyframe(0f, 1f));
+                if (s.shrinkOut > 0f)
+                {
+                    if (start > grown + 0.001f) curve.AddKey(new Keyframe(start, 1f));
+                    curve.AddKey(new Keyframe(1f, 0f));
+                }
+                else if (grown < 1f) curve.AddKey(new Keyframe(1f, 1f));
                 shrink.size = new ParticleSystem.MinMaxCurve(1f, curve);
             }
 
@@ -581,12 +1029,30 @@ namespace FakeBlade.Core.Editor
             int tiles = s.tilesX * s.tilesY;
             float first = Mathf.Clamp(s.firstFrame, 0, tiles - 1) / (float)tiles;
             float last = (Mathf.Min(s.firstFrame + s.frames, tiles) - 0.01f) / tiles;
-            sheet.frameOverTime = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, first, 1f, last));
+            if (s.randomFrame)
+            {
+                // Un dibujo al azar por partícula, quieto (las 4 nubes de HumoComic)
+                sheet.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
+                sheet.startFrame = new ParticleSystem.MinMaxCurve(Mathf.Clamp(s.firstFrame, 0, tiles - 1),
+                    Mathf.Min(s.firstFrame + s.frames, tiles) - 0.01f);
+            }
+            // Al revés: del último dibujo al primero (círculos que se cierran)
+            else
+            sheet.frameOverTime = new ParticleSystem.MinMaxCurve(1f, s.reverse
+                ? AnimationCurve.Linear(0f, last, 1f, first) : AnimationCurve.Linear(0f, first, 1f, last));
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
-            renderer.renderMode = s.flat ? ParticleSystemRenderMode.HorizontalBillboard : ParticleSystemRenderMode.Billboard;
-            renderer.maxParticleSize = 1f;
+            renderer.renderMode = s.flat ? ParticleSystemRenderMode.HorizontalBillboard
+                : s.stretch > 0f ? ParticleSystemRenderMode.Stretch : ParticleSystemRenderMode.Billboard;
+            if (s.stretch > 0f && !s.flat)
+            {
+                // Líneas de velocidad: largas según lo rápido que van
+                renderer.velocityScale = s.stretch;
+                renderer.lengthScale = 1f;
+            }
+            // Tumbados en el suelo pueden ser más grandes que la pantalla (la onda llega a 10 m de ancho)
+            renderer.maxParticleSize = s.flat ? 10f : 1f;
             renderer.sortingOrder = s.order;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;

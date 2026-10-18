@@ -78,6 +78,25 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float fadeIn;
         [Tooltip("Parte final de la vida en la que se encoge hasta desaparecer (0 = no se encoge; 0,7 = el último 70%). Para la ceniza")]
         [Range(0f, 1f)] public float shrinkOut;
+        [Tooltip("Parte del principio de la vida en la que crece desde nada hasta su tamaño, frenando al final (0 = sale " +
+                 "entero; 1 = crece toda la vida). Para la onda en el suelo de Onda de choque")]
+        [Range(0f, 1f)] public float growIn;
+        [Tooltip("Se estira en la dirección en la que va (0 = no; 0,05 = un poco). Para las líneas de velocidad")]
+        [Min(0f)] public float stretch;
+        [Tooltip("La hoja se anima al revés (un círculo que se abre pasa a cerrarse). Para la carga de Onda de choque")]
+        public bool reverse;
+        [Tooltip("Cada partícula sale con un dibujo de la hoja al azar y no se anima (HumoComic: 4 nubes distintas)")]
+        public bool randomFrame;
+        [Header("Disolución y color a lo largo de la vida (humo de Onda de choque, como el de CFXR Explosion 1)")]
+        [Tooltip("Ruido con el que se disuelve (shader FakeBlade/ParticleDissolve): al desvanecerse (Fade Out o el alfa del " +
+                 "degradado), en vez de transparentarse se rompe en pedacitos que se van haciendo pequeños. Vacío = se transparenta")]
+        public Texture2D dissolveTexture;
+        [Tooltip("Borde del corte de la disolución (0 = duro, pixel art)")]
+        [Range(0f, 1f)] public float dissolveSmooth = 0.05f;
+        [Tooltip("Tiñe con un degradado a lo largo de la vida (multiplica el color con el que sale: blanco = los colores del " +
+                 "degradado). Su alfa manda sobre Fade In y Fade Out")]
+        public bool useColorOverLife;
+        public Gradient colorOverLife = new Gradient();
         [Tooltip("Giro de cada partícula (grados/s; negativo = hacia el otro lado), que se frena hasta la quinta parte al " +
                  "final de su vida, como por inercia (0 = no gira). Para el vaho")]
         public float spin;
@@ -399,6 +418,124 @@ namespace FakeBlade.Core
         [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
                  "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]
         public ElectricArcStyle arcs = new ElectricArcStyle();
+        [Header("Cúpula de la carga (Onda de choque)")]
+        [Tooltip("Media esfera que crece sobre la peonza durante cada carga y revienta al acabarla. Sin material = no sale")]
+        public ChargeDomeStyle dome = new ChargeDomeStyle();
+        [Header("Empujón a los rivales (Onda de choque)")]
+        [Tooltip("En cada rival que alcanza el empujón del poder (cada onda): un círculo de partículas en el lado del golpe. " +
+                 "Usa Count, no Rate")]
+        public List<SpiralParticleStyle> pushHit = new List<SpiralParticleStyle>();
+        [Tooltip("Partículas de la peonza que este poder ha dejado lanzada, mientras vuela (estela de polvo), además de las " +
+                 "de la lanzada")]
+        public List<SpecialParticleStyle> launchedTrail = new List<SpecialParticleStyle>();
+        [Tooltip("Cuando una peonza que este poder ha dejado lanzada choca contra la pared: un círculo de partículas en el " +
+                 "punto del choque. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> launchedWallHit = new List<SpiralParticleStyle>();
+    }
+
+    /// <summary>
+    /// Cúpula de la carga (Onda de choque, K8, 2026-10-18; boceto del usuario): media esfera translúcida que crece sobre la
+    /// peonza durante la carga de cada onda, con el borde de cómic, líneas en remolino que giran por dentro y un temblor al
+    /// final; al acabar la carga se infla y revienta con un destello. Shader FakeBlade/ChargeDome (material VFX_ChargeDome,
+    /// lo crea Setup Rastros). Lo aplica BladeChargeDome. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class ChargeDomeStyle
+    {
+        [Tooltip("Material (shader FakeBlade/ChargeDome). Vacío = no sale")]
+        public Material material;
+        [Tooltip("Radio al acabar la carga (m)")]
+        [Min(0f)] public float radius = 1.2f;
+        [Tooltip("Alto respecto al radio (1 = media esfera; menos = más aplastada)")]
+        [Min(0f)] public float heightScale = 0.85f;
+        [Tooltip("Altura de la base sobre la punta (m)")]
+        public float height;
+        [Tooltip("Cómo crece con la carga (1 = igual todo el rato; más de 1 = deprisa al principio y luego despacio)")]
+        [Min(0.1f)] public float growEase = 2f;
+        [Header("Colores (blanco con contrastes negros y naranja)")]
+        [Tooltip("Relleno; su alfa es la transparencia")]
+        public Color bodyColor = new Color(1f, 0.97f, 0.9f, 0.18f);
+        [Tooltip("Borde de la silueta")]
+        public Color rimColor = new Color(1f, 0.55f, 0.15f, 0.95f);
+        [Tooltip("Línea fina por fuera del borde (contraste de cómic)")]
+        public Color outlineColor = new Color(0.05f, 0.05f, 0.05f, 0.9f);
+        [Tooltip("Líneas del remolino")]
+        public Color swirlColor = new Color(1f, 1f, 1f, 0.8f);
+        [Tooltip("Líneas del remolino, las de en medio (contraste)")]
+        public Color swirlColor2 = new Color(0.05f, 0.05f, 0.05f, 0.6f);
+        [Header("Borde")]
+        [Tooltip("Ancho del borde de la silueta (0-1)")]
+        [Range(0f, 1f)] public float rimWidth = 0.3f;
+        [Tooltip("Ancho de la línea negra del borde (0-1)")]
+        [Range(0f, 1f)] public float outlineWidth = 0.08f;
+        [Header("Textura que recorre la cúpula (líneas de velocidad)")]
+        [Tooltip("Textura blanca sobre transparente que se desliza alrededor de la cúpula, teñida con Swirl Color: " +
+                 "LineasVelocidad (líneas horizontales, la crea Setup Impactos) o una Zbam del pack de Wallcoeur. Vacío = solo " +
+                 "las líneas dibujadas")]
+        public Texture2D linesTexture;
+        [Tooltip("Veces que se repite: alrededor (x) y de abajo arriba (y)")]
+        public Vector2 linesTiling = new Vector2(3f, 2f);
+        [Tooltip("Vueltas por segundo de la textura alrededor (negativo = hacia el otro lado)")]
+        public float linesSpeed = 1.2f;
+        [Tooltip("Cuánto se enrosca la textura de abajo arriba (vueltas)")]
+        public float linesTwist = 0.15f;
+        [Header("Eje del giro")]
+        [Tooltip("Inclinación del eje alrededor del que giran las líneas (grados; 0 = vertical, por el centro)")]
+        [Range(0f, 80f)] public float axisTilt = 25f;
+        [Tooltip("Vueltas por segundo que da el eje inclinado (bamboleo, como una peonza; 0 = quieto)")]
+        public float axisPrecess = 0.8f;
+        [Header("Líneas dibujadas (sin textura)")]
+        [Tooltip("Líneas del remolino alrededor")]
+        [Min(0f)] public float swirlLines = 5f;
+        [Tooltip("Cuánto se enroscan las líneas de abajo arriba (vueltas)")]
+        public float swirlTwist = 0.6f;
+        [Tooltip("Vueltas por segundo del remolino (negativo = hacia el otro lado)")]
+        public float swirlSpeed = 1.5f;
+        [Tooltip("Grosor de las líneas del remolino (0-1)")]
+        [Range(0f, 1f)] public float swirlWidth = 0.18f;
+        [Header("Final de la carga y explosión")]
+        [Tooltip("Parte final de la carga en la que tiembla (0,3 = el último 30%)")]
+        [Range(0f, 1f)] public float shakeFrom = 0.6f;
+        [Tooltip("Cuánto crece y encoge al temblar (0,08 = un 8%)")]
+        [Min(0f)] public float shakeScale = 0.08f;
+        [Tooltip("Temblores por segundo")]
+        [Min(0f)] public float shakeRate = 22f;
+        [Tooltip("Lo que dura la explosión (s): se infla y se desvanece")]
+        [Min(0.01f)] public float popTime = 0.16f;
+        [Tooltip("Tamaño al final de la explosión respecto al de la carga")]
+        [Min(1f)] public float popScale = 1.7f;
+        [Tooltip("Destello blanco al reventar (0-1)")]
+        [Range(0f, 1f)] public float popFlash = 0.8f;
+    }
+
+    /// <summary>
+    /// Aviso de usos (2026-10-18): en los poderes con varios usos (Onda de choque: sus ondas), una marca por uso que queda
+    /// girando alrededor de la peonza; la del uso que se lanza se va con un destello. Lo aplica BladeUsesIndicator. Sirve
+    /// para cualquier poder que tenga MaxUses. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class UsesIndicatorStyle
+    {
+        public bool enabled = true;
+        [Tooltip("Material (shader FakeBlade/FlipbookUnlit con la marca; VFX_UseMark, lo crea Setup Rastros). Vacío = no sale")]
+        public Material material;
+        [Tooltip("Tamaño de cada marca (m)")]
+        [Min(0f)] public float size = 0.32f;
+        [Tooltip("Distancia al centro de la peonza (m)")]
+        [Min(0f)] public float radius = 0.85f;
+        [Tooltip("Altura sobre la punta (m)")]
+        public float height = 0.55f;
+        [Tooltip("Vueltas por segundo alrededor de la peonza")]
+        public float spin = 0.5f;
+        [Tooltip("Con el color del poder (su asset). Si no, el de abajo")]
+        public bool powerColor = true;
+        public Color color = Color.white;
+        [Tooltip("Latidos por segundo (crecen y encogen un poco para que se vean; 0 = quietas)")]
+        [Min(0f)] public float pulseRate = 2f;
+        [Tooltip("Cuánto crecen al latir (0,15 = un 15%)")]
+        [Min(0f)] public float pulseScale = 0.15f;
+        [Tooltip("Lo que tarda en irse la marca del uso que se lanza (s): crece y se desvanece")]
+        [Min(0.01f)] public float popTime = 0.25f;
     }
 
     /// <summary>
@@ -927,6 +1064,8 @@ namespace FakeBlade.Core
         public StatusVfxStyle frozen = new StatusVfxStyle();
         [Tooltip("Peonza lanzada (golpe fuerte de Rayos, onda de choque): borde amarillo que parpadea, chispas que saltan y aura")]
         public StatusVfxStyle launched = new StatusVfxStyle();
+        [Tooltip("Aviso de usos de los poderes con varios usos (Onda de choque): marcas que giran alrededor de la peonza")]
+        public UsesIndicatorStyle usesIndicator = new UsesIndicatorStyle();
 
         /// <summary>Efectos del especial, o null si no tiene (sigue con su aura de partículas).</summary>
         public SpecialVfxStyle GetSpecialEffects(SpecialAbilityType type)

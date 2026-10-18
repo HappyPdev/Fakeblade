@@ -61,6 +61,10 @@ namespace FakeBlade.Core.Editor
         private const string IceCupTexturePath = BDragonCopyFolder + "/RetroPack2_06.png";
         private const string IceCupMaterialPath = "Assets/VFX/Materials/VFX_IceTipCup.mat";
         private const string ArcMaterialPath = "Assets/VFX/Materials/VFX_Arc.mat";
+        // Onda de choque: cúpula de la carga (shader propio) y marca del aviso de usos (2026-10-18)
+        private const string ChargeDomeMaterialPath = "Assets/VFX/Materials/VFX_ChargeDome.mat";
+        private const string ChargeDomeShaderName = "FakeBlade/ChargeDome";
+        private const string UseMarkMaterialPath = "Assets/VFX/Materials/VFX_UseMark.mat";
         // Status and Auras FREE (Matthew Guz, Asset Store: fuera del repo, en ThirdParty). Sus materiales son del render
         // antiguo: los pasa a URP ConvertBuiltInParticles
         private const string AuraPackFolder = "Assets/ThirdParty/VFX/Status and Auras FREE";
@@ -219,7 +223,7 @@ namespace FakeBlade.Core.Editor
             ParticleSystem smoke = AuraPrefab(AuraSmokePrefabPath);
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
-                   SetupIce(library, shader) + "; " + SetupLightning(library);
+                   SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader);
         }
 
         /// <summary>
@@ -626,6 +630,200 @@ namespace FakeBlade.Core.Editor
             }
             return "Rayos" + (added ? " (nuevo)" : "");
         }
+
+        /// <summary>
+        /// Onda de choque (K8, 2026-10-18; boceto del usuario: blanco con contrastes negros y naranja). En la carga de cada
+        /// onda, aros de picos que se cierran sobre la peonza, líneas de velocidad, nubes y chispas que se tragan, y la cúpula
+        /// con remolino que crece y tiembla; al acabarla, revienta: la onda se abre por el suelo hasta el alcance, nubes de
+        /// cómic y chispas salen despedidas y quedan grietas. Mientras dura, chispas a ras de suelo (las de su aura de antes,
+        /// sin el aro pixelado, que no gusta) y el aviso de ondas que quedan. En los rivales: nubes en el lado del golpe,
+        /// estela de polvo mientras vuelan lanzados y polvo al chocar contra la pared. Solo añade la entrada si falta y
+        /// rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupShockWave(VfxLibrary library, Shader flipbook)
+        {
+            SpecialVfxStyle wave = library.GetSpecialEffects(SpecialAbilityType.ShockWave);
+            bool added = wave == null;
+            if (added)
+            {
+                wave = new SpecialVfxStyle { type = SpecialAbilityType.ShockWave, replaceAura = true, windupSustain = 0f };
+                wave.tip.cups.Clear();
+                wave.tip.particleSprite = "";
+                wave.tip.ground = new TipGroundSprite();
+                wave.overlay = new SpecialOverlayStyle
+                {
+                    color = ShockOrange, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.6f, 1.5f),
+                    pulseFlash = new Vector2(0f, 0.1f), pulseInterval = new Vector2(0.15f, 0.4f), pulseDecay = 0.2f
+                };
+                library.specialEffects.Add(wave);
+            }
+
+            wave.dome ??= new ChargeDomeStyle();
+            if (wave.dome.material == null)
+            {
+                Shader domeShader = Shader.Find(ChargeDomeShaderName);
+                if (domeShader != null) wave.dome.material = GetMaterial(ChargeDomeMaterialPath, domeShader);
+            }
+            if (wave.dome.linesTexture == null) wave.dome.linesTexture = FakeBladeImpactSetup.SpeedLinesTexture();
+
+            wave.windup ??= new List<SpiralParticleStyle>();
+            if (wave.windup.Count == 0) wave.windup.AddRange(ShockWindup());
+            wave.activationBurst ??= new List<SpiralParticleStyle>();
+            if (wave.activationBurst.Count == 0) wave.activationBurst.AddRange(ShockBurst());
+            // El remolino de la carga sigue, más flojo, mientras dura el poder (como en los anteriores; 2026-10-18)
+            wave.swirl ??= new List<SpiralParticleStyle>();
+            if (wave.swirl.Count == 0) wave.swirl.AddRange(ShockSwirl());
+            wave.particles ??= new List<SpecialParticleStyle>();
+            if (wave.particles.Count == 0)
+                wave.particles.Add(new SpecialParticleStyle
+                {
+                    name = "Chispas a ras de suelo", emitter = VfxType.GroundSpark, rate = 14f, spawnRadius = new Vector2(0.3f, 0.4f),
+                    height = new Vector2(0.02f, 0.05f), coneAngle = 80f, speed = new Vector2(2.5f, 4f), inheritVelocity = 0f,
+                    size = Vector2.zero, lifetime = Vector2.zero, color = ShockOrange, color2 = ShockOrange
+                });
+            wave.impact ??= new List<SpiralParticleStyle>();
+            if (wave.impact.Count == 0) wave.impact.Add(ShockClouds("Nubes", 8, 2f, 3f, new Vector2(0.3f, 0.5f), new Vector2(0.4f, 0.55f)));
+            wave.pushHit ??= new List<SpiralParticleStyle>();
+            if (wave.pushHit.Count == 0)
+            {
+                wave.pushHit.Add(ShockClouds("Nubes del golpe", 10, 2f, 4f, new Vector2(0.4f, 0.7f), new Vector2(0.45f, 0.6f)));
+                wave.pushHit.Add(ShockSparks(12, 3f, 6f));
+            }
+            wave.launchedTrail ??= new List<SpecialParticleStyle>();
+            if (wave.launchedTrail.Count == 0)
+                wave.launchedTrail.Add(new SpecialParticleStyle
+                {
+                    name = "Estela de polvo", sprite = "NubeComic", rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
+                    height = new Vector2(0f, 0.15f), coneAngle = 70f, speed = new Vector2(0.3f, 0.8f), inheritVelocity = -0.1f,
+                    size = new Vector2(0.35f, 0.6f), lifetime = new Vector2(0.4f, 0.6f), color = Color.white, color2 = ShockDust,
+                    alpha = 0.85f
+                });
+            wave.launchedWallHit ??= new List<SpiralParticleStyle>();
+            if (wave.launchedWallHit.Count == 0)
+            {
+                wave.launchedWallHit.Add(ShockClouds("Polvo contra la pared", 18, 3f, 5f, new Vector2(0.5f, 0.9f), new Vector2(0.6f, 0.8f)));
+                wave.launchedWallHit.Add(ShockSparks(20, 4f, 8f));
+            }
+
+            // Aviso de usos (para todos los poderes con varios usos): la marca de MarcaUso con el shader de las hojas
+            library.usesIndicator ??= new UsesIndicatorStyle();
+            if (library.usesIndicator.material == null && flipbook != null)
+            {
+                Material mark = GetMaterial(UseMarkMaterialPath, flipbook);
+                mark.SetTexture("_MainTex", FakeBladeImpactSetup.UseMarkTexture());
+                mark.SetFloat("_TilesX", 1f);
+                mark.SetFloat("_TilesY", 1f);
+                EditorUtility.SetDirty(mark);
+                library.usesIndicator.material = mark;
+            }
+            return "Onda de choque" + (added ? " (nueva)" : "") + (wave.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        private static readonly Color ShockOrange = new Color(1f, 0.55f, 0.15f);
+        private static readonly Color ShockDust = new Color(0.93f, 0.87f, 0.75f);
+
+        /// <summary>
+        /// Carga de cada onda: aros de picos que se cierran sobre la peonza, líneas de velocidad hacia dentro, nubes que se
+        /// tragan girando y chispas.
+        /// </summary>
+        private static SpiralParticleStyle[] ShockWindup() => new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 5f, 0.03f, 0.4f, Color.white, 0.9f, rate: 4f),
+            ShockCircle("Círculo que se cierra (alto)", "FP_CircleImpactCierra", 3.6f, 0.45f, 0.4f, ShockOrange, 0.8f, rate: 3f),
+            new SpiralParticleStyle
+            {
+                name = "Líneas de velocidad", sprite = "Linea", rate = 50f, radius = new Vector2(2.2f, 3f),
+                height = new Vector2(0.05f, 0.6f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(-9f, -7f),
+                upSpeed = Vector2.zero, size = new Vector2(0.06f, 0.09f), lifetime = new Vector2(0.22f, 0.3f),
+                color = Color.white, color2 = ShockOrange
+            },
+            new SpiralParticleStyle
+            {
+                name = "Nubes que se tragan", sprite = "NubeComicTraga", rate = 40f, radius = new Vector2(2f, 2.8f),
+                height = new Vector2(0f, 0.3f), tangentialSpeed = new Vector2(3f, 5f), outwardSpeed = new Vector2(-6f, -4.5f),
+                upSpeed = new Vector2(0f, 0.5f), size = new Vector2(0.25f, 0.45f), lifetime = new Vector2(0.35f, 0.45f),
+                color = Color.white, color2 = ShockDust, alpha = 0.9f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas que se tragan", sprite = "Chispa", rate = 40f, radius = new Vector2(1.2f, 1.8f),
+                height = new Vector2(0f, 0.2f), tangentialSpeed = new Vector2(4f, 6f), outwardSpeed = new Vector2(-4f, -3f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.3f, 0.45f),
+                color = Color.white, color2 = ShockOrange
+            }
+        };
+
+        /// <summary>
+        /// Explosión de cada onda: ondas en capas (círculos del pack a distinta altura y tamaño), humo de explosión despedido (alto
+        /// y bajo: de blanco a naranja y gris, y se rompe en pedacitos, como CFXR Explosion 1), chispas y grietas en el suelo.
+        /// </summary>
+        private static SpiralParticleStyle[] ShockBurst() => new[]
+        {
+            ShockCircle("Onda en el suelo", "CircleImpact02Suelo", 10.5f, 0.03f, 0.45f, Color.white, 0.95f),
+            ShockCircle("Onda baja", "FP_CircleImpactSuelo", 8f, 0.25f, 0.4f, ShockOrange, 0.85f),
+            ShockCircle("Onda alta", "ShotValo2Suelo", 5.5f, 0.6f, 0.35f, Color.white, 0.8f),
+            ShockCircle("Medias lunas", "CircleImpact04Anillo", 7f, 0.12f, 0.4f, ShockOrange, 0.8f, count: 2),
+            new SpiralParticleStyle
+            {
+                name = "Humo despedido", sprite = "HumoExplosion", count = 34, radius = new Vector2(0.5f, 0.8f),
+                height = new Vector2(0.45f, 0.75f), tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(6f, 13f),
+                upSpeed = new Vector2(0.4f, 1f), size = new Vector2(0.8f, 1.3f), lifetime = new Vector2(0.9f, 1.3f),
+                color = Color.white, color2 = Color.white
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo bajo", sprite = "HumoExplosion", count = 20, radius = new Vector2(0.4f, 0.6f),
+                height = new Vector2(0.4f, 0.55f), tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(3f, 7f),
+                upSpeed = new Vector2(0.1f, 0.4f), size = new Vector2(0.9f, 1.3f), lifetime = new Vector2(1f, 1.4f),
+                color = Color.white, color2 = ShockDust
+            },
+            ShockSparks(40, 6f, 10f),
+            new SpiralParticleStyle
+            {
+                name = "Grietas", sprite = "Grietas", count = 1, radius = Vector2.zero, height = new Vector2(0.02f, 0.02f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(2.6f, 2.6f),
+                lifetime = new Vector2(1.2f, 1.2f), color = new Color(0.1f, 0.1f, 0.1f), color2 = new Color(0.1f, 0.1f, 0.1f), alpha = 0.85f
+            }
+        };
+
+        /// <summary>
+        /// Un círculo del pack tumbado (CircleImpact02, FP_CircleImpact, ImpactShotValo2, CircleImpact04: no son círculos
+        /// exactos), quieto sobre la peonza, de size metros de ancho y a height metros de altura (capas a distinta altura y
+        /// tamaño). count: de golpe (explosión); rate: por segundo (carga). Gira al azar.
+        /// </summary>
+        private static SpiralParticleStyle ShockCircle(string name, string sprite, float size, float height, float lifetime, Color color,
+            float alpha, int count = 1, float rate = 0f) => new SpiralParticleStyle
+        {
+            name = name, sprite = sprite, count = count, rate = rate, radius = Vector2.zero, height = new Vector2(height, height),
+            tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(size, size),
+            lifetime = new Vector2(lifetime, lifetime), color = color, color2 = color, alpha = alpha
+        };
+
+        /// <summary>Mientras dura el poder: las nubes y chispas de la carga, que siguen girando y tragándose más despacio.</summary>
+        private static SpiralParticleStyle[] ShockSwirl()
+        {
+            SpiralParticleStyle[] windup = ShockWindup();
+            var swirl = new[] { windup[3], windup[4] };
+            swirl[0].rate = 10f;
+            swirl[1].rate = 12f;
+            return swirl;
+        }
+
+        /// <summary>Círculo de nubes de cómic que salen hacia fuera.</summary>
+        private static SpiralParticleStyle ShockClouds(string name, int count, float minSpeed, float maxSpeed, Vector2 size, Vector2 lifetime) => new SpiralParticleStyle
+        {
+            name = name, sprite = "NubeComic", count = count, radius = new Vector2(0.1f, 0.2f), height = new Vector2(0.05f, 0.25f),
+            tangentialSpeed = new Vector2(0.3f, 0.8f), outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(0.5f, 1f),
+            size = size, lifetime = lifetime, color = Color.white, color2 = ShockDust
+        };
+
+        /// <summary>Círculo de chispas blancas y naranjas que salen rectas, saltan y caen.</summary>
+        private static SpiralParticleStyle ShockSparks(int count, float minSpeed, float maxSpeed) => new SpiralParticleStyle
+        {
+            name = "Chispas", sprite = "Chispa", count = count, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.05f, 0.25f),
+            tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(1.5f, 3f),
+            size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.3f, 0.55f), color = Color.white, color2 = ShockOrange
+        };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);
         private static readonly Color LightningOrange = new Color(1f, 0.5f, 0.05f);

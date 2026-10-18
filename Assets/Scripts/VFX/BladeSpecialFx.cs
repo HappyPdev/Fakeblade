@@ -54,12 +54,16 @@ namespace FakeBlade.Core
         private readonly float[] _windupAcc = new float[MaxStyles];
         private readonly float[] _specialSwirlAcc = new float[MaxStyles];
         private readonly float[] _statusSwirlAcc = new float[MaxStyles];
+        // Estela de la peonza lanzada por un poder con su propia estela (Onda de choque)
+        private readonly float[] _launchAcc = new float[MaxStyles];
+        private readonly float[] _launchBurst = new float[MaxStyles];
         // Una lista de auras por estado: cambiar de lista rehace las copias, y eso no se hace en combate
         private readonly AuraSlot[] _specialAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _burnAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _frozenAuras = new AuraSlot[MaxAuras];
         private readonly AuraSlot[] _launchedAuras = new AuraSlot[MaxAuras];
         private bool _effectsWereOn;
+        private bool _wasWindingUp;
         private float _scorchDistance;
         private float _scorchIdle;
         private Vector3 _lastPosition;
@@ -93,8 +97,13 @@ namespace FakeBlade.Core
             // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
             float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
             EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt);
-            if (effectsOn && !_effectsWereOn && visible) Burst(special.activationBurst, tip);
+            // Explosión al encenderse; también al acabar una carga que gasta el poder (la última onda de Onda de choque, que
+            // lo termina en ese momento: los efectos no llegan a encenderse)
+            bool released = effectsOn && !_effectsWereOn;
+            if (!released && _wasWindingUp && !windingUp && !specialActive && !_blade.IsDestroyed) released = true;
+            if (released && visible && special != null) Burst(special.activationBurst, tip);
             _effectsWereOn = effectsOn;
+            _wasWindingUp = windingUp;
             EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt);
             Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt);
             UpdateScorch(effectsOn ? special.scorch : null, tip, dt);
@@ -106,6 +115,17 @@ namespace FakeBlade.Core
             UpdateAuras(lib != null ? lib.burn?.auras : null, _burnAuras, status != null && status == lib.burn, tipOffset, dt);
             UpdateAuras(lib != null ? lib.frozen?.auras : null, _frozenAuras, status != null && status == lib.frozen, tipOffset, dt);
             UpdateAuras(lib != null ? lib.launched?.auras : null, _launchedAuras, status != null && status == lib.launched, tipOffset, dt);
+            // Lanzada por un poder con su propia estela (Onda de choque: polvo mientras vuela)
+            SpecialVfxStyle thrower = status != null && status == lib.launched ? ThrowerEffects(_blade) : null;
+            Emit(thrower != null && visible ? thrower.launchedTrail : null, _launchAcc, _launchBurst, tip, dt);
+        }
+
+        /// <summary>Efectos del especial de quien dejó lanzada a esta peonza (o null).</summary>
+        private static SpecialVfxStyle ThrowerEffects(FakeBladeController blade)
+        {
+            FakeBladeController source = blade.Status.Source;
+            VfxLibrary lib = VfxSystem.Library;
+            return source == null || source.Special == null || lib == null ? null : lib.GetSpecialEffects(source.Special.Type);
         }
 
         /// <summary>
@@ -122,9 +142,10 @@ namespace FakeBlade.Core
         {
             for (int i = 0; i < MaxStyles; i++)
                 _specialAcc[i] = _specialBurst[i] = _statusAcc[i] = _statusBurst[i] = _windupAcc[i] =
-                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = 0f;
+                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = _launchAcc[i] = _launchBurst[i] = 0f;
             _hasLastPosition = false;
             _effectsWereOn = false;
+            _wasWindingUp = false;
             _scorchDistance = _scorchIdle = 0f;
             for (int i = 0; i < MaxAuras; i++)
             {
@@ -286,6 +307,31 @@ namespace FakeBlade.Core
             if (lib == null || blade == null || blade.Special == null || !VfxSystem.IsOnScreen(groundPoint)) return;
             SpecialVfxStyle style = lib.GetSpecialEffects(blade.Special.Type);
             if (style != null) Burst(style.strongImpact, groundPoint);
+        }
+
+        /// <summary>
+        /// Empujón de un poder a un rival (cada onda de Onda de choque; 2026-10-18): su círculo pushHit en el lado del rival
+        /// por el que le llega el golpe, a ras de suelo. direction: hacia donde sale despedido.
+        /// </summary>
+        public static void PlayPushHit(FakeBladeController owner, FakeBladeController target, Vector3 direction)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || owner == null || target == null || owner.Special == null) return;
+            SpecialVfxStyle style = lib.GetSpecialEffects(owner.Special.Type);
+            if (style == null || style.pushHit == null || style.pushHit.Count == 0) return;
+            Vector3 point = target.Position - direction * 0.45f;
+            if (VfxSystem.IsOnScreen(point)) Burst(style.pushHit, point);
+        }
+
+        /// <summary>
+        /// Peonza lanzada que choca contra la pared (2026-10-18): el círculo launchedWallHit del poder de quien la lanzó (Onda
+        /// de choque: polvo), en el punto del choque.
+        /// </summary>
+        public static void PlayLaunchedWallHit(FakeBladeController blade, Vector3 point)
+        {
+            if (blade == null || !VfxSystem.IsOnScreen(point)) return;
+            SpecialVfxStyle style = ThrowerEffects(blade);
+            if (style != null) Burst(style.launchedWallHit, point);
         }
 
         public static void PlayClashImpact(FakeBladeController blade, Vector3 groundPoint)

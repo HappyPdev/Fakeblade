@@ -148,6 +148,9 @@ namespace FakeBlade.Core
         // Partículas del especial y de la quemadura, y manchas en el suelo (K8)
         private BladeSpecialFx _specialFx;
         private BladeArcs _arcs;
+        // Cúpula de la carga (Onda de choque) y aviso de usos de los poderes con varios usos (K8)
+        private BladeChargeDome _dome;
+        private BladeUsesIndicator _usesIndicator;
         // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
         private BladeOverlay _overlay;
 
@@ -312,6 +315,8 @@ namespace FakeBlade.Core
             _burnTip = new BladeBurstTip(this, "BurnTip");
             _specialFx = new BladeSpecialFx(this);
             _arcs = new BladeArcs(this);
+            _dome = new BladeChargeDome(this);
+            _usesIndicator = new BladeUsesIndicator(this);
             _overlay = new BladeOverlay(this);
 
             SetupVisualRoot();
@@ -777,6 +782,8 @@ namespace FakeBlade.Core
             _burnTip?.Hide();
             _specialFx?.Clear();
             _arcs?.Hide();
+            _dome?.Hide();
+            _usesIndicator?.Hide();
             _overlay?.Clear();
 
             PlaySound(spinOutSound);
@@ -1289,6 +1296,7 @@ namespace FakeBlade.Core
                 ApplyDamage(damageSpeed * (cfg.damagePerImpactSpeed + cfg.damagePerSpeedDiff) * offense * Trait(PartTraitType.WallDamageTaken), thrower);
                 if (repeat) return;
                 PlayClashFeedback(contact.point, Mathf.Clamp01(impactSpeed / 15f));
+                BladeSpecialFx.PlayLaunchedWallHit(this, contact.point);
                 OnWallHit?.Invoke(Mathf.Clamp01(impactSpeed / 15f));
                 return;
             }
@@ -1519,6 +1527,10 @@ namespace FakeBlade.Core
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
                 _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed,
                     _special.IsActive && _special.IsWindingUp && !_isDestroyed);
+                _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, _special.IsActive && _special.IsWindingUp && !_isDestroyed,
+                    _special.WindupProgress);
+                _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,
+                    _special.Color);
             }
             _overlay?.Tick(dt);
         }
@@ -1585,6 +1597,8 @@ namespace FakeBlade.Core
             _burnTip?.Hide();
             _specialFx?.Clear();
             _arcs?.Hide();
+            _dome?.Hide();
+            _usesIndicator?.Hide();
             _overlay?.Clear();
 
             if (_rb != null)

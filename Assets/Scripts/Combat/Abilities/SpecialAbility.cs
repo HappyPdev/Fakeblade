@@ -129,6 +129,15 @@ namespace FakeBlade.Core
         /// <summary>Quedan usos que se lanzan pulsando Especial con el poder activo (la IA vuelve a pulsar).</summary>
         public virtual bool WantsRepeatPress => false;
 
+        /// <summary>
+        /// Poderes con varios usos (Onda de choque: sus ondas): usos en total (0 = no tiene) y los que quedan por lanzar,
+        /// contando el que se está cargando. Para el aviso de usos que gira alrededor de la peonza (VFX).
+        /// </summary>
+        public virtual int MaxUses => 0;
+        public virtual int UsesLeft => 0;
+        /// <summary>Carga antes de cada uso que se lanza volviendo a pulsar (s; Onda de choque). Para la IA: dónde estará el rival.</summary>
+        public virtual float RepeatWindup => 0f;
+
         #region Modifiers
         /// <summary>Multiplicador del daño recibido.</summary>
         public virtual float DamageTakenMultiplier => 1f;
@@ -170,6 +179,8 @@ namespace FakeBlade.Core
         /// empiezan al acabarla (VFX).
         /// </summary>
         public virtual bool IsWindingUp => false;
+        /// <summary>Lo que lleva de la carga (0 al empezar, 1 al acabar). Para los efectos que crecen con ella (cúpula).</summary>
+        public virtual float WindupProgress => 1f;
         /// <summary>Sus choques no admiten parry ni bloqueo (Embestida, mientras embiste).</summary>
         public virtual bool PreventsParry => false;
         /// <summary>El agua del suelo no la moja mientras está activo (Hielo).</summary>

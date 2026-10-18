@@ -462,6 +462,10 @@ namespace FakeBlade.Core
             // táctica, seguro si el rival está junto a la pared (la onda o la embestida lo lanzan contra ella)
             if (Blade.Special.WantsRepeatPress)
             {
+                // Con carga antes de cada uso (Onda de choque, 2026-10-18): no vuelve a pulsar mientras el rival sigue lanzado
+                // por el anterior, y cuenta con dónde estará al acabar la carga (si se aleja, la onda no le llega)
+                float windup = Blade.Special.RepeatWindup;
+                if (windup > 0f && !RepeatReaches(windup)) return;
                 float chance = Level.tactical && Perception.TargetWallDistance < PinWallDistance * 2f ? 1f : 0.5f;
                 if (InSpecialRange && Random.value < chance) PressSpecial();
                 return;
@@ -483,9 +487,26 @@ namespace FakeBlade.Core
                 case AISpecialUse.GoodMoment:
                     float range = Blade.Special.UseRange > 0f ? Blade.Special.UseRange : AttackRange * 1.5f;
                     float distance = SpecialDistance;
-                    if (distance < range && distance >= Blade.Special.UseRangeMin) PressSpecial();
+                    // Con carga antes del uso (Onda de choque), además, que siga a su alcance al acabarla
+                    float windup = Blade.Special.RepeatWindup;
+                    if (distance < range && distance >= Blade.Special.UseRangeMin && (windup <= 0f || RepeatReaches(windup)))
+                        PressSpecial();
                     break;
             }
+        }
+
+        /// <summary>
+        /// El uso con carga le llegará al rival: no está lanzado y, al acabar la carga (yendo como va), seguirá a la distancia
+        /// a la que sirve el poder. Para la primera onda (desde Difícil) y para las siguientes (todos los niveles).
+        /// </summary>
+        private bool RepeatReaches(float windup)
+        {
+            AIPerception p = Perception;
+            if (p.Target == null || p.Target.Status.IsLaunched) return false;
+            if (Blade.Special.UseRange <= 0f) return true;
+            Vector3 future = p.ToTarget * p.Distance + p.TargetVelocity * windup;
+            future.y = 0f;
+            return future.magnitude < Blade.Special.UseRange;
         }
 
         /// <summary>El rival está a la distancia a la que sirve el poder (sin distancia propia, siempre).</summary>

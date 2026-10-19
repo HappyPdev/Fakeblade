@@ -19,6 +19,8 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 1.5
+  windupTime: 0.3
+  windupBrake: 12
   reflectFraction: 0.7
   damageTakenMultiplier: 0.8
   damageDealtMultiplier: 1.1

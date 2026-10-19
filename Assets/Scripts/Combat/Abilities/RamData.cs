@@ -16,10 +16,6 @@ namespace FakeBlade.Core
         [Header("Embestidas")]
         [Tooltip("Embestidas por activación (2026-10-14: de 3 a 2, porque si la primera entraba encadenaba las tres)")]
         [Min(1)] public int charges = 2;
-        [Tooltip("Carga antes de cada embestida (s): se frena y apunta con el stick; la dirección se toma al salir")]
-        [Min(0f)] public float windupTime = 0.3f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
         [Tooltip("Velocidad de la embestida (m/s): media, menos que un dash")]
         public float speed = 13f;
         [Tooltip("Segundos que dura cada embestida")]
@@ -58,6 +54,8 @@ namespace FakeBlade.Core
 
         public bool IsLunging => _lungeTimer > 0f;
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
         public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
         /// <summary>Embestidas que le quedan (para el aspecto).</summary>

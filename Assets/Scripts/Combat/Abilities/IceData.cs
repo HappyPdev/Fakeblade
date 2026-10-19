@@ -13,12 +13,6 @@ namespace FakeBlade.Core
     [CreateAssetMenu(fileName = "Ice", menuName = "FakeBlade/Specials/Hielo")]
     public class IceData : SpecialAbilityData
     {
-        [Header("Encendido")]
-        [Tooltip("Carga al activarlo (s): se frena y no puede atacar ni hacer dash; el hielo empieza al acabar (0 = enseguida)")]
-        [Min(0f)] public float windupTime = 0.3f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
-
         [Header("Ella misma, mientras dura")]
         [Tooltip("Velocidad de movimiento (1,2 = +20%)")]
         [Min(1f)] public float selfMoveMultiplier = 1.2f;
@@ -45,6 +39,8 @@ namespace FakeBlade.Core
         public IceAbility(IceData data, FakeBladeController owner) : base(data, owner) { }
 
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         public override bool BlocksActions => IsWindingUp;
         public override float MoveSpeedMultiplier => IsWindingUp ? 1f : Config.selfMoveMultiplier;
         public override float AttackRechargeMultiplier => IsWindingUp ? 1f : Config.selfRechargeMultiplier;

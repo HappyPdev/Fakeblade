@@ -19,4 +19,10 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 1
+  windupTime: 0.3
+  windupBrake: 12
+  moveSpeedMultiplier: 1.25
+  accelerationMultiplier: 1.25
+  attackRechargeMultiplier: 1.5
+  spinDecayMultiplier: 0
   regenPctPerSecond: 0.02

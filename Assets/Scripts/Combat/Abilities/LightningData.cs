@@ -14,12 +14,6 @@ namespace FakeBlade.Core
     [CreateAssetMenu(fileName = "Lightning", menuName = "FakeBlade/Specials/Rayos")]
     public class LightningData : SpecialAbilityData
     {
-        [Header("Encendido")]
-        [Tooltip("Carga al activarlo (s): se frena y no puede atacar ni hacer dash; el modo cargado empieza al acabar (0 = enseguida)")]
-        [Min(0f)] public float windupTime = 0.3f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
-
         [Header("Choque pequeño")]
         [Tooltip("Velocidad mínima hacia el rival (m/s) para que el choque tenga efecto")]
         [Min(0f)] public float smallMinSpeed = 1f;
@@ -52,6 +46,8 @@ namespace FakeBlade.Core
         public LightningAbility(LightningData data, FakeBladeController owner) : base(data, owner) { }
 
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         public override bool BlocksActions => IsWindingUp;
 
         public override void OnActivate()

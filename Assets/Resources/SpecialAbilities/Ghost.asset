@@ -19,6 +19,8 @@ MonoBehaviour:
   energyRequired: 1.3
   duration: 0.5
   activationBurst: 1.5
+  windupTime: 0.3
+  windupBrake: 12
   clonePrefab: {fileID: 7037302236697475056, guid: aea8ba6f2fb2fa24d92576d76010671d, type: 3}
   cloneParts:
   - {fileID: 11400000, guid: 4a51682eb8940074bbafb1c45cc741c2, type: 2}

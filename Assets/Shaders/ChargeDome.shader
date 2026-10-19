@@ -4,6 +4,9 @@
 // negra fina entre cada dos). Las dos giran alrededor de un eje inclinado que se bambolea (_Axis, con _AxisT1 y _AxisT2
 // perpendiculares a él). Los valores los pone BladeChargeDome con un
 // MaterialPropertyBlock. Transparente, sin luz, solo las caras de delante. Compatible con OpenGL ES 3 / WebGL 2.
+// Tornado (K8, 2026-10-18): la misma malla se puede dibujar como un embudo que se abre hacia arriba (_Funnel, de 0 a 1 pasa
+// de cúpula a embudo) y con la parte de arriba cortada en picos (_TopCut): un aro de picos abierto, como en el boceto.
+// Con interior (malla con las caras de dentro, uv2.x = 1, y _InsideAlpha): se ve por dentro a través del corte de arriba.
 Shader "FakeBlade/ChargeDome"
 {
     Properties
@@ -26,6 +29,10 @@ Shader "FakeBlade/ChargeDome"
         _Axis ("Eje", Vector) = (0, 1, 0, 0)
         _AxisT1 ("Eje: perpendicular 1", Vector) = (1, 0, 0, 0)
         _AxisT2 ("Eje: perpendicular 2", Vector) = (0, 0, 1, 0)
+        _Funnel ("Embudo (0 = cúpula, 1 = embudo)", Range(0, 1)) = 0
+        _FunnelShape ("Embudo: radio abajo (x), radio arriba (y), alto (z)", Vector) = (0.25, 1, 2.5, 0)
+        _TopCut ("Corte de arriba en picos: alto (x, 0 = cerrada), picos (y), giro (z)", Vector) = (0, 10, 0, 0)
+        _InsideAlpha ("Interior: transparencia (caras de dentro)", Range(0, 1)) = 1
     }
 
     SubShader
@@ -67,6 +74,10 @@ Shader "FakeBlade/ChargeDome"
                 float4 _Axis;
                 float4 _AxisT1;
                 float4 _AxisT2;
+                float _Funnel;
+                float4 _FunnelShape;
+                float4 _TopCut;
+                float _InsideAlpha;
             CBUFFER_END
 
             struct Attributes
@@ -74,6 +85,8 @@ Shader "FakeBlade/ChargeDome"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
+                // x = 1 en las caras de dentro (la malla con interior las lleva primero: se pintan antes que las de fuera)
+                float2 uv2 : TEXCOORD1;
             };
 
             struct Varyings
@@ -82,17 +95,30 @@ Shader "FakeBlade/ChargeDome"
                 float2 uv : TEXCOORD0;
                 float3 normalWS : TEXCOORD1;
                 float3 positionWS : TEXCOORD2;
-                float3 positionOS : TEXCOORD3;
+                // Punto de la media esfera (aunque se dibuje como embudo): el remolino y la textura se miden sobre él
+                float3 domeOS : TEXCOORD3;
+                float inside : TEXCOORD4;
             };
 
             Varyings Vert(Attributes input)
             {
                 Varyings output;
-                output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                // Embudo (Tornado): anillos a la misma altura de la malla, del radio de abajo al de arriba (abriéndose más
+                // hacia arriba) y del suelo al alto del embudo. _Funnel pasa de la media esfera a él
+                float v = input.uv.y;
+                float theta = input.uv.x * 6.2831853;
+                float3 around = float3(cos(theta), 0.0, sin(theta));
+                float r = lerp(_FunnelShape.x, _FunnelShape.y, v * v);
+                float3 funnelPos = around * r + float3(0.0, v * _FunnelShape.z, 0.0);
+                float3 funnelNormal = normalize(around * _FunnelShape.z - float3(0.0, (_FunnelShape.y - _FunnelShape.x) * 2.0 * v, 0.0));
+                float3 positionOS = lerp(input.positionOS.xyz, funnelPos, _Funnel);
+                float3 normalOS = normalize(lerp(input.normalOS, funnelNormal, _Funnel));
+                output.positionWS = TransformObjectToWorld(positionOS);
                 output.positionCS = TransformWorldToHClip(output.positionWS);
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.normalWS = TransformObjectToWorldNormal(normalOS);
                 output.uv = input.uv;
-                output.positionOS = input.positionOS.xyz;
+                output.domeOS = input.positionOS.xyz;
+                output.inside = input.uv2.x;
                 return output;
             }
 
@@ -107,12 +133,21 @@ Shader "FakeBlade/ChargeDome"
 
             half4 Frag(Varyings input) : SV_Target
             {
+                // Corte de arriba en picos (Tornado: aro de picos abierto arriba). Cada pico baja una altura distinta
+                if (_TopCut.x > 0.0)
+                {
+                    float spikes = max(1.0, floor(_TopCut.y + 0.5));
+                    float k = input.uv.x * spikes + _TopCut.z;
+                    float tooth = 1.0 - abs(frac(k) - 0.5) * 2.0;
+                    float jitter = frac(sin(floor(k) * 12.9898) * 43758.5453);
+                    if (input.uv.y > 1.0 - _TopCut.x * (1.0 - tooth * (0.55 + jitter * 0.45))) discard;
+                }
                 float3 normal = normalize(input.normalWS);
                 float3 view = normalize(GetWorldSpaceViewDir(input.positionWS));
                 float fresnel = 1.0 - saturate(abs(dot(normal, view)));
 
                 // Vuelta alrededor del eje inclinado (0-1) y altura a lo largo de él (0-1)
-                float3 p = normalize(input.positionOS);
+                float3 p = normalize(input.domeOS);
                 float along = dot(p, _Axis.xyz) * 0.5 + 0.5;
                 float turn = atan2(dot(p, _AxisT2.xyz), dot(p, _AxisT1.xyz)) * (0.5 / PI) + 0.5;
                 // Todo se apaga cerca del extremo del eje, donde se juntan las líneas
@@ -144,7 +179,7 @@ Shader "FakeBlade/ChargeDome"
                 color = Over(color, _OutlineColor, outline);
 
                 color.rgb = lerp(color.rgb, half3(1.0, 1.0, 1.0), _Flash);
-                color.a = saturate(color.a + _Flash * 0.5) * _Alpha;
+                color.a = saturate(color.a + _Flash * 0.5) * _Alpha * lerp(1.0, _InsideAlpha, input.inside);
                 return color;
             }
             ENDHLSL

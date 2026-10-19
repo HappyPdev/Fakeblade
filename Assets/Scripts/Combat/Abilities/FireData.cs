@@ -11,12 +11,6 @@ namespace FakeBlade.Core
     [CreateAssetMenu(fileName = "Fire", menuName = "FakeBlade/Specials/Fuego")]
     public class FireData : SpecialAbilityData
     {
-        [Header("Encendido")]
-        [Tooltip("Carga al activarlo (s): se frena y no puede atacar ni hacer dash; el fuego empieza al acabar (0 = enseguida)")]
-        [Min(0f)] public float windupTime = 0.3f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
-
         [Header("Quemadura")]
         [Tooltip("Fracción de las RPM máximas del rival que pierde en cada tic (0,015 = 1,5%)")]
         [Range(0f, 0.2f)] public float burnDamagePct = 0.015f;
@@ -37,6 +31,8 @@ namespace FakeBlade.Core
         public FireAbility(FireData data, FakeBladeController owner) : base(data, owner) { }
 
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         public override bool BlocksActions => IsWindingUp;
 
         public override void OnActivate()

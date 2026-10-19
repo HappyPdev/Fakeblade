@@ -19,6 +19,8 @@ MonoBehaviour:
   energyRequired: 1
   duration: 4
   activationBurst: 1.5
+  windupTime: 0.3
+  windupBrake: 12
   puddleLifetime: 3
   spacing: 0.4
   puddleRadius: 0.8

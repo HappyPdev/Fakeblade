@@ -175,12 +175,24 @@ namespace FakeBlade.Core
         public virtual bool BlocksActions => false;
 
         /// <summary>
+        /// La carga la lleva el propio poder (Embestida, Salto, Fuego, Hielo, Rayos, Onda de choque: frenan, apuntan o
+        /// cargan cada uso a su manera). Si no, SpecialAbilitySystem hace la carga común (L9) con windupTime del asset
+        /// antes de llamar a OnActivate, y mientras tanto el poder no cuenta.
+        /// </summary>
+        public virtual bool HandlesWindup => false;
+
+        /// <summary>
         /// Está en la carga corta del principio (frena y se prepara: Embestida, Salto, Fuego). Los efectos del poder
-        /// empiezan al acabarla (VFX).
+        /// empiezan al acabarla (VFX). Solo en los poderes con HandlesWindup; la común la sabe SpecialAbilitySystem.
         /// </summary>
         public virtual bool IsWindingUp => false;
         /// <summary>Lo que lleva de la carga (0 al empezar, 1 al acabar). Para los efectos que crecen con ella (cúpula).</summary>
         public virtual float WindupProgress => 1f;
+        /// <summary>
+        /// Carga que pinta la cúpula (BladeChargeDome): lo que lleva (0-1), o -1 si no hay. Por defecto, la carga del propio
+        /// poder (Onda de choque); el Tornado, la atracción (la fuerza del empujón se carga mientras atrae).
+        /// </summary>
+        public virtual float ChargeVisualProgress => IsWindingUp ? WindupProgress : -1f;
         /// <summary>Sus choques no admiten parry ni bloqueo (Embestida, mientras embiste).</summary>
         public virtual bool PreventsParry => false;
         /// <summary>El agua del suelo no la moja mientras está activo (Hielo).</summary>

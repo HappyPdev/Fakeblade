@@ -19,12 +19,18 @@ MonoBehaviour:
   energyRequired: 1
   duration: 1.8
   activationBurst: 1.5
+  windupTime: 0.3
+  windupBrake: 12
   pullDuration: 1.5
   radius: 6
   pullAcceleration: 40
   pullEdgeFactor: 0.5
   minPullDistance: 1
+  knockbackTakenWhilePulling: 0
+  massWhilePulling: 50
+  trapsInRange: 1
   pushForce: 26
+  pushDamagePct: 0.25
   minPushFraction: 0.5
   launchDuration: 0.4
   pushShake: 0.2

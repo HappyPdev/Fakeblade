@@ -28,6 +28,13 @@ namespace FakeBlade.Core
         [Tooltip("Intensidad del estallido de partículas al activarlo")]
         [Min(0.1f)] public float activationBurst = 1f;
 
+        [Header("Carga al activar (L9)")]
+        [Tooltip("Carga (s): se frena y no puede atacar ni hacer dash; el poder empieza al acabarla (0 = enseguida). " +
+                 "Embestida y Onda de choque: antes de cada embestida u onda. Defensa y Escudo: muy corta (0,1)")]
+        [Min(0f)] public float windupTime = 0.3f;
+        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
+        public float windupBrake = 12f;
+
         /// <summary>Poder al que corresponden estos datos (lo fija cada subclase).</summary>
         public abstract SpecialAbilityType Type { get; }
 

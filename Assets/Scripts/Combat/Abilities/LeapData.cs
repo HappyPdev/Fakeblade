@@ -14,12 +14,6 @@ namespace FakeBlade.Core
     [CreateAssetMenu(fileName = "Leap", menuName = "FakeBlade/Specials/Salto")]
     public class LeapData : SpecialAbilityData
     {
-        [Header("Carga")]
-        [Tooltip("Segundos que se carga antes de saltar (se frena; la dirección se toma al despegar)")]
-        [Min(0f)] public float windupTime = 0.3f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
-
         [Header("Salto")]
         [Tooltip("Distancia horizontal del salto (m, nominal: la fricción al subir la acorta un poco; 5,3 ≈ 5 m reales)")]
         public float distance = 5.3f;
@@ -83,6 +77,8 @@ namespace FakeBlade.Core
         public override bool BlocksActions => true;
 
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         public bool IsFlying => _flying;
         /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
         public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;

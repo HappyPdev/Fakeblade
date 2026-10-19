@@ -2220,6 +2220,678 @@ MonoBehaviour:
     spin: 30
     maxParticles: 512
     prefab: {fileID: 3216133590292585087, guid: ffd3921e3899f334098cefe7b791d163, type: 3}
+  - id: CircleImpact04Cierra
+    texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 2
+    frames: 7
+    life: 0.4
+    randomRotation: 1
+    order: -1
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 1
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 128
+    prefab: {fileID: 5759216915313348081, guid: 5d1537675de373a47a2142b4abf1d32d, type: 3}
+  - id: ShotValoSuelo
+    texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.35
+    randomRotation: 1
+    order: -1
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 128
+    prefab: {fileID: 5669095784625860067, guid: f27a517ef679757448611dc498d80654, type: 3}
+  - id: HumoTraga
+    texture: {fileID: 2800000, guid: 561837051e4df064bad00a419f33d746, type: 3}
+    tilesX: 2
+    tilesY: 2
+    firstFrame: 0
+    frames: 4
+    life: 0.5
+    randomRotation: 1
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    fadeIn: 0.3
+    shrinkOut: 0.6
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 1
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 1
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 0.72, g: 0.72, b: 0.72, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 3277
+      ctime1: 22937
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 39321
+      atime2: 65535
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 3
+    spin: 90
+    maxParticles: 256
+    prefab: {fileID: 7942904132325344801, guid: 87e8e833f1a6bc6479d4018c7b644216, type: 3}
+  - id: HumoViento
+    texture: {fileID: 2800000, guid: 561837051e4df064bad00a419f33d746, type: 3}
+    tilesX: 2
+    tilesY: 2
+    firstFrame: 0
+    frames: 4
+    life: 1.1
+    randomRotation: 1
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0.08
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0.4
+    stretch: 0
+    reverse: 0
+    randomFrame: 1
+    dissolveTexture: {fileID: 2800000, guid: 4b5286b3a3329a04a9ebb863519c5837, type: 3}
+    dissolveSmooth: 0.05
+    useColorOverLife: 1
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 0.72, g: 0.72, b: 0.72, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 3277
+      ctime1: 22937
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 39321
+      atime2: 65535
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 3
+    spin: 30
+    maxParticles: 512
+    prefab: {fileID: 726316752928012809, guid: 03a6d7f47a861de47bbf035754d7b0d3, type: 3}
+  - id: Grieta00
+    texture: {fileID: 2800000, guid: 95f726cf76062fe47936d73042ba9e59, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 6957225367189290716, guid: 5b7397603c365a74b98b92eb82b0b1cf, type: 3}
+  - id: Grieta01
+    texture: {fileID: 2800000, guid: c50ff1842d6aa864397627d328ebd24e, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 5020736792274575823, guid: 90a6775f577b19b418afaec02a4f5a77, type: 3}
+  - id: Grieta02
+    texture: {fileID: 2800000, guid: 4a8fc0cd7a4c5c741a98f80fe1b6a0b3, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 2819179210116138496, guid: fb40193a6914d9446a5ab11b82c4f0cd, type: 3}
+  - id: Grieta03
+    texture: {fileID: 2800000, guid: 344fd6c0ede941f4493f993b67e681d0, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 2397001285090405961, guid: 8b1515a6fa30f1b4d91214ff0414a7c8, type: 3}
+  - id: GrietaInicio00
+    texture: {fileID: 2800000, guid: 86c1d0b7d035287489bbee1c846d4b9d, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 4506236542688773407, guid: 8fe23434fb5dd364695ad815979c328f, type: 3}
+  - id: GrietaCircular01
+    texture: {fileID: 2800000, guid: 614b6af8d62b5ce40984793ed82ca990, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 8462424753179223796, guid: 6f417605d341f4645958ac0eb04be655, type: 3}
+  - id: GrietaCircular02
+    texture: {fileID: 2800000, guid: 13d9e8065216f944cb4a0fadaabfecbf, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 3080590544846203164, guid: 80c0e39027994754bb39ae040179d409, type: 3}
+  - id: GrietaCircular03
+    texture: {fileID: 2800000, guid: de3194f4a9a9c4e48bb496218734e741, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 1
+    order: -2
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.6
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 32
+    prefab: {fileID: 7675515967088153634, guid: 0ae70859b1dcb0f47927e124f1b12e5e, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -2584,6 +3256,7 @@ MonoBehaviour:
     - name: Chispas
       emitter: 19
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 10
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
@@ -2597,9 +3270,11 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.4, b: 0.05, a: 1}
       alpha: 1
+      powerTint: 0
     - name: Ceniza
       emitter: 6
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 8
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -2613,6 +3288,7 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+      powerTint: 0
     scorch:
       sprite: Quemado
       spacing: 0.4
@@ -2636,6 +3312,8 @@ MonoBehaviour:
     - name: Remolino de llamas
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 160
       count: 40
       radius: {x: 0.8, y: 1.2}
@@ -2649,9 +3327,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.35, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Remolino de chispas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 70
       count: 40
       radius: {x: 0.6, y: 1}
@@ -2665,10 +3347,94 @@ MonoBehaviour:
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
       color2: {r: 1, g: 0.6, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 8
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 3, y: 3}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 0.343752, b: 0.10196078, a: 1}
+      color2: {r: 1, g: 0.45, b: 0.1, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (alto)"
+      emitter: 15
+      sprite: FP_CircleImpactCierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 6
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.4, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 2, y: 2}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.35, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.35, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Llamas que se tragan
+      emitter: 15
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 120
+      count: 40
+      radius: {x: 2, y: 2.8}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 2, y: 4}
+      outwardSpeed: {x: -8, y: -6}
+      upSpeed: {x: 0, y: 0.5}
+      clockwise: 1
+      size: {x: 0.18, y: 0.28}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 1, g: 0.85, b: 0.3, a: 1}
+      color2: {r: 1, g: 0.35, b: 0.05, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: "L\xEDneas de velocidad (fuego)"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 125
+      count: 50
+      radius: {x: 1.3, y: 1.8}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.02, y: 0.04}
+      lifetime: {x: 0.25, y: 0.32}
+      color: {r: 1, g: 0.85, b: 0.35, a: 1}
+      color2: {r: 1, g: 0.45, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
     activationBurst:
     - name: "Explosi\xF3n de llamas"
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 50
       radius: {x: 0.3, y: 0.5}
@@ -2682,9 +3448,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.35, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: "Explosi\xF3n de chispas"
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 35
       radius: {x: 0.3, y: 0.5}
@@ -2698,12 +3468,116 @@ MonoBehaviour:
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
       color2: {r: 1, g: 0.6, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda de fuego
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 0.45, b: 0.1, a: 1}
+      color2: {r: 1, g: 0.45, b: 0.1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Medias lunas de fuego
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.15, y: 0.15}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 4, y: 4}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.35, a: 1}
+      color2: {r: 1, g: 0.85, b: 0.35, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que salen (fuego)"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 100
+      radius: {x: 0.2, y: 0.5}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 9, y: 7}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.02, y: 0.04}
+      lifetime: {x: 0.3, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.35, a: 1}
+      color2: {r: 1, g: 0.19587995, b: 0.10196078, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo que se traga (fuego)
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 12
+      radius: {x: 4, y: 2.8}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: -8, y: -5}
+      upSpeed: {x: 0, y: 0.3}
+      clockwise: 1
+      size: {x: 0.25, y: 0.4}
+      lifetime: {x: 1.4, y: 1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.645283, g: 0.6288392, b: 0.57344955, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo despedido (fuego)
+      emitter: 15
+      sprite: HumoExplosion
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 14
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 0.2, y: 0.6}
+      clockwise: 1
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
     windupSustain: 0.25
     swirl: []
     impact:
     - name: Aro de llamas
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 18
       radius: {x: 0.15, y: 0.25}
@@ -2717,9 +3591,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.35, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 24
       radius: {x: 0.1, y: 0.2}
@@ -2733,9 +3611,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
       color2: {r: 1, g: 0.5, b: 0.1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Ceniza
       emitter: 6
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 16
       radius: {x: 0.2, y: 0.4}
@@ -2749,6 +3631,8 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
     strongImpact: []
     arcs:
       enabled: 1
@@ -2817,9 +3701,56 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+    release: []
     pushHit: []
     launchedTrail: []
     launchedWallHit: []
+    hitTrail:
+    - name: Llamas de la golpeada
+      emitter: 15
+      sprite: 
+      rotation: {x: 0, y: 360}
+      rate: 70
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.05, y: 0.3}
+      coneAngle: 60
+      speed: {x: 0.5, y: 1.5}
+      inheritVelocity: -0.1
+      size: {x: 0.15, y: 0.25}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 1, g: 0.85, b: 0.35, a: 1}
+      color2: {r: 1, g: 0.45, b: 0.1, a: 1}
+      alpha: 1
+      powerTint: 0
+    - name: Chispas de la golpeada
+      emitter: 19
+      sprite: 
+      rotation: {x: 0, y: 360}
+      rate: 30
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.3}
+      coneAngle: 70
+      speed: {x: 1, y: 2.5}
+      inheritVelocity: -0.1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 0.3, y: 0.5}
+      color: {r: 1, g: 0.95, b: 0.6, a: 1}
+      color2: {r: 1, g: 0.45, b: 0.1, a: 1}
+      alpha: 1
+      powerTint: 0
+    hitTrailTime: 0.4
   - type: 6
     replaceAura: 1
     tip:
@@ -2910,6 +3841,7 @@ MonoBehaviour:
     - name: Cristales
       emitter: 20
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 25
       burstInterval: {x: 0.3, y: 0.9}
       burstCount: {x: 2, y: 4}
@@ -2923,9 +3855,11 @@ MonoBehaviour:
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 1
+      powerTint: 0
     - name: Vaho que cae
       emitter: 19
       sprite: Vaho
+      rotation: {x: 0, y: 360}
       rate: 7
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -2939,6 +3873,7 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.45
+      powerTint: 0
     scorch:
       sprite: Quemado
       spacing: 0.5
@@ -2953,6 +3888,8 @@ MonoBehaviour:
     - name: Remolino de cristales
       emitter: 20
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 120
       count: 40
       radius: {x: 0.8, y: 1.2}
@@ -2966,9 +3903,13 @@ MonoBehaviour:
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Remolino de vaho
       emitter: 15
       sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 30
       count: 40
       radius: {x: 0.9, y: 1.3}
@@ -2982,10 +3923,94 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.5
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 8
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 3, y: 3}
+      lifetime: {x: 0.3, y: 0.3}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (alto)"
+      emitter: 15
+      sprite: FP_CircleImpactCierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 6
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.4, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 2, y: 2}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Cristales que se tragan
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 90
+      count: 40
+      radius: {x: 2, y: 2.8}
+      height: {x: 0, y: 0.4}
+      tangentialSpeed: {x: 2, y: 4}
+      outwardSpeed: {x: -8, y: -6}
+      upSpeed: {x: 0, y: 0.4}
+      clockwise: 1
+      size: {x: 0.14, y: 0.22}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: "L\xEDneas de velocidad (hielo)"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 50
+      count: 40
+      radius: {x: 1.3, y: 1.8}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.02, y: 0.04}
+      lifetime: {x: 0.25, y: 0.32}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
     activationBurst:
     - name: Esquirlas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 30
       radius: {x: 0.3, y: 0.5}
@@ -2999,9 +4024,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Destellos
       emitter: 20
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 24
       radius: {x: 0.4, y: 0.7}
@@ -3015,9 +4044,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Bocanada de vaho
       emitter: 15
       sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 8
       radius: {x: 0.3, y: 0.5}
@@ -3031,11 +4064,115 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.5
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda de hielo
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda alta de hielo
+      emitter: 15
+      sprite: ShotValo2Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.45, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 3.5, y: 3.5}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que salen (hielo)"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 35
+      radius: {x: 0.4, y: 0.7}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 2.5, y: 6.5}
+      outwardSpeed: {x: 5, y: 7}
+      upSpeed: {x: 0.4, y: 0.8}
+      clockwise: 1
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 0.4, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.55, g: 0.9, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo que se traga (hielo)
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 12
+      radius: {x: 2.4, y: 2.8}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: -6, y: -5}
+      upSpeed: {x: 0, y: 0.3}
+      clockwise: 1
+      size: {x: 0.35, y: 0.5}
+      lifetime: {x: 0.4, y: 0.7}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo despedido (hielo)
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 14
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 4, y: 6}
+      upSpeed: {x: 0.2, y: 0.6}
+      clockwise: 1
+      size: {x: 0.6, y: 0.2}
+      lifetime: {x: 0.9, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
     windupSustain: 0.25
     swirl:
     - name: Vaho a ras de suelo
       emitter: 15
       sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 6
       count: 40
       radius: {x: 0.4, y: 0.8}
@@ -3049,10 +4186,14 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.35
+      windupOnly: 0
+      powerTint: 0
     impact:
     - name: Esquirlas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 22
       radius: {x: 0.1, y: 0.2}
@@ -3066,9 +4207,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Destellos
       emitter: 20
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 12
       radius: {x: 0.2, y: 0.4}
@@ -3082,9 +4227,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Bocanada de vaho
       emitter: 15
       sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 8
       radius: {x: 0.1, y: 0.3}
@@ -3098,6 +4247,8 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.5
+      windupOnly: 0
+      powerTint: 0
     strongImpact: []
     arcs:
       enabled: 1
@@ -3166,9 +4317,56 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+    release: []
     pushHit: []
     launchedTrail: []
     launchedWallHit: []
+    hitTrail:
+    - name: Esquirlas de la golpeada
+      emitter: 20
+      sprite: 
+      rotation: {x: 0, y: 360}
+      rate: 50
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.05, y: 0.35}
+      coneAngle: 70
+      speed: {x: 0.5, y: 1.5}
+      inheritVelocity: -0.1
+      size: {x: 0.12, y: 0.2}
+      lifetime: {x: 0.25, y: 0.4}
+      color: {r: 0.55, g: 0.9, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    - name: Vaho de la golpeada
+      emitter: 19
+      sprite: Vaho
+      rotation: {x: 0, y: 360}
+      rate: 15
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.1, y: 0.3}
+      height: {x: 0.05, y: 0.2}
+      coneAngle: 70
+      speed: {x: 0.2, y: 0.5}
+      inheritVelocity: -0.1
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.5, y: 0.8}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.5
+      powerTint: 0
+    hitTrailTime: 0.4
   - type: 4
     replaceAura: 1
     tip:
@@ -3264,6 +4462,8 @@ MonoBehaviour:
     - name: Remolino de llamas
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 160
       count: 40
       radius: {x: 0.8, y: 1.2}
@@ -3277,9 +4477,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.25, a: 1}
       color2: {r: 1, g: 0.5, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Remolino de chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 70
       count: 40
       radius: {x: 0.6, y: 1}
@@ -3293,9 +4497,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.85, b: 0.25, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Ceniza
       emitter: 15
       sprite: Ceniza
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 30
       count: 40
       radius: {x: 0.5, y: 1}
@@ -3309,10 +4517,14 @@ MonoBehaviour:
       color: {r: 0.21509439, g: 0.20900682, b: 0.20900682, a: 1}
       color2: {r: 0.381132, g: 0.36746877, b: 0.36746877, a: 1}
       alpha: 0.7
+      windupOnly: 0
+      powerTint: 0
     activationBurst:
     - name: "Explosi\xF3n de llamas"
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 50
       radius: {x: 0.3, y: 0.5}
@@ -3326,9 +4538,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.25, a: 1}
       color2: {r: 1, g: 0.5, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: "Explosi\xF3n de chispas"
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 35
       radius: {x: 0.3, y: 0.5}
@@ -3342,9 +4558,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.85, b: 0.25, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Ceniza
       emitter: 15
       sprite: Ceniza
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 20
       radius: {x: 0.2, y: 0.4}
@@ -3358,12 +4578,16 @@ MonoBehaviour:
       color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
       color2: {r: 0.45, g: 0.45, b: 0.45, a: 1}
       alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
     windupSustain: 0.25
     swirl: []
     impact:
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 12
       radius: {x: 0.1, y: 0.2}
@@ -3377,10 +4601,14 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.85, b: 0.25, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     strongImpact:
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 36
       radius: {x: 0.1, y: 0.2}
@@ -3394,9 +4622,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.85, b: 0.25, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Ceniza
       emitter: 15
       sprite: Ceniza
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 16
       radius: {x: 0.2, y: 0.4}
@@ -3410,6 +4642,8 @@ MonoBehaviour:
       color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
       color2: {r: 0.45, g: 0.45, b: 0.45, a: 1}
       alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
     arcs:
       enabled: 1
       material: {fileID: 2100000, guid: b9a6649977b707b449a42d16bf78c995, type: 2}
@@ -3477,9 +4711,20 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+    release: []
     pushHit: []
     launchedTrail: []
     launchedWallHit: []
+    hitTrail: []
+    hitTrailTime: 0.4
   - type: 2
     replaceAura: 1
     tip:
@@ -3555,6 +4800,7 @@ MonoBehaviour:
     - name: Chispas a ras de suelo
       emitter: 17
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 14
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -3568,6 +4814,7 @@ MonoBehaviour:
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      powerTint: 0
     scorch:
       sprite: 
       spacing: 0.4
@@ -3582,6 +4829,8 @@ MonoBehaviour:
     - name: "C\xEDrculo que se cierra (suelo)"
       emitter: 15
       sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 4
       count: 1
       radius: {x: 0, y: 0}
@@ -3595,9 +4844,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
     - name: "C\xEDrculo que se cierra (alto)"
       emitter: 15
       sprite: FP_CircleImpactCierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 3
       count: 1
       radius: {x: 0, y: 0}
@@ -3611,9 +4864,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
     - name: "L\xEDneas de velocidad"
       emitter: 15
       sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 50
       count: 40
       radius: {x: 2.2, y: 3}
@@ -3627,9 +4884,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Nubes que se tragan
       emitter: 15
       sprite: NubeComicTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 40
       count: 40
       radius: {x: 2, y: 2.8}
@@ -3643,9 +4904,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas que se tragan
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 40
       count: 40
       radius: {x: 1.2, y: 1.8}
@@ -3659,10 +4924,14 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     activationBurst:
     - name: Onda en el suelo
       emitter: 15
       sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 0
       count: 1
       radius: {x: 0, y: 0}
@@ -3676,9 +4945,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.95
+      windupOnly: 0
+      powerTint: 0
     - name: Onda baja
       emitter: 15
       sprite: FP_CircleImpactSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 0
       count: 1
       radius: {x: 0, y: 0}
@@ -3692,9 +4965,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
     - name: Onda alta
       emitter: 15
       sprite: ShotValo2Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 0
       count: 1
       radius: {x: 0, y: 0}
@@ -3708,9 +4985,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
     - name: Medias lunas
       emitter: 15
       sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 0
       count: 2
       radius: {x: 0, y: 0}
@@ -3724,9 +5005,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
     - name: Humo despedido
       emitter: 15
       sprite: HumoExplosion
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 24
       radius: {x: 0.5, y: 0.8}
@@ -3740,9 +5025,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Humo bajo
       emitter: 15
       sprite: HumoExplosion
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 20
       radius: {x: 0.4, y: 0.6}
@@ -3756,9 +5045,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.82641506, g: 0.82641506, b: 0.82641506, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 40
       radius: {x: 0.2, y: 0.4}
@@ -3772,27 +5065,40 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Grietas
       emitter: 15
       sprite: Grietas
+      spriteVariants:
+      - Grieta00
+      - Grieta01
+      - Grieta02
+      - Grieta03
+      - GrietaInicio00
+      rotation: {x: 0, y: 360}
       rate: 100
-      count: 1
+      count: 3
       radius: {x: 0, y: 0}
       height: {x: 0.02, y: 0.02}
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
       clockwise: 1
-      size: {x: 2.6, y: 2.6}
-      lifetime: {x: 1.2, y: 1.2}
-      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-      color2: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-      alpha: 0.85
+      size: {x: 4, y: 5}
+      lifetime: {x: 2, y: 2}
+      color: {r: 0.13962269, g: 0.13962269, b: 0.13962269, a: 1}
+      color2: {r: 0.12452829, g: 0.12452829, b: 0.12452829, a: 1}
+      alpha: 0.768
+      windupOnly: 0
+      powerTint: 0
     windupSustain: 0
     swirl:
     - name: Nubes que se tragan
       emitter: 15
       sprite: NubeComicTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 10
       count: 40
       radius: {x: 2, y: 2.8}
@@ -3806,9 +5112,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas que se tragan
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 12
       count: 40
       radius: {x: 1.2, y: 1.8}
@@ -3822,10 +5132,14 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     impact:
     - name: Nubes
       emitter: 15
       sprite: NubeComic
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 4
       radius: {x: 0.1, y: 0.2}
@@ -3839,6 +5153,8 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     strongImpact: []
     arcs:
       enabled: 1
@@ -3907,10 +5223,21 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+    release: []
     pushHit:
     - name: Nubes del golpe
       emitter: 15
       sprite: NubeComic
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 10
       radius: {x: 0.1, y: 0.2}
@@ -3924,9 +5251,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 12
       radius: {x: 0.2, y: 0.4}
@@ -3940,10 +5271,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     launchedTrail:
     - name: Estela de polvo
       emitter: 19
       sprite: NubeComic
+      rotation: {x: 0, y: 360}
       rate: 30
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -3957,10 +5291,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 0.85
+      powerTint: 0
     launchedWallHit:
     - name: Polvo contra la pared
       emitter: 15
       sprite: NubeComic
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 12
       radius: {x: 0, y: 0.12}
@@ -3974,9 +5311,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.93, g: 0.87, b: 0.75, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 50
       radius: {x: 0.2, y: 0.4}
@@ -3990,6 +5331,964 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.55, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    hitTrail: []
+    hitTrailTime: 0.4
+  - type: 11
+    replaceAura: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.45, g: 0.85, b: 0.8, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.2
+      baseFlash: 0
+      pulseRim: {x: 0.5, y: 1.2}
+      pulseFlash: {x: 0, y: 0.08}
+      pulseInterval: {x: 0.15, y: 0.35}
+      pulseDecay: 0.2
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles: []
+    scorch:
+      sprite: 
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 10
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 10, y: 10}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (alto)"
+      emitter: 15
+      sprite: FP_CircleImpactCierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 8
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.45, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
+      color2: {r: 0.4, g: 0.85, b: 0.63, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Medias lunas que se cierran
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 8
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.15, y: 0.15}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 7, y: 7}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.85, g: 1, b: 0.95, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas de velocidad"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 60
+      count: 40
+      radius: {x: 2.5, y: 3.5}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 3, y: 5}
+      outwardSpeed: {x: -10, y: -8}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.09}
+      lifetime: {x: 0.22, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 40
+      count: 40
+      radius: {x: 2, y: 2.8}
+      height: {x: 0, y: 0.4}
+      tangentialSpeed: {x: 3, y: 5}
+      outwardSpeed: {x: -6, y: -4.5}
+      upSpeed: {x: 0, y: 0.5}
+      clockwise: 1
+      size: {x: 0.45, y: 0.75}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    activationBurst:
+    - name: Humo de la base
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 10
+      radius: {x: 0.3, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.3, y: 1}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.1, y: 0.5}
+      clockwise: 1
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.7, y: 0.9}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    swirl:
+    - name: Rayas del alcance
+      emitter: 2
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 180
+      count: 60
+      radius: {x: 1, y: 5}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 6, y: 8}
+      outwardSpeed: {x: -5.5, y: -4.5}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.01, y: 0.1}
+      lifetime: {x: 0.3, y: 0.6}
+      color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (alcance)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 2
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 6, y: 6}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.301
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 18
+      count: 40
+      radius: {x: 2, y: 4.5}
+      height: {x: 0, y: 0.4}
+      tangentialSpeed: {x: 3, y: 5}
+      outwardSpeed: {x: -6, y: -4.5}
+      upSpeed: {x: 0, y: 0.5}
+      clockwise: 1
+      size: {x: 0.45, y: 0.75}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    impact:
+    - name: "L\xEDneas"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 40
+      radius: {x: 0.6, y: 1}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 4, y: 7}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.25, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    strongImpact: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1.5
+      heightScale: 0.9
+      height: 0
+      growEase: 1.6
+      bodyColor: {r: 0.9, g: 1, b: 0.97, a: 0.14}
+      rimColor: {r: 0.40210032, g: 0.8490566, b: 0.6317282, a: 0.9}
+      outlineColor: {r: 0.47, g: 0.47, b: 0.47, a: 0.8}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.85}
+      swirlColor2: {r: 0.40392157, g: 0.85, b: 0.63529414, a: 0.6}
+      rimWidth: 0.25
+      outlineWidth: 0.05
+      linesTexture: {fileID: 2800000, guid: 2e2b57d1a1eb34a49928fb7f02680e71, type: 3}
+      linesTiling: {x: 4, y: 2}
+      linesSpeed: 3
+      linesTwist: 0.3
+      axisTilt: 12
+      axisPrecess: 1.2
+      swirlLines: 4
+      swirlTwist: 0.9
+      swirlSpeed: 4
+      swirlWidth: 0.096
+      shakeFrom: 0.7
+      shakeScale: 0.06
+      shakeRate: 20
+      popTime: 0.2
+      popScale: 1.9
+      popFlash: 0.6
+      startRadius: 0.703
+      funnelPhase: 0.651
+      funnelMorph: 0.386
+      funnelShape: {x: 0.6, y: 2, z: 3}
+      topCut: 0.228
+      topSpikes: 5
+      topSpikesSpeed: 3
+      insideAlpha: 0.7
+    release:
+    - name: Onda en el suelo
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 12, y: 12}
+      lifetime: {x: 0.45, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.95
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda baja
+      emitter: 15
+      sprite: FP_CircleImpactSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.25, y: 0.25}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 9, y: 9}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
+      color2: {r: 0.4, g: 0.85, b: 0.63, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: ImpactShotValo
+      emitter: 15
+      sprite: ShotValoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.5, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 6.5, y: 6.5}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que salen"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 40
+      radius: {x: 0.6, y: 1}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 14, y: 20}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo despedido
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 15
+      radius: {x: 0.8, y: 1}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 1, y: 2.5}
+      outwardSpeed: {x: 2, y: 3}
+      upSpeed: {x: 0.1, y: 0.2}
+      clockwise: 1
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.6, y: 1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo bajo
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 8
+      radius: {x: 0.2, y: 0.6}
+      height: {x: 0.1, y: 0.2}
+      tangentialSpeed: {x: 0.3, y: 1}
+      outwardSpeed: {x: 1, y: 3}
+      upSpeed: {x: 0.1, y: 0.2}
+      clockwise: 1
+      size: {x: 0.2, y: 0.4}
+      lifetime: {x: 1, y: 1.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    pushHit:
+    - name: Humo del golpe
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 8
+      radius: {x: 0.3, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.3, y: 1}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: 0.1, y: 0.5}
+      clockwise: 1
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas del golpe"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 12
+      radius: {x: 0.6, y: 1}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 5, y: 8}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    launchedTrail:
+    - name: Estela de humo
+      emitter: 19
+      sprite: NubeComic
+      rotation: {x: 0, y: 360}
+      rate: 30
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0, y: 0.15}
+      coneAngle: 70
+      speed: {x: 0.3, y: 0.8}
+      inheritVelocity: -0.1
+      size: {x: 0.35, y: 0.6}
+      lifetime: {x: 0.4, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 0.85
+      powerTint: 0
+    launchedWallHit:
+    - name: Humo contra la pared
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 14
+      radius: {x: 0.3, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.3, y: 1}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 0.1, y: 0.5}
+      clockwise: 1
+      size: {x: 0.5, y: 0.9}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas contra la pared"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 14
+      radius: {x: 0.6, y: 1}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 5, y: 8}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 1, b: 0.95, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    hitTrail: []
+    hitTrailTime: 0.4
+  genericSpecialEffects:
+    type: 0
+    replaceAura: 0
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 0
+      powerColor: 0
+      color: {r: 1, g: 0.45, b: 0.1, a: 1}
+      hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      baseRim: 0.6
+      baseFlash: 0
+      pulseRim: {x: 1, y: 2.5}
+      pulseFlash: {x: 0, y: 0.25}
+      pulseInterval: {x: 0.12, y: 0.35}
+      pulseDecay: 0.25
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles: []
+    scorch:
+      sprite: 
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 8
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 1
+    - name: "C\xEDrculo que se cierra (alto)"
+      emitter: 15
+      sprite: FP_CircleImpactCierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 6
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.4, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 3, y: 3}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0.6
+    - name: "L\xEDneas de velocidad"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 50
+      count: 40
+      radius: {x: 1.3, y: 1.8}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.09}
+      lifetime: {x: 0.25, y: 0.32}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0.5
+    - name: Humo que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 25
+      count: 40
+      radius: {x: 1.6, y: 2.2}
+      height: {x: 0, y: 0.4}
+      tangentialSpeed: {x: 2, y: 4}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0.4}
+      clockwise: 1
+      size: {x: 0.4, y: 0.65}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0.3
+    activationBurst:
+    - name: Onda
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 1
+    - name: "L\xEDneas que salen"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 30
+      radius: {x: 0.4, y: 0.7}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 6, y: 9}
+      upSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.18, y: 0.26}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0.5
+    - name: Humo que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 12
+      radius: {x: 2.2, y: 2.8}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: -6, y: -5}
+      upSpeed: {x: 0, y: 0.3}
+      clockwise: 1
+      size: {x: 0.45, y: 0.7}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0.3
+    - name: Humo despedido
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      rate: 100
+      count: 14
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 0.2, y: 0.6}
+      clockwise: 1
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0.3
+    windupSustain: 0
+    swirl: []
+    impact: []
+    strongImpact: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 0}
+      radius: 1.2
+      heightScale: 0.85
+      height: 0
+      growEase: 2
+      bodyColor: {r: 1, g: 0.97, b: 0.9, a: 0.18}
+      rimColor: {r: 1, g: 0.55, b: 0.15, a: 0.95}
+      outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.9}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
+      rimWidth: 0.3
+      outlineWidth: 0.08
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 2}
+      linesSpeed: 1.2
+      linesTwist: 0.15
+      axisTilt: 25
+      axisPrecess: 0.8
+      swirlLines: 5
+      swirlTwist: 0.6
+      swirlSpeed: 1.5
+      swirlWidth: 0.18
+      shakeFrom: 0.6
+      shakeScale: 0.08
+      shakeRate: 22
+      popTime: 0.16
+      popScale: 1.7
+      popFlash: 0.8
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail:
+    - name: Humo de la golpeada
+      emitter: 19
+      sprite: NubeComic
+      rotation: {x: 0, y: 360}
+      rate: 25
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0, y: 0.2}
+      coneAngle: 70
+      speed: {x: 0.3, y: 0.8}
+      inheritVelocity: -0.1
+      size: {x: 0.3, y: 0.5}
+      lifetime: {x: 0.35, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.85
+      powerTint: 0.4
+    - name: Chispas de la golpeada
+      emitter: 19
+      sprite: Chispa
+      rotation: {x: 0, y: 360}
+      rate: 30
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.05, y: 0.3}
+      coneAngle: 70
+      speed: {x: 1, y: 2.5}
+      inheritVelocity: -0.1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      powerTint: 1
+    hitTrailTime: 0.4
+  useGenericSpecialEffects: 0
   burn:
     enabled: 1
     tip:
@@ -4065,6 +6364,7 @@ MonoBehaviour:
     - name: Chispas
       emitter: 19
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 4
       burstInterval: {x: 0.3, y: 0.8}
       burstCount: {x: 2, y: 4}
@@ -4078,9 +6378,11 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.4, b: 0.05, a: 1}
       alpha: 1
+      powerTint: 0
     - name: Ceniza
       emitter: 6
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 6
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -4094,9 +6396,11 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+      powerTint: 0
     - name: Humo
       emitter: 18
       sprite: 
+      rotation: {x: 0, y: 360}
       rate: 6
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -4110,10 +6414,13 @@ MonoBehaviour:
       color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
       color2: {r: 0.4, g: 0.4, b: 0.42, a: 1}
       alpha: 0.6
+      powerTint: 0
     swirl:
     - name: Remolino de llamas
       emitter: 15
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 35
       count: 40
       radius: {x: 0.45, y: 0.7}
@@ -4127,9 +6434,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
       color2: {r: 1, g: 0.35, b: 0.05, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Remolino de chispas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 15
       count: 40
       radius: {x: 0.35, y: 0.6}
@@ -4143,6 +6454,8 @@ MonoBehaviour:
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
       color2: {r: 1, g: 0.6, b: 0.15, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     auras:
     - name: Aura Burn
       prefab: {fileID: 686306083764514543, guid: 5357b7f40e1451744886942913efe75f, type: 3}
@@ -4166,6 +6479,8 @@ MonoBehaviour:
     - name: Chispas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 10
       radius: {x: 0.1, y: 0.2}
@@ -4179,9 +6494,13 @@ MonoBehaviour:
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
       color2: {r: 1, g: 0.5, b: 0.1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Ceniza
       emitter: 6
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 6
       radius: {x: 0.2, y: 0.3}
@@ -4195,6 +6514,8 @@ MonoBehaviour:
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
       color2: {r: 0.55, g: 0.52, b: 0.5, a: 1}
       alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
     discSpin: 1
   frozen:
     enabled: 1
@@ -4271,6 +6592,7 @@ MonoBehaviour:
     - name: Vaho que cae
       emitter: 19
       sprite: Vaho
+      rotation: {x: 0, y: 360}
       rate: 5
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
@@ -4284,10 +6606,13 @@ MonoBehaviour:
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 0.4
+      powerTint: 0
     swirl:
     - name: Cristales lentos
       emitter: 20
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 12
       count: 40
       radius: {x: 0.4, y: 0.6}
@@ -4301,11 +6626,15 @@ MonoBehaviour:
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
       color2: {r: 1, g: 1, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     auras: []
     impact:
     - name: Esquirlas
       emitter: 19
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 10
       radius: {x: 0.1, y: 0.2}
@@ -4319,9 +6648,13 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     - name: Destellos
       emitter: 20
       sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 5
       radius: {x: 0.2, y: 0.3}
@@ -4335,6 +6668,8 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.55, g: 0.9, b: 1, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     discSpin: 0.5
   launched:
     enabled: 1
@@ -4411,6 +6746,7 @@ MonoBehaviour:
     - name: Chispas que saltan
       emitter: 19
       sprite: Chispa
+      rotation: {x: 0, y: 360}
       rate: 20
       burstInterval: {x: 0.05, y: 0.15}
       burstCount: {x: 2, y: 5}
@@ -4424,12 +6760,15 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.8, b: 0.1, a: 1}
       alpha: 1
+      powerTint: 0
     swirl: []
     auras: []
     impact:
     - name: Chispas
       emitter: 15
       sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
       rate: 100
       count: 10
       radius: {x: 0.1, y: 0.2}
@@ -4443,6 +6782,8 @@ MonoBehaviour:
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.85, b: 0.25, a: 1}
       alpha: 1
+      windupOnly: 0
+      powerTint: 0
     discSpin: 1
   usesIndicator:
     enabled: 1

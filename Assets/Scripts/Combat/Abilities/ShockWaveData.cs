@@ -20,13 +20,6 @@ namespace FakeBlade.Core
         [Tooltip("Lo que queda del efecto en el borde (0,5 = la mitad que en el centro)")]
         [Range(0f, 1f)] public float edgeFactor = 0.5f;
 
-        [Header("Carga de cada onda")]
-        [Tooltip("Carga antes de cada onda (s): se frena, no puede atacar ni hacer dash y la cúpula crece; al acabar, explota " +
-                 "(0 = enseguida)")]
-        [Min(0f)] public float windupTime = 0.5f;
-        [Tooltip("Frenado durante la carga (fracción de la velocidad que pierde por segundo)")]
-        public float windupBrake = 12f;
-
         [Header("Cada onda")]
         [Tooltip("Empuje (m/s) en el centro")]
         public float force = 20f;
@@ -57,6 +50,8 @@ namespace FakeBlade.Core
         public override bool WantsRepeatPress => _wavesLeft > 0 && !IsWindingUp;
 
         public override bool IsWindingUp => _windup > 0f;
+        /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
+        public override bool HandlesWindup => true;
         public override float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
         public override bool BlocksActions => IsWindingUp;
 

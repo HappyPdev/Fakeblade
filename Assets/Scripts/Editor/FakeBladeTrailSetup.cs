@@ -216,6 +216,12 @@ namespace FakeBlade.Core.Editor
             if (fire.windup.Count == 0) fire.windup.AddRange(FireWindup());
             fire.activationBurst ??= new List<SpiralParticleStyle>();
             if (fire.activationBurst.Count == 0) fire.activationBurst.AddRange(FireActivationBurst());
+            // Carga y encendido más llamativos, como Tornado y Onda de choque (2026-10-19): se añaden si faltan, sin tocar lo demás
+            AddMissing(fire.windup, FireWindupInward(), s => s.name);
+            AddMissing(fire.activationBurst, FireBurstOutward(), s => s.name);
+            // Estela en la golpeada (2026-10-19)
+            fire.hitTrail ??= new List<SpecialParticleStyle>();
+            if (fire.hitTrail.Count == 0) fire.hitTrail.AddRange(FireHitTrail());
             // Círculo de llamas, chispas y ceniza en cada choque (2026-10-17)
             fire.impact ??= new List<SpiralParticleStyle>();
             if (fire.impact.Count == 0) fire.impact.AddRange(FireImpact());
@@ -223,7 +229,8 @@ namespace FakeBlade.Core.Editor
             ParticleSystem smoke = AuraPrefab(AuraSmokePrefabPath);
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
-                   SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader);
+                   SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
+                   SetupTornado(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -314,6 +321,10 @@ namespace FakeBlade.Core.Editor
             if (ice.windup.Count == 0) ice.windup.AddRange(IceWindup());
             ice.activationBurst ??= new List<SpiralParticleStyle>();
             if (ice.activationBurst.Count == 0) ice.activationBurst.AddRange(IceActivationBurst());
+            AddMissing(ice.windup, IceWindupInward(), s => s.name);
+            AddMissing(ice.activationBurst, IceBurstOutward(), s => s.name);
+            ice.hitTrail ??= new List<SpecialParticleStyle>();
+            if (ice.hitTrail.Count == 0) ice.hitTrail.AddRange(IceHitTrail());
             ice.swirl ??= new List<SpiralParticleStyle>();
             if (ice.swirl.Count == 0) ice.swirl.AddRange(IceGroundMist());
             ice.impact ??= new List<SpiralParticleStyle>();
@@ -721,6 +732,11 @@ namespace FakeBlade.Core.Editor
 
         private static readonly Color ShockOrange = new Color(1f, 0.55f, 0.15f);
         private static readonly Color ShockDust = new Color(0.93f, 0.87f, 0.75f);
+        /// <summary>Grietas dibujadas por el usuario (2026-10-19): una al azar en cada golpe al suelo (Onda de choque; Salto al caer).</summary>
+        private static readonly string[] CrackVariants =
+        {
+            "Grieta00", "Grieta01", "Grieta02", "Grieta03", "GrietaInicio00", "GrietaCircular01", "GrietaCircular02", "GrietaCircular03"
+        };
 
         /// <summary>
         /// Carga de cada onda: aros de picos que se cierran sobre la peonza, líneas de velocidad hacia dentro, nubes que se
@@ -781,8 +797,11 @@ namespace FakeBlade.Core.Editor
             new SpiralParticleStyle
             {
                 name = "Grietas", sprite = "Grietas", count = 1, radius = Vector2.zero, height = new Vector2(0.02f, 0.02f),
-                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(2.6f, 2.6f),
-                lifetime = new Vector2(1.2f, 1.2f), color = new Color(0.1f, 0.1f, 0.1f), color2 = new Color(0.1f, 0.1f, 0.1f), alpha = 0.85f
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(3f, 5f),
+                lifetime = new Vector2(1.2f, 1.2f), color = new Color(0.1f, 0.1f, 0.1f), color2 = new Color(0.1f, 0.1f, 0.1f), alpha = 0.85f,
+                // Una de las grietas del usuario al azar, con tamaño al azar y girada entre 60 y 90 grados: cada onda deja una
+                // distinta (2026-10-19)
+                spriteVariants = new List<string>(CrackVariants), rotation = new Vector2(60f, 90f)
             }
         };
 
@@ -824,6 +843,188 @@ namespace FakeBlade.Core.Editor
             tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(1.5f, 3f),
             size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.3f, 0.55f), color = Color.white, color2 = ShockOrange
         };
+
+        /// <summary>
+        /// Tornado (K8, 2026-10-18; boceto del usuario en cuatro viñetas, ajustado tras verlo): 1) en la carga, círculos que se
+        /// cierran (CircleImpact02, FP_CircleImpact y CircleImpact04 al revés), líneas de velocidad y humo que se tragan hacia la
+        /// peonza; 2) al empezar a atraer, un embudo que sube desde el suelo; 3) que se ensancha hasta ser una cúpula de viento
+        /// con un aro de picos abierto arriba (se ve por dentro), mientras las rayas de píxel traen el viento desde todo el
+        /// alcance, se siguen cerrando círculos y se traga humo; 4) al soltar el empujón, la cúpula revienta, se abren círculos
+        /// (con ImpactShotValo) y salen líneas y humo que se disuelve. Blanco con toques del verde agua del poder. Solo añade la
+        /// entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupTornado(VfxLibrary library)
+        {
+            SpecialVfxStyle tornado = library.GetSpecialEffects(SpecialAbilityType.Tornado);
+            bool added = tornado == null;
+            if (added)
+            {
+                tornado = new SpecialVfxStyle { type = SpecialAbilityType.Tornado, replaceAura = true, windupSustain = 0f };
+                tornado.tip.cups.Clear();
+                tornado.tip.particleSprite = "";
+                tornado.tip.ground = new TipGroundSprite();
+                tornado.overlay = new SpecialOverlayStyle
+                {
+                    color = TornadoTeal, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.5f, 1.2f),
+                    pulseFlash = new Vector2(0f, 0.08f), pulseInterval = new Vector2(0.15f, 0.35f), pulseDecay = 0.2f
+                };
+                tornado.dome = TornadoDome();
+                library.specialEffects.Add(tornado);
+            }
+
+            tornado.dome ??= TornadoDome();
+            if (tornado.dome.material == null)
+            {
+                Shader domeShader = Shader.Find(ChargeDomeShaderName);
+                if (domeShader != null) tornado.dome.material = GetMaterial(ChargeDomeMaterialPath, domeShader);
+            }
+            if (tornado.dome.linesTexture == null) tornado.dome.linesTexture = FakeBladeImpactSetup.SpeedLinesTexture();
+
+            tornado.windup ??= new List<SpiralParticleStyle>();
+            if (tornado.windup.Count == 0) tornado.windup.AddRange(TornadoWindup());
+            tornado.activationBurst ??= new List<SpiralParticleStyle>();
+            if (tornado.activationBurst.Count == 0) tornado.activationBurst.AddRange(TornadoRise());
+            tornado.swirl ??= new List<SpiralParticleStyle>();
+            if (tornado.swirl.Count == 0) tornado.swirl.AddRange(TornadoPull());
+            tornado.release ??= new List<SpiralParticleStyle>();
+            if (tornado.release.Count == 0) tornado.release.AddRange(TornadoRelease());
+            tornado.impact ??= new List<SpiralParticleStyle>();
+            if (tornado.impact.Count == 0) tornado.impact.Add(TornadoLines("Líneas", 12, 4f, 7f));
+            tornado.pushHit ??= new List<SpiralParticleStyle>();
+            if (tornado.pushHit.Count == 0) tornado.pushHit.AddRange(TornadoPushHit());
+            tornado.launchedTrail ??= new List<SpecialParticleStyle>();
+            if (tornado.launchedTrail.Count == 0) tornado.launchedTrail.Add(TornadoLaunchedTrail());
+            tornado.launchedWallHit ??= new List<SpiralParticleStyle>();
+            if (tornado.launchedWallHit.Count == 0) tornado.launchedWallHit.AddRange(TornadoWallHit());
+            return "Tornado" + (added ? " (nuevo)" : "") + (tornado.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        private static readonly Color TornadoTeal = new Color(0.4f, 0.85f, 0.63f);
+        private static readonly Color TornadoPale = new Color(0.85f, 1f, 0.95f);
+
+        /// <summary>
+        /// Embudo que se hace cúpula mientras atrae (1,5 s), con los valores que dejó el usuario (2026-10-18): embudo ancho y alto
+        /// que sube durante el 65% de la atracción y se ensancha hasta la cúpula en el resto; cinco picos arriba que giran
+        /// deprisa; se ve por dentro a través del corte.
+        /// </summary>
+        private static ChargeDomeStyle TornadoDome() => new ChargeDomeStyle
+        {
+            radius = 1.5f, heightScale = 0.9f, height = 0f, growEase = 1.6f, startRadius = 0.703f,
+            funnelPhase = 0.651f, funnelMorph = 0.386f, funnelShape = new Vector3(0.6f, 2f, 3f),
+            topCut = 0.228f, topSpikes = 5, topSpikesSpeed = 3f, insideAlpha = 0.7f,
+            bodyColor = new Color(0.9f, 1f, 0.97f, 0.14f), rimColor = new Color(TornadoTeal.r, TornadoTeal.g, TornadoTeal.b, 0.9f),
+            outlineColor = new Color(0.47f, 0.47f, 0.47f, 0.8f), swirlColor = new Color(1f, 1f, 1f, 0.85f),
+            swirlColor2 = new Color(TornadoTeal.r, TornadoTeal.g, TornadoTeal.b, 0.6f), rimWidth = 0.25f, outlineWidth = 0.05f,
+            linesTiling = new Vector2(4f, 2f), linesSpeed = 1.8f, linesTwist = 0.3f, axisTilt = 12f, axisPrecess = 1.2f,
+            swirlLines = 6f, swirlTwist = 0.9f, swirlSpeed = 2.5f, swirlWidth = 0.14f,
+            shakeFrom = 0.7f, shakeScale = 0.06f, shakeRate = 20f, popTime = 0.2f, popScale = 1.9f, popFlash = 0.6f
+        };
+
+        /// <summary>Viñeta 1, la carga (0,3 s): círculos que se cierran, líneas de velocidad y humo que se tragan hacia la peonza.</summary>
+        private static SpiralParticleStyle[] TornadoWindup() => new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 10f, 0.03f, 0.4f, Color.white, 0.9f, rate: 10f),
+            ShockCircle("Círculo que se cierra (alto)", "FP_CircleImpactCierra", 5f, 0.45f, 0.4f, TornadoTeal, 0.8f, rate: 8f),
+            ShockCircle("Medias lunas que se cierran", "CircleImpact04Cierra", 7f, 0.15f, 0.4f, TornadoPale, 0.8f, rate: 8f),
+            TornadoInwardLines("Líneas de velocidad", 60f),
+            TornadoInwardSmoke("Humo que se traga", 40f, new Vector2(2f, 2.8f))
+        };
+
+        /// <summary>Viñeta 2, al empezar a atraer (sube el embudo): humo que sale de la base.</summary>
+        private static SpiralParticleStyle[] TornadoRise() => new[]
+        {
+            TornadoSmoke("Humo de la base", 10, 1.5f, 3f, new Vector2(0.5f, 0.8f), new Vector2(0.7f, 0.9f))
+        };
+
+        /// <summary>
+        /// Viñeta 3, mientras atrae: las rayas de píxel de antes, que traen el viento desde todo el alcance (se ve hasta dónde
+        /// atrae), un círculo grande que se cierra de vez en cuando y humo que se traga.
+        /// </summary>
+        private static SpiralParticleStyle[] TornadoPull() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Rayas del alcance", emitter = VfxType.Dash, rate = 110f, radius = new Vector2(1f, 6f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = new Vector2(6f, 8f), outwardSpeed = new Vector2(-5.5f, -4.5f),
+                upSpeed = Vector2.zero, size = new Vector2(0.09f, 0.09f), lifetime = new Vector2(0.3f, 0.3f),
+                color = TornadoTeal, color2 = TornadoPale
+            },
+            ShockCircle("Círculo que se cierra (alcance)", "CircleImpact02Cierra", 12f, 0.03f, 0.4f, Color.white, 0.6f, rate: 2.5f),
+            TornadoInwardSmoke("Humo que se traga", 18f, new Vector2(2f, 4.5f))
+        };
+
+        /// <summary>Viñeta 4, al soltar el empujón: círculos que se abren (con ImpactShotValo), líneas y humo que sale despedido.</summary>
+        private static SpiralParticleStyle[] TornadoRelease() => new[]
+        {
+            ShockCircle("Onda en el suelo", "CircleImpact02Suelo", 12f, 0.03f, 0.45f, Color.white, 0.95f),
+            ShockCircle("Onda baja", "FP_CircleImpactSuelo", 9f, 0.25f, 0.4f, TornadoTeal, 0.85f),
+            ShockCircle("ImpactShotValo", "ShotValoSuelo", 6.5f, 0.5f, 0.35f, Color.white, 0.85f),
+            TornadoLines("Líneas que salen", 40, 14f, 20f),
+            new SpiralParticleStyle
+            {
+                name = "Humo despedido", sprite = "HumoViento", count = 30, radius = new Vector2(0.5f, 0.8f),
+                height = new Vector2(0.45f, 0.75f), tangentialSpeed = new Vector2(1f, 2.5f), outwardSpeed = new Vector2(6f, 13f),
+                upSpeed = new Vector2(0.4f, 1f), size = new Vector2(0.8f, 1.3f), lifetime = new Vector2(0.9f, 1.3f),
+                color = Color.white, color2 = TornadoPale
+            },
+            TornadoSmoke("Humo bajo", 18, 3f, 7f, new Vector2(0.9f, 1.3f), new Vector2(1f, 1.4f))
+        };
+
+        /// <summary>En cada rival que alcanza el empujón: humo y líneas en el lado del golpe.</summary>
+        private static SpiralParticleStyle[] TornadoPushHit() => new[]
+        {
+            TornadoSmoke("Humo del golpe", 8, 2f, 4f, new Vector2(0.5f, 0.8f), new Vector2(0.6f, 0.8f)),
+            TornadoLines("Líneas del golpe", 12, 5f, 8f)
+        };
+
+        /// <summary>Peonza lanzada por el Tornado, mientras vuela: estela de nubes (como la de Onda de choque).</summary>
+        private static SpecialParticleStyle TornadoLaunchedTrail() => new SpecialParticleStyle
+        {
+            name = "Estela de humo", sprite = "NubeComic", rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
+            height = new Vector2(0f, 0.15f), coneAngle = 70f, speed = new Vector2(0.3f, 0.8f), inheritVelocity = -0.1f,
+            size = new Vector2(0.35f, 0.6f), lifetime = new Vector2(0.4f, 0.6f), color = Color.white, color2 = TornadoPale,
+            alpha = 0.85f
+        };
+
+        /// <summary>Peonza lanzada por el Tornado que choca contra la pared: humo y líneas.</summary>
+        private static SpiralParticleStyle[] TornadoWallHit() => new[]
+        {
+            TornadoSmoke("Humo contra la pared", 14, 3f, 5f, new Vector2(0.5f, 0.9f), new Vector2(0.6f, 0.8f)),
+            TornadoLines("Líneas contra la pared", 14, 5f, 8f)
+        };
+
+        /// <summary>Líneas de velocidad (el punto estirado) que se enroscan hacia la peonza.</summary>
+        private static SpiralParticleStyle TornadoInwardLines(string name, float rate) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Linea", rate = rate, radius = new Vector2(2.5f, 3.5f), height = new Vector2(0.05f, 0.6f),
+            tangentialSpeed = new Vector2(3f, 5f), outwardSpeed = new Vector2(-10f, -8f), upSpeed = Vector2.zero,
+            size = new Vector2(0.06f, 0.09f), lifetime = new Vector2(0.22f, 0.3f), color = Color.white, color2 = TornadoPale
+        };
+
+        /// <summary>Humo que gira y se traga hacia la peonza (se encoge al llegar).</summary>
+        private static SpiralParticleStyle TornadoInwardSmoke(string name, float rate, Vector2 radius) => new SpiralParticleStyle
+        {
+            name = name, sprite = "HumoTraga", rate = rate, radius = radius, height = new Vector2(0f, 0.4f),
+            tangentialSpeed = new Vector2(3f, 5f), outwardSpeed = new Vector2(-6f, -4.5f), upSpeed = new Vector2(0f, 0.5f),
+            size = new Vector2(0.45f, 0.75f), lifetime = new Vector2(0.4f, 0.5f), color = Color.white, color2 = TornadoPale, alpha = 0.9f
+        };
+
+        /// <summary>Círculo de líneas de velocidad que salen rectas hacia fuera.</summary>
+        private static SpiralParticleStyle TornadoLines(string name, int count, float minSpeed, float maxSpeed) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Linea", count = count, radius = new Vector2(0.6f, 1f), height = new Vector2(0.05f, 0.5f),
+            tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = Vector2.zero,
+            size = new Vector2(0.07f, 0.1f), lifetime = new Vector2(0.25f, 0.35f), color = Color.white, color2 = TornadoPale
+        };
+
+        /// <summary>Círculo de humo que sale hacia fuera y se disuelve.</summary>
+        private static SpiralParticleStyle TornadoSmoke(string name, int count, float minSpeed, float maxSpeed, Vector2 size, Vector2 lifetime) =>
+            new SpiralParticleStyle
+            {
+                name = name, sprite = "HumoViento", count = count, radius = new Vector2(0.3f, 0.6f), height = new Vector2(0.3f, 0.6f),
+                tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(0.1f, 0.5f),
+                size = size, lifetime = lifetime, color = Color.white, color2 = TornadoPale
+            };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);
         private static readonly Color LightningOrange = new Color(1f, 0.5f, 0.05f);
@@ -943,6 +1144,219 @@ namespace FakeBlade.Core.Editor
             if (prefab != null) ConvertBuiltInParticles(AuraPackFolder);
             return prefab;
         }
+
+        /// <summary>Añade a una lista las partículas que no estén ya (por nombre): las que dejó el usuario no se tocan.</summary>
+        private static int AddMissing<T>(List<T> list, IEnumerable<T> styles, System.Func<T, string> name)
+        {
+            int added = 0;
+            foreach (T style in styles)
+            {
+                bool found = false;
+                foreach (T existing in list)
+                    if (existing != null && name(existing) == name(style)) found = true;
+                if (found) continue;
+                list.Add(style);
+                added++;
+            }
+            return added;
+        }
+
+        private static readonly Color FireOrange = new Color(1f, 0.45f, 0.1f);
+        private static readonly Color FireYellow = new Color(1f, 0.85f, 0.35f);
+
+        /// <summary>
+        /// Carga del Fuego más llamativa (2026-10-19, pedido por el usuario, como Tornado y Onda de choque): círculos naranjas y
+        /// amarillos que se cierran, llamas y líneas que se tragan hacia la peonza. Solo durante la carga.
+        /// </summary>
+        private static SpiralParticleStyle[] FireWindupInward() => WindupOnly(new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 5f, 0.03f, 0.4f, FireOrange, 0.9f, rate: 8f),
+            ShockCircle("Círculo que se cierra (alto)", "FP_CircleImpactCierra", 3f, 0.4f, 0.4f, FireYellow, 0.8f, rate: 6f),
+            new SpiralParticleStyle
+            {
+                name = "Llamas que se tragan", emitter = VfxType.ChargeFlame, rate = 120f, radius = new Vector2(2f, 2.8f),
+                height = new Vector2(0f, 0.3f), tangentialSpeed = new Vector2(2f, 4f), outwardSpeed = new Vector2(-8f, -6f),
+                upSpeed = new Vector2(0f, 0.5f), size = new Vector2(0.18f, 0.28f), lifetime = new Vector2(0.25f, 0.35f)
+            },
+            InwardLines("Líneas de velocidad (fuego)", 50f, FireYellow, FireOrange)
+        });
+
+        /// <summary>Al encenderse el Fuego: un círculo naranja que se abre, medias lunas y líneas que salen.</summary>
+        private static SpiralParticleStyle[] FireBurstOutward() => new[]
+        {
+            ShockCircle("Onda de fuego", "CircleImpact02Suelo", 5f, 0.03f, 0.4f, FireOrange, 0.9f),
+            ShockCircle("Medias lunas de fuego", "CircleImpact04Anillo", 4f, 0.15f, 0.4f, FireYellow, 0.8f, count: 2),
+            OutwardLines("Líneas que salen (fuego)", 30, FireYellow, FireOrange),
+            InwardSmokeBurst("Humo que se traga (fuego)", "HumoTraga", Color.white, FireYellow),
+            OutwardSmokeBurst("Humo despedido (fuego)", "HumoExplosion", Color.white, Color.white)
+        };
+
+        /// <summary>Carga del Hielo más llamativa (2026-10-19): círculos cian y blancos que se cierran, cristales y líneas que se tragan.</summary>
+        private static SpiralParticleStyle[] IceWindupInward() => WindupOnly(new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 5f, 0.03f, 0.4f, IceCyan, 0.9f, rate: 8f),
+            ShockCircle("Círculo que se cierra (alto)", "FP_CircleImpactCierra", 3f, 0.4f, 0.4f, Color.white, 0.8f, rate: 6f),
+            new SpiralParticleStyle
+            {
+                name = "Cristales que se tragan", emitter = VfxType.Sparkle, rate = 90f, radius = new Vector2(2f, 2.8f),
+                height = new Vector2(0f, 0.4f), tangentialSpeed = new Vector2(2f, 4f), outwardSpeed = new Vector2(-8f, -6f),
+                upSpeed = new Vector2(0f, 0.4f), size = new Vector2(0.14f, 0.22f), lifetime = new Vector2(0.25f, 0.35f),
+                color = IceCyan, color2 = Color.white
+            },
+            InwardLines("Líneas de velocidad (hielo)", 50f, Color.white, IceCyan)
+        });
+
+        /// <summary>Al encenderse el Hielo: un círculo cian que se abre, otro blanco más alto y líneas que salen.</summary>
+        private static SpiralParticleStyle[] IceBurstOutward() => new[]
+        {
+            ShockCircle("Onda de hielo", "CircleImpact02Suelo", 5f, 0.03f, 0.4f, IceCyan, 0.9f),
+            ShockCircle("Onda alta de hielo", "ShotValo2Suelo", 3.5f, 0.45f, 0.35f, Color.white, 0.8f),
+            OutwardLines("Líneas que salen (hielo)", 30, Color.white, IceCyan),
+            InwardSmokeBurst("Humo que se traga (hielo)", "HumoTraga", Color.white, IcePale),
+            OutwardSmokeBurst("Humo despedido (hielo)", "HumoViento", Color.white, IcePale)
+        };
+
+        private static SpiralParticleStyle[] WindupOnly(SpiralParticleStyle[] styles)
+        {
+            foreach (SpiralParticleStyle style in styles) style.windupOnly = true;
+            return styles;
+        }
+
+        /// <summary>Al encenderse: un anillo de humo que llega desde fuera y se traga hacia la peonza.</summary>
+        private static SpiralParticleStyle InwardSmokeBurst(string name, string sprite, Color color, Color color2) => new SpiralParticleStyle
+        {
+            name = name, sprite = sprite, count = 12, radius = new Vector2(2.2f, 2.8f), height = new Vector2(0.1f, 0.5f),
+            tangentialSpeed = new Vector2(2f, 3f), outwardSpeed = new Vector2(-6f, -5f), upSpeed = new Vector2(0f, 0.3f),
+            size = new Vector2(0.45f, 0.7f), lifetime = new Vector2(0.4f, 0.5f), color = color, color2 = color2, alpha = 0.9f
+        };
+
+        /// <summary>Al encenderse: humo que sale despedido, frena y se disuelve.</summary>
+        private static SpiralParticleStyle OutwardSmokeBurst(string name, string sprite, Color color, Color color2) => new SpiralParticleStyle
+        {
+            name = name, sprite = sprite, count = 14, radius = new Vector2(0.4f, 0.6f), height = new Vector2(0.3f, 0.6f),
+            tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(3f, 6f), upSpeed = new Vector2(0.2f, 0.6f),
+            size = new Vector2(0.6f, 1f), lifetime = new Vector2(0.8f, 1.1f), color = color, color2 = color2
+        };
+
+        /// <summary>Estela del Fuego en la golpeada (2026-10-19): llamas y chispas que se quedan atrás mientras sale despedida.</summary>
+        private static SpecialParticleStyle[] FireHitTrail() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Llamas de la golpeada", emitter = VfxType.ChargeFlame, rate = 70f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.05f, 0.3f), coneAngle = 60f, speed = new Vector2(0.5f, 1.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.15f, 0.25f), lifetime = new Vector2(0.25f, 0.4f), color = FireYellow, color2 = FireOrange
+            },
+            new SpecialParticleStyle
+            {
+                name = "Chispas de la golpeada", emitter = VfxType.LowSpinSpark, rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.1f, 0.3f), coneAngle = 70f, speed = new Vector2(1f, 2.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.3f, 0.5f), color = new Color(1f, 0.95f, 0.6f), color2 = FireOrange
+            }
+        };
+
+        /// <summary>Estela del Hielo en la golpeada (2026-10-19): esquirlas y vaho que se quedan atrás.</summary>
+        private static SpecialParticleStyle[] IceHitTrail() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Esquirlas de la golpeada", emitter = VfxType.Sparkle, rate = 50f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.05f, 0.35f), coneAngle = 70f, speed = new Vector2(0.5f, 1.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.12f, 0.2f), lifetime = new Vector2(0.25f, 0.4f), color = IceCyan, color2 = Color.white
+            },
+            new SpecialParticleStyle
+            {
+                name = "Vaho de la golpeada", sprite = "Vaho", rate = 15f, spawnRadius = new Vector2(0.1f, 0.3f),
+                height = new Vector2(0.05f, 0.2f), coneAngle = 70f, speed = new Vector2(0.2f, 0.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.5f, 0.8f), lifetime = new Vector2(0.5f, 0.8f), color = IcePale, color2 = Color.white, alpha = 0.5f
+            }
+        };
+
+        /// <summary>
+        /// Plantilla común (2026-10-19, pedida por el usuario) para los especiales sin entrada propia: carga con círculos,
+        /// líneas y humo hacia dentro; al encenderse, un círculo que se abre, líneas y humo hacia fuera y hacia dentro; estela
+        /// en la golpeada. Blanca, teñida con el color de cada poder (Power Tint), sin quitar su aura ni poner nada sobre la
+        /// peonza o en la punta. Solo la rellena si está vacía.
+        /// </summary>
+        private static string SetupGenericSpecial(VfxLibrary library)
+        {
+            SpecialVfxStyle g = library.genericSpecialEffects ??= new SpecialVfxStyle();
+            if (g.windup.Count > 0 || g.activationBurst.Count > 0 || g.hitTrail.Count > 0) return "plantilla común (ya está)";
+
+            g.replaceAura = false;
+            g.windupSustain = 0f;
+            g.tip.cups.Clear();
+            g.tip.particleSprite = "";
+            g.tip.ground = new TipGroundSprite();
+            g.overlay.enabled = false;
+            g.scorch.sprite = "";
+            g.windup.AddRange(GenericWindup());
+            g.activationBurst.AddRange(GenericBurst());
+            g.hitTrail.AddRange(GenericHitTrail());
+            g.hitTrailTime = 0.4f;
+            return "plantilla común (nueva)";
+        }
+
+        private static SpiralParticleStyle[] GenericWindup() => WindupOnly(new[]
+        {
+            PowerTint(ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 5f, 0.03f, 0.4f, Color.white, 0.9f, rate: 8f), 1f),
+            PowerTint(ShockCircle("Círculo que se cierra (alto)", "FP_CircleImpactCierra", 3f, 0.4f, 0.4f, Color.white, 0.8f, rate: 6f), 0.6f),
+            PowerTint(InwardLines("Líneas de velocidad", 50f, Color.white, Color.white), 0.5f),
+            PowerTint(new SpiralParticleStyle
+            {
+                name = "Humo que se traga", sprite = "HumoTraga", rate = 25f, radius = new Vector2(1.6f, 2.2f), height = new Vector2(0f, 0.4f),
+                tangentialSpeed = new Vector2(2f, 4f), outwardSpeed = new Vector2(-5f, -4f), upSpeed = new Vector2(0f, 0.4f),
+                size = new Vector2(0.4f, 0.65f), lifetime = new Vector2(0.4f, 0.5f), color = Color.white, color2 = Color.white, alpha = 0.85f
+            }, 0.3f)
+        });
+
+        private static SpiralParticleStyle[] GenericBurst() => new[]
+        {
+            PowerTint(ShockCircle("Onda", "CircleImpact02Suelo", 5f, 0.03f, 0.4f, Color.white, 0.9f), 1f),
+            PowerTint(OutwardLines("Líneas que salen", 30, Color.white, Color.white), 0.5f),
+            PowerTint(InwardSmokeBurst("Humo que se traga", "HumoTraga", Color.white, Color.white), 0.3f),
+            PowerTint(OutwardSmokeBurst("Humo despedido", "HumoViento", Color.white, Color.white), 0.3f)
+        };
+
+        private static SpecialParticleStyle[] GenericHitTrail() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Humo de la golpeada", sprite = "NubeComic", rate = 25f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0f, 0.2f), coneAngle = 70f, speed = new Vector2(0.3f, 0.8f), inheritVelocity = -0.1f,
+                size = new Vector2(0.3f, 0.5f), lifetime = new Vector2(0.35f, 0.5f), color = Color.white, color2 = Color.white,
+                alpha = 0.85f, powerTint = 0.4f
+            },
+            new SpecialParticleStyle
+            {
+                name = "Chispas de la golpeada", sprite = "Chispa", rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.05f, 0.3f), coneAngle = 70f, speed = new Vector2(1f, 2.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = Color.white,
+                powerTint = 1f
+            }
+        };
+
+        private static SpiralParticleStyle PowerTint(SpiralParticleStyle style, float tint)
+        {
+            style.powerTint = tint;
+            return style;
+        }
+
+        /// <summary>Líneas de velocidad (el punto estirado) que se tragan girando hacia la peonza.</summary>
+        private static SpiralParticleStyle InwardLines(string name, float rate, Color color, Color color2) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Linea", rate = rate, radius = new Vector2(1.3f, 1.8f), height = new Vector2(0.05f, 0.6f),
+            tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(-5f, -4f), upSpeed = Vector2.zero,
+            size = new Vector2(0.06f, 0.09f), lifetime = new Vector2(0.25f, 0.32f), color = color, color2 = color2
+        };
+
+        /// <summary>Círculo de líneas de velocidad que salen rectas hacia fuera.</summary>
+        private static SpiralParticleStyle OutwardLines(string name, int count, Color color, Color color2) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Linea", count = count, radius = new Vector2(0.4f, 0.7f), height = new Vector2(0.05f, 0.5f),
+            tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(6f, 9f), upSpeed = Vector2.zero,
+            size = new Vector2(0.07f, 0.1f), lifetime = new Vector2(0.18f, 0.26f), color = color, color2 = color2
+        };
 
         /// <summary>
         /// Al activar el Fuego: remolino de llamas y chispas que gira y se traga hacia dentro durante la carga, y explosión

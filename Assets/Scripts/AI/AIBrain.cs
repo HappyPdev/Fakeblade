@@ -149,7 +149,7 @@ namespace FakeBlade.Core
         protected bool FullStyle => Level.fullProfile;
 
         /// <summary>Atacando, cargando, preparando un parry, aturdida o con su poder bloqueando las acciones: no empieza otra acción.</summary>
-        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered || Blade.Special.BlocksActions;
+        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered || Blade.Special.BlocksActions || Blade.IsTrapped;
 
         /// <summary>Sentido en que rodea al rival (1 o -1).</summary>
         protected float OrbitSign => _orbitSign;
@@ -416,7 +416,7 @@ namespace FakeBlade.Core
         protected virtual void OnIncomingAttack()
         {
             // Su poder no le deja atacar ni hacer dash (Salto, Embestida): no hay nada que hacer
-            if (Blade.Special.BlocksActions) return;
+            if (Blade.Special.BlocksActions || Blade.IsTrapped) return;
 
             // Cargando: suelta lo que lleve para chocar atacando
             if (_attackHeld)

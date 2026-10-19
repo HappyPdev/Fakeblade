@@ -418,10 +418,13 @@ namespace FakeBlade.Core
         [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
                  "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]
         public ElectricArcStyle arcs = new ElectricArcStyle();
-        [Header("Cúpula de la carga (Onda de choque)")]
+        [Header("Cúpula de la carga (Onda de choque; Tornado: embudo y cúpula mientras atrae)")]
         [Tooltip("Media esfera que crece sobre la peonza durante cada carga y revienta al acabarla. Sin material = no sale")]
         public ChargeDomeStyle dome = new ChargeDomeStyle();
-        [Header("Empujón a los rivales (Onda de choque)")]
+        [Header("Empujón a los rivales (Onda de choque, Tornado)")]
+        [Tooltip("Al soltar el empujón (Tornado; sustituye a las estrellas comunes): explosión en espiral alrededor de la peonza. " +
+                 "Usa Count, no Rate")]
+        public List<SpiralParticleStyle> release = new List<SpiralParticleStyle>();
         [Tooltip("En cada rival que alcanza el empujón del poder (cada onda): un círculo de partículas en el lado del golpe. " +
                  "Usa Count, no Rate")]
         public List<SpiralParticleStyle> pushHit = new List<SpiralParticleStyle>();
@@ -431,6 +434,12 @@ namespace FakeBlade.Core
         [Tooltip("Cuando una peonza que este poder ha dejado lanzada choca contra la pared: un círculo de partículas en el " +
                  "punto del choque. Usa Count, no Rate")]
         public List<SpiralParticleStyle> launchedWallHit = new List<SpiralParticleStyle>();
+        [Header("Estela en la golpeada (2026-10-19)")]
+        [Tooltip("En cada choque con daño mientras dura el poder, la peonza golpeada deja este rastro mientras sale despedida " +
+                 "(llamas en el Fuego, esquirlas y vaho en el Hielo)")]
+        public List<SpecialParticleStyle> hitTrail = new List<SpecialParticleStyle>();
+        [Tooltip("Segundos que deja la estela tras cada golpe")]
+        [Min(0f)] public float hitTrailTime = 0.4f;
     }
 
     /// <summary>
@@ -506,6 +515,25 @@ namespace FakeBlade.Core
         [Min(1f)] public float popScale = 1.7f;
         [Tooltip("Destello blanco al reventar (0-1)")]
         [Range(0f, 1f)] public float popFlash = 0.8f;
+
+        [Header("Embudo y picos de arriba (Tornado)")]
+        [Tooltip("Radio al empezar, en partes del final (0 = crece desde nada, como en Onda de choque)")]
+        [Range(0f, 1f)] public float startRadius;
+        [Tooltip("Parte del principio en la que es un embudo que sube desde el suelo (0 = sin embudo: cúpula desde el principio)")]
+        [Range(0f, 1f)] public float funnelPhase;
+        [Tooltip("Parte que tarda después en pasar de embudo a cúpula")]
+        [Range(0.01f, 1f)] public float funnelMorph = 0.2f;
+        [Tooltip("Forma del embudo: radio abajo (x) y arriba (y), en partes del radio, y alto (z), en partes del alto de la cúpula")]
+        public Vector3 funnelShape = new Vector3(0.25f, 1f, 2.5f);
+        [Tooltip("Parte de arriba cortada en picos (0 = cerrada; 0,2 = aro de picos abierto arriba)")]
+        [Range(0f, 0.6f)] public float topCut;
+        [Tooltip("Picos del corte de arriba")]
+        [Min(1)] public int topSpikes = 10;
+        [Tooltip("Vueltas por segundo de los picos (giran con el viento)")]
+        public float topSpikesSpeed = 0.5f;
+        [Tooltip("Interior: transparencia de las caras de dentro, que se ven por el corte de arriba (0 = no se pintan, como en " +
+                 "Onda de choque)")]
+        [Range(0f, 1f)] public float insideAlpha;
     }
 
     /// <summary>
@@ -677,6 +705,12 @@ namespace FakeBlade.Core
         public VfxType emitter = VfxType.ChargeFlame;
         [Tooltip("Sprite animado de la lista Impact Sprites en vez del emisor (vacío = el emisor)")]
         public string sprite;
+        [Tooltip("Varios sprites de la lista Impact Sprites: cada partícula sale con uno al azar (vacío = Sprite). Con el tamaño y " +
+                 "el giro al azar, cada vez parece distinta (Grieta00-03 en Onda de choque; para el Salto al caer)")]
+        public List<string> spriteVariants = new List<string>();
+        [Tooltip("Giro del sprite al salir (grados), al azar entre x e y (0-360 = cualquiera; p. ej. 60-90 para que las grietas " +
+                 "salgan parecidas pero no iguales)")]
+        public Vector2 rotation = new Vector2(0f, 360f);
         [Tooltip("Remolino: partículas por segundo mientras dura la carga")]
         [Min(0f)] public float rate = 100f;
         [Tooltip("Explosión al encenderse o choque: partículas de golpe (repartidas alrededor)")]
@@ -702,6 +736,12 @@ namespace FakeBlade.Core
         public Color color2 = new Color(1f, 0.35f, 0.05f);
         [Tooltip("Transparencia")]
         [Range(0f, 1f)] public float alpha = 1f;
+        [Tooltip("Solo en la carga (remolino): no sigue con el ritmo que queda mientras dura el poder, y la primera sale nada " +
+                 "más empezar la carga (los círculos que se cierran del Fuego y el Hielo)")]
+        public bool windupOnly;
+        [Tooltip("Cuánto toma el color del poder (0 = sus colores; 1 = multiplicados por el color del poder). La plantilla común " +
+                 "de los especiales lo usa para teñirse con el de cada uno")]
+        [Range(0f, 1f)] public float powerTint;
     }
 
     /// <summary>
@@ -719,6 +759,8 @@ namespace FakeBlade.Core
         public VfxType emitter = VfxType.LowSpinSpark;
         [Tooltip("Sprite de la lista Impact Sprites en vez del emisor (vacío = el emisor; Vaho: nube del Hielo)")]
         public string sprite;
+        [Tooltip("Giro del sprite al salir (grados), al azar entre x e y (0-360 = cualquiera)")]
+        public Vector2 rotation = new Vector2(0f, 360f);
         [Tooltip("Partículas por segundo, seguidas")]
         [Min(0f)] public float rate = 10f;
         [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
@@ -744,6 +786,8 @@ namespace FakeBlade.Core
         public Color color2 = new Color(1f, 0.4f, 0.05f);
         [Tooltip("Transparencia")]
         [Range(0f, 1f)] public float alpha = 1f;
+        [Tooltip("Cuánto toma el color del poder (0 = sus colores; 1 = multiplicados por el color del poder)")]
+        [Range(0f, 1f)] public float powerTint;
     }
 
     /// <summary>
@@ -1058,6 +1102,13 @@ namespace FakeBlade.Core
 
         [Header("Efectos de cada especial mientras está activo (K8/K9)")]
         public List<SpecialVfxStyle> specialEffects = new List<SpecialVfxStyle>();
+        [Tooltip("Plantilla común (2026-10-19): la base de efectos que se copia al empezar los de cada especial nuevo (carga con círculos, " +
+                 "líneas y humo hacia dentro, encendido con círculos, líneas y humo hacia fuera y estela en la golpeada, teñidos " +
+                 "con el color de cada poder (Power Tint). Su tipo no cuenta. Sin quitar las auras de antes (Replace Aura apagado)")]
+        public SpecialVfxStyle genericSpecialEffects;
+        [Tooltip("Los especiales sin entrada propia usan la plantilla común en juego. Apagado (2026-10-19): la plantilla es la base que se " +
+                 "copia al empezar los efectos de cada especial nuevo, y los que aún no tienen siguen con su aura")]
+        public bool useGenericSpecialEffects;
         [Tooltip("Peonza quemada: aro de fuego en el suelo, borde naranja, humo, chispas y ceniza y auras")]
         public StatusVfxStyle burn = new StatusVfxStyle();
         [Tooltip("Peonza congelada: aro de hielo en el suelo, escarcha quieta sobre la peonza, vaho, cristales y disco más lento")]
@@ -1067,7 +1118,13 @@ namespace FakeBlade.Core
         [Tooltip("Aviso de usos de los poderes con varios usos (Onda de choque): marcas que giran alrededor de la peonza")]
         public UsesIndicatorStyle usesIndicator = new UsesIndicatorStyle();
 
-        /// <summary>Efectos del especial, o null si no tiene (sigue con su aura de partículas).</summary>
+        /// <summary>
+        /// Efectos en juego del especial: los suyos o, si no tiene, la plantilla común (si está encendida); null si ninguno.
+        /// </summary>
+        public SpecialVfxStyle GetSpecialEffectsOrGeneric(SpecialAbilityType type) =>
+            GetSpecialEffects(type) ?? (useGenericSpecialEffects ? genericSpecialEffects : null);
+
+        /// <summary>Entrada propia del especial, o null si no tiene (para los setups; en juego, GetSpecialEffectsOrGeneric).</summary>
         public SpecialVfxStyle GetSpecialEffects(SpecialAbilityType type)
         {
             for (int i = 0; i < specialEffects.Count; i++)

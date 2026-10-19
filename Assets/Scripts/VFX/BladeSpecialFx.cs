@@ -68,6 +68,15 @@ namespace FakeBlade.Core
         private float _scorchIdle;
         private Vector3 _lastPosition;
         private bool _hasLastPosition;
+        // Estela en la golpeada: el estilo y el color del poder de quien la golpeó, y lo que le queda
+        private SpecialVfxStyle _hitTrailStyle;
+        private Color _hitTrailPower;
+        private float _hitTrailLeft;
+        private readonly float[] _hitAcc = new float[MaxStyles];
+        private readonly float[] _hitBurst = new float[MaxStyles];
+
+        /// <summary>Color del poder de lo que se emite ahora (Power Tint de cada partícula); se fija antes de cada tanda.</summary>
+        private static Color s_power = Color.white;
 
         public BladeSpecialFx(FakeBladeController blade)
         {
@@ -92,11 +101,14 @@ namespace FakeBlade.Core
             var tip = new Vector3(pos.x, pos.y + tipOffset, pos.z);
             bool visible = lib != null && VfxSystem.IsOnScreen(tip);
 
+            // Color del poder para las partículas con Power Tint (la plantilla común se tiñe con él)
+            s_power = _blade.Special != null ? _blade.Special.Color : Color.white;
             bool active = specialActive && special != null;
             bool effectsOn = active && !windingUp;
             // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
             float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
-            EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt);
+            // Las de solo la carga (windupOnly): la primera nada más empezar cada carga y ninguna después
+            EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt, !windingUp, windingUp && !_wasWindingUp);
             // Explosión al encenderse; también al acabar una carga que gasta el poder (la última onda de Onda de choque, que
             // lo termina en ese momento: los efectos no llegan a encenderse)
             bool released = effectsOn && !_effectsWereOn;
@@ -109,6 +121,7 @@ namespace FakeBlade.Core
             UpdateScorch(effectsOn ? special.scorch : null, tip, dt);
             UpdateAuras(special != null ? special.auras : null, _specialAuras, effectsOn, tipOffset, dt);
 
+            s_power = Color.white;
             StatusVfxStyle status = StatusStyle(_blade);
             Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt);
             EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt);
@@ -117,7 +130,16 @@ namespace FakeBlade.Core
             UpdateAuras(lib != null ? lib.launched?.auras : null, _launchedAuras, status != null && status == lib.launched, tipOffset, dt);
             // Lanzada por un poder con su propia estela (Onda de choque: polvo mientras vuela)
             SpecialVfxStyle thrower = status != null && status == lib.launched ? ThrowerEffects(_blade) : null;
+            if (thrower != null) s_power = _blade.Status.Source.Special.Color;
             Emit(thrower != null && visible ? thrower.launchedTrail : null, _launchAcc, _launchBurst, tip, dt);
+            // Estela en la golpeada (2026-10-19): el rastro del poder de quien la golpeó, un momento tras cada golpe
+            bool hitTrail = _hitTrailLeft > 0f && _hitTrailStyle != null && !_blade.IsDestroyed;
+            if (hitTrail)
+            {
+                _hitTrailLeft -= dt;
+                s_power = _hitTrailPower;
+            }
+            Emit(hitTrail && visible ? _hitTrailStyle.hitTrail : null, _hitAcc, _hitBurst, tip, dt);
         }
 
         /// <summary>Efectos del especial de quien dejó lanzada a esta peonza (o null).</summary>
@@ -125,7 +147,7 @@ namespace FakeBlade.Core
         {
             FakeBladeController source = blade.Status.Source;
             VfxLibrary lib = VfxSystem.Library;
-            return source == null || source.Special == null || lib == null ? null : lib.GetSpecialEffects(source.Special.Type);
+            return source == null || source.Special == null || lib == null ? null : lib.GetSpecialEffectsOrGeneric(source.Special.Type);
         }
 
         /// <summary>
@@ -272,7 +294,8 @@ namespace FakeBlade.Core
         /// Remolino: cada estilo a su ritmo, por rateScale (1 en la carga; menos mientras dura el poder). acc: acumulado
         /// del ritmo de cada estilo (uno por remolino: especial y quemadura).
         /// </summary>
-        private static void EmitSpirals(List<SpiralParticleStyle> styles, float[] acc, float rateScale, Vector3 tip, float dt)
+        private static void EmitSpirals(List<SpiralParticleStyle> styles, float[] acc, float rateScale, Vector3 tip, float dt,
+            bool sustained = false, bool windupStarted = false)
         {
             int count = styles != null ? Mathf.Min(styles.Count, MaxStyles) : 0;
             float mul = SettingsService.ParticleMultiplier * rateScale;
@@ -284,6 +307,13 @@ namespace FakeBlade.Core
                     acc[i] = 0f;
                     continue;
                 }
+                // Solo en la carga: fuera de ella no sale; al empezarla, la primera sale ya
+                if (style.windupOnly && sustained)
+                {
+                    acc[i] = 0f;
+                    continue;
+                }
+                if (style.windupOnly && windupStarted) acc[i] = Mathf.Max(acc[i], 1f);
                 acc[i] += dt * style.rate * mul;
                 int n = Mathf.Min((int)acc[i], MaxParticlesPerFrame);
                 acc[i] -= (int)acc[i];
@@ -305,8 +335,10 @@ namespace FakeBlade.Core
         {
             VfxLibrary lib = VfxSystem.Library;
             if (lib == null || blade == null || blade.Special == null || !VfxSystem.IsOnScreen(groundPoint)) return;
-            SpecialVfxStyle style = lib.GetSpecialEffects(blade.Special.Type);
-            if (style != null) Burst(style.strongImpact, groundPoint);
+            SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(blade.Special.Type);
+            if (style == null) return;
+            s_power = blade.Special.Color;
+            Burst(style.strongImpact, groundPoint);
         }
 
         /// <summary>
@@ -317,10 +349,27 @@ namespace FakeBlade.Core
         {
             VfxLibrary lib = VfxSystem.Library;
             if (lib == null || owner == null || target == null || owner.Special == null) return;
-            SpecialVfxStyle style = lib.GetSpecialEffects(owner.Special.Type);
+            SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(owner.Special.Type);
             if (style == null || style.pushHit == null || style.pushHit.Count == 0) return;
             Vector3 point = target.Position - direction * 0.45f;
+            s_power = owner.Special.Color;
             if (VfxSystem.IsOnScreen(point)) Burst(style.pushHit, point);
+        }
+
+        /// <summary>
+        /// Suelta el empujón de un poder (Tornado, 2026-10-18): su explosión release alrededor de la peonza, a la altura de la
+        /// punta. Devuelve false si el poder no tiene (el llamador pone entonces el efecto común).
+        /// </summary>
+        public static bool PlayRelease(FakeBladeController owner)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || owner == null || owner.Special == null) return false;
+            SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(owner.Special.Type);
+            if (style == null || style.release == null || style.release.Count == 0) return false;
+            Vector3 tip = owner.TipPosition;
+            s_power = owner.Special.Color;
+            if (VfxSystem.IsOnScreen(tip)) Burst(style.release, tip);
+            return true;
         }
 
         /// <summary>
@@ -331,7 +380,9 @@ namespace FakeBlade.Core
         {
             if (blade == null || !VfxSystem.IsOnScreen(point)) return;
             SpecialVfxStyle style = ThrowerEffects(blade);
-            if (style != null) Burst(style.launchedWallHit, point);
+            if (style == null) return;
+            s_power = blade.Status.Source != null && blade.Status.Source.Special != null ? blade.Status.Source.Special.Color : Color.white;
+            Burst(style.launchedWallHit, point);
         }
 
         public static void PlayClashImpact(FakeBladeController blade, Vector3 groundPoint)
@@ -341,15 +392,48 @@ namespace FakeBlade.Core
             SpecialAbilitySystem special = blade.Special;
             if (special != null && special.IsActive && !special.IsWindingUp)
             {
-                SpecialVfxStyle style = lib.GetSpecialEffects(special.Type);
+                SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(special.Type);
                 if (style != null && style.impact != null && style.impact.Count > 0)
                 {
+                    s_power = special.Color;
                     Burst(style.impact, groundPoint);
                     return;
                 }
             }
             StatusVfxStyle status = StatusStyle(blade);
+            s_power = Color.white;
             if (status != null) Burst(status.impact, groundPoint);
+        }
+
+        /// <summary>
+        /// Choque con daño (2026-10-19): si quien golpea tiene encendido un especial con estela (hitTrail), la golpeada deja
+        /// ese rastro un momento mientras sale despedida. damage: lo que le ha quitado a la golpeada.
+        /// </summary>
+        public static void PlayHitTrail(FakeBladeController attacker, FakeBladeController target, float damage)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || attacker == null || target == null || damage <= 0f || target.IsDestroyed) return;
+            SpecialAbilitySystem special = attacker.Special;
+            if (special == null || !special.IsActive || special.IsWindingUp) return;
+            SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(special.Type);
+            if (style == null || style.hitTrail == null || style.hitTrail.Count == 0 || style.hitTrailTime <= 0f) return;
+            target.StartSpecialHitTrail(style, special.Color);
+        }
+
+        /// <summary>Empieza (o renueva) la estela de un golpe en esta peonza, con los efectos del poder de quien la golpeó.</summary>
+        public void StartHitTrail(SpecialVfxStyle style, Color power)
+        {
+            _hitTrailStyle = style;
+            _hitTrailPower = power;
+            _hitTrailLeft = style.hitTrailTime;
+        }
+
+        /// <summary>Color de una partícula con su Power Tint: hacia el color del poder que se está emitiendo (s_power).</summary>
+        private static Color Tinted(Color color, float tint)
+        {
+            if (tint <= 0f) return color;
+            Color power = Color.Lerp(Color.white, s_power, tint);
+            return new Color(color.r * power.r, color.g * power.g, color.b * power.b, color.a);
         }
 
         /// <summary>Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor.</summary>
@@ -378,12 +462,15 @@ namespace FakeBlade.Core
             Vector3 velocity = tangent * Random.Range(style.tangentialSpeed.x, style.tangentialSpeed.y) +
                                outward * Random.Range(style.outwardSpeed.x, style.outwardSpeed.y) +
                                Vector3.up * Random.Range(style.upSpeed.x, style.upSpeed.y);
-            Color color = Color.Lerp(style.color, style.color2, Random.value);
+            Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
             color.a = style.alpha;
             float size = Random.Range(style.size.x, style.size.y);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
-            if (!string.IsNullOrEmpty(style.sprite))
-                VfxSystem.EmitSprite(style.sprite, position, velocity, color, size, Random.value * 360f, lifetime);
+            // Varios sprites: uno al azar en cada partícula (grietas distintas en cada golpe)
+            List<string> variants = style.spriteVariants;
+            string sprite = variants != null && variants.Count > 0 ? variants[Random.Range(0, variants.Count)] : style.sprite;
+            if (!string.IsNullOrEmpty(sprite))
+                VfxSystem.EmitSprite(sprite, position, velocity, color, size, Random.Range(style.rotation.x, style.rotation.y), lifetime);
             else
                 VfxSystem.EmitParticle(style.emitter, position, velocity, color, size, lifetime);
         }
@@ -431,13 +518,13 @@ namespace FakeBlade.Core
                                Vector3.up * Random.Range(style.height.x, style.height.y);
             Vector3 velocity = _blade.Velocity;
             Vector3 inherited = new Vector3(velocity.x, 0f, velocity.z) * style.inheritVelocity;
-            Color color = Color.Lerp(style.color, style.color2, Random.value);
+            Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
             color.a = style.alpha;
             Vector3 v = direction * Random.Range(style.speed.x, style.speed.y) + inherited;
             float size = Random.Range(style.size.x, style.size.y);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
             if (!string.IsNullOrEmpty(style.sprite))
-                VfxSystem.EmitSprite(style.sprite, position, v, color, size, Random.value * 360f, lifetime);
+                VfxSystem.EmitSprite(style.sprite, position, v, color, size, Random.Range(style.rotation.x, style.rotation.y), lifetime);
             else
                 VfxSystem.EmitParticle(style.emitter, position, v, color, size, lifetime);
         }

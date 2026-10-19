@@ -127,6 +127,8 @@ namespace FakeBlade.Core
         private float _staggerEndTime = float.NegativeInfinity;
         /// <summary>Tras un empuje fuerte o una lanzada: hasta aquí el stick no mueve la peonza; después vuelve poco a poco.</summary>
         private float _controlLossEnd = float.NegativeInfinity;
+        // Atrapada por un Tornado mientras atrae: no puede atacar, cargar ni hacer dash (lo renueva el Tornado cada frame)
+        private float _trappedEnd = float.NegativeInfinity;
         private float _controlRecoverEnd = float.NegativeInfinity;
         /// <summary>RPM gastadas en el dash en curso (se devuelve una fracción si gana un choque).</summary>
         private float _dashRefundableCost;
@@ -194,6 +196,11 @@ namespace FakeBlade.Core
         public bool IsInvulnerable => _invulnerableTimer > 0f;
         public bool IsDashAttacking => Time.time < _dashAttackEndTime;
         public bool IsStaggered => Time.time < _staggerEndTime;
+        /// <summary>Atrapada por un Tornado que atrae (2026-10-19): no puede atacar, cargar ni hacer dash.</summary>
+        public bool IsTrapped => Time.time < _trappedEnd;
+
+        /// <summary>La atrapa un Tornado estos segundos (los renueva mientras sigue atrayéndola).</summary>
+        public void Trap(float seconds) => _trappedEnd = Mathf.Max(_trappedEnd, Time.time + seconds);
 
         /// <summary>Ventana de parry de esta peonza: base de CombatConfig + lo que sumen/resten las piezas.</summary>
         public float ParryWindow =>
@@ -277,6 +284,19 @@ namespace FakeBlade.Core
         }
 
         public Vector3 Position => _transform.position;
+        /// <summary>Estela de un golpe de un especial (VFX, 2026-10-19): la deja esta peonza al salir despedida.</summary>
+        public void StartSpecialHitTrail(SpecialVfxStyle style, Color power) => _specialFx?.StartHitTrail(style, power);
+
+        /// <summary>Punta a ras de suelo (de donde salen los efectos de los especiales).</summary>
+        public Vector3 TipPosition
+        {
+            get
+            {
+                Vector3 p = _transform.position;
+                if (_particles != null) p.y += _particles.TipOffset;
+                return p;
+            }
+        }
         /// <summary>Última dirección horizontal hacia la que se movió o atacó.</summary>
         public Vector3 Facing => _lastFacing;
         public Vector3 Velocity => _rb != null ? _rb.linearVelocity : Vector3.zero;
@@ -821,9 +841,9 @@ namespace FakeBlade.Core
             UpdateStatus(dt);
             if (_isDestroyed) return;
 
-            // Un poder que bloquea las acciones (Salto): al empezar y al acabar se corta la carga y el botón
+            // Un poder que bloquea las acciones (Salto) o atrapada por un Tornado: al empezar y al acabar se corta la carga y el botón
             // no cuenta hasta soltarlo, para que no se escape un ataque al cambiar
-            bool blocked = _special.BlocksActions;
+            bool blocked = _special.BlocksActions || IsTrapped;
             if (blocked != _actionsBlocked)
             {
                 _actionsBlocked = blocked;
@@ -877,7 +897,7 @@ namespace FakeBlade.Core
 
         private bool TryDash()
         {
-            if (!CanDash || IsStaggered || _special.BlocksActions) return false;
+            if (!CanDash || IsStaggered || _special.BlocksActions || IsTrapped) return false;
 
             var cfg = CombatConfig.Active;
             float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier * Trait(PartTraitType.DashCost);
@@ -915,7 +935,7 @@ namespace FakeBlade.Core
             // Explosión de estrellas común; no en los especiales con su propia explosión al encenderse (Fuego, Hielo, Rayos: las
             // estrellas de cuatro puntas no gustan, 2026-10-18)
             VfxLibrary lib = VfxSystem.Library;
-            SpecialVfxStyle effects = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
+            SpecialVfxStyle effects = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
             if (effects == null || effects.activationBurst == null || effects.activationBurst.Count == 0)
                 VfxSystem.Play(VfxType.SpecialBurst, _transform.position, Vector3.up, _special.Color, _special.Data.activationBurst);
 
@@ -1519,7 +1539,7 @@ namespace FakeBlade.Core
                 _burstRibbon?.Tick(dt, _particles.TipOffset);
                 VfxLibrary lib = VfxSystem.Library;
                 _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
-                SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
+                SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
                 _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
@@ -1527,8 +1547,9 @@ namespace FakeBlade.Core
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
                 _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed,
                     _special.IsActive && _special.IsWindingUp && !_isDestroyed);
-                _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, _special.IsActive && _special.IsWindingUp && !_isDestroyed,
-                    _special.WindupProgress);
+                // Cúpula: mientras carga (Onda de choque) o mientras atrae (Tornado: embudo y cúpula)
+                float domeCharge = _special.ChargeVisualProgress;
+                _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, domeCharge >= 0f && !_isDestroyed, domeCharge);
                 _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,
                     _special.Color);
             }
@@ -1572,6 +1593,7 @@ namespace FakeBlade.Core
             _staggerEndTime = float.NegativeInfinity;
             _dashRefundableCost = 0f;
             _controlLossEnd = float.NegativeInfinity;
+            _trappedEnd = float.NegativeInfinity;
             _controlRecoverEnd = float.NegativeInfinity;
             _leapUntil = float.NegativeInfinity;
             _leapGravityScale = 1f;

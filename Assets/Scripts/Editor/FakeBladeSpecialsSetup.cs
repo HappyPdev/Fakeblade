@@ -24,9 +24,9 @@ namespace FakeBlade.Core.Editor
             Create<SpinBoostData>("SpinBoost", "SPIN BOOST", "SPIN BOOST",
                 new Color(0.3f, 1f, 0.6f), energy: 1f, burst: 1f, log);
             Create<ShockWaveData>("ShockWave", "ONDA DE CHOQUE", "SHOCKWAVE",
-                new Color(1f, 0.55f, 0.15f), energy: 1f, burst: 2.5f, log);
+                new Color(1f, 0.55f, 0.15f), energy: 1f, burst: 2.5f, log, windup: 0.5f);
             Create<DefenseData>("Defense", "DEFENSA", "DEFENSE",
-                new Color(0.45f, 0.55f, 1f), energy: 1.2f, burst: 1f, log);
+                new Color(0.45f, 0.55f, 1f), energy: 1.2f, burst: 1f, log, windup: 0.1f);
             Create<LightningData>("Lightning", "RAYOS", "LIGHTNING",
                 new Color(1f, 0.95f, 0.25f), energy: 0.8f, burst: 1f, log, duration: 6f);
             Create<FireData>("Fire", "FUEGO", "FIRE",
@@ -40,7 +40,7 @@ namespace FakeBlade.Core.Editor
                 new Color(1f, 0.45f, 0.75f), energy: 1f, burst: 1.5f, log);
             // Escudo: fase activa corta; los escudos se quedan hasta romperse (duración indefinida)
             Create<ShieldsData>("Shields", "ESCUDO", "SHIELD",
-                new Color(1f, 0.78f, 0.2f), energy: 0.6f, burst: 1.5f, log, duration: 0.5f);
+                new Color(1f, 0.78f, 0.2f), energy: 0.6f, burst: 1.5f, log, duration: 0.5f, windup: 0.1f);
             // Tornado: atrae 1,5 s (pullDuration) y empuja; la duración del asset, algo mayor para que el empujón llegue antes
             Create<TornadoData>("Tornado", "TORNADO", "TORNADO",
                 new Color(0.55f, 0.9f, 0.85f), energy: 1f, burst: 1.5f, log, duration: 1.8f);
@@ -80,7 +80,7 @@ namespace FakeBlade.Core.Editor
         }
 
         private static void Create<T>(string fileName, string nameEs, string nameEn, Color color,
-            float energy, float burst, StringBuilder log, float duration = 5f) where T : SpecialAbilityData
+            float energy, float burst, StringBuilder log, float duration = 5f, float windup = 0.3f) where T : SpecialAbilityData
         {
             string path = $"{Folder}/{fileName}.asset";
             if (AssetDatabase.LoadAssetAtPath<T>(path) != null)
@@ -96,6 +96,8 @@ namespace FakeBlade.Core.Editor
             data.energyRequired = energy;
             data.duration = duration;
             data.activationBurst = burst;
+            // Carga al activarlo (L9): 0,3 s; muy corta (0,1) en Defensa y Escudo; Onda de choque, 0,5 s antes de cada onda
+            data.windupTime = windup;
             AssetDatabase.CreateAsset(data, path);
             log.Append(fileName).Append(" (creado) ");
         }

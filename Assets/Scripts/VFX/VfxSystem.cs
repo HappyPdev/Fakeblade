@@ -130,6 +130,9 @@ namespace FakeBlade.Core
                     // Fuego activo o peonza quemada (K8): su círculo de partículas, además del impacto genérico
                     BladeSpecialFx.PlayClashImpact(r.A, point);
                     BladeSpecialFx.PlayClashImpact(r.B, point);
+                    // Estela en la golpeada: el rastro del poder de quien la golpea (Fuego, Hielo, plantilla común)
+                    BladeSpecialFx.PlayHitTrail(r.A, r.B, r.DamageToB);
+                    BladeSpecialFx.PlayHitTrail(r.B, r.A, r.DamageToA);
                     break;
                 }
             }

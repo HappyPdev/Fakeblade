@@ -56,6 +56,10 @@ namespace FakeBlade.Core.Editor
             public string Dissolve;
             /// <summary>Degradado del humo de una explosión (blanco, amarillo, naranja y gris), como CFXR Explosion 1.</summary>
             public bool ExplosionColors;
+            /// <summary>Degradado del humo sin fuego (blanco que pasa a gris): el del Tornado.</summary>
+            public bool SmokeColors;
+            /// <summary>Dibujada por el usuario en la carpeta de impactos (Grieta00-03): se usa tal cual, importada como pixel art.</summary>
+            public string UserDrawn;
             /// <summary>Cada partícula, un dibujo de la hoja al azar, sin animar.</summary>
             public bool RandomFrame;
             public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut, GrowIn, Stretch;
@@ -119,6 +123,16 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "HumoExplosion", Generated = "HumoComic", Dissolve = "HumoComicDisuelve", ExplosionColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 1.1f, Order = 1, DepthTested = true, GrowIn = 0.4f, Drag = 0.08f, Spin = 30f, Max = 512 },
             new DefaultSprite { Id = "NubeComicTraga", Generated = "NubeComic", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = 1, DepthTested = true, FadeIn = 0.3f, ShrinkOut = 0.6f, Spin = 90f, Max = 256 },
             new DefaultSprite { Id = "Grietas", Generated = "Grietas", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            // Grietas dibujadas por el usuario (2026-10-19; Grieta, GrietaInicio y GrietaCircular + número): una al azar en cada
+            // onda, con tamaño y giro al azar (Sprite Variants), para que cada golpe deje una distinta; también para el Salto al caer
+            new DefaultSprite { Id = "Grieta00", UserDrawn = "Grieta00", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "Grieta01", UserDrawn = "Grieta01", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "Grieta02", UserDrawn = "Grieta02", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "Grieta03", UserDrawn = "Grieta03", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "GrietaInicio00", UserDrawn = "GrietaInicio00", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "GrietaCircular01", UserDrawn = "GrietaCircular01", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "GrietaCircular02", UserDrawn = "GrietaCircular02", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
+            new DefaultSprite { Id = "GrietaCircular03", UserDrawn = "GrietaCircular03", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = -2, DepthTested = true, Flat = true, FadeOut = 0.6f, Max = 32 },
             new DefaultSprite { Id = "Linea", GeneratedDot = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.3f, Order = 1, Upright = true, DepthTested = true, FadeIn = 0.2f, FadeOut = 0.3f, Stretch = 0.08f, Max = 256 },
             // Círculos del pack tumbados en el suelo (2026-10-18, pedido por el usuario: que no sean círculos exactos): abriéndose
             // en la explosión de Onda de choque y al revés (cerrándose) en su carga, en capas a distinta altura y tamaño
@@ -127,6 +141,13 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "ShotValo2Suelo", Texture = "ImpactShotValo2", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.35f, Order = -1, DepthTested = true, Flat = true },
             new DefaultSprite { Id = "CircleImpact02Cierra", Texture = "CircleImpact02", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, Reverse = true },
             new DefaultSprite { Id = "FP_CircleImpactCierra", Texture = "FP_CircleImpact", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, Reverse = true },
+            // Tornado (K8, 2026-10-18, pedido por el usuario): la media luna de CircleImpact04 cerrándose (carga), ImpactShotValo
+            // tumbado en el suelo abriéndose (al soltar) y el humo de la explosión sin el fuego: uno que se traga hacia la
+            // peonza mientras se forma el tornado y otro que sale despedido y se disuelve al soltarlo
+            new DefaultSprite { Id = "CircleImpact04Cierra", Texture = "CircleImpact04", TilesX = 3, TilesY = 3, FirstFrame = 2, Frames = 7, Life = 0.4f, Order = -1, DepthTested = true, Flat = true, Reverse = true },
+            new DefaultSprite { Id = "ShotValoSuelo", Texture = "ImpactShotValo", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.35f, Order = -1, DepthTested = true, Flat = true },
+            new DefaultSprite { Id = "HumoTraga", Generated = "HumoComic", SmokeColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 0.5f, Order = 1, DepthTested = true, FadeIn = 0.3f, ShrinkOut = 0.6f, Spin = 90f, Max = 256 },
+            new DefaultSprite { Id = "HumoViento", Generated = "HumoComic", Dissolve = "HumoComicDisuelve", SmokeColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 1.1f, Order = 1, DepthTested = true, GrowIn = 0.4f, Drag = 0.08f, Spin = 30f, Max = 512 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -160,6 +181,11 @@ namespace FakeBlade.Core.Editor
                 {
                     created.useColorOverLife = true;
                     created.colorOverLife = ExplosionGradient();
+                }
+                if (d.SmokeColors)
+                {
+                    created.useColorOverLife = true;
+                    created.colorOverLife = SmokeGradient();
                 }
                 added++;
             }
@@ -256,6 +282,7 @@ namespace FakeBlade.Core.Editor
             if (d.GeneratedMist) return MistTexture();
             if (d.GeneratedDot) return DotTexture();
             if (d.CutShard) return ShardTexture();
+            if (!string.IsNullOrEmpty(d.UserDrawn)) return UserTexture(d.UserDrawn);
             if (!string.IsNullOrEmpty(d.Generated)) return GeneratedTexture(d.Generated);
             string source = PackFolder + d.Texture + ".png";
             if (d.Convert == Convert.None) return AssetDatabase.LoadAssetAtPath<Texture2D>(source);
@@ -469,6 +496,28 @@ namespace FakeBlade.Core.Editor
         /// (círculos juntos, con sombra abajo); Grietas, grietas que salen del centro (blancas, se tiñen de oscuro).
         /// Siempre las mismas (semilla fija).
         /// </summary>
+        /// <summary>
+        /// Textura dibujada por el usuario en la carpeta de impactos (Grieta00-03): no se genera ni se sobrescribe; solo se
+        /// importa como las generadas (pixel art: sin suavizado, sin compresión ni mipmaps). Null si no existe.
+        /// </summary>
+        private static Texture2D UserTexture(string name)
+        {
+            string path = $"{ConvertedFolder}/{name}.png";
+            if (AssetImporter.GetAtPath(path) is TextureImporter importer &&
+                (importer.filterMode != FilterMode.Point || importer.mipmapEnabled || !importer.alphaIsTransparency ||
+                 importer.textureCompression != TextureImporterCompression.Uncompressed || importer.wrapMode != TextureWrapMode.Clamp))
+            {
+                importer.textureType = TextureImporterType.Default;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = false;
+                importer.filterMode = FilterMode.Point;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
         private static Texture2D GeneratedTexture(string name, bool force = false)
         {
             string target = $"{ConvertedFolder}/{name}.png";
@@ -734,6 +783,19 @@ namespace FakeBlade.Core.Editor
                     new GradientColorKey(Color.white, 0.03f), new GradientColorKey(new Color(1f, 0.81f, 0f), 0.1f),
                     new GradientColorKey(new Color(1f, 0.38f, 0.12f), 0.17f), new GradientColorKey(new Color(0.53f, 0.53f, 0.53f), 0.33f)
                 },
+                new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            return gradient;
+        }
+
+        /// <summary>
+        /// Degradado del humo del Tornado (2026-10-18): el de la explosión sin el fuego, de blanco a gris claro (desde el 35 %);
+        /// entero hasta el 60 % de su vida y después se disuelve.
+        /// </summary>
+        private static Gradient SmokeGradient()
+        {
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(Color.white, 0.05f), new GradientColorKey(new Color(0.72f, 0.72f, 0.72f), 0.35f) },
                 new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.6f), new GradientAlphaKey(0f, 1f) });
             return gradient;
         }

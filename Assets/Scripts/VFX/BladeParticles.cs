@@ -263,21 +263,22 @@ namespace FakeBlade.Core
         private void UpdateAura(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
         {
             SpecialAbilitySystem special = _blade.Special;
-            // Escudo: los escudos se ven mientras sigan puestos, aunque el poder ya no esté activo
-            if (!special.IsActive && special.IsLingering && special.Type == SpecialAbilityType.Shields)
+            // Escudo: los escudos se ven mientras sigan puestos, aunque el poder ya no esté activo (y en la carga al reactivarlo)
+            if ((!special.IsActive || special.IsInCommonWindup) && special.IsLingering && special.Type == SpecialAbilityType.Shields)
             {
                 AuraShields(center, special.Ability as ShieldsAbility, special.Color, mul, dt);
                 return;
             }
             // Rastro de agua: el agua se ve hasta secarse, aunque el poder ya haya terminado
-            if (!special.IsActive && special.IsLingering && special.Type == SpecialAbilityType.WaterTrail)
+            if ((!special.IsActive || special.IsInCommonWindup) && special.IsLingering && special.Type == SpecialAbilityType.WaterTrail)
             {
                 AuraWater(tip, special.Ability as WaterTrailAbility, special.Color, mul, dt);
                 return;
             }
-            // Sin activar, o con efectos propios que sustituyen al aura (K8: VfxLibrary.specialEffects)
-            SpecialVfxStyle effects = special.IsActive ? lib.GetSpecialEffects(special.Type) : null;
-            if (!special.IsActive || (effects != null && effects.replaceAura))
+            // Sin activar, en la carga común (L9: el poder aún no ha empezado) o con efectos propios que sustituyen al aura
+            // (K8: VfxLibrary.specialEffects)
+            SpecialVfxStyle effects = special.IsActive ? lib.GetSpecialEffectsOrGeneric(special.Type) : null;
+            if (!special.IsActive || special.IsInCommonWindup || (effects != null && effects.replaceAura))
             {
                 _auraAcc = _auraAcc2 = 0f;
                 _auraTimer = 0f;

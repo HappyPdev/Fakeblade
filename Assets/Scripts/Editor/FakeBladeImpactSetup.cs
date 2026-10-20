@@ -148,6 +148,15 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "ShotValoSuelo", Texture = "ImpactShotValo", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.35f, Order = -1, DepthTested = true, Flat = true },
             new DefaultSprite { Id = "HumoTraga", Generated = "HumoComic", SmokeColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 0.5f, Order = 1, DepthTested = true, FadeIn = 0.3f, ShrinkOut = 0.6f, Spin = 90f, Max = 256 },
             new DefaultSprite { Id = "HumoViento", Generated = "HumoComic", Dissolve = "HumoComicDisuelve", SmokeColors = true, RandomFrame = true, TilesX = 2, TilesY = 2, Frames = 4, Life = 1.1f, Order = 1, DepthTested = true, GrowIn = 0.4f, Drag = 0.08f, Spin = 30f, Max = 512 },
+            // Embestida (K8, 2026-10-20; bocetos del usuario): Zbam que suben por el cilindro de la carga y saltan en el golpe
+            // (Zbam2 y Zbam3 de Wallcoeur), la media luna de aire delante y el tajo curvo del golpe (SlashOne tumbada, girada
+            // hacia la marcha), el tajo animado del golpe (SllashV3) y trozos de suelo que saltan (el pentágono de la ceniza,
+            // que aquí cae deprisa y gira)
+            new DefaultSprite { Id = "ZbamSube", Texture = "Zbam2", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = 1, DepthTested = true, GrowIn = 0.3f, FadeOut = 0.5f, Max = 256 },
+            new DefaultSprite { Id = "Zbam3Sube", Texture = "Zbam3", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = 1, DepthTested = true, GrowIn = 0.3f, FadeOut = 0.5f, Max = 256 },
+            new DefaultSprite { Id = "MediaLuna", Texture = "SlashOne", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.2f, Order = 0, Upright = true, DepthTested = true, Flat = true, GrowIn = 0.4f, FadeOut = 0.6f, Max = 128 },
+            new DefaultSprite { Id = "Tajo", Texture = "SllashV3", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.3f, Order = 3 },
+            new DefaultSprite { Id = "Trozo", CutShard = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, DepthTested = true, FadeOut = 0.3f, Gravity = 1.4f, Drag = 0.2f, Spin = 540f, Max = 512 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -1105,13 +1114,21 @@ namespace FakeBlade.Core.Editor
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
+            // Estirados (líneas de velocidad) y los que miran hacia donde van (Align To Velocity, 2026-10-20): Unity los gira
+            // con su velocidad en pantalla
+            bool stretched = !s.flat && (s.stretch > 0f || s.alignToVelocity);
             renderer.renderMode = s.flat ? ParticleSystemRenderMode.HorizontalBillboard
-                : s.stretch > 0f ? ParticleSystemRenderMode.Stretch : ParticleSystemRenderMode.Billboard;
-            if (s.stretch > 0f && !s.flat)
+                : stretched ? ParticleSystemRenderMode.Stretch : ParticleSystemRenderMode.Billboard;
+            if (stretched)
             {
-                // Líneas de velocidad: largas según lo rápido que van
+                // Líneas de velocidad: largas según lo rápido que van (con Stretch 0, mismo largo que ancho)
                 renderer.velocityScale = s.stretch;
                 renderer.lengthScale = 1f;
+                // Los que miran hacia donde van: Unity pone la velocidad en el eje horizontal de la textura; con el estirado
+                // libre, el giro con el que sale cada partícula se suma al de la dirección (Rotation -90: lo de arriba de la
+                // textura va delante; 90: detrás)
+                renderer.freeformStretching = s.alignToVelocity;
+                renderer.rotateWithStretchDirection = true;
             }
             // Tumbados en el suelo pueden ser más grandes que la pantalla (la onda llega a 10 m de ancho)
             renderer.maxParticleSize = s.flat ? 10f : 1f;

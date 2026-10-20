@@ -99,6 +99,7 @@ namespace FakeBlade.Core
             _blade.OnWallHit += HandleWallHit;
             _blade.OnHealCut += HandleHealCut;
             _blade.OnSpecialActivated += HandleSpecialActivated;
+            _blade.OnRumbleRequested += HandleRumbleRequested;
 
             var gm = GameManager.Instance;
             if (gm != null && _registerInMatch) _registered = gm.RegisterPlayer(this);
@@ -119,6 +120,7 @@ namespace FakeBlade.Core
                 _blade.OnWallHit -= HandleWallHit;
                 _blade.OnHealCut -= HandleHealCut;
                 _blade.OnSpecialActivated -= HandleSpecialActivated;
+                _blade.OnRumbleRequested -= HandleRumbleRequested;
             }
             if (_stats != null) _stats.OnStatsChanged -= RebuildModel;
 
@@ -187,12 +189,24 @@ namespace FakeBlade.Core
         private void HandleSpecialActivated(SpecialAbilityType type) =>
             _source.Vibrate(SpecialRumbleLow, SpecialRumbleHigh, SpecialRumbleTime);
 
-        /// <summary>Mientras dura la carga de un especial (también las de cada embestida), la vibración fuerte sigue.</summary>
+        /// <summary>
+        /// Mientras dura la carga de un especial (también las de cada embestida), la vibración fuerte sigue. Después, la
+        /// continua que pida el poder (el Tornado mientras atrae).
+        /// </summary>
         private void VibrateSpecialWindup()
         {
-            if (_blade.Special != null && _blade.Special.IsWindingUp)
+            SpecialAbilitySystem special = _blade.Special;
+            if (special == null || !special.IsActive) return;
+            if (special.IsWindingUp)
+            {
                 _source.Vibrate(SpecialRumbleLow, SpecialRumbleHigh, 0.06f);
+                return;
+            }
+            float rumble = special.IsInCommonWindup || special.Ability == null ? 0f : special.Ability.SustainedRumble;
+            if (rumble > 0f) _source.Vibrate(rumble, rumble * SpecialRumbleHigh, 0.06f);
         }
+
+        private void HandleRumbleRequested(float low, float high, float duration) => _source.Vibrate(low, high, duration);
 
         /// <summary>Mientras carga: zumbido suave que crece con el nivel y un pulso al subir de nivel.</summary>
         private void VibrateCharge()

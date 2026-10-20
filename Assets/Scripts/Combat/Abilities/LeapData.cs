@@ -81,7 +81,7 @@ namespace FakeBlade.Core
         public override bool HandlesWindup => true;
         public bool IsFlying => _flying;
         /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
-        public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
+        public override float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
 
         public override void OnActivate()
         {

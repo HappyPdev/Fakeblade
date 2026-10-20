@@ -186,6 +186,16 @@ namespace FakeBlade.Core
         /// empiezan al acabarla (VFX). Solo en los poderes con HandlesWindup; la común la sabe SpecialAbilitySystem.
         /// </summary>
         public virtual bool IsWindingUp => false;
+        /// <summary>
+        /// Vibración continua del mando mientras está activo (0 = ninguna, 1 = la más fuerte). Fuera de las cargas, que ya
+        /// vibran fuerte: por ejemplo, el Tornado mientras atrae.
+        /// </summary>
+        public virtual float SustainedRumble => 0f;
+        /// <summary>
+        /// Arrancada propia del poder (la Embestida mientras embiste): sus efectos de la arrancada (VfxLibrary: rush y las
+        /// manchas con Only While Rushing) salen solo entonces.
+        /// </summary>
+        public virtual bool IsRushing => false;
         /// <summary>Lo que lleva de la carga (0 al empezar, 1 al acabar). Para los efectos que crecen con ella (cúpula).</summary>
         public virtual float WindupProgress => 1f;
         /// <summary>

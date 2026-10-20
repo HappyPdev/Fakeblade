@@ -56,10 +56,18 @@ namespace FakeBlade.Core
         public override bool IsWindingUp => _windup > 0f;
         /// <summary>La carga la lleva el propio poder (no la común de SpecialAbilitySystem).</summary>
         public override bool HandlesWindup => true;
-        /// <summary>Lo que lleva de carga (0-1), para el aspecto.</summary>
-        public float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
+        /// <summary>
+        /// Lo que lleva de carga (0-1), para el aspecto. Override (2026-10-20): sin él, la cúpula de la carga recibía siempre 1
+        /// y salía ya entera.
+        /// </summary>
+        public override float WindupProgress => Config.windupTime > 0f ? 1f - Mathf.Clamp01(_windup / Config.windupTime) : 1f;
+        /// <summary>Mientras embiste: rastro de grietas, onda delante y trozos de suelo (K8, 2026-10-20).</summary>
+        public override bool IsRushing => IsLunging;
         /// <summary>Embestidas que le quedan (para el aspecto).</summary>
         public int ChargesLeft => _left;
+        /// <summary>Aviso de usos (una marca por embestida que queda; la de la que se carga se va al salir).</summary>
+        public override int MaxUses => Mathf.Max(1, Config.charges);
+        public override int UsesLeft => _left + (IsWindingUp ? 1 : 0);
         /// <summary>Segundos de carga que le quedan (0 si no está cargando).</summary>
         public float WindupLeft => _windup;
         /// <summary>Hacia dónde embiste (la de la última embestida). Para la IA del rival.</summary>
@@ -171,11 +179,16 @@ namespace FakeBlade.Core
                 v.y = 0f;
                 Owner.ApplyPull(-v * (1f - Config.speedKeptOnHit));
 
+                // Su golpe propio (K8, 2026-10-20: tajo curvo, Zbam y trozos); sin efectos propios, el estallido común
                 Vector3 contact = origin + toOther * (Config.hitRadius * 0.5f);
-                VfxSystem.Play(VfxType.SpecialBurst, contact, Vector3.up, Data.color, 1.5f);
+                if (!BladeSpecialFx.PlayPushHit(Owner, other, dir))
+                    VfxSystem.Play(VfxType.SpecialBurst, contact, Vector3.up, Data.color, 1.5f);
                 VfxSystem.Play(VfxType.Clash, contact, toOther, Color.white, 1.5f);
                 CameraShake.Shake(Config.hitShake, 0.12f);
                 HitStop.Trigger(Config.hitStop);
+                // Los dos mandos lo notan (no pasa por los choques, que son los que vibran normalmente)
+                Owner.RequestRumble(0.7f, 1f, 0.2f);
+                other.RequestRumble(1f, 0.7f, 0.25f);
             }
         }
 

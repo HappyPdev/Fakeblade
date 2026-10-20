@@ -46,6 +46,13 @@ namespace FakeBlade.Core
         [Min(0f)] public float launchDuration = 0.4f;
         [Min(0f)] public float pushShake = 0.2f;
 
+        [Header("Vibración del mando")]
+        [Tooltip("Vibración mientras atrae: al empezar y al acabar la atracción (0-1; sube poco a poco, 2026-10-20)")]
+        [Range(0f, 1f)] public float pullRumbleStart = 0.3f;
+        [Range(0f, 1f)] public float pullRumbleEnd = 0.85f;
+        [Tooltip("Golpe al soltar el empujón: segundos con la fuerza completa (menos si se suelta antes)")]
+        [Min(0f)] public float pushRumbleTime = 0.4f;
+
         public override SpecialAbilityType Type => SpecialAbilityType.Tornado;
 
         public override SpecialAbility CreateRuntime(FakeBladeController owner) => new TornadoAbility(this, owner);
@@ -86,6 +93,9 @@ namespace FakeBlade.Core
 
         /// <summary>Mientras atrae no puede atacar ni hacer dash (2026-10-19, tras probarlo el usuario).</summary>
         public override bool BlocksActions => !_pushed;
+
+        /// <summary>El mando vibra cada vez más fuerte mientras atrae, hasta que explota (2026-10-20).</summary>
+        public override float SustainedRumble => _pushed ? 0f : Mathf.Lerp(Config.pullRumbleStart, Config.pullRumbleEnd, PullProgress);
 
         public override void OnActivate()
         {
@@ -171,6 +181,7 @@ namespace FakeBlade.Core
                 VfxSystem.EmitParticle(VfxType.AuraShockWave, origin, Vector3.zero, Data.color, radius * 1.2f);
             }
             CameraShake.Shake(Config.pushShake * strength, 0.12f);
+            Owner.RequestRumble(1f, 1f, Config.pushRumbleTime * strength);
             Owner.EndSpecial();
         }
     }

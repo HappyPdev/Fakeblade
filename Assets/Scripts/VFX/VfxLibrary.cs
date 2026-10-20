@@ -83,6 +83,11 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float growIn;
         [Tooltip("Se estira en la dirección en la que va (0 = no; 0,05 = un poco). Para las líneas de velocidad")]
         [Min(0f)] public float stretch;
+        [Tooltip("Mira hacia donde va: el dibujo se gira con su velocidad (también al caer con la gravedad), sin estirarse si " +
+                 "Stretch es 0. El giro con el que sale (Rotation de la partícula) se suma: con un dibujo que apunta hacia arriba " +
+                 "en la textura (ImpactValo7), -90 = la punta va delante; 90 = detrás. No usar con Align To Motion. Sin Drag (o " +
+                 "muy poco): el frenado crece con el tamaño y la velocidad y la deja quieta, sin dirección")]
+        public bool alignToVelocity;
         [Tooltip("La hoja se anima al revés (un círculo que se abre pasa a cerrarse). Para la carga de Onda de choque")]
         public bool reverse;
         [Tooltip("Cada partícula sale con un dibujo de la hoja al azar y no se anima (HumoComic: 4 nubes distintas)")]
@@ -247,6 +252,14 @@ namespace FakeBlade.Core
         public Vector2 fade = new Vector2(0.04f, 0.12f);
         [Tooltip("Cuencos (como mucho 8): cada uno con su giro, velocidad de giro, escala y color")]
         public List<BurstTipCup> cups = new List<BurstTipCup>();
+        [Header("Hacia delante (Embestida: como el fuego de entrar en la atmósfera)")]
+        [Tooltip("Los cuencos miran hacia la marcha en vez de hacia arriba: abiertos hacia la peonza, delante de ella (sin los " +
+                 "sprites del suelo, que se torcerían)")]
+        public bool pointForward;
+        [Tooltip("Metros hacia delante en la marcha a los que va el cuenco (con Point Forward)")]
+        public float forwardOffset = 0.5f;
+        [Tooltip("Solo mientras arranca el poder (Embestida: mientras embiste)")]
+        public bool onlyWhileRushing;
 
         [Header("Partículas en cono hacia arriba (se quedan atrás: rastro)")]
         [Tooltip("Id del sprite (lista Impact Sprites: Valo8 = ImpatcValo8, Valo4 = ImpactValo4). Vacío = sin partículas. " +
@@ -421,6 +434,13 @@ namespace FakeBlade.Core
         [Header("Cúpula de la carga (Onda de choque; Tornado: embudo y cúpula mientras atrae)")]
         [Tooltip("Media esfera que crece sobre la peonza durante cada carga y revienta al acabarla. Sin material = no sale")]
         public ChargeDomeStyle dome = new ChargeDomeStyle();
+        [Tooltip("Otra cúpula a la vez, por delante de la primera (Embestida: cilindro bajo en la base con una Zbam). Sin " +
+                 "material = no sale")]
+        public ChargeDomeStyle baseDome = new ChargeDomeStyle();
+        [Header("Arrancada (Embestida, mientras embiste)")]
+        [Tooltip("Partículas solo mientras arranca (Embestida: media luna de aire delante, trozos de suelo y Zbam detrás). Con " +
+                 "Align To Motion y Forward Offset se colocan y giran según la marcha")]
+        public List<SpecialParticleStyle> rush = new List<SpecialParticleStyle>();
         [Header("Empujón a los rivales (Onda de choque, Tornado)")]
         [Tooltip("Al soltar el empujón (Tornado; sustituye a las estrellas comunes): explosión en espiral alrededor de la peonza. " +
                  "Usa Count, no Rate")]
@@ -711,6 +731,11 @@ namespace FakeBlade.Core
         [Tooltip("Giro del sprite al salir (grados), al azar entre x e y (0-360 = cualquiera; p. ej. 60-90 para que las grietas " +
                  "salgan parecidas pero no iguales)")]
         public Vector2 rotation = new Vector2(0f, 360f);
+        [Tooltip("Gira el sprite hacia la marcha (o hacia donde sale despedido el golpeado): Rotation se suma a ese ángulo " +
+                 "(Embestida: la media luna mira hacia delante)")]
+        public bool alignToDirection;
+        [Tooltip("Metros hacia delante en la marcha o el golpe (negativo = detrás) a los que se coloca el anillo")]
+        public float forwardOffset;
         [Tooltip("Remolino: partículas por segundo mientras dura la carga")]
         [Min(0f)] public float rate = 100f;
         [Tooltip("Explosión al encenderse o choque: partículas de golpe (repartidas alrededor)")]
@@ -761,6 +786,11 @@ namespace FakeBlade.Core
         public string sprite;
         [Tooltip("Giro del sprite al salir (grados), al azar entre x e y (0-360 = cualquiera)")]
         public Vector2 rotation = new Vector2(0f, 360f);
+        [Tooltip("Gira el sprite hacia la marcha de la peonza: Rotation se suma a ese ángulo (tumbados: la media luna de la " +
+                 "Embestida mira hacia delante)")]
+        public bool alignToMotion;
+        [Tooltip("Metros hacia delante en la marcha (negativo = detrás) a los que salen, al azar entre x e y")]
+        public Vector2 forwardOffset = Vector2.zero;
         [Tooltip("Partículas por segundo, seguidas")]
         [Min(0f)] public float rate = 10f;
         [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
@@ -800,6 +830,14 @@ namespace FakeBlade.Core
     {
         [Tooltip("Id del sprite (lista Impact Sprites; Quemado = mancha difusa que crea Setup Impactos). Vacío = sin manchas")]
         public string sprite;
+        [Tooltip("Varios sprites: cada mancha sale con uno al azar (vacío = Sprite). Embestida: las grietas del usuario")]
+        public List<string> spriteVariants = new List<string>();
+        [Tooltip("Solo mientras arranca (Embestida: las grietas, solo al embestir)")]
+        public bool onlyWhileRushing;
+        [Tooltip("Gira cada mancha hacia la marcha: Rotation se suma a ese ángulo (las grietas siguen el camino)")]
+        public bool alignToMotion;
+        [Tooltip("Giro de cada mancha (grados), al azar entre x e y (0-360 = cualquiera)")]
+        public Vector2 rotation = new Vector2(0f, 360f);
         [Tooltip("Metros recorridos entre dos manchas")]
         [Min(0.05f)] public float spacing = 0.4f;
         [Tooltip("Una mancha cada tantos segundos aunque esté parada (0 = solo al moverse)")]

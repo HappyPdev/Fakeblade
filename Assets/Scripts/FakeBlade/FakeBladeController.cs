@@ -58,6 +58,8 @@ namespace FakeBlade.Core
         public event Action<float> OnWallHit;
         /// <summary>Un golpe de ataque enemigo ha cortado la curación del poder.</summary>
         public event Action OnHealCut;
+        /// <summary>Un poder pide una vibración del mando de su dueño: (motor grave, motor agudo, segundos).</summary>
+        public event Action<float, float, float> OnRumbleRequested;
         /// <summary>Ha perdido RPM por daño (cantidad real, quién lo ha causado o null). Golpes, paredes y quemadura.</summary>
         public event Action<float, FakeBladeController> OnDamaged;
         /// <summary>Ha recuperado RPM (cantidad real): curación de los poderes. Lo usa la telemetría.</summary>
@@ -150,8 +152,9 @@ namespace FakeBlade.Core
         // Partículas del especial y de la quemadura, y manchas en el suelo (K8)
         private BladeSpecialFx _specialFx;
         private BladeArcs _arcs;
-        // Cúpula de la carga (Onda de choque) y aviso de usos de los poderes con varios usos (K8)
+        // Cúpula de la carga (Onda de choque), la de la base (Embestida) y aviso de usos de los poderes con varios usos (K8)
         private BladeChargeDome _dome;
+        private BladeChargeDome _baseDome;
         private BladeUsesIndicator _usesIndicator;
         // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
         private BladeOverlay _overlay;
@@ -336,6 +339,7 @@ namespace FakeBlade.Core
             _specialFx = new BladeSpecialFx(this);
             _arcs = new BladeArcs(this);
             _dome = new BladeChargeDome(this);
+            _baseDome = new BladeChargeDome(this, "ChargeDomeBase", 1);
             _usesIndicator = new BladeUsesIndicator(this);
             _overlay = new BladeOverlay(this);
 
@@ -603,6 +607,9 @@ namespace FakeBlade.Core
 
         public bool ExecuteSpecial() => TryActivateSpecial();
 
+        /// <summary>Vibración del mando de esta peonza (si la maneja un jugador con mando), para los momentos fuertes de un poder.</summary>
+        public void RequestRumble(float low, float high, float duration) => OnRumbleRequested?.Invoke(low, high, duration);
+
         /// <summary>Termina el poder activo antes de tiempo (Rayos, al dar su golpe fuerte).</summary>
         public void EndSpecial()
         {
@@ -803,6 +810,7 @@ namespace FakeBlade.Core
             _specialFx?.Clear();
             _arcs?.Hide();
             _dome?.Hide();
+            _baseDome?.Hide();
             _usesIndicator?.Hide();
             _overlay?.Clear();
 
@@ -1540,7 +1548,11 @@ namespace FakeBlade.Core
                 VfxLibrary lib = VfxSystem.Library;
                 _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
                 SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
-                _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, _special.IsActive && !_special.IsWindingUp && !_isDestroyed);
+                // La punta del especial; la de la Embestida, solo mientras embiste (cuenco delante, 2026-10-20)
+                bool tipOn = _special.IsActive && !_special.IsWindingUp && !_isDestroyed;
+                if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing)
+                    tipOn = _special.Ability != null && _special.Ability.IsRushing;
+                _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, tipOn);
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
@@ -1550,6 +1562,7 @@ namespace FakeBlade.Core
                 // Cúpula: mientras carga (Onda de choque) o mientras atrae (Tornado: embudo y cúpula)
                 float domeCharge = _special.ChargeVisualProgress;
                 _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, domeCharge >= 0f && !_isDestroyed, domeCharge);
+                _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, domeCharge >= 0f && !_isDestroyed, domeCharge);
                 _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,
                     _special.Color);
             }
@@ -1620,6 +1633,7 @@ namespace FakeBlade.Core
             _specialFx?.Clear();
             _arcs?.Hide();
             _dome?.Hide();
+            _baseDome?.Hide();
             _usesIndicator?.Hide();
             _overlay?.Clear();
 

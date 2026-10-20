@@ -230,7 +230,7 @@ namespace FakeBlade.Core.Editor
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
-                   SetupTornado(library) + "; " + SetupGenericSpecial(library);
+                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -1025,6 +1025,300 @@ namespace FakeBlade.Core.Editor
                 tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(0.1f, 0.5f),
                 size = size, lifetime = lifetime, color = Color.white, color2 = TornadoPale
             };
+
+        private static readonly Color RamLime = new Color(0.7f, 1f, 0.25f);
+        private static readonly Color RamPale = new Color(0.92f, 1f, 0.78f);
+        private static readonly Color RamDebris = new Color(0.72f, 0.72f, 0.68f);
+        private static readonly Color CrackDark = new Color(0.1f, 0.1f, 0.1f);
+        /// <summary>Giro que pone mirando hacia la marcha la parte de fuera de la media luna (SlashOne la tiene arriba a la derecha).</summary>
+        private const float CrescentForward = -45f;
+        /// <summary>Giro que deja las grietas del usuario (dibujadas del centro hacia arriba a la derecha) hacia atrás en el camino.</summary>
+        private const float CrackBackward = 135f;
+        /// <summary>Corona de pinchos en horizontal dibujada por el usuario (2026-10-20): la Zbam que recorre los cilindros de la Embestida.</summary>
+        private const string RamZbamTexturePath = "Assets/VFX/Textures/Impacts/Zbam HORIZONTAL.png";
+        /// <summary>Las grietas rectas del usuario (no las circulares): el rastro de la Embestida.</summary>
+        private static readonly string[] LineCrackVariants = { "Grieta00", "Grieta01", "Grieta02", "Grieta03" };
+
+        /// <summary>
+        /// Embestida (K8, 2026-10-20; bocetos del usuario en tres viñetas). Se empieza copiando la plantilla común (carga,
+        /// encendido y estela en la golpeada; con los círculos finos de CircleImpact04) y se le añade lo suyo: 1) en la carga de
+        /// cada embestida, un cilindro más ancho arriba y abierto en picos, que sube desde el suelo, con la Zbam recorriéndolo
+        /// en horizontal y líneas de velocidad pequeñas que suben; en la base, otro cilindro pequeño con la Zbam más marcada;
+        /// humo y partículas pequeñas que se tragan; 2) al embestir, el efecto de la punta delante de la peonza (fuego de
+        /// entrar en la atmósfera), trozos de suelo y alguna Zbam detrás y un rastro de grietas; 3) en el golpe, un tajo curvo
+        /// que envuelve al rival, Zbam, trozos y chispas, y la golpeada sale lanzada con su estela. Verde lima (su color) y
+        /// blanco, con el contorno gris fino. Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupRam(VfxLibrary library)
+        {
+            SpecialVfxStyle ram = library.GetSpecialEffects(SpecialAbilityType.Ram);
+            bool added = ram == null;
+            if (added)
+            {
+                ram = new SpecialVfxStyle { type = SpecialAbilityType.Ram, replaceAura = true, windupSustain = 0f };
+                ram.tip.cups.Clear();
+                ram.tip.particleSprite = "";
+                ram.tip.ground = new TipGroundSprite();
+                ram.overlay = new SpecialOverlayStyle
+                {
+                    color = RamLime, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.5f, 1.2f),
+                    pulseFlash = new Vector2(0f, 0.08f), pulseInterval = new Vector2(0.15f, 0.35f), pulseDecay = 0.2f
+                };
+                ram.dome = RamDome();
+                ram.baseDome = RamBaseDome();
+                library.specialEffects.Add(ram);
+            }
+
+            ram.dome ??= RamDome();
+            ram.baseDome ??= RamBaseDome();
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+            if (ram.dome.material == null) ram.dome.material = domeMaterial;
+            if (ram.baseDome.material == null) ram.baseDome.material = domeMaterial;
+            // La Zbam que recorre en horizontal los dos cilindros (2026-10-20, corregido por el usuario: no Zbam que suben): la
+            // corona de pinchos que dibujó el usuario (Zbam HORIZONTAL) o, si no está, Zbam2 del pack
+            var zbam = AssetDatabase.LoadAssetAtPath<Texture2D>(RamZbamTexturePath) ??
+                       AssetDatabase.LoadAssetAtPath<Texture2D>(WallcoeurFolder + "03_Texture/Zbam2.png");
+            if (ram.dome.linesTexture == null) ram.dome.linesTexture = zbam;
+            if (ram.baseDome.linesTexture == null) ram.baseDome.linesTexture = zbam;
+            // Cuenco delante mientras embiste: el efecto de la punta en el acelerón, girado hacia la marcha y en verde lima
+            ram.tip ??= new BurstTipStyle();
+            if (ram.tip.cups.Count == 0) RamTip(ram.tip, library.burstTip);
+
+            // La plantilla común como base (se copia al empezar cada especial, 2026-10-19) y lo propio detrás
+            ram.windup ??= new List<SpiralParticleStyle>();
+            if (ram.windup.Count == 0)
+            {
+                ram.windup.AddRange(GenericWindup());
+                foreach (SpiralParticleStyle style in ram.windup)
+                {
+                    // Más humo que se traga que en la plantilla (lo pidió el usuario para la carga)
+                    if (style.name == "Humo que se traga") style.rate = 45f;
+                    // Círculos más finos que los de la plantilla (2026-10-20): la media luna fina de CircleImpact04
+                    if (style.sprite == "CircleImpact02Cierra" || style.sprite == "FP_CircleImpactCierra") style.sprite = "CircleImpact04Cierra";
+                }
+                ram.windup.AddRange(RamWindup());
+            }
+            ram.activationBurst ??= new List<SpiralParticleStyle>();
+            if (ram.activationBurst.Count == 0)
+            {
+                ram.activationBurst.AddRange(GenericBurst());
+                foreach (SpiralParticleStyle style in ram.activationBurst)
+                    if (style.sprite == "CircleImpact02Suelo")
+                    {
+                        // Dos medias lunas finas que se abren (CircleImpact02 empieza con un círculo relleno)
+                        style.sprite = "CircleImpact04Anillo";
+                        style.count = 2;
+                    }
+                ram.activationBurst.AddRange(RamLaunch());
+            }
+            ram.hitTrail ??= new List<SpecialParticleStyle>();
+            if (ram.hitTrail.Count == 0) ram.hitTrail.AddRange(GenericHitTrail());
+            ram.rush ??= new List<SpecialParticleStyle>();
+            if (ram.rush.Count == 0) ram.rush.AddRange(RamRush());
+            ram.scorch ??= new ScorchStyle();
+            if (string.IsNullOrEmpty(ram.scorch.sprite) && (ram.scorch.spriteVariants == null || ram.scorch.spriteVariants.Count == 0))
+                ram.scorch = RamCracks();
+            ram.pushHit ??= new List<SpiralParticleStyle>();
+            if (ram.pushHit.Count == 0) ram.pushHit.AddRange(RamHit());
+            ram.launchedTrail ??= new List<SpecialParticleStyle>();
+            if (ram.launchedTrail.Count == 0) ram.launchedTrail.AddRange(GenericHitTrail());
+            ram.launchedWallHit ??= new List<SpiralParticleStyle>();
+            if (ram.launchedWallHit.Count == 0) ram.launchedWallHit.AddRange(RamWallHit());
+            return "Embestida" + (added ? " (nueva)" : "") + (ram.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        /// <summary>
+        /// Viñeta 1: cilindro más ancho arriba (el embudo del Tornado, que no pasa a cúpula), abierto en picos, con líneas
+        /// verticales finas y la Zbam (la corona Zbam HORIZONTAL del usuario) recorriéndolo en horizontal; sube desde el suelo
+        /// durante la carga y revienta al salir. Lines Tiling y = 2: la cúpula solo usa la mitad de arriba de la altura, así la
+        /// Zbam ocupa todo el alto.
+        /// </summary>
+        private static ChargeDomeStyle RamDome() => new ChargeDomeStyle
+        {
+            radius = 1f, heightScale = 1f, height = 0f, growEase = 1.5f, startRadius = 0.6f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(0.8f, 1.6f, 2f),
+            topCut = 0.18f, topSpikes = 7, topSpikesSpeed = 0.6f, insideAlpha = 0.3f,
+            bodyColor = new Color(0.75f, 1f, 0.45f, 0.2f), rimColor = new Color(RamLime.r, RamLime.g, RamLime.b, 0.9f),
+            outlineColor = new Color(0.47f, 0.47f, 0.47f, 0.8f), swirlColor = new Color(1f, 1f, 1f, 0.85f),
+            swirlColor2 = new Color(RamLime.r, RamLime.g, RamLime.b, 0.5f), rimWidth = 0.22f, outlineWidth = 0.05f,
+            linesTiling = new Vector2(5f, 2f), linesSpeed = 0.8f, linesTwist = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 6f, swirlTwist = 0f, swirlSpeed = 0.4f, swirlWidth = 0.05f,
+            shakeFrom = 0.6f, shakeScale = 0.05f, shakeRate = 24f, popTime = 0.14f, popScale = 1.25f, popFlash = 0.7f
+        };
+
+        /// <summary>
+        /// Viñeta 1, en la base: cilindro bajo, más ancho que la peonza (si no, ella lo tapa) y que la base del de arriba, con la
+        /// Zbam (Zbam HORIZONTAL) más pequeña y marcada recorriéndolo en horizontal hacia el otro lado. Borde fino: el ancho lo
+        /// tapaba entero.
+        /// </summary>
+        private static ChargeDomeStyle RamBaseDome() => new ChargeDomeStyle
+        {
+            radius = 1.25f, heightScale = 0.36f, height = 0f, growEase = 3f, startRadius = 0.85f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(1f, 1.1f, 1f),
+            topCut = 0f, insideAlpha = 0f,
+            bodyColor = new Color(RamLime.r, RamLime.g, RamLime.b, 0.4f), rimColor = new Color(1f, 1f, 1f, 0.95f),
+            outlineColor = new Color(0.3f, 0.3f, 0.3f, 0.9f), swirlColor = Color.white, swirlColor2 = new Color(0f, 0f, 0f, 0f),
+            rimWidth = 0.08f, outlineWidth = 0.04f,
+            linesTiling = new Vector2(6f, 2f), linesSpeed = -1.2f, linesTwist = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 0f, swirlTwist = 0f, swirlSpeed = 0f, swirlWidth = 0f,
+            shakeFrom = 0.5f, shakeScale = 0.1f, shakeRate = 26f, popTime = 0.12f, popScale = 1.6f, popFlash = 0.9f
+        };
+
+        /// <summary>
+        /// Viñeta 1, la carga de cada embestida: líneas de velocidad pequeñas que suben por el cilindro (2026-10-20: mucho más
+        /// pequeñas que las primeras) y partículas pequeñas que se tragan.
+        /// </summary>
+        private static SpiralParticleStyle[] RamWindup() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", rate = 70f, radius = new Vector2(0.6f, 1.2f),
+                height = new Vector2(0f, 0.2f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0.3f, 0.8f),
+                upSpeed = new Vector2(3f, 4.5f), size = new Vector2(0.025f, 0.04f), lifetime = new Vector2(0.12f, 0.18f),
+                color = Color.white, color2 = RamLime
+            },
+            new SpiralParticleStyle
+            {
+                name = "Partículas que se tragan", sprite = "Chispa", rate = 50f, radius = new Vector2(1.4f, 2f),
+                height = new Vector2(0f, 0.3f), tangentialSpeed = new Vector2(2f, 4f), outwardSpeed = new Vector2(-6f, -4.5f),
+                upSpeed = new Vector2(0f, 0.6f), size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.3f, 0.4f),
+                color = Color.white, color2 = RamLime
+            }
+        };
+
+        /// <summary>Al salir cada embestida: la grieta de salida y trozos de suelo.</summary>
+        private static SpiralParticleStyle[] RamLaunch() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Grieta de salida", sprite = "GrietaInicio00", count = 1, radius = Vector2.zero, height = new Vector2(0.02f, 0.02f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, alignToDirection = true,
+                rotation = new Vector2(CrackBackward - 15f, CrackBackward + 15f), size = new Vector2(2.2f, 2.8f),
+                lifetime = new Vector2(1.4f, 1.4f), color = CrackDark, color2 = CrackDark, alpha = 0.85f
+            },
+            RamDebrisBurst("Trozos de salida", 12, 1.5f, 3f, -0.4f)
+        };
+
+        /// <summary>
+        /// Viñeta 2, mientras embiste (el cuenco delante va en la punta, RamTip): trozos de suelo y alguna Zbam pequeña detrás y
+        /// las rayas de píxel que quedan atrás (las de su aura de antes).
+        /// </summary>
+        private static SpecialParticleStyle[] RamRush() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Trozos de suelo", sprite = "Trozo", rate = 35f, spawnRadius = new Vector2(0.2f, 0.5f), height = new Vector2(0.02f, 0.1f),
+                coneAngle = 35f, speed = new Vector2(3f, 5f), inheritVelocity = -0.15f, forwardOffset = new Vector2(-0.5f, -0.2f),
+                size = new Vector2(0.08f, 0.16f), lifetime = new Vector2(0.6f, 0.9f), color = RamDebris, color2 = RamPale
+            },
+            new SpecialParticleStyle
+            {
+                name = "Zbam detrás", sprite = "ZbamSube", rate = 8f, spawnRadius = new Vector2(0.1f, 0.3f), height = new Vector2(0.3f, 0.6f),
+                coneAngle = 20f, speed = new Vector2(0.5f, 1.2f), inheritVelocity = -0.1f, forwardOffset = new Vector2(-0.7f, -0.5f),
+                size = new Vector2(0.2f, 0.3f), lifetime = new Vector2(0.3f, 0.4f), color = Color.white, color2 = RamPale
+            },
+            new SpecialParticleStyle
+            {
+                name = "Rayas", emitter = VfxType.Dash, rate = 90f, spawnRadius = new Vector2(0.2f, 0.5f), height = new Vector2(0.1f, 0.5f),
+                coneAngle = 90f, speed = new Vector2(0.2f, 0.6f), inheritVelocity = -0.3f, size = Vector2.zero, lifetime = Vector2.zero,
+                color = RamLime, color2 = Color.white
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 2 (2026-10-20, pedido por el usuario en vez de la media luna): el efecto de la punta en el acelerón (cuencos
+        /// ImpactPlane con la hoja ImpactShotValo2) delante de la peonza, abierto hacia ella y en verde lima y blanco, solo
+        /// mientras embiste: el fuego de algo que entra en la atmósfera muy rápido. Tres cuencos que giran a distinta velocidad.
+        /// </summary>
+        private static void RamTip(BurstTipStyle tip, BurstTipStyle accel)
+        {
+            tip.mesh = accel != null ? accel.mesh : null;
+            tip.material = accel != null ? accel.material : null;
+            tip.tilesX = 3;
+            tip.tilesY = 3;
+            tip.firstFrame = 0;
+            tip.frames = 9;
+            tip.cycle = 0.2f;
+            tip.size = 2.1f;
+            tip.scale = Vector2.one;
+            tip.height = 0.25f;
+            tip.alpha = 1f;
+            tip.lighten = 0f;
+            tip.fade = new Vector2(0.04f, 0.12f);
+            tip.pointForward = true;
+            // El fondo del cuenco por delante del borde de la peonza (con menos, ella lo tapa) y largo hacia atrás, envolviéndola
+            tip.forwardOffset = 1.1f;
+            tip.onlyWhileRushing = true;
+            tip.particleSprite = "";
+            tip.ground = new TipGroundSprite();
+            tip.groundLayers.Clear();
+            tip.cups.Clear();
+            tip.cups.Add(new BurstTipCup { angle = 0f, spinSpeed = 360f, scale = new Vector2(1f, 1.2f), playerColor = false, color = Color.white });
+            tip.cups.Add(new BurstTipCup { angle = 120f, spinSpeed = -280f, scale = new Vector2(1.1f, 1.5f), playerColor = false, color = RamLime });
+            tip.cups.Add(new BurstTipCup { angle = 240f, spinSpeed = 220f, scale = new Vector2(1.25f, 1.8f), playerColor = false, color = new Color(RamLime.r, RamLime.g, RamLime.b, 0.85f) });
+        }
+
+        /// <summary>Viñeta 2: rastro de grietas del usuario solo mientras embiste, a lo largo del camino.</summary>
+        private static ScorchStyle RamCracks() => new ScorchStyle
+        {
+            sprite = "", spriteVariants = new List<string>(LineCrackVariants), onlyWhileRushing = true, alignToMotion = true,
+            rotation = new Vector2(CrackBackward - 12f, CrackBackward + 12f), spacing = 0.9f, idleInterval = 0f,
+            size = new Vector2(1.6f, 2.2f), lifetime = 1.4f, color = CrackDark, alpha = 0.85f, height = 0.02f
+        };
+
+        /// <summary>
+        /// Viñeta 3, el golpe: un tajo curvo grande que envuelve al rival (mirando hacia donde sale despedido), el tajo animado,
+        /// Zbam, trozos de suelo y chispas.
+        /// </summary>
+        private static SpiralParticleStyle[] RamHit() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Tajo curvo", sprite = "MediaLuna", count = 1, radius = Vector2.zero, height = new Vector2(0.3f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, forwardOffset = 0.3f,
+                alignToDirection = true, rotation = new Vector2(CrescentForward, CrescentForward), size = new Vector2(2.8f, 2.8f),
+                lifetime = new Vector2(0.25f, 0.25f), color = Color.white, color2 = Color.white, alpha = 0.95f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Tajo animado", sprite = "Tajo", count = 2, radius = new Vector2(0f, 0.1f), height = new Vector2(0.3f, 0.5f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.6f, 2.2f),
+                lifetime = new Vector2(0.3f, 0.3f), color = Color.white, color2 = RamPale
+            },
+            RamZbamBurst("Zbam del golpe", 5, 2f, 4f),
+            RamDebrisBurst("Trozos del golpe", 14, 2.5f, 5f, 0f),
+            new SpiralParticleStyle
+            {
+                name = "Chispas", sprite = "Chispa", count = 16, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.05f, 0.25f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(4f, 8f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.3f, 0.5f), color = Color.white, color2 = RamLime
+            }
+        };
+
+        /// <summary>Peonza lanzada por la Embestida que choca contra la pared: Zbam y trozos.</summary>
+        private static SpiralParticleStyle[] RamWallHit() => new[]
+        {
+            RamZbamBurst("Zbam contra la pared", 4, 1.5f, 3f),
+            RamDebrisBurst("Trozos contra la pared", 10, 2f, 4f, 0f)
+        };
+
+        /// <summary>Círculo de Zbam (Zbam2 y Zbam3) que saltan hacia fuera.</summary>
+        private static SpiralParticleStyle RamZbamBurst(string name, int count, float minSpeed, float maxSpeed) => new SpiralParticleStyle
+        {
+            name = name, spriteVariants = new List<string> { "ZbamSube", "Zbam3Sube" }, count = count, radius = new Vector2(0.2f, 0.4f),
+            height = new Vector2(0.2f, 0.5f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(minSpeed, maxSpeed),
+            upSpeed = new Vector2(1f, 2f), size = new Vector2(0.35f, 0.6f), lifetime = new Vector2(0.3f, 0.4f),
+            color = Color.white, color2 = RamPale
+        };
+
+        /// <summary>Círculo de trozos de suelo que saltan, giran y caen (forward: metros hacia delante en la marcha; negativo = detrás).</summary>
+        private static SpiralParticleStyle RamDebrisBurst(string name, int count, float minSpeed, float maxSpeed, float forward) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Trozo", count = count, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.05f, 0.2f),
+            tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(3f, 5.5f),
+            forwardOffset = forward, size = new Vector2(0.1f, 0.18f), lifetime = new Vector2(0.6f, 0.9f), color = RamDebris, color2 = RamPale
+        };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);
         private static readonly Color LightningOrange = new Color(1f, 0.5f, 0.05f);

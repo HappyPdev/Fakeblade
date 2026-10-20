@@ -67,9 +67,18 @@ namespace FakeBlade.Core
         private float _lastRise = 1f;
         private float _topPhase;
 
-        public BladeChargeDome(FakeBladeController blade)
+        private readonly string _name;
+        private readonly int _sortingOrder;
+
+        /// <summary>
+        /// name: nombre del objeto. sortingOrder: orden entre las cúpulas de la misma peonza (la de la base de la Embestida,
+        /// 1: se pinta después, por delante de la grande).
+        /// </summary>
+        public BladeChargeDome(FakeBladeController blade, string name = "ChargeDome", int sortingOrder = 0)
         {
             _blade = blade;
+            _name = name;
+            _sortingOrder = sortingOrder;
         }
 
         /// <summary>
@@ -223,7 +232,7 @@ namespace FakeBlade.Core
         {
             _built = true;
             _block = new MaterialPropertyBlock();
-            var go = new GameObject("ChargeDome");
+            var go = new GameObject(_name);
             _transform = go.transform;
             _transform.SetParent(_blade.transform, false);
             _filter = go.AddComponent<MeshFilter>();
@@ -234,6 +243,7 @@ namespace FakeBlade.Core
             _renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             _renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
             _renderer.enabled = false;
+            _renderer.sortingOrder = _sortingOrder;
             // El embudo (Tornado) sube más que la media esfera: límites amplios para que no se recorte al salir de la pantalla
             _renderer.localBounds = new Bounds(new Vector3(0f, 2f, 0f), new Vector3(4f, 4.2f, 4f));
             ScreenPixelation.MoveToVfxLayer(go); // nítida sobre la escena pixelada (O2)

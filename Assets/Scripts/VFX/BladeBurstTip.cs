@@ -94,6 +94,17 @@ namespace FakeBlade.Core
             _time += dt;
 
             _root.position = new Vector3(tip.x, tip.y + style.height, tip.z);
+            if (style.pointForward)
+            {
+                // Delante de la peonza y abierto hacia ella: el eje del cuenco (arriba en el modelo) mira hacia atrás
+                Vector3 forward = MotionDirection();
+                _root.position += forward * style.forwardOffset;
+                _root.rotation = Quaternion.FromToRotation(Vector3.up, -forward);
+            }
+            else
+            {
+                _root.localRotation = Quaternion.identity;
+            }
             float rootScale = Mathf.Max(0.001f, _blade.transform.lossyScale.x);
             float scale = style.size / MeshWidth / rootScale;
 
@@ -135,8 +146,20 @@ namespace FakeBlade.Core
                 renderer.SetPropertyBlock(_block);
             }
 
-            UpdateGrounds(ground ? style : null, style.height, rootScale, owner);
+            UpdateGrounds(ground && !style.pointForward ? style : null, style.height, rootScale, owner);
             _visible = true;
+        }
+
+        /// <summary>Hacia dónde va la peonza, en el suelo (si está casi parada, hacia donde mira).</summary>
+        private Vector3 MotionDirection()
+        {
+            Vector3 v = _blade.Velocity;
+            v.y = 0f;
+            float speed = v.magnitude;
+            if (speed > 0.5f) return v / speed;
+            Vector3 facing = _blade.Facing;
+            facing.y = 0f;
+            return facing.sqrMagnitude > 0.0001f ? facing.normalized : Vector3.forward;
         }
 
         private static bool HasGround(BurstTipStyle style)

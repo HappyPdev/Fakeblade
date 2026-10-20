@@ -74,6 +74,9 @@ namespace FakeBlade.Core
         private float _hitTrailLeft;
         private readonly float[] _hitAcc = new float[MaxStyles];
         private readonly float[] _hitBurst = new float[MaxStyles];
+        // Arrancada (Embestida mientras embiste)
+        private readonly float[] _rushAcc = new float[MaxStyles];
+        private readonly float[] _rushBurst = new float[MaxStyles];
 
         /// <summary>Color del poder de lo que se emite ahora (Power Tint de cada partícula); se fija antes de cada tanda.</summary>
         private static Color s_power = Color.white;
@@ -105,33 +108,39 @@ namespace FakeBlade.Core
             s_power = _blade.Special != null ? _blade.Special.Color : Color.white;
             bool active = specialActive && special != null;
             bool effectsOn = active && !windingUp;
+            Vector3 motion = MotionDirection();
             // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
             float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
             // Las de solo la carga (windupOnly): la primera nada más empezar cada carga y ninguna después
-            EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt, !windingUp, windingUp && !_wasWindingUp);
+            EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt, motion, !windingUp, windingUp && !_wasWindingUp);
             // Explosión al encenderse; también al acabar una carga que gasta el poder (la última onda de Onda de choque, que
             // lo termina en ese momento: los efectos no llegan a encenderse)
             bool released = effectsOn && !_effectsWereOn;
             if (!released && _wasWindingUp && !windingUp && !specialActive && !_blade.IsDestroyed) released = true;
-            if (released && visible && special != null) Burst(special.activationBurst, tip);
+            if (released && visible && special != null) Burst(special.activationBurst, tip, motion);
             _effectsWereOn = effectsOn;
             _wasWindingUp = windingUp;
-            EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt);
-            Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt);
-            UpdateScorch(effectsOn ? special.scorch : null, tip, dt);
+            EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt, motion);
+            Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt, motion);
+            // Arrancada (Embestida mientras embiste, 2026-10-20): sus partículas y, si lo pide, el rastro de manchas
+            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            bool rushing = effectsOn && ability != null && ability.IsRushing;
+            Emit(rushing && visible ? special.rush : null, _rushAcc, _rushBurst, tip, dt, motion);
+            bool scorch = effectsOn && special.scorch != null && (!special.scorch.onlyWhileRushing || rushing);
+            UpdateScorch(scorch ? special.scorch : null, tip, dt, motion);
             UpdateAuras(special != null ? special.auras : null, _specialAuras, effectsOn, tipOffset, dt);
 
             s_power = Color.white;
             StatusVfxStyle status = StatusStyle(_blade);
-            Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt);
-            EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt);
+            Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt, motion);
+            EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt, motion);
             UpdateAuras(lib != null ? lib.burn?.auras : null, _burnAuras, status != null && status == lib.burn, tipOffset, dt);
             UpdateAuras(lib != null ? lib.frozen?.auras : null, _frozenAuras, status != null && status == lib.frozen, tipOffset, dt);
             UpdateAuras(lib != null ? lib.launched?.auras : null, _launchedAuras, status != null && status == lib.launched, tipOffset, dt);
             // Lanzada por un poder con su propia estela (Onda de choque: polvo mientras vuela)
             SpecialVfxStyle thrower = status != null && status == lib.launched ? ThrowerEffects(_blade) : null;
             if (thrower != null) s_power = _blade.Status.Source.Special.Color;
-            Emit(thrower != null && visible ? thrower.launchedTrail : null, _launchAcc, _launchBurst, tip, dt);
+            Emit(thrower != null && visible ? thrower.launchedTrail : null, _launchAcc, _launchBurst, tip, dt, motion);
             // Estela en la golpeada (2026-10-19): el rastro del poder de quien la golpeó, un momento tras cada golpe
             bool hitTrail = _hitTrailLeft > 0f && _hitTrailStyle != null && !_blade.IsDestroyed;
             if (hitTrail)
@@ -139,8 +148,23 @@ namespace FakeBlade.Core
                 _hitTrailLeft -= dt;
                 s_power = _hitTrailPower;
             }
-            Emit(hitTrail && visible ? _hitTrailStyle.hitTrail : null, _hitAcc, _hitBurst, tip, dt);
+            Emit(hitTrail && visible ? _hitTrailStyle.hitTrail : null, _hitAcc, _hitBurst, tip, dt, motion);
         }
+
+        /// <summary>Hacia dónde va la peonza, en el suelo (si está casi parada, hacia donde mira).</summary>
+        private Vector3 MotionDirection()
+        {
+            Vector3 v = _blade.Velocity;
+            v.y = 0f;
+            float speed = v.magnitude;
+            if (speed > 0.5f) return v / speed;
+            Vector3 facing = _blade.Facing;
+            facing.y = 0f;
+            return facing.sqrMagnitude > 0.0001f ? facing.normalized : Vector3.forward;
+        }
+
+        /// <summary>Ángulo de una dirección en el suelo, en grados (0 = +Z, en el sentido de las agujas del reloj visto desde arriba).</summary>
+        private static float Heading(Vector3 direction) => Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
 
         /// <summary>Efectos del especial de quien dejó lanzada a esta peonza (o null).</summary>
         private static SpecialVfxStyle ThrowerEffects(FakeBladeController blade)
@@ -164,7 +188,7 @@ namespace FakeBlade.Core
         {
             for (int i = 0; i < MaxStyles; i++)
                 _specialAcc[i] = _specialBurst[i] = _statusAcc[i] = _statusBurst[i] = _windupAcc[i] =
-                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = _launchAcc[i] = _launchBurst[i] = 0f;
+                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = _launchAcc[i] = _launchBurst[i] = _rushAcc[i] = _rushBurst[i] = 0f;
             _hasLastPosition = false;
             _effectsWereOn = false;
             _wasWindingUp = false;
@@ -295,7 +319,7 @@ namespace FakeBlade.Core
         /// del ritmo de cada estilo (uno por remolino: especial y quemadura).
         /// </summary>
         private static void EmitSpirals(List<SpiralParticleStyle> styles, float[] acc, float rateScale, Vector3 tip, float dt,
-            bool sustained = false, bool windupStarted = false)
+            Vector3 direction, bool sustained = false, bool windupStarted = false)
         {
             int count = styles != null ? Mathf.Min(styles.Count, MaxStyles) : 0;
             float mul = SettingsService.ParticleMultiplier * rateScale;
@@ -317,7 +341,7 @@ namespace FakeBlade.Core
                 acc[i] += dt * style.rate * mul;
                 int n = Mathf.Min((int)acc[i], MaxParticlesPerFrame);
                 acc[i] -= (int)acc[i];
-                for (int k = 0; k < n; k++) EmitSpiral(style, tip, Random.value * Mathf.PI * 2f);
+                for (int k = 0; k < n; k++) EmitSpiral(style, tip, Random.value * Mathf.PI * 2f, direction);
             }
         }
 
@@ -342,18 +366,21 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
-        /// Empujón de un poder a un rival (cada onda de Onda de choque; 2026-10-18): su círculo pushHit en el lado del rival
-        /// por el que le llega el golpe, a ras de suelo. direction: hacia donde sale despedido.
+        /// Empujón de un poder a un rival (cada onda de Onda de choque, el Tornado y cada golpe de la Embestida; 2026-10-18):
+        /// su círculo pushHit en el lado del rival por el que le llega el golpe, a ras de suelo, girado hacia donde sale
+        /// despedido (los que tienen Align To Direction). direction: hacia donde sale despedido. Devuelve false si el poder
+        /// no tiene (el llamador pone entonces el efecto común).
         /// </summary>
-        public static void PlayPushHit(FakeBladeController owner, FakeBladeController target, Vector3 direction)
+        public static bool PlayPushHit(FakeBladeController owner, FakeBladeController target, Vector3 direction)
         {
             VfxLibrary lib = VfxSystem.Library;
-            if (lib == null || owner == null || target == null || owner.Special == null) return;
+            if (lib == null || owner == null || target == null || owner.Special == null) return false;
             SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(owner.Special.Type);
-            if (style == null || style.pushHit == null || style.pushHit.Count == 0) return;
+            if (style == null || style.pushHit == null || style.pushHit.Count == 0) return false;
             Vector3 point = target.Position - direction * 0.45f;
             s_power = owner.Special.Color;
-            if (VfxSystem.IsOnScreen(point)) Burst(style.pushHit, point);
+            if (VfxSystem.IsOnScreen(point)) Burst(style.pushHit, point, direction);
+            return true;
         }
 
         /// <summary>
@@ -436,8 +463,11 @@ namespace FakeBlade.Core
             return new Color(color.r * power.r, color.g * power.g, color.b * power.b, color.a);
         }
 
-        /// <summary>Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor.</summary>
-        private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip)
+        /// <summary>
+        /// Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor. direction: la
+        /// marcha o el golpe, para los que se adelantan o se giran con ella (cero = ninguna).
+        /// </summary>
+        private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip, Vector3 direction = default)
         {
             if (styles == null) return;
             float mul = SettingsService.ParticleMultiplier;
@@ -447,18 +477,21 @@ namespace FakeBlade.Core
                 if (style == null) continue;
                 int n = Mathf.Min(MaxBurstParticles, Mathf.RoundToInt(style.count * mul));
                 float step = Mathf.PI * 2f / Mathf.Max(1, n);
-                for (int k = 0; k < n; k++) EmitSpiral(style, tip, k * step + Random.Range(0f, step));
+                for (int k = 0; k < n; k++) EmitSpiral(style, tip, k * step + Random.Range(0f, step), direction);
             }
         }
 
-        /// <summary>Una partícula del anillo en el ángulo dado: gira alrededor de la peonza, sale (o entra) y sube.</summary>
-        private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle)
+        /// <summary>
+        /// Una partícula del anillo en el ángulo dado: gira alrededor de la peonza, sale (o entra) y sube. direction: la marcha
+        /// o el golpe (Forward Offset y Align To Direction; cero = ninguna).
+        /// </summary>
+        private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle, Vector3 direction)
         {
             var outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
             // Tangente vista desde arriba: en el sentido de las agujas del reloj, (z, -x)
             Vector3 tangent = style.clockwise ? new Vector3(outward.z, 0f, -outward.x) : new Vector3(-outward.z, 0f, outward.x);
             Vector3 position = tip + outward * Random.Range(style.radius.x, style.radius.y) +
-                               Vector3.up * Random.Range(style.height.x, style.height.y);
+                               Vector3.up * Random.Range(style.height.x, style.height.y) + direction * style.forwardOffset;
             Vector3 velocity = tangent * Random.Range(style.tangentialSpeed.x, style.tangentialSpeed.y) +
                                outward * Random.Range(style.outwardSpeed.x, style.outwardSpeed.y) +
                                Vector3.up * Random.Range(style.upSpeed.x, style.upSpeed.y);
@@ -469,14 +502,16 @@ namespace FakeBlade.Core
             // Varios sprites: uno al azar en cada partícula (grietas distintas en cada golpe)
             List<string> variants = style.spriteVariants;
             string sprite = variants != null && variants.Count > 0 ? variants[Random.Range(0, variants.Count)] : style.sprite;
+            float rotation = Random.Range(style.rotation.x, style.rotation.y);
+            if (style.alignToDirection && direction.sqrMagnitude > 0.0001f) rotation += Heading(direction);
             if (!string.IsNullOrEmpty(sprite))
-                VfxSystem.EmitSprite(sprite, position, velocity, color, size, Random.Range(style.rotation.x, style.rotation.y), lifetime);
+                VfxSystem.EmitSprite(sprite, position, velocity, color, size, rotation, lifetime);
             else
                 VfxSystem.EmitParticle(style.emitter, position, velocity, color, size, lifetime);
         }
 
         /// <summary>Cada partícula de la lista: su ritmo seguido más los chasquidos (varias de golpe, a intervalos al azar).</summary>
-        private void Emit(List<SpecialParticleStyle> styles, float[] acc, float[] burst, Vector3 tip, float dt)
+        private void Emit(List<SpecialParticleStyle> styles, float[] acc, float[] burst, Vector3 tip, float dt, Vector3 motion)
         {
             int count = styles != null ? Mathf.Min(styles.Count, MaxStyles) : 0;
             float mul = SettingsService.ParticleMultiplier;
@@ -502,11 +537,12 @@ namespace FakeBlade.Core
                     }
                 }
                 n = Mathf.Min(n, MaxParticlesPerFrame);
-                for (int k = 0; k < n; k++) EmitOne(style, tip);
+                for (int k = 0; k < n; k++) EmitOne(style, tip, motion);
             }
         }
 
-        private void EmitOne(SpecialParticleStyle style, Vector3 tip)
+        /// <summary>motion: hacia dónde va la peonza (Forward Offset y Align To Motion).</summary>
+        private void EmitOne(SpecialParticleStyle style, Vector3 tip, Vector3 motion)
         {
             // Dirección al azar dentro del cono (desde la vertical); salen repartidas alrededor de la punta
             float tilt = Random.Range(0f, style.coneAngle) * Mathf.Deg2Rad;
@@ -515,7 +551,8 @@ namespace FakeBlade.Core
             var direction = new Vector3(sin * Mathf.Cos(turn), Mathf.Cos(tilt), sin * Mathf.Sin(turn));
             var around = new Vector3(Mathf.Cos(turn), 0f, Mathf.Sin(turn));
             Vector3 position = tip + around * Random.Range(style.spawnRadius.x, style.spawnRadius.y) +
-                               Vector3.up * Random.Range(style.height.x, style.height.y);
+                               Vector3.up * Random.Range(style.height.x, style.height.y) +
+                               motion * Random.Range(style.forwardOffset.x, style.forwardOffset.y);
             Vector3 velocity = _blade.Velocity;
             Vector3 inherited = new Vector3(velocity.x, 0f, velocity.z) * style.inheritVelocity;
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
@@ -523,16 +560,22 @@ namespace FakeBlade.Core
             Vector3 v = direction * Random.Range(style.speed.x, style.speed.y) + inherited;
             float size = Random.Range(style.size.x, style.size.y);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
+            float rotation = Random.Range(style.rotation.x, style.rotation.y);
+            if (style.alignToMotion) rotation += Heading(motion);
             if (!string.IsNullOrEmpty(style.sprite))
-                VfxSystem.EmitSprite(style.sprite, position, v, color, size, Random.Range(style.rotation.x, style.rotation.y), lifetime);
+                VfxSystem.EmitSprite(style.sprite, position, v, color, size, rotation, lifetime);
             else
                 VfxSystem.EmitParticle(style.emitter, position, v, color, size, lifetime);
         }
 
-        /// <summary>Una mancha cada Spacing metros recorridos (y cada Idle Interval segundos aunque no se mueva).</summary>
-        private void UpdateScorch(ScorchStyle style, Vector3 tip, float dt)
+        /// <summary>
+        /// Una mancha cada Spacing metros recorridos (y cada Idle Interval segundos aunque no se mueva). Con varios sprites, uno
+        /// al azar; con Align To Motion, girada hacia la marcha (las grietas de la Embestida siguen el camino).
+        /// </summary>
+        private void UpdateScorch(ScorchStyle style, Vector3 tip, float dt, Vector3 motion)
         {
-            if (style == null || string.IsNullOrEmpty(style.sprite) || _blade.IsDestroyed || _blade.IsLeaping)
+            bool hasSprite = style != null && (!string.IsNullOrEmpty(style.sprite) || (style.spriteVariants != null && style.spriteVariants.Count > 0));
+            if (!hasSprite || _blade.IsDestroyed || _blade.IsLeaping)
             {
                 _hasLastPosition = false;
                 _scorchDistance = _scorchIdle = 0f;
@@ -542,7 +585,8 @@ namespace FakeBlade.Core
             {
                 _hasLastPosition = true;
                 _lastPosition = tip;
-                _scorchDistance = style.spacing; // la primera, nada más empezar
+                // La primera, nada más empezar; las de la arrancada no (la Embestida ya deja su grieta de salida)
+                _scorchDistance = style.onlyWhileRushing ? 0f : style.spacing;
             }
             float dx = tip.x - _lastPosition.x, dz = tip.z - _lastPosition.z;
             _scorchDistance += Mathf.Sqrt(dx * dx + dz * dz);
@@ -558,8 +602,12 @@ namespace FakeBlade.Core
 
             Color color = style.color;
             color.a = style.alpha;
-            VfxSystem.EmitSprite(style.sprite, new Vector3(tip.x, tip.y + style.height, tip.z), Vector3.zero, color,
-                Random.Range(style.size.x, style.size.y), Random.Range(0f, 360f), style.lifetime);
+            List<string> variants = style.spriteVariants;
+            string sprite = variants != null && variants.Count > 0 ? variants[Random.Range(0, variants.Count)] : style.sprite;
+            float rotation = Random.Range(style.rotation.x, style.rotation.y);
+            if (style.alignToMotion) rotation += Heading(motion);
+            VfxSystem.EmitSprite(sprite, new Vector3(tip.x, tip.y + style.height, tip.z), Vector3.zero, color,
+                Random.Range(style.size.x, style.size.y), rotation, style.lifetime);
         }
     }
 }

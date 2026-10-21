@@ -230,7 +230,7 @@ namespace FakeBlade.Core.Editor
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
-                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupGenericSpecial(library);
+                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -1318,6 +1318,266 @@ namespace FakeBlade.Core.Editor
             name = name, sprite = "Trozo", count = count, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.05f, 0.2f),
             tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(3f, 5.5f),
             forwardOffset = forward, size = new Vector2(0.1f, 0.18f), lifetime = new Vector2(0.6f, 0.9f), color = RamDebris, color2 = RamPale
+        };
+
+        // Salto: el rosa de su asset (Leap) y uno claro
+        private static readonly Color LeapPink = new Color(1f, 0.35f, 0.45f);
+        private static readonly Color LeapPale = new Color(1f, 0.82f, 0.86f);
+
+        /// <summary>
+        /// Salto (K8, 2026-10-21; boceto del usuario en cuatro viñetas). Se empieza copiando la plantilla común (con los círculos
+        /// finos de CircleImpact04, como la Embestida) y se le añade lo suyo: 1) carga: círculos que se cierran mientras bajan
+        /// desde arriba hasta el suelo (la carga se concentra en el suelo) y un aro de picos en la base; 2) despegue: bocanada de
+        /// humo, una línea que sube, chispas y escombros; 3) vuelo: dos líneas en espiral que giran y dejan su rastro, los
+        /// cuencos de la Embestida delante y apuntando adonde va a caer, semicírculos que se abren y se quedan atrás, chispas,
+        /// humo y escombros; en el suelo, una marca que se cierra justo al caer; 4) caída: aro de picos que crece, onda, grieta
+        /// al azar, humo que sube, el golpe, chispas, escombros y semicírculos. Rosa (su color) y blanco. Conserva sus
+        /// partículas de antes (Replace Aura apagado; la onda pixelada de la caída ya no sale). Solo añade la entrada si falta
+        /// y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupLeap(VfxLibrary library)
+        {
+            SpecialVfxStyle leap = library.GetSpecialEffects(SpecialAbilityType.Leap);
+            bool added = leap == null;
+            if (added)
+            {
+                leap = new SpecialVfxStyle { type = SpecialAbilityType.Leap, replaceAura = false, windupSustain = 0f };
+                leap.tip.cups.Clear();
+                leap.tip.particleSprite = "";
+                leap.tip.ground = new TipGroundSprite();
+                leap.overlay = new SpecialOverlayStyle
+                {
+                    color = LeapPink, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.5f, 1.2f),
+                    pulseFlash = new Vector2(0f, 0.08f), pulseInterval = new Vector2(0.15f, 0.35f), pulseDecay = 0.2f
+                };
+                library.specialEffects.Add(leap);
+            }
+
+            leap.tip ??= new BurstTipStyle();
+            if (leap.tip.cups.Count == 0) LeapTip(leap.tip, library);
+            leap.spiralTrail ??= new SpiralTrailStyle();
+            if (leap.spiralTrail.material == null) leap.spiralTrail.material = AssetDatabase.LoadAssetAtPath<Material>(BasicMaterialPath);
+
+            // La plantilla común como base y lo propio detrás
+            leap.windup ??= new List<SpiralParticleStyle>();
+            if (leap.windup.Count == 0)
+            {
+                leap.windup.AddRange(GenericWindup());
+                foreach (SpiralParticleStyle style in leap.windup)
+                    if (style.sprite == "CircleImpact02Cierra" || style.sprite == "FP_CircleImpactCierra") style.sprite = "CircleImpact04Cierra";
+                leap.windup.AddRange(WindupOnly(LeapWindup()));
+            }
+            leap.activationBurst ??= new List<SpiralParticleStyle>();
+            if (leap.activationBurst.Count == 0)
+            {
+                leap.activationBurst.AddRange(GenericBurst());
+                foreach (SpiralParticleStyle style in leap.activationBurst)
+                    if (style.sprite == "CircleImpact02Suelo")
+                    {
+                        style.sprite = "CircleImpact04Anillo";
+                        style.count = 2;
+                    }
+                leap.activationBurst.AddRange(LeapTakeOff());
+            }
+            leap.rush ??= new List<SpecialParticleStyle>();
+            if (leap.rush.Count == 0) leap.rush.AddRange(LeapFlight());
+            leap.targetMark ??= new List<SpiralParticleStyle>();
+            if (leap.targetMark.Count == 0) leap.targetMark.AddRange(LeapMark());
+            leap.release ??= new List<SpiralParticleStyle>();
+            if (leap.release.Count == 0) leap.release.AddRange(LeapLanding());
+            leap.pushHit ??= new List<SpiralParticleStyle>();
+            if (leap.pushHit.Count == 0) leap.pushHit.AddRange(LeapHit());
+            leap.launchedTrail ??= new List<SpecialParticleStyle>();
+            if (leap.launchedTrail.Count == 0) leap.launchedTrail.AddRange(GenericHitTrail());
+            leap.launchedWallHit ??= new List<SpiralParticleStyle>();
+            if (leap.launchedWallHit.Count == 0) leap.launchedWallHit.AddRange(LeapWallHit());
+            return "Salto" + (added ? " (nuevo)" : "") + (leap.spiralTrail.material == null ? " (falta VFX_TrailBasic)" : "");
+        }
+
+        /// <summary>
+        /// Viñeta 3: los cuencos de la Embestida (copiados de su entrada, con lo que haya ajustado el usuario) delante de la
+        /// peonza, en rosa y blanco, mientras vuela y apuntando adonde va a caer: cada vez más inclinados al bajar.
+        /// </summary>
+        private static void LeapTip(BurstTipStyle tip, VfxLibrary library)
+        {
+            SpecialVfxStyle ram = library.GetSpecialEffects(SpecialAbilityType.Ram);
+            if (ram != null && ram.tip != null && ram.tip.cups.Count > 0)
+                EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(ram.tip), tip);
+            else
+                RamTip(tip, library.burstTip);
+            tip.pointForward = true;
+            tip.onlyWhileRushing = true;
+            tip.aimAtTarget = true;
+            for (int i = 0; i < tip.cups.Count; i++)
+            {
+                float alpha = tip.cups[i].color.a;
+                Color color = i == 0 ? Color.white : LeapPink;
+                tip.cups[i].playerColor = false;
+                tip.cups[i].color = new Color(color.r, color.g, color.b, alpha);
+            }
+        }
+
+        /// <summary>
+        /// Viñeta 1, la carga: círculos finos que se cierran mientras bajan desde arriba hasta el suelo (la carga se concentra en
+        /// el suelo, pedido por el usuario) y un aro de picos en la base que se encoge.
+        /// </summary>
+        private static SpiralParticleStyle[] LeapWindup() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Círculos que bajan", sprite = "CircleImpact04Cierra", rate = 12f, radius = Vector2.zero, height = new Vector2(1.3f, 2f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = new Vector2(-6.5f, -4.5f),
+                size = new Vector2(2.6f, 3.4f), lifetime = new Vector2(0.3f, 0.35f), color = Color.white, color2 = LeapPink, alpha = 0.9f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Aro de picos (base)", sprite = "AroPicos", rate = 8f, radius = Vector2.zero, height = new Vector2(0.03f, 0.03f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.5f, 1.9f),
+                lifetime = new Vector2(0.15f, 0.2f), color = LeapPink, color2 = Color.white, alpha = 0.9f
+            }
+        };
+
+        /// <summary>Viñeta 2, el despegue: bocanada de humo en el suelo, una línea que sube detrás de ella, chispas y escombros.</summary>
+        private static SpiralParticleStyle[] LeapTakeOff() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Bocanada del despegue", sprite = "HumoViento", count = 14, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.05f, 0.2f), tangentialSpeed = new Vector2(0.3f, 0.8f), outwardSpeed = new Vector2(2f, 4f),
+                upSpeed = new Vector2(0.3f, 1f), size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.7f, 0.9f),
+                color = Color.white, color2 = LeapPale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Línea que sube", sprite = "Linea", count = 3, radius = new Vector2(0f, 0.15f), height = new Vector2(0.1f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = new Vector2(7f, 9f),
+                size = new Vector2(0.06f, 0.09f), lifetime = new Vector2(0.22f, 0.28f), color = Color.white, color2 = LeapPink
+            },
+            LeapSparks("Chispas del despegue", 18, 2f, 4f),
+            LeapDebrisBurst("Escombros del despegue", 10, 1.5f, 3f)
+        };
+
+        /// <summary>
+        /// Viñeta 3, mientras vuela (las espirales van en Spiral Trail y los cuencos en la punta): semicírculos que se abren y se
+        /// quedan atrás, chispas que caen, humo y escombros pequeños y variados.
+        /// </summary>
+        private static SpecialParticleStyle[] LeapFlight() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Semicírculos que se abren", sprite = "CircleImpact04", rate = 9f, spawnRadius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.1f, 0.4f), coneAngle = 0f, speed = Vector2.zero, inheritVelocity = 0f,
+                forwardOffset = new Vector2(-0.3f, -0.1f), size = new Vector2(0.7f, 1f), lifetime = new Vector2(0.25f, 0.3f),
+                color = Color.white, color2 = LeapPale, alpha = 0.9f
+            },
+            new SpecialParticleStyle
+            {
+                name = "Chispas", sprite = "Chispa", rate = 35f, spawnRadius = new Vector2(0.2f, 0.5f), height = new Vector2(0f, 0.4f),
+                coneAngle = 90f, speed = new Vector2(0.5f, 1.5f), inheritVelocity = -0.1f, size = new Vector2(0.05f, 0.08f),
+                lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = LeapPink
+            },
+            new SpecialParticleStyle
+            {
+                name = "Humo", sprite = "NubeComic", rate = 10f, spawnRadius = new Vector2(0.1f, 0.3f), height = new Vector2(0f, 0.3f),
+                coneAngle = 60f, speed = new Vector2(0.2f, 0.5f), inheritVelocity = -0.1f, size = new Vector2(0.25f, 0.4f),
+                lifetime = new Vector2(0.35f, 0.5f), color = Color.white, color2 = LeapPale, alpha = 0.8f
+            },
+            new SpecialParticleStyle
+            {
+                name = "Escombros", sprite = "Trozo", rate = 12f, spawnRadius = new Vector2(0.2f, 0.4f), height = new Vector2(0f, 0.2f),
+                coneAngle = 60f, speed = new Vector2(1f, 2f), inheritVelocity = -0.15f, size = new Vector2(0.07f, 0.12f),
+                lifetime = new Vector2(0.5f, 0.7f), color = RamDebris, color2 = LeapPale
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 3, extra: la marca donde va a caer, al despegar. Lifetime 0: duran todo el vuelo, así el círculo (del ancho de
+        /// la onda) acaba de cerrarse y el aro de picos de encogerse justo al caer.
+        /// </summary>
+        private static SpiralParticleStyle[] LeapMark() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Marca de caída", sprite = "CircleImpact04Cierra", count = 1, radius = Vector2.zero, height = new Vector2(0.03f, 0.03f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(8.3f, 8.3f),
+                lifetime = Vector2.zero, color = LeapPink, color2 = LeapPink, alpha = 0.6f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Picos de la marca", sprite = "AroPicos", count = 1, radius = Vector2.zero, height = new Vector2(0.03f, 0.03f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.4f, 1.4f),
+                lifetime = Vector2.zero, color = Color.white, color2 = Color.white, alpha = 0.7f
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 4, al caer (sustituye al estallido común y su onda pixelada): aro de picos que crece por el suelo (la elipse
+        /// con picos del boceto), onda, una grieta al azar, humo que sube en bocanadas, el golpe, chispas, escombros y
+        /// semicírculos.
+        /// </summary>
+        private static SpiralParticleStyle[] LeapLanding() => new[]
+        {
+            ShockCircle("Aro de picos", "AroPicosCrece", 9f, 0.04f, 0.5f, LeapPink, 0.95f),
+            ShockCircle("Onda", "CircleImpact04Anillo", 9.75f, 0.06f, 0.4f, Color.white, 0.9f, count: 2),
+            new SpiralParticleStyle
+            {
+                name = "Grieta", count = 1, radius = Vector2.zero, height = new Vector2(0.02f, 0.02f), tangentialSpeed = Vector2.zero,
+                outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(3f, 4.5f), lifetime = new Vector2(1.4f, 1.4f),
+                color = CrackDark, color2 = CrackDark, alpha = 0.85f, spriteVariants = new List<string>(CrackVariants)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo que sube", sprite = "HumoViento", count = 22, radius = new Vector2(0.4f, 0.8f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(2f, 4.5f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.8f, 1.2f), lifetime = new Vector2(0.9f, 1.2f), color = Color.white, color2 = LeapPale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo bajo", sprite = "HumoViento", count = 14, radius = new Vector2(0.4f, 0.6f), height = new Vector2(0.05f, 0.2f),
+                tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(5f, 9f), upSpeed = new Vector2(0.1f, 0.4f),
+                size = new Vector2(0.9f, 1.3f), lifetime = new Vector2(1f, 1.3f), color = Color.white, color2 = LeapPale
+            },
+            ShockCircle("Golpe", "Impact10", 2.6f, 0.4f, 0f, LeapPale, 1f),
+            LeapSparks("Chispas", 30, 4f, 8f),
+            LeapDebrisBurst("Escombros", 18, 2.5f, 5f),
+            LeapCrescents("Semicírculos", 4)
+        };
+
+        /// <summary>Cada rival alcanzado por la caída: chispas, escombros y un semicírculo.</summary>
+        private static SpiralParticleStyle[] LeapHit() => new[]
+        {
+            LeapSparks("Chispas", 14, 3f, 6f),
+            LeapDebrisBurst("Escombros", 8, 2f, 4f),
+            LeapCrescents("Semicírculo", 1)
+        };
+
+        /// <summary>Peonza lanzada por el Salto que choca contra la pared: escombros y chispas.</summary>
+        private static SpiralParticleStyle[] LeapWallHit() => new[]
+        {
+            LeapDebrisBurst("Escombros contra la pared", 10, 2f, 4f),
+            LeapSparks("Chispas contra la pared", 10, 2f, 4f)
+        };
+
+        private static SpiralParticleStyle LeapSparks(string name, int count, float minSpeed, float maxSpeed) => new SpiralParticleStyle
+        {
+            name = name, sprite = "Chispa", count = count, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.05f, 0.3f),
+            tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(minSpeed, maxSpeed), upSpeed = new Vector2(2.5f, 4.5f),
+            size = new Vector2(0.05f, 0.09f), lifetime = new Vector2(0.35f, 0.55f), color = Color.white, color2 = LeapPink
+        };
+
+        private static SpiralParticleStyle LeapDebrisBurst(string name, int count, float minSpeed, float maxSpeed)
+        {
+            SpiralParticleStyle debris = RamDebrisBurst(name, count, minSpeed, maxSpeed, 0f);
+            debris.color2 = LeapPale;
+            return debris;
+        }
+
+        /// <summary>Semicírculos que se abren (CircleImpact04 de pie) un poco por encima del suelo y saliendo despacio.</summary>
+        private static SpiralParticleStyle LeapCrescents(string name, int count) => new SpiralParticleStyle
+        {
+            name = name, sprite = "CircleImpact04", count = count, radius = new Vector2(0.8f, 1.2f), height = new Vector2(0.3f, 0.6f),
+            tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2f), upSpeed = new Vector2(0.2f, 0.6f),
+            size = new Vector2(1f, 1.4f), lifetime = new Vector2(0.3f, 0.35f), color = Color.white, color2 = LeapPale, alpha = 0.9f
         };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);

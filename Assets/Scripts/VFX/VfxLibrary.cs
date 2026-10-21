@@ -258,8 +258,11 @@ namespace FakeBlade.Core
         public bool pointForward;
         [Tooltip("Metros hacia delante en la marcha a los que va el cuenco (con Point Forward)")]
         public float forwardOffset = 0.5f;
-        [Tooltip("Solo mientras arranca el poder (Embestida: mientras embiste)")]
+        [Tooltip("Solo mientras arranca el poder (Embestida: mientras embiste; Salto: mientras vuela)")]
         public bool onlyWhileRushing;
+        [Tooltip("Con Point Forward, miran hacia el punto al que va el poder en vez de hacia la marcha (Salto: hacia donde va a " +
+                 "caer, cada vez más inclinados al bajar). Sin punto, hacia la marcha")]
+        public bool aimAtTarget;
 
         [Header("Partículas en cono hacia arriba (se quedan atrás: rastro)")]
         [Tooltip("Id del sprite (lista Impact Sprites: Valo8 = ImpatcValo8, Valo4 = ImpactValo4). Vacío = sin partículas. " +
@@ -437,13 +440,18 @@ namespace FakeBlade.Core
         [Tooltip("Otra cúpula a la vez, por delante de la primera (Embestida: cilindro bajo en la base con una Zbam). Sin " +
                  "material = no sale")]
         public ChargeDomeStyle baseDome = new ChargeDomeStyle();
-        [Header("Arrancada (Embestida, mientras embiste)")]
+        [Header("Arrancada (Embestida, mientras embiste; Salto, mientras vuela)")]
         [Tooltip("Partículas solo mientras arranca (Embestida: media luna de aire delante, trozos de suelo y Zbam detrás). Con " +
                  "Align To Motion y Forward Offset se colocan y giran según la marcha")]
         public List<SpecialParticleStyle> rush = new List<SpecialParticleStyle>();
-        [Header("Empujón a los rivales (Onda de choque, Tornado)")]
-        [Tooltip("Al soltar el empujón (Tornado; sustituye a las estrellas comunes): explosión en espiral alrededor de la peonza. " +
-                 "Usa Count, no Rate")]
+        [Tooltip("Líneas en espiral que giran alrededor de la peonza y dejan su rastro (Salto: mientras vuela). Sin material = no salen")]
+        public SpiralTrailStyle spiralTrail = new SpiralTrailStyle();
+        [Tooltip("Al encenderse, en el punto al que va el poder (Salto: donde va a caer). Con Lifetime 0, duran hasta que llega: " +
+                 "un círculo que se cierra acaba de cerrarse al caer. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> targetMark = new List<SpiralParticleStyle>();
+        [Header("Empujón a los rivales (Onda de choque, Tornado, Salto)")]
+        [Tooltip("Al soltar el empujón (Tornado; sustituye a las estrellas comunes) o al caer (Salto; sustituye al estallido y la " +
+                 "onda comunes): explosión en espiral alrededor de la peonza. Usa Count, no Rate")]
         public List<SpiralParticleStyle> release = new List<SpiralParticleStyle>();
         [Tooltip("En cada rival que alcanza el empujón del poder (cada onda): un círculo de partículas en el lado del golpe. " +
                  "Usa Count, no Rate")]
@@ -460,6 +468,43 @@ namespace FakeBlade.Core
         public List<SpecialParticleStyle> hitTrail = new List<SpecialParticleStyle>();
         [Tooltip("Segundos que deja la estela tras cada golpe")]
         [Min(0f)] public float hitTrailTime = 0.4f;
+    }
+
+    /// <summary>
+    /// Estela en espiral (Salto, K8, 2026-10-21; boceto del usuario): varias líneas que giran alrededor de la peonza, en el
+    /// plano perpendicular a su marcha, y dejan una cinta cada una (TrailRenderer): una hélice que sigue el arco del salto.
+    /// Las pinta BladeSpiralTrail. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class SpiralTrailStyle
+    {
+        [Tooltip("Material de las cintas (shader FakeBlade/RibbonTrail: VFX_TrailBasic, lisa). Vacío = no salen")]
+        public Material material;
+        [Tooltip("Solo mientras arranca el poder (Salto: mientras vuela). Si no, mientras dura el poder")]
+        public bool onlyWhileRushing = true;
+        [Tooltip("Líneas (como mucho 4), repartidas alrededor")]
+        [Range(1, 4)] public int strands = 2;
+        [Tooltip("Distancia al eje de la marcha (m)")]
+        [Min(0f)] public float radius = 0.55f;
+        [Tooltip("Vueltas por segundo (negativo = hacia el otro lado)")]
+        public float turnsPerSecond = 3f;
+        [Tooltip("Altura del eje sobre la punta (m)")]
+        public float height = 0.3f;
+        [Tooltip("Ancho de cada línea junto a la peonza (m)")]
+        [Min(0f)] public float width = 0.09f;
+        [Tooltip("Ancho al final, como fracción del de la cabeza (0 = acaba en punta)")]
+        [Range(0f, 1f)] public float tailWidth = 0.3f;
+        [Tooltip("Lo que dura cada punto de la línea (s): más = rastro más largo")]
+        [Min(0.01f)] public float time = 0.35f;
+        [Tooltip("Color de las líneas 1 y 3")]
+        public Color color = Color.white;
+        [Tooltip("Color de las líneas 2 y 4")]
+        public Color color2 = Color.white;
+        [Tooltip("Transparencia al final, como fracción de la de la cabeza (0 = se desvanece)")]
+        [Range(0f, 1f)] public float tailAlpha;
+        [Tooltip("Cuánto toma el color del poder cada color (0 = el suyo; 1 = multiplicado por el del poder): x en las líneas 1 y " +
+                 "3, y en las 2 y 4")]
+        public Vector2 powerTint = new Vector2(0f, 1f);
     }
 
     /// <summary>

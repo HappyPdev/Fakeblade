@@ -147,6 +147,8 @@ namespace FakeBlade.Core
         private BladeBurstTip _burstTip;
         // Punta del especial activo (cuencos, sprite en el suelo y partículas en cono; K8)
         private BladeBurstTip _specialTip;
+        // Estela en espiral del especial (Salto mientras vuela; K8)
+        private BladeSpiralTrail _spiralTrail;
         // Punta de la peonza quemada (aro de fuego en el suelo; K8)
         private BladeBurstTip _burnTip;
         // Partículas del especial y de la quemadura, y manchas en el suelo (K8)
@@ -335,6 +337,7 @@ namespace FakeBlade.Core
             _burstRibbon = new BladeTrail(this, burst: true);
             _burstTip = new BladeBurstTip(this);
             _specialTip = new BladeBurstTip(this, "SpecialTip");
+            _spiralTrail = new BladeSpiralTrail(this);
             _burnTip = new BladeBurstTip(this, "BurnTip");
             _specialFx = new BladeSpecialFx(this);
             _arcs = new BladeArcs(this);
@@ -806,6 +809,7 @@ namespace FakeBlade.Core
             _burstRibbon?.Stop();
             _burstTip?.Hide();
             _specialTip?.Hide();
+            _spiralTrail?.Hide();
             _burnTip?.Hide();
             _specialFx?.Clear();
             _arcs?.Hide();
@@ -1548,11 +1552,16 @@ namespace FakeBlade.Core
                 VfxLibrary lib = VfxSystem.Library;
                 _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
                 SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
-                // La punta del especial; la de la Embestida, solo mientras embiste (cuenco delante, 2026-10-20)
-                bool tipOn = _special.IsActive && !_special.IsWindingUp && !_isDestroyed;
-                if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing)
-                    tipOn = _special.Ability != null && _special.Ability.IsRushing;
+                // La punta del especial; la de la Embestida, solo mientras embiste (cuenco delante, 2026-10-20), y la del
+                // Salto, mientras vuela
+                bool effectsOn = _special.IsActive && !_special.IsWindingUp && !_isDestroyed;
+                bool rushing = effectsOn && _special.Ability != null && _special.Ability.IsRushing;
+                bool tipOn = effectsOn;
+                if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing) tipOn = rushing;
                 _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, tipOn);
+                SpiralTrailStyle spiral = specialVfx?.spiralTrail;
+                _spiralTrail?.Tick(dt, _particles.TipOffset, spiral, spiral != null && spiral.onlyWhileRushing ? rushing : effectsOn,
+                    _special.Color);
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
@@ -1629,6 +1638,7 @@ namespace FakeBlade.Core
             _burstRibbon?.Clear();
             _burstTip?.Hide();
             _specialTip?.Hide();
+            _spiralTrail?.Hide();
             _burnTip?.Hide();
             _specialFx?.Clear();
             _arcs?.Hide();

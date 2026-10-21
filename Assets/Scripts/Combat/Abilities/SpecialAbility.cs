@@ -192,10 +192,20 @@ namespace FakeBlade.Core
         /// </summary>
         public virtual float SustainedRumble => 0f;
         /// <summary>
-        /// Arrancada propia del poder (la Embestida mientras embiste): sus efectos de la arrancada (VfxLibrary: rush y las
-        /// manchas con Only While Rushing) salen solo entonces.
+        /// Arrancada propia del poder (la Embestida mientras embiste; el Salto mientras vuela): sus efectos de la arrancada
+        /// (VfxLibrary: rush, la estela en espiral y lo que tenga Only While Rushing) salen solo entonces.
         /// </summary>
         public virtual bool IsRushing => false;
+        /// <summary>
+        /// Punto al que va el poder (el Salto: donde caerá) y segundos que faltan para llegar; false si no tiene. Para los
+        /// efectos: la marca en el suelo y los cuencos de la punta que miran hacia él.
+        /// </summary>
+        public virtual bool TryGetTargetPoint(out Vector3 point, out float timeLeft)
+        {
+            point = default;
+            timeLeft = 0f;
+            return false;
+        }
         /// <summary>Lo que lleva de la carga (0 al empezar, 1 al acabar). Para los efectos que crecen con ella (cúpula).</summary>
         public virtual float WindupProgress => 1f;
         /// <summary>

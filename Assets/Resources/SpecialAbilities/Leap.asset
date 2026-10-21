@@ -25,9 +25,9 @@ MonoBehaviour:
   height: 2.2
   gravityScale: 6
   knockbackTakenInAir: 0.2
-  radius: 3
-  edgeFactor: 0.5
-  damagePct: 0.1
+  radius: 4.5
+  edgeFactor: 0.7
+  damagePct: 0.2
   force: 22
   launchDuration: 0.4
   landShake: 0.25

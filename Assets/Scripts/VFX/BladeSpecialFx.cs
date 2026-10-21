@@ -118,12 +118,21 @@ namespace FakeBlade.Core
             bool released = effectsOn && !_effectsWereOn;
             if (!released && _wasWindingUp && !windingUp && !specialActive && !_blade.IsDestroyed) released = true;
             if (released && visible && special != null) Burst(special.activationBurst, tip, motion);
+            // Marca donde va a caer (Salto, 2026-10-21): dura hasta que llega (un círculo que se cierra acaba al caer)
+            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            if (released && special != null && special.targetMark.Count > 0 && ability != null &&
+                ability.TryGetTargetPoint(out Vector3 target, out float timeLeft))
+            {
+                target.y += tipOffset;
+                // Junto a la pared, más pequeña: que no salga de la arena
+                if (VfxSystem.IsOnScreen(target)) Burst(special.targetMark, target, motion, timeLeft, ArenaDefinition.MaxWidthAt(target));
+            }
             _effectsWereOn = effectsOn;
             _wasWindingUp = windingUp;
             EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt, motion);
             Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt, motion);
-            // Arrancada (Embestida mientras embiste, 2026-10-20): sus partículas y, si lo pide, el rastro de manchas
-            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            // Arrancada (Embestida mientras embiste, 2026-10-20; Salto mientras vuela): sus partículas y, si lo pide, el
+            // rastro de manchas
             bool rushing = effectsOn && ability != null && ability.IsRushing;
             Emit(rushing && visible ? special.rush : null, _rushAcc, _rushBurst, tip, dt, motion);
             bool scorch = effectsOn && special.scorch != null && (!special.scorch.onlyWhileRushing || rushing);
@@ -387,15 +396,21 @@ namespace FakeBlade.Core
         /// Suelta el empujón de un poder (Tornado, 2026-10-18): su explosión release alrededor de la peonza, a la altura de la
         /// punta. Devuelve false si el poder no tiene (el llamador pone entonces el efecto común).
         /// </summary>
-        public static bool PlayRelease(FakeBladeController owner)
+        public static bool PlayRelease(FakeBladeController owner) => owner != null && PlayRelease(owner, owner.TipPosition);
+
+        /// <summary>
+        /// Como el de arriba, en un punto dado (el Salto al caer: la punta a la altura del suelo, porque al aterrizar con tanta
+        /// gravedad se hunde un momento y los sprites tumbados quedarían bajo el suelo). maxSize: tamaño máximo de cada
+        /// partícula (junto a la pared, para no salir de la arena).
+        /// </summary>
+        public static bool PlayRelease(FakeBladeController owner, Vector3 tip, float maxSize = float.MaxValue)
         {
             VfxLibrary lib = VfxSystem.Library;
             if (lib == null || owner == null || owner.Special == null) return false;
             SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(owner.Special.Type);
             if (style == null || style.release == null || style.release.Count == 0) return false;
-            Vector3 tip = owner.TipPosition;
             s_power = owner.Special.Color;
-            if (VfxSystem.IsOnScreen(tip)) Burst(style.release, tip);
+            if (VfxSystem.IsOnScreen(tip)) Burst(style.release, tip, default, 0f, maxSize);
             return true;
         }
 
@@ -465,9 +480,12 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// Explosión en espiral (al encenderse o al chocar): cada estilo con su cantidad, repartida alrededor. direction: la
-        /// marcha o el golpe, para los que se adelantan o se giran con ella (cero = ninguna).
+        /// marcha o el golpe, para los que se adelantan o se giran con ella (cero = ninguna). untilTime: la duración de las
+        /// que tienen Lifetime 0 (la marca del Salto, hasta que cae; 0 = la del sprite). maxSize: tamaño máximo de cada
+        /// partícula (la marca y la caída del Salto junto a la pared, para no salir de la arena).
         /// </summary>
-        private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip, Vector3 direction = default)
+        private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip, Vector3 direction = default, float untilTime = 0f,
+            float maxSize = float.MaxValue)
         {
             if (styles == null) return;
             float mul = SettingsService.ParticleMultiplier;
@@ -477,15 +495,16 @@ namespace FakeBlade.Core
                 if (style == null) continue;
                 int n = Mathf.Min(MaxBurstParticles, Mathf.RoundToInt(style.count * mul));
                 float step = Mathf.PI * 2f / Mathf.Max(1, n);
-                for (int k = 0; k < n; k++) EmitSpiral(style, tip, k * step + Random.Range(0f, step), direction);
+                for (int k = 0; k < n; k++) EmitSpiral(style, tip, k * step + Random.Range(0f, step), direction, untilTime, maxSize);
             }
         }
 
         /// <summary>
         /// Una partícula del anillo en el ángulo dado: gira alrededor de la peonza, sale (o entra) y sube. direction: la marcha
-        /// o el golpe (Forward Offset y Align To Direction; cero = ninguna).
+        /// o el golpe (Forward Offset y Align To Direction; cero = ninguna). untilTime: ver Burst.
         /// </summary>
-        private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle, Vector3 direction)
+        private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle, Vector3 direction, float untilTime = 0f,
+            float maxSize = float.MaxValue)
         {
             var outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
             // Tangente vista desde arriba: en el sentido de las agujas del reloj, (z, -x)
@@ -497,8 +516,9 @@ namespace FakeBlade.Core
                                Vector3.up * Random.Range(style.upSpeed.x, style.upSpeed.y);
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
             color.a = style.alpha;
-            float size = Random.Range(style.size.x, style.size.y);
+            float size = Mathf.Min(Random.Range(style.size.x, style.size.y), maxSize);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);
+            if (lifetime <= 0f) lifetime = untilTime;
             // Varios sprites: uno al azar en cada partícula (grietas distintas en cada golpe)
             List<string> variants = style.spriteVariants;
             string sprite = variants != null && variants.Count > 0 ? variants[Random.Range(0, variants.Count)] : style.sprite;

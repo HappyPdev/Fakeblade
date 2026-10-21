@@ -156,6 +156,9 @@ namespace FakeBlade.Core.Editor
             new DefaultSprite { Id = "Zbam3Sube", Texture = "Zbam3", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.4f, Order = 1, DepthTested = true, GrowIn = 0.3f, FadeOut = 0.5f, Max = 256 },
             new DefaultSprite { Id = "MediaLuna", Texture = "SlashOne", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.2f, Order = 0, Upright = true, DepthTested = true, Flat = true, GrowIn = 0.4f, FadeOut = 0.6f, Max = 128 },
             new DefaultSprite { Id = "Tajo", Texture = "SllashV3", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.3f, Order = 3 },
+            // Salto (K8, 2026-10-21; boceto del usuario): el aro de picos de Onda de choque, que al caer crece por el suelo y se
+            // desvanece (la elipse con picos de la última viñeta)
+            new DefaultSprite { Id = "AroPicosCrece", Generated = "AroPicos", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.5f, Order = -1, DepthTested = true, Flat = true, GrowIn = 0.35f, FadeOut = 0.5f, Max = 32 },
             new DefaultSprite { Id = "Trozo", CutShard = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, DepthTested = true, FadeOut = 0.3f, Gravity = 1.4f, Drag = 0.2f, Spin = 540f, Max = 512 },
         };
 

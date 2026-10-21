@@ -97,7 +97,7 @@ namespace FakeBlade.Core
             if (style.pointForward)
             {
                 // Delante de la peonza y abierto hacia ella: el eje del cuenco (arriba en el modelo) mira hacia atrás
-                Vector3 forward = MotionDirection();
+                Vector3 forward = style.aimAtTarget ? TargetDirection(tip, tipOffset) : MotionDirection();
                 _root.position += forward * style.forwardOffset;
                 _root.rotation = Quaternion.FromToRotation(Vector3.up, -forward);
             }
@@ -160,6 +160,21 @@ namespace FakeBlade.Core
             Vector3 facing = _blade.Facing;
             facing.y = 0f;
             return facing.sqrMagnitude > 0.0001f ? facing.normalized : Vector3.forward;
+        }
+
+        /// <summary>
+        /// Hacia el punto al que va el poder (Salto: donde caerá, a la altura de la punta en el suelo): cada vez más
+        /// inclinada al bajar. Ya encima del punto, hacia donde va; sin punto, hacia la marcha.
+        /// </summary>
+        private Vector3 TargetDirection(Vector3 tip, float tipOffset)
+        {
+            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            if (ability == null || !ability.TryGetTargetPoint(out Vector3 target, out _)) return MotionDirection();
+            target.y += tipOffset;
+            Vector3 toTarget = target - tip;
+            if (toTarget.sqrMagnitude > 0.25f) return toTarget.normalized;
+            Vector3 v = _blade.Velocity;
+            return v.sqrMagnitude > 0.25f ? v.normalized : MotionDirection();
         }
 
         private static bool HasGround(BurstTipStyle style)

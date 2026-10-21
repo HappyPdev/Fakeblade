@@ -21,6 +21,29 @@ namespace FakeBlade.Core
         public Vector3 Center => transform.position;
         public float InnerRadius => innerRadius;
 
+        /// <summary>La arena de la escena (la última activada), o null. Para los efectos que no deben salir de ella.</summary>
+        public static ArenaDefinition Current { get; private set; }
+
+        private void OnEnable() => Current = this;
+
+        private void OnDisable()
+        {
+            if (Current == this) Current = null;
+        }
+
+        /// <summary>
+        /// Ancho máximo (m) de algo redondo centrado en point para no pasar del muro (sin arena, sin límite). Para la marca y
+        /// la onda del Salto junto a la pared (2026-10-21).
+        /// </summary>
+        public static float MaxWidthAt(Vector3 point)
+        {
+            ArenaDefinition arena = Current;
+            if (arena == null) return float.MaxValue;
+            Vector3 offset = point - arena.Center;
+            offset.y = 0f;
+            return Mathf.Max(1.5f, 2f * (arena.innerRadius - offset.magnitude));
+        }
+
         /// <summary>Crea (o reutiliza) count puntos de aparición repartidos en círculo.</summary>
         public Transform[] CreateSpawnPoints(int count)
         {

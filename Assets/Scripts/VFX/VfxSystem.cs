@@ -120,6 +120,9 @@ namespace FakeBlade.Core
                     // Arcos eléctricos hasta la otra peonza (Rayos), en cualquier choque, también los pequeños
                     BladeArcs.PlayClash(r.A, r.B);
                     BladeArcs.PlayClash(r.B, r.A);
+                    // Defensa: Zbam en su aura y chispas al embestirla, aunque no pierda RPM (2026-10-23)
+                    BladeSpecialFx.PlayGuardHit(r.A, r.B, r.ApproachB, point);
+                    BladeSpecialFx.PlayGuardHit(r.B, r.A, r.ApproachA, point);
                     float damage = Mathf.Max(r.DamageToA, r.DamageToB);
                     if (damage < _library.impactMinDamage) return;
                     // Cargado si quien hace más daño venía con un ataque cargado

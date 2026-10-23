@@ -20,6 +20,7 @@ namespace FakeBlade.Core
         private bool _isActive;
         // Carga común al activarlo (L9): segundos que faltan; el poder empieza (OnActivate) al acabarla
         private float _windup;
+        private float _activeTime;
         // Curación del efecto común: se reparte en specialHealTime; un golpe de ataque enemigo la corta
         private float _pendingHeal;
         private float _healRate;
@@ -36,6 +37,8 @@ namespace FakeBlade.Core
         /// <summary>Energía 0-1 (relleno de la esfera del HUD).</summary>
         public float Energy => _energy;
         public bool IsActive => _isActive;
+        /// <summary>Segundos desde que se activó (0 si no está activo). Para los efectos con una carga visual más larga (Defensa).</summary>
+        public float ActiveTime => _isActive ? _activeTime : 0f;
         /// <summary>
         /// Activo y todavía en la carga corta del principio (los efectos del poder esperan a que acabe): la común (L9) o la
         /// del propio poder (Embestida y Onda de choque, también antes de cada uso).
@@ -94,6 +97,7 @@ namespace FakeBlade.Core
         {
             if (!IsReady || _owner == null) return false;
             _isActive = true;
+            _activeTime = 0f;
 
             // Efecto común de todos los poderes (GDD 5): RPM poco a poco y cargas al momento
             var cfg = CombatConfig.Active;
@@ -162,6 +166,7 @@ namespace FakeBlade.Core
                 if (_ability != null && _ability.IsLingering) _ability.TickLingering(dt);
                 return false;
             }
+            _activeTime += dt;
 
             // Carga común (L9): se frena hasta quedarse quieta y el poder empieza al acabarla. No gasta la duración, y lo
             // que dejó el uso anterior sigue (Escudo, Fantasma, Rastro de agua)

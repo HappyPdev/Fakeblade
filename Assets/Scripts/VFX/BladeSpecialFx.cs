@@ -420,6 +420,28 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
+        /// Golpe a una peonza con un poder que lo aguanta (Defensa, 2026-10-23; propuesta aceptada por el usuario): si la otra
+        /// la embiste a 1 m/s o más, la Zbam se abre en su aura desde el punto del golpe y sale su círculo guardHit, girado
+        /// hacia la que embiste. Aunque no pierda RPM (el choque puede quedarse por debajo del daño mínimo de los impactos).
+        /// </summary>
+        public static void PlayGuardHit(FakeBladeController blade, FakeBladeController attacker, float attackerApproach, Vector3 point)
+        {
+            const float minApproach = 1f;
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || blade == null || attacker == null || blade.IsDestroyed || attackerApproach < minApproach) return;
+            SpecialAbilitySystem special = blade.Special;
+            if (special == null || !special.IsActive || special.IsWindingUp) return;
+            SpecialVfxStyle style = lib.GetSpecialEffects(special.Type);
+            if (style == null || style.guardHit == null || style.guardHit.Count == 0) return;
+            blade.PulseChargeDome(point);
+            Vector3 toward = attacker.Position - blade.Position;
+            toward.y = 0f;
+            toward = toward.sqrMagnitude > 0.0001f ? toward.normalized : blade.Facing;
+            s_power = special.Color;
+            if (VfxSystem.IsOnScreen(point)) Burst(style.guardHit, point, toward);
+        }
+
+        /// <summary>
         /// Suelta el empujón de un poder (Tornado, 2026-10-18): su explosión release alrededor de la peonza, a la altura de la
         /// punta. Devuelve false si el poder no tiene (el llamador pone entonces el efecto común).
         /// </summary>

@@ -16,6 +16,8 @@ namespace FakeBlade.Core
     /// al soltar el empujón (funnelPhase, topCut... en ChargeDomeStyle).
     /// Rebote (2026-10-21, boceto del usuario): una burbuja (esfera entera, sphere) que crece en la carga, se queda mientras
     /// dura el poder y se desvanece al acabar; en cada rebote, una Zbam se abre en ella desde el punto del golpe (Pulse).
+    /// Defensa (2026-10-23, boceto del usuario): dos embudos con picos (el de dentro, alto; el de la base, una corona en
+    /// zigzag) que suben en la carga y se quedan como aura mientras dura; la Zbam, al embestirla.
     /// </summary>
     public sealed class BladeChargeDome
     {

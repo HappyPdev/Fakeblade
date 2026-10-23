@@ -35,6 +35,10 @@ namespace FakeBlade.Core
     {
         public DefenseAbility(DefenseData data, FakeBladeController owner) : base(data, owner) { }
 
+        /// <summary>El aura de embudos sube durante la carga común y se queda entera mientras dura (K8, 2026-10-23).</summary>
+        public override bool DomeInCommonWindup => true;
+        public override float ChargeVisualProgress => 1f;
+
         public override float DamageTakenMultiplier => 1f - Config.spinLossReduction;
         public override float SpinDecayMultiplier => 1f - Config.spinLossReduction;
         public override float KnockbackTakenMultiplier => 1f - Config.knockbackResistance;

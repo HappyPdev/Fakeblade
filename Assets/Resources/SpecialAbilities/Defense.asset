@@ -19,7 +19,7 @@ MonoBehaviour:
   energyRequired: 1.2
   duration: 5
   activationBurst: 1
-  windupTime: 0.1
+  windupTime: 0.3
   windupBrake: 12
   spinLossReduction: 1
   knockbackResistance: 0.9

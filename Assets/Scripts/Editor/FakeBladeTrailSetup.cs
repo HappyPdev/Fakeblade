@@ -230,7 +230,8 @@ namespace FakeBlade.Core.Editor
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
-                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " + SetupGenericSpecial(library);
+                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
+                   SetupDefense(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -1770,6 +1771,220 @@ namespace FakeBlade.Core.Editor
             },
             OutwardLines("Líneas que salen", 20, Color.white, BouncePink),
             ShockCircle("Círculos", "CircleImpact04Anillo", 3.6f, 0.05f, 0.4f, BouncePink, 0.9f, count: 2)
+        };
+
+        // Defensa: el azul de su asset (Defense) y uno claro
+        private static readonly Color DefenseBlue = new Color(0.45f, 0.6f, 1f);
+        private static readonly Color DefensePale = new Color(0.82f, 0.9f, 1f);
+
+        /// <summary>
+        /// Defensa (K8, 2026-10-23; boceto del usuario en tres viñetas, Fortress Core). Carga vertical y hacia fuera (0,5 s de
+        /// efectos con 0,3 de juego, visualWindupTime): dos embudos con el borde en picos que suben desde el suelo (corona en
+        /// zigzag), líneas y partículas que suben y salen, humo que sale y círculos que se abren en el suelo. Cargada (los 5 s):
+        /// los embudos se quedan como aura vertical alrededor de la peonza, con líneas verticales que giran; a ras de suelo,
+        /// vaho y partículas que giran y se abren hacia fuera (espirales), líneas que suben y un círculo que se abre de vez en
+        /// cuando. Al embestirla, la Zbam en el aura y chispas (guardHit); al terminar, trozos, humo y líneas. Quita su aura de
+        /// antes. Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupDefense(VfxLibrary library)
+        {
+            SpecialVfxStyle defense = library.GetSpecialEffects(SpecialAbilityType.Defense);
+            bool added = defense == null;
+            if (added)
+            {
+                defense = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.Defense, replaceAura = true, windupSustain = 0f, visualWindupTime = 0.5f
+                };
+                defense.tip.cups.Clear();
+                defense.tip.particleSprite = "";
+                defense.tip.ground = new TipGroundSprite();
+                defense.overlay = new SpecialOverlayStyle
+                {
+                    color = DefenseBlue, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.4f, 0.9f),
+                    pulseFlash = new Vector2(0f, 0.04f), pulseInterval = new Vector2(0.25f, 0.5f), pulseDecay = 0.3f
+                };
+                defense.dome = DefenseAura();
+                defense.baseDome = DefenseCrown();
+                library.specialEffects.Add(defense);
+            }
+
+            defense.dome ??= DefenseAura();
+            defense.baseDome ??= DefenseCrown();
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+            if (defense.dome.material == null) defense.dome.material = domeMaterial;
+            if (defense.baseDome.material == null) defense.baseDome.material = domeMaterial;
+            // La Zbam de la peonza golpeada (la misma textura que BladeOverlay), en el embudo de dentro
+            if (defense.dome.hitTexture == null)
+                defense.dome.hitTexture = library.bladeOverlay.ringTexture != null
+                    ? library.bladeOverlay.ringTexture
+                    : AssetDatabase.LoadAssetAtPath<Texture2D>(WallcoeurFolder + "03_Texture/Zbam.png");
+
+            defense.windup ??= new List<SpiralParticleStyle>();
+            if (defense.windup.Count == 0) defense.windup.AddRange(WindupOnly(DefenseWindup()));
+            defense.activationBurst ??= new List<SpiralParticleStyle>();
+            if (defense.activationBurst.Count == 0) defense.activationBurst.AddRange(DefenseBurst());
+            defense.swirl ??= new List<SpiralParticleStyle>();
+            if (defense.swirl.Count == 0) defense.swirl.AddRange(DefenseSwirl());
+            defense.guardHit ??= new List<SpiralParticleStyle>();
+            if (defense.guardHit.Count == 0) defense.guardHit.AddRange(DefenseGuardHit());
+            defense.endBurst ??= new List<SpiralParticleStyle>();
+            if (defense.endBurst.Count == 0) defense.endBurst.AddRange(DefenseEnd());
+            return "Defensa" + (added ? " (nueva)" : "") + (defense.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        /// <summary>
+        /// Aura de dentro: embudo alto y ceñido a la peonza (el del Tornado, que no pasa a cúpula), un poco más ancho arriba y
+        /// abierto en picos, con líneas verticales que giran despacio. Sube desde el suelo en la carga y se queda; al terminar,
+        /// se infla un poco y se desvanece.
+        /// </summary>
+        private static ChargeDomeStyle DefenseAura() => new ChargeDomeStyle
+        {
+            radius = 0.8f, heightScale = 1f, height = 0f, growEase = 1.5f, startRadius = 0.6f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(0.9f, 1.15f, 1.9f),
+            topCut = 0.22f, topSpikes = 9, topSpikesSpeed = 0.3f, insideAlpha = 0.3f,
+            bodyColor = new Color(0.55f, 0.7f, 1f, 0.14f), rimColor = new Color(DefenseBlue.r, DefenseBlue.g, DefenseBlue.b, 0.85f),
+            outlineColor = new Color(0.47f, 0.47f, 0.47f, 0.8f), swirlColor = new Color(1f, 1f, 1f, 0.8f),
+            swirlColor2 = new Color(DefenseBlue.r, DefenseBlue.g, DefenseBlue.b, 0.5f), rimWidth = 0.2f, outlineWidth = 0.05f,
+            linesTiling = new Vector2(5f, 2f), linesSpeed = 0f, linesTwist = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 7f, swirlTwist = 0.05f, swirlSpeed = 0.35f, swirlWidth = 0.06f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.3f, popScale = 1.2f, popFlash = 0.5f,
+            hitColor = new Color(0.9f, 0.95f, 1f, 1f), hitShadowColor = new Color(0.3f, 0.3f, 0.3f, 0.6f),
+            hitScale = new Vector2(0.15f, 0.9f), hitDuration = 0.3f, hitFlash = 0.5f, hitBump = 0.08f
+        };
+
+        /// <summary>
+        /// Viñeta 2, en la base: corona en zigzag, un embudo bajo y más ancho que el de dentro con picos grandes que giran hacia
+        /// el otro lado.
+        /// </summary>
+        private static ChargeDomeStyle DefenseCrown() => new ChargeDomeStyle
+        {
+            radius = 1.2f, heightScale = 0.45f, height = 0f, growEase = 2f, startRadius = 0.7f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(0.95f, 1.2f, 1.2f),
+            topCut = 0.45f, topSpikes = 14, topSpikesSpeed = -0.4f, insideAlpha = 0.25f,
+            bodyColor = new Color(DefenseBlue.r, DefenseBlue.g, DefenseBlue.b, 0.22f), rimColor = new Color(1f, 1f, 1f, 0.9f),
+            outlineColor = new Color(0.3f, 0.3f, 0.3f, 0.85f), swirlColor = new Color(1f, 1f, 1f, 0.6f),
+            swirlColor2 = new Color(0f, 0f, 0f, 0f), rimWidth = 0.12f, outlineWidth = 0.04f,
+            linesTiling = new Vector2(6f, 2f), linesSpeed = 0f, linesTwist = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 10f, swirlTwist = 0f, swirlSpeed = -0.25f, swirlWidth = 0.04f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.25f, popScale = 1.4f, popFlash = 0.6f
+        };
+
+        /// <summary>
+        /// Viñetas 1-2, la carga (hacia fuera y vertical): círculos que se abren en el suelo, líneas que suben, partículas que
+        /// suben y salen, y humo que sale.
+        /// </summary>
+        private static SpiralParticleStyle[] DefenseWindup() => new[]
+        {
+            ShockCircle("Círculo que se abre (suelo)", "CircleImpact04Anillo", 3.5f, 0.03f, 0.4f, DefensePale, 0.9f, rate: 6f),
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", rate = 70f, radius = new Vector2(0.5f, 0.9f), height = new Vector2(0f, 0.2f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0.5f, 1.2f), upSpeed = new Vector2(4f, 6f),
+                size = new Vector2(0.03f, 0.05f), lifetime = new Vector2(0.15f, 0.22f), color = Color.white, color2 = DefenseBlue
+            },
+            new SpiralParticleStyle
+            {
+                name = "Partículas que suben y salen", sprite = "Chispa", rate = 40f, radius = new Vector2(0.4f, 0.7f),
+                height = new Vector2(0f, 0.4f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(1.5f, 3f),
+                upSpeed = new Vector2(2f, 4f), size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.35f, 0.5f),
+                color = Color.white, color2 = DefenseBlue
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo que sale", sprite = "HumoViento", rate = 18f, radius = new Vector2(0.5f, 0.8f), height = new Vector2(0f, 0.3f),
+                tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(2f, 3.5f), upSpeed = new Vector2(0.3f, 0.8f),
+                size = new Vector2(0.4f, 0.65f), lifetime = new Vector2(0.5f, 0.7f), color = Color.white, color2 = DefensePale,
+                alpha = 0.85f
+            }
+        };
+
+        /// <summary>Al encenderse, todo hacia fuera: dos círculos que se abren, líneas, humo y chispas.</summary>
+        private static SpiralParticleStyle[] DefenseBurst() => new[]
+        {
+            ShockCircle("Onda", "CircleImpact04Anillo", 5f, 0.03f, 0.4f, DefensePale, 0.9f, count: 2),
+            OutwardLines("Líneas que salen", 30, Color.white, DefenseBlue),
+            OutwardSmokeBurst("Humo despedido", "HumoViento", Color.white, DefensePale),
+            new SpiralParticleStyle
+            {
+                name = "Chispas que saltan", sprite = "Chispa", count = 20, radius = new Vector2(0.4f, 0.6f), height = new Vector2(0.1f, 0.5f),
+                tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(3f, 5f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.4f, 0.55f), color = Color.white, color2 = DefenseBlue
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 3, mientras dura: a ras de suelo, vaho y partículas que giran y se abren hacia fuera (espirales) y un círculo
+        /// que se abre de vez en cuando; alrededor, líneas que suben por el aura.
+        /// </summary>
+        private static SpiralParticleStyle[] DefenseSwirl() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Vaho que gira y sale", sprite = "VahoSuelo", rate = 14f, radius = new Vector2(0.6f, 0.9f),
+                height = new Vector2(0.02f, 0.05f), tangentialSpeed = new Vector2(2f, 3f), outwardSpeed = new Vector2(1f, 1.8f),
+                upSpeed = Vector2.zero, size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.8f, 1.1f), color = Color.white,
+                color2 = DefensePale, alpha = 0.75f
+            },
+            // Líneas y no chispas: las chispas tienen gravedad y a ras de suelo se hunden enseguida
+            new SpiralParticleStyle
+            {
+                name = "Espiral de líneas", sprite = "Linea", rate = 40f, radius = new Vector2(0.6f, 0.9f),
+                height = new Vector2(0.03f, 0.08f), tangentialSpeed = new Vector2(5f, 7f), outwardSpeed = new Vector2(1.5f, 2.5f),
+                upSpeed = Vector2.zero, size = new Vector2(0.04f, 0.06f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white,
+                color2 = DefenseBlue
+            },
+            new SpiralParticleStyle
+            {
+                name = "Partículas que salen", sprite = "Chispa", rate = 12f, radius = new Vector2(0.6f, 0.9f),
+                height = new Vector2(0.05f, 0.3f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(1.5f, 3f),
+                upSpeed = new Vector2(0.5f, 1.5f), size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(0.4f, 0.6f),
+                color = Color.white, color2 = DefenseBlue
+            },
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", rate = 25f, radius = new Vector2(0.55f, 0.85f), height = new Vector2(0f, 0.3f),
+                tangentialSpeed = new Vector2(0.3f, 0.8f), outwardSpeed = new Vector2(0.2f, 0.5f), upSpeed = new Vector2(3f, 4.5f),
+                size = new Vector2(0.03f, 0.05f), lifetime = new Vector2(0.15f, 0.22f), color = Color.white, color2 = DefenseBlue
+            },
+            ShockCircle("Círculo que se abre (suelo)", "CircleImpact04Anillo", 3f, 0.03f, 0.4f, DefensePale, 0.7f, rate: 1.5f)
+        };
+
+        /// <summary>Al embestirla: chispas que saltan y un círculo pequeño en el choque (la Zbam sale en el aura).</summary>
+        private static SpiralParticleStyle[] DefenseGuardHit() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Chispas que saltan", sprite = "Chispa", count = 12, radius = new Vector2(0.05f, 0.2f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 6f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.05f, 0.09f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = DefenseBlue
+            },
+            new SpiralParticleStyle
+            {
+                name = "Círculo", sprite = "CircleImpact04", count = 1, radius = Vector2.zero, height = new Vector2(0.25f, 0.25f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.1f, 1.4f),
+                lifetime = new Vector2(0.25f, 0.3f), color = Color.white, color2 = DefensePale, alpha = 0.9f
+            }
+        };
+
+        /// <summary>Al terminar: el aura se deshace en trozos, humo y líneas que salen, y un círculo que se abre.</summary>
+        private static SpiralParticleStyle[] DefenseEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Trozos del aura", sprite = "Trozo", count = 18, radius = new Vector2(0.6f, 0.9f), height = new Vector2(0.2f, 1.5f),
+                tangentialSpeed = new Vector2(0f, 0.5f), outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(1f, 3f),
+                size = new Vector2(0.1f, 0.2f), lifetime = new Vector2(0.6f, 0.9f), color = DefensePale, color2 = Color.white
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo", sprite = "HumoViento", count = 10, radius = new Vector2(0.5f, 0.8f), height = new Vector2(0.2f, 1.2f),
+                tangentialSpeed = new Vector2(0.2f, 0.6f), outwardSpeed = new Vector2(1f, 2.5f), upSpeed = new Vector2(0.3f, 1f),
+                size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.8f, 1.1f), color = Color.white, color2 = DefensePale
+            },
+            OutwardLines("Líneas que salen", 18, Color.white, DefenseBlue),
+            ShockCircle("Círculo", "CircleImpact04Anillo", 3.4f, 0.05f, 0.4f, DefensePale, 0.9f)
         };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);

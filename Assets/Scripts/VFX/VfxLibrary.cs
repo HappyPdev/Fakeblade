@@ -421,6 +421,10 @@ namespace FakeBlade.Core
         [Tooltip("Después de la carga, el remolino sigue mientras dura el poder con esta parte de su ritmo (0 = se " +
                  "apaga; 0,25 = la cuarta parte): parece que el poder se escapa en partículas")]
         [Range(0f, 1f)] public float windupSustain = 0.25f;
+        [Tooltip("Carga solo de los efectos, más larga que la de juego (s desde que se activa; 0 = la del asset): el remolino de " +
+                 "la carga y la cúpula siguen hasta entonces y el encendido sale al acabar, aunque el poder ya funcione (Defensa: " +
+                 "0,5 con 0,3 de juego)")]
+        [Min(0f)] public float visualWindupTime;
         [Tooltip("Otro remolino propio mientras dura el poder, además del de la carga (Hielo: vaho a ras de suelo que gira " +
                  "y se queda posado). Usa Rate, no Count")]
         public List<SpiralParticleStyle> swirl = new List<SpiralParticleStyle>();
@@ -430,6 +434,9 @@ namespace FakeBlade.Core
         public List<SpiralParticleStyle> impact = new List<SpiralParticleStyle>();
         [Tooltip("En el golpe fuerte (Rayos, que gasta el poder): un círculo más grande. Usa Count, no Rate")]
         public List<SpiralParticleStyle> strongImpact = new List<SpiralParticleStyle>();
+        [Tooltip("Cuando otra peonza la embiste mientras dura el poder (Defensa, aunque no pierda RPM): la Zbam de la cúpula " +
+                 "(su Hit Texture) desde el lado del golpe y este círculo de partículas en el choque. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> guardHit = new List<SpiralParticleStyle>();
         [Header("Arcos eléctricos (Rayos)")]
         [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
                  "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]

@@ -1556,7 +1556,11 @@ namespace FakeBlade.Core
                 SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
                 // La punta del especial; la de la Embestida, solo mientras embiste (cuenco delante, 2026-10-20), y la del
                 // Salto, mientras vuela
-                bool effectsOn = _special.IsActive && !_special.IsWindingUp && !_isDestroyed;
+                // Carga solo de los efectos más larga que la de juego (Defensa, 2026-10-23): hasta entonces siguen los de la carga
+                float visualWindup = specialVfx != null ? specialVfx.visualWindupTime : 0f;
+                bool visualCharge = visualWindup > 0f && _special.IsActive && _special.ActiveTime < visualWindup;
+                bool windingUp = _special.IsWindingUp || visualCharge;
+                bool effectsOn = _special.IsActive && !windingUp && !_isDestroyed;
                 bool rushing = effectsOn && _special.Ability != null && _special.Ability.IsRushing;
                 bool tipOn = effectsOn;
                 if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing) tipOn = rushing;
@@ -1567,11 +1571,11 @@ namespace FakeBlade.Core
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
-                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, _special.IsWindingUp);
-                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, _special.IsActive && !_special.IsWindingUp && !_isDestroyed,
-                    _special.IsActive && _special.IsWindingUp && !_isDestroyed);
+                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, windingUp);
+                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, effectsOn, _special.IsActive && windingUp && !_isDestroyed);
                 // Cúpula: mientras carga (Onda de choque) o mientras atrae (Tornado: embudo y cúpula)
                 float domeCharge = _special.ChargeVisualProgress;
+                if (visualCharge && domeCharge >= 0f) domeCharge = _special.ActiveTime / visualWindup;
                 _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, domeCharge >= 0f && !_isDestroyed, domeCharge);
                 _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, domeCharge >= 0f && !_isDestroyed, domeCharge);
                 _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,

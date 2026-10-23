@@ -64,6 +64,7 @@ namespace FakeBlade.Core
         private readonly AuraSlot[] _launchedAuras = new AuraSlot[MaxAuras];
         private bool _effectsWereOn;
         private bool _wasWindingUp;
+        private bool _wasSpecialActive;
         private float _scorchDistance;
         private float _scorchIdle;
         private Vector3 _lastPosition;
@@ -118,6 +119,10 @@ namespace FakeBlade.Core
             bool released = effectsOn && !_effectsWereOn;
             if (!released && _wasWindingUp && !windingUp && !specialActive && !_blade.IsDestroyed) released = true;
             if (released && visible && special != null) Burst(special.activationBurst, tip, motion);
+            // Al terminar el poder (Rebote: la burbuja se rompe), salvo si la peonza ha caído
+            if (_wasSpecialActive && !specialActive && !_blade.IsDestroyed && visible && special != null)
+                Burst(special.endBurst, tip, motion);
+            _wasSpecialActive = specialActive;
             // Marca donde va a caer (Salto, 2026-10-21): dura hasta que llega (un círculo que se cierra acaba al caer)
             SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
             if (released && special != null && special.targetMark.Count > 0 && ability != null &&
@@ -201,6 +206,7 @@ namespace FakeBlade.Core
             _hasLastPosition = false;
             _effectsWereOn = false;
             _wasWindingUp = false;
+            _wasSpecialActive = false;
             _scorchDistance = _scorchIdle = 0f;
             for (int i = 0; i < MaxAuras; i++)
             {
@@ -389,6 +395,27 @@ namespace FakeBlade.Core
             Vector3 point = target.Position - direction * 0.45f;
             s_power = owner.Special.Color;
             if (VfxSystem.IsOnScreen(point)) Burst(style.pushHit, point, direction);
+            return true;
+        }
+
+        /// <summary>
+        /// Rebote (2026-10-21, boceto del usuario): la peonza que la embiste sale despedida. Zbam en la burbuja desde el punto
+        /// del choque, el círculo pushHit en el lado del rival (girado hacia donde sale despedido) y su estela (hitTrail)
+        /// mientras vuela. Devuelve false si el poder no tiene efectos propios (el llamador pone entonces los comunes).
+        /// </summary>
+        public static bool PlayBounce(FakeBladeController owner, FakeBladeController attacker, Vector3 contactPoint)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || owner == null || attacker == null || owner.Special == null) return false;
+            SpecialVfxStyle style = lib.GetSpecialEffects(owner.Special.Type);
+            if (style == null) return false;
+            owner.PulseChargeDome(contactPoint);
+            Vector3 away = attacker.Position - owner.Position;
+            away.y = 0f;
+            away = away.sqrMagnitude > 0.0001f ? away.normalized : owner.Facing;
+            PlayPushHit(owner, attacker, away);
+            if (style.hitTrail != null && style.hitTrail.Count > 0 && style.hitTrailTime > 0f && !attacker.IsDestroyed)
+                attacker.StartSpecialHitTrail(style, owner.Special.Color);
             return true;
         }
 

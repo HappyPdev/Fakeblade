@@ -28,6 +28,10 @@ namespace FakeBlade.Core
     {
         public BounceAbility(BounceData data, FakeBladeController owner) : base(data, owner) { }
 
+        /// <summary>La burbuja (cúpula) se forma durante la carga común y se queda entera mientras dura (K8, 2026-10-21).</summary>
+        public override bool DomeInCommonWindup => true;
+        public override float ChargeVisualProgress => 1f;
+
         public override ClashGuard GetClashGuard(FakeBladeController attacker, float attackerApproachSpeed) =>
             attackerApproachSpeed >= Config.minAttackerSpeed
                 ? new ClashGuard(Config.damageTakenMultiplier, Config.knockbackMultiplier)
@@ -35,6 +39,8 @@ namespace FakeBlade.Core
 
         public override void OnClashGuardApplied(FakeBladeController attacker, Vector3 contactPoint)
         {
+            // Con efectos propios (2026-10-21): Zbam en la burbuja, círculos en el lado del rival y su estela al salir despedido
+            if (BladeSpecialFx.PlayBounce(Owner, attacker, contactPoint)) return;
             VfxSystem.Play(VfxType.Parry, contactPoint, Vector3.up, Data.color, 0.8f);
             VfxSystem.EmitParticle(VfxType.ChargeRing, contactPoint, Vector3.zero, Data.color, 1.2f);
         }

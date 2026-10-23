@@ -213,6 +213,8 @@ namespace FakeBlade.Core
         /// poder (Onda de choque); el Tornado, la atracción (la fuerza del empujón se carga mientras atrae).
         /// </summary>
         public virtual float ChargeVisualProgress => IsWindingUp ? WindupProgress : -1f;
+        /// <summary>La cúpula ya crece durante la carga común (Rebote: la burbuja se forma al activarlo).</summary>
+        public virtual bool DomeInCommonWindup => false;
         /// <summary>Sus choques no admiten parry ni bloqueo (Embestida, mientras embiste).</summary>
         public virtual bool PreventsParry => false;
         /// <summary>El agua del suelo no la moja mientras está activo (Hielo).</summary>

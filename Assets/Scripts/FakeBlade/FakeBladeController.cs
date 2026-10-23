@@ -291,6 +291,8 @@ namespace FakeBlade.Core
         public Vector3 Position => _transform.position;
         /// <summary>Estela de un golpe de un especial (VFX, 2026-10-19): la deja esta peonza al salir despedida.</summary>
         public void StartSpecialHitTrail(SpecialVfxStyle style, Color power) => _specialFx?.StartHitTrail(style, power);
+        /// <summary>Golpe en la cúpula del especial (Rebote, 2026-10-21): una Zbam que se abre desde point.</summary>
+        public void PulseChargeDome(Vector3 point) => _dome?.Pulse(point);
 
         /// <summary>Punta a ras de suelo (de donde salen los efectos de los especiales).</summary>
         public Vector3 TipPosition

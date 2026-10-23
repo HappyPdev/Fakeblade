@@ -434,7 +434,7 @@ namespace FakeBlade.Core
         [Tooltip("Arcos que salen del núcleo alrededor de la peonza (lámpara de plasma), por el suelo al moverse y hacia la " +
                  "otra peonza al chocar, mientras dura el poder. Sin material = no salen")]
         public ElectricArcStyle arcs = new ElectricArcStyle();
-        [Header("Cúpula de la carga (Onda de choque; Tornado: embudo y cúpula mientras atrae)")]
+        [Header("Cúpula de la carga (Onda de choque; Tornado: embudo y cúpula mientras atrae; Rebote: burbuja mientras dura)")]
         [Tooltip("Media esfera que crece sobre la peonza durante cada carga y revienta al acabarla. Sin material = no sale")]
         public ChargeDomeStyle dome = new ChargeDomeStyle();
         [Tooltip("Otra cúpula a la vez, por delante de la primera (Embestida: cilindro bajo en la base con una Zbam). Sin " +
@@ -449,7 +449,9 @@ namespace FakeBlade.Core
         [Tooltip("Al encenderse, en el punto al que va el poder (Salto: donde va a caer). Con Lifetime 0, duran hasta que llega: " +
                  "un círculo que se cierra acaba de cerrarse al caer. Usa Count, no Rate")]
         public List<SpiralParticleStyle> targetMark = new List<SpiralParticleStyle>();
-        [Header("Empujón a los rivales (Onda de choque, Tornado, Salto)")]
+        [Tooltip("Al terminar el poder (Rebote: la burbuja se rompe en trozos y humo). Usa Count, no Rate")]
+        public List<SpiralParticleStyle> endBurst = new List<SpiralParticleStyle>();
+        [Header("Empujón a los rivales (Onda de choque, Tornado, Salto; Rebote: en cada rebote)")]
         [Tooltip("Al soltar el empujón (Tornado; sustituye a las estrellas comunes) o al caer (Salto; sustituye al estallido y la " +
                  "onda comunes): explosión en espiral alrededor de la peonza. Usa Count, no Rate")]
         public List<SpiralParticleStyle> release = new List<SpiralParticleStyle>();
@@ -599,6 +601,25 @@ namespace FakeBlade.Core
         [Tooltip("Interior: transparencia de las caras de dentro, que se ven por el corte de arriba (0 = no se pintan, como en " +
                  "Onda de choque)")]
         [Range(0f, 1f)] public float insideAlpha;
+
+        [Header("Burbuja (Rebote, 2026-10-21)")]
+        [Tooltip("Esfera entera con la base en la punta, en vez de media esfera (Rebote: burbuja). Sin embudo ni corte de arriba")]
+        public bool sphere;
+        [Tooltip("Zbam que se abre en la cúpula desde el punto del golpe (como el anillo de la peonza golpeada; Rebote al " +
+                 "rebotar). Sin textura = no sale")]
+        public Texture2D hitTexture;
+        [Tooltip("Color de la Zbam (su alfa es la transparencia)")]
+        public Color hitColor = new Color(1f, 0.9f, 0.96f, 1f);
+        [Tooltip("Copia más grande por debajo de la Zbam, como su sombra (alfa 0 = sin ella)")]
+        public Color hitShadowColor = new Color(0.3f, 0.3f, 0.3f, 0.6f);
+        [Tooltip("Tamaño de la Zbam al empezar (x) y al acabar (y), en partes del radio")]
+        public Vector2 hitScale = new Vector2(0.15f, 1.1f);
+        [Tooltip("Lo que dura la Zbam (s)")]
+        [Min(0.05f)] public float hitDuration = 0.35f;
+        [Tooltip("Destello de la cúpula al golpe (0-1)")]
+        [Range(0f, 1f)] public float hitFlash = 0.5f;
+        [Tooltip("Cuánto se hincha la cúpula al golpe (0,12 = un 12%)")]
+        [Min(0f)] public float hitBump = 0.12f;
     }
 
     /// <summary>

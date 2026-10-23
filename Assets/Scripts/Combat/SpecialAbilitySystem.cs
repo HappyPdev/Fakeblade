@@ -48,8 +48,13 @@ namespace FakeBlade.Core
         /// <summary>Lo que lleva de la carga (0-1; 1 si no está cargando).</summary>
         public float WindupProgress => !IsWindingUp ? 1f
             : _windup > 0f ? 1f - Mathf.Clamp01(_windup / Mathf.Max(0.01f, _ability.Data.windupTime)) : _ability.WindupProgress;
-        /// <summary>Carga que pinta la cúpula (0-1; -1 = ninguna). No en la carga común (L9): ahí el poder aún no ha empezado.</summary>
-        public float ChargeVisualProgress => !_isActive || _windup > 0f || _ability == null ? -1f : _ability.ChargeVisualProgress;
+        /// <summary>
+        /// Carga que pinta la cúpula (0-1; -1 = ninguna). En la carga común (L9), solo los poderes que lo piden (Rebote: la
+        /// burbuja crece con ella); los demás, no: ahí el poder aún no ha empezado.
+        /// </summary>
+        public float ChargeVisualProgress => !_isActive || _ability == null ? -1f
+            : _windup > 0f ? (_ability.DomeInCommonWindup ? WindupProgress : -1f)
+            : _ability.ChargeVisualProgress;
         /// <summary>Usos en total del poder activo con varios usos (0 = no tiene, o no está activo).</summary>
         public int MaxUses => _isActive && _ability != null ? _ability.MaxUses : 0;
         /// <summary>Usos que le quedan por lanzar al poder activo, contando el que se está cargando.</summary>

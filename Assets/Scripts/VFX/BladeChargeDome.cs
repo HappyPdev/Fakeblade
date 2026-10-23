@@ -14,6 +14,8 @@ namespace FakeBlade.Core
     /// Tornado (2026-10-18, boceto del usuario): la misma pieza mientras atrae, con la fuerza del empujón como carga: sale
     /// como un embudo que sube desde el suelo, se ensancha hasta ser la cúpula con un aro de picos abierto arriba y revienta
     /// al soltar el empujón (funnelPhase, topCut... en ChargeDomeStyle).
+    /// Rebote (2026-10-21, boceto del usuario): una burbuja (esfera entera, sphere) que crece en la carga, se queda mientras
+    /// dura el poder y se desvanece al acabar; en cada rebote, una Zbam se abre en ella desde el punto del golpe (Pulse).
     /// </summary>
     public sealed class BladeChargeDome
     {
@@ -41,9 +43,15 @@ namespace FakeBlade.Core
         private static readonly int FunnelId = Shader.PropertyToID("_Funnel");
         private static readonly int FunnelShapeId = Shader.PropertyToID("_FunnelShape");
         private static readonly int TopCutId = Shader.PropertyToID("_TopCut");
+        private static readonly int HitTexId = Shader.PropertyToID("_HitTex");
+        private static readonly int HitId = Shader.PropertyToID("_Hit");
+        private static readonly int HitRotId = Shader.PropertyToID("_HitRot");
+        private static readonly int HitColorId = Shader.PropertyToID("_HitColor");
+        private static readonly int HitShadowColorId = Shader.PropertyToID("_HitShadowColor");
 
         private static Mesh _mesh;
         private static Mesh _meshInside;
+        private static Mesh _meshSphere;
         private static readonly int InsideAlphaId = Shader.PropertyToID("_InsideAlpha");
 
         private readonly FakeBladeController _blade;
@@ -66,6 +74,11 @@ namespace FakeBlade.Core
         private float _lastFunnel;
         private float _lastRise = 1f;
         private float _topPhase;
+        // Zbam del golpe (Rebote): lo que le queda, hacia dónde (desde el centro, en el espacio de la malla) y su giro
+        private float _hit;
+        private bool _hitPending;
+        private Vector3 _hitDir = Vector3.right;
+        private float _hitAngle;
 
         private readonly string _name;
         private readonly int _sortingOrder;
@@ -94,8 +107,8 @@ namespace FakeBlade.Core
             }
             if (!_built) Build();
             if (_renderer.sharedMaterial != style.material) _renderer.sharedMaterial = style.material;
-            // Con interior (insideAlpha), la malla con las caras de dentro
-            Mesh mesh = DomeMesh(style.insideAlpha > 0f);
+            // Con interior (insideAlpha), la malla con las caras de dentro; burbuja (Rebote), la esfera entera
+            Mesh mesh = style.sphere ? SphereMesh() : DomeMesh(style.insideAlpha > 0f);
             if (_filter.sharedMesh != mesh) _filter.sharedMesh = mesh;
 
             // Al acabar la carga, la cúpula revienta (también si el poder termina con ella: la última onda)
@@ -158,6 +171,22 @@ namespace FakeBlade.Core
                 flash = style.popFlash * (1f - t);
             }
 
+            // Zbam del golpe (Rebote): se hincha un poco y destella
+            float hitPhase = -1f;
+            if (_hitPending)
+            {
+                _hitPending = false;
+                _hit = style.hitDuration;
+            }
+            if (_hit > 0f)
+            {
+                _hit -= dt;
+                hitPhase = 1f - Mathf.Clamp01(_hit / Mathf.Max(0.05f, style.hitDuration));
+                float wave = Mathf.Sin(hitPhase * Mathf.PI) * (1f - hitPhase);
+                radius *= 1f + style.hitBump * wave;
+                flash = Mathf.Max(flash, style.hitFlash * (1f - hitPhase) * (1f - hitPhase));
+            }
+
             if (radius <= 0.001f || !VfxSystem.IsOnScreen(tip))
             {
                 SetVisible(false);
@@ -165,9 +194,11 @@ namespace FakeBlade.Core
             }
 
             float rootScale = Mathf.Max(0.001f, _blade.transform.lossyScale.x);
-            _transform.position = tip;
+            float height = radius * style.heightScale * rise;
+            // La burbuja, con la base en la punta (la malla va de -1 a 1)
+            _transform.position = style.sphere ? tip + Vector3.up * height : tip;
             _transform.rotation = Quaternion.identity;
-            _transform.localScale = new Vector3(radius, radius * style.heightScale * rise, radius) / rootScale;
+            _transform.localScale = new Vector3(radius, height, radius) / rootScale;
 
             _block.SetColor(BodyColorId, style.bodyColor);
             _block.SetColor(RimColorId, style.rimColor);
@@ -187,8 +218,52 @@ namespace FakeBlade.Core
             _block.SetVector(FunnelShapeId, style.funnelShape);
             _block.SetVector(TopCutId, new Vector4(style.topCut, style.topSpikes, _topPhase * style.topSpikes, 0f));
             SetLines(style);
+            SetHit(style, hitPhase);
             _renderer.SetPropertyBlock(_block);
             SetVisible(true);
+        }
+
+        /// <summary>
+        /// Golpe en la cúpula (Rebote, 2026-10-21): una Zbam que se abre desde el punto del golpe, como el anillo de la peonza
+        /// golpeada, con un destello y un pequeño hinchazo. point: dónde ha sido, en el mundo. Solo si la cúpula se ve.
+        /// </summary>
+        public void Pulse(Vector3 point)
+        {
+            if (!_visible || _transform == null) return;
+            Vector3 scale = _transform.lossyScale;
+            Vector3 local = point - _transform.position;
+            local = new Vector3(local.x / Mathf.Max(0.001f, scale.x), local.y / Mathf.Max(0.001f, scale.y),
+                local.z / Mathf.Max(0.001f, scale.z));
+            // El choque es a la altura de la punta (abajo, casi tapado por el suelo y la peonza): la Zbam, más arriba, en el lado
+            // del golpe
+            float flat = Mathf.Sqrt(local.x * local.x + local.z * local.z);
+            local.y = Mathf.Max(local.y, 0.35f * flat);
+            if (local.sqrMagnitude < 0.0001f) local = Vector3.right;
+            _hitDir = local.normalized;
+            _hitAngle = Random.value * Mathf.PI * 2f;
+            _hitPending = true; // el Tick siguiente le pone su duración
+        }
+
+        /// <summary>La Zbam del golpe: tamaño y transparencia según lo que lleva (hitPhase; -1 = ninguna).</summary>
+        private void SetHit(ChargeDomeStyle style, float hitPhase)
+        {
+            if (style.hitTexture == null || hitPhase < 0f)
+            {
+                _block.SetVector(HitId, Vector4.zero);
+                return;
+            }
+            float scale = Mathf.Lerp(style.hitScale.x, style.hitScale.y, hitPhase);
+            // Entra en la sexta parte de su vida y se apaga en curva (como el anillo de la peonza)
+            float fade = Mathf.Clamp01(hitPhase * 6f) * (1f - hitPhase * hitPhase);
+            _block.SetTexture(HitTexId, style.hitTexture);
+            _block.SetVector(HitId, new Vector4(_hitDir.x, _hitDir.y, _hitDir.z, scale));
+            _block.SetVector(HitRotId, new Vector4(Mathf.Cos(_hitAngle), Mathf.Sin(_hitAngle), 1.12f, 0f));
+            Color color = style.hitColor;
+            color.a *= fade;
+            _block.SetColor(HitColorId, color);
+            Color shadow = style.hitShadowColor;
+            shadow.a *= fade;
+            _block.SetColor(HitShadowColorId, shadow);
         }
 
         /// <summary>
@@ -217,6 +292,8 @@ namespace FakeBlade.Core
         public void Hide()
         {
             _pop = 0f;
+            _hit = 0f;
+            _hitPending = false;
             _wasWindingUp = false;
             SetVisible(false);
         }
@@ -244,8 +321,9 @@ namespace FakeBlade.Core
             _renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
             _renderer.enabled = false;
             _renderer.sortingOrder = _sortingOrder;
-            // El embudo (Tornado) sube más que la media esfera: límites amplios para que no se recorte al salir de la pantalla
-            _renderer.localBounds = new Bounds(new Vector3(0f, 2f, 0f), new Vector3(4f, 4.2f, 4f));
+            // El embudo (Tornado) sube más que la media esfera, y la burbuja (Rebote) baja de 0: límites amplios para que no se
+            // recorte al salir de la pantalla
+            _renderer.localBounds = new Bounds(new Vector3(0f, 1.5f, 0f), new Vector3(4f, 5.2f, 4f));
             ScreenPixelation.MoveToVfxLayer(go); // nítida sobre la escena pixelada (O2)
         }
 
@@ -313,6 +391,54 @@ namespace FakeBlade.Core
             if (inside) _meshInside = mesh;
             else _mesh = mesh;
             return mesh;
+        }
+
+        /// <summary>
+        /// Esfera entera de radio 1 con el centro en 0 (burbuja del Rebote), caras hacia fuera. UV: x = vuelta, y = altura (0
+        /// abajo, 1 arriba): la franja de la base queda en el polo de abajo, tapada por el suelo.
+        /// </summary>
+        private static Mesh SphereMesh()
+        {
+            if (_meshSphere != null) return _meshSphere;
+            const int rings = Rings * 2;
+            int columns = Segments + 1;
+            var vertices = new Vector3[columns * (rings + 1)];
+            var normals = new Vector3[vertices.Length];
+            var uvs = new Vector2[vertices.Length];
+            var uvs2 = new Vector2[vertices.Length];
+            for (int r = 0; r <= rings; r++)
+            {
+                float v = r / (float)rings;
+                float phi = (v - 0.5f) * Mathf.PI;
+                for (int s = 0; s <= Segments; s++)
+                {
+                    float u = s / (float)Segments;
+                    float theta = u * Mathf.PI * 2f;
+                    var p = new Vector3(Mathf.Cos(phi) * Mathf.Cos(theta), Mathf.Sin(phi), Mathf.Cos(phi) * Mathf.Sin(theta));
+                    int i = r * columns + s;
+                    vertices[i] = p;
+                    normals[i] = p;
+                    uvs[i] = new Vector2(u, v);
+                }
+            }
+
+            var triangles = new int[Segments * rings * 6];
+            int t = 0;
+            for (int r = 0; r < rings; r++)
+            for (int s = 0; s < Segments; s++)
+            {
+                int a = r * columns + s, b = a + 1, c = a + columns, d = c + 1;
+                triangles[t++] = a;
+                triangles[t++] = c;
+                triangles[t++] = b;
+                triangles[t++] = c;
+                triangles[t++] = d;
+                triangles[t++] = b;
+            }
+
+            _meshSphere = new Mesh { name = "ChargeDomeSphere", vertices = vertices, normals = normals, uv = uvs, uv2 = uvs2, triangles = triangles };
+            _meshSphere.RecalculateBounds();
+            return _meshSphere;
         }
     }
 }

@@ -7,6 +7,8 @@
 // Tornado (K8, 2026-10-18): la misma malla se puede dibujar como un embudo que se abre hacia arriba (_Funnel, de 0 a 1 pasa
 // de cúpula a embudo) y con la parte de arriba cortada en picos (_TopCut): un aro de picos abierto, como en el boceto.
 // Con interior (malla con las caras de dentro, uv2.x = 1, y _InsideAlpha): se ve por dentro a través del corte de arriba.
+// Rebote (K8, 2026-10-21): la malla puede ser una esfera entera (burbuja) y en cada rebote se abre en ella una Zbam desde el
+// punto del golpe (_HitTex, _Hit, _HitRot, _HitColor, _HitShadowColor), como el anillo de la peonza golpeada (BladeOverlay).
 Shader "FakeBlade/ChargeDome"
 {
     Properties
@@ -33,6 +35,11 @@ Shader "FakeBlade/ChargeDome"
         _FunnelShape ("Embudo: radio abajo (x), radio arriba (y), alto (z)", Vector) = (0.25, 1, 2.5, 0)
         _TopCut ("Corte de arriba en picos: alto (x, 0 = cerrada), picos (y), giro (z)", Vector) = (0, 10, 0, 0)
         _InsideAlpha ("Interior: transparencia (caras de dentro)", Range(0, 1)) = 1
+        [NoScaleOffset] _HitTex ("Zbam del golpe", 2D) = "white" {}
+        _Hit ("Golpe: dirección desde el centro (xyz) y radio (w; 0 = sin Zbam)", Vector) = (1, 0, 0, 0)
+        _HitRot ("Golpe: giro (cos x, sen y) y tamaño de la sombra (z)", Vector) = (1, 0, 1.12, 0)
+        _HitColor ("Golpe: color", Color) = (1, 1, 1, 0)
+        _HitShadowColor ("Golpe: sombra", Color) = (0, 0, 0, 0)
     }
 
     SubShader
@@ -55,6 +62,8 @@ Shader "FakeBlade/ChargeDome"
 
             TEXTURE2D(_LinesTex);
             SAMPLER(sampler_LinesTex);
+            TEXTURE2D(_HitTex);
+            SAMPLER(sampler_HitTex);
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BodyColor;
@@ -78,6 +87,10 @@ Shader "FakeBlade/ChargeDome"
                 float4 _FunnelShape;
                 float4 _TopCut;
                 float _InsideAlpha;
+                float4 _Hit;
+                float4 _HitRot;
+                half4 _HitColor;
+                half4 _HitShadowColor;
             CBUFFER_END
 
             struct Attributes
@@ -131,6 +144,21 @@ Shader "FakeBlade/ChargeDome"
                 return half4(rgb, outA);
             }
 
+            // Zbam del golpe (Rebote, 2026-10-21): la textura proyectada en el plano tangente a la cúpula en el punto del golpe
+            // (_Hit.xyz, desde el centro), de radio scale (en partes del radio), girada; solo en la mitad que mira al golpe
+            half HitMask(float3 p, float scale)
+            {
+                float3 d = _Hit.xyz;
+                if (dot(p, d) <= 0.0) return 0.0;
+                float3 t1 = normalize(cross(d, abs(d.y) < 0.99 ? float3(0.0, 1.0, 0.0) : float3(1.0, 0.0, 0.0)));
+                float3 t2 = cross(d, t1);
+                float2 q = float2(dot(p, t1), dot(p, t2));
+                q = float2(q.x * _HitRot.x - q.y * _HitRot.y, q.x * _HitRot.y + q.y * _HitRot.x);
+                float2 uv = q / (2.0 * scale) + 0.5;
+                if (any(uv < 0.0) || any(uv > 1.0)) return 0.0;
+                return SAMPLE_TEXTURE2D_LOD(_HitTex, sampler_HitTex, uv, 0).a;
+            }
+
             half4 Frag(Varyings input) : SV_Target
             {
                 // Corte de arriba en picos (Tornado: aro de picos abierto arriba). Cada pico baja una altura distinta
@@ -177,6 +205,13 @@ Shader "FakeBlade/ChargeDome"
                 color = Over(color, _RimColor, rim);
                 half outline = max(step(1.0 - _OutlineWidth, fresnel), step(input.uv.y, 0.025));
                 color = Over(color, _OutlineColor, outline);
+
+                // Zbam del golpe, con su sombra más grande por debajo
+                if (_Hit.w > 0.0)
+                {
+                    color = Over(color, _HitShadowColor, HitMask(p, _Hit.w * _HitRot.z));
+                    color = Over(color, _HitColor, HitMask(p, _Hit.w));
+                }
 
                 color.rgb = lerp(color.rgb, half3(1.0, 1.0, 1.0), _Flash);
                 color.a = saturate(color.a + _Flash * 0.5) * _Alpha * lerp(1.0, _InsideAlpha, input.inside);

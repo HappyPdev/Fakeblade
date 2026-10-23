@@ -230,7 +230,7 @@ namespace FakeBlade.Core.Editor
             if (fire.auras.Count == 0 && smoke != null) fire.auras.Add(new AuraStyle { name = "Aura Smoke", prefab = smoke });
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
-                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupGenericSpecial(library);
+                   SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -1578,6 +1578,198 @@ namespace FakeBlade.Core.Editor
             name = name, sprite = "CircleImpact04", count = count, radius = new Vector2(0.8f, 1.2f), height = new Vector2(0.3f, 0.6f),
             tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2f), upSpeed = new Vector2(0.2f, 0.6f),
             size = new Vector2(1f, 1.4f), lifetime = new Vector2(0.3f, 0.35f), color = Color.white, color2 = LeapPale, alpha = 0.9f
+        };
+
+        // Rebote: el rosa de su asset (Bounce) y uno claro
+        private static readonly Color BouncePink = new Color(1f, 0.45f, 0.75f);
+        private static readonly Color BouncePale = new Color(1f, 0.85f, 0.94f);
+        private const string BounceGroundMaterialPath = "Assets/VFX/Materials/VFX_BounceGround.mat";
+        private const string SpikeRingTexturePath = "Assets/VFX/Textures/Impacts/AroPicos.png";
+        private const string SpeedLinesTexturePath = "Assets/VFX/Textures/Impacts/LineasVelocidad.png";
+
+        /// <summary>
+        /// Rebote (K8, 2026-10-21; boceto del usuario en cuatro partes). 1-2) Al activarlo, la plantilla común (círculos finos) y
+        /// líneas que suben; la burbuja (cúpula en esfera entera) crece durante la carga. Cargada: la burbuja rosa translúcida con
+        /// líneas de velocidad que la recorren inclinadas sobre un eje que se bambolea y un aro de picos en el suelo que gira y
+        /// late. A1-A2) En cada rebote, una Zbam (la del anillo de la peonza golpeada) se abre en la burbuja desde el punto del
+        /// golpe, con destello y un hinchazo; círculos, un estallido y chispas en el lado del rival, que sale despedido con su
+        /// estela. B1-B3) Al terminar, la burbuja se infla un poco y se desvanece, y salen trozos, humo y líneas. Quita su aura
+        /// de antes. Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupBounce(VfxLibrary library)
+        {
+            SpecialVfxStyle bounce = library.GetSpecialEffects(SpecialAbilityType.Bounce);
+            bool added = bounce == null;
+            if (added)
+            {
+                bounce = new SpecialVfxStyle { type = SpecialAbilityType.Bounce, replaceAura = true, windupSustain = 0f };
+                bounce.tip.cups.Clear();
+                bounce.tip.particleSprite = "";
+                bounce.tip.ground = new TipGroundSprite();
+                bounce.overlay = new SpecialOverlayStyle
+                {
+                    color = BouncePink, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.4f, 1f),
+                    pulseFlash = new Vector2(0f, 0.05f), pulseInterval = new Vector2(0.2f, 0.45f), pulseDecay = 0.25f
+                };
+                bounce.dome = BounceBubble();
+                bounce.hitTrailTime = 0.45f;
+                library.specialEffects.Add(bounce);
+            }
+
+            bounce.dome ??= BounceBubble();
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            if (bounce.dome.material == null && domeShader != null) bounce.dome.material = GetMaterial(ChargeDomeMaterialPath, domeShader);
+            if (bounce.dome.linesTexture == null) bounce.dome.linesTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(SpeedLinesTexturePath);
+            // La Zbam de la peonza golpeada (la misma textura que BladeOverlay)
+            if (bounce.dome.hitTexture == null)
+                bounce.dome.hitTexture = library.bladeOverlay.ringTexture != null
+                    ? library.bladeOverlay.ringTexture
+                    : AssetDatabase.LoadAssetAtPath<Texture2D>(WallcoeurFolder + "03_Texture/Zbam.png");
+
+            // Aura en el suelo: el aro de picos tumbado, que gira y late
+            bounce.tip ??= new BurstTipStyle();
+            Shader flipbook = Shader.Find(TipShaderName);
+            if (bounce.tip.ground.material == null && flipbook != null)
+            {
+                Material ground = GetMaterial(BounceGroundMaterialPath, flipbook);
+                ground.SetTexture("_MainTex", AssetDatabase.LoadAssetAtPath<Texture2D>(SpikeRingTexturePath));
+                ground.SetFloat("_TilesX", 1f);
+                ground.SetFloat("_TilesY", 1f);
+                EditorUtility.SetDirty(ground);
+                bounce.tip.ground = new TipGroundSprite
+                {
+                    material = ground, tilesX = 1, tilesY = 1, frames = 1, cycle = 1f, size = 2.9f, height = 0.02f, spinSpeed = 40f,
+                    color = BouncePink, alpha = 0.85f, pulseRate = 0.8f, pulseScale = 0.08f, pulseAlpha = 0.3f
+                };
+                bounce.tip.fade = new Vector2(0.1f, 0.3f);
+            }
+
+            bounce.windup ??= new List<SpiralParticleStyle>();
+            if (bounce.windup.Count == 0)
+            {
+                bounce.windup.AddRange(GenericWindup());
+                foreach (SpiralParticleStyle style in bounce.windup)
+                    if (style.sprite == "CircleImpact02Cierra" || style.sprite == "FP_CircleImpactCierra") style.sprite = "CircleImpact04Cierra";
+                bounce.windup.AddRange(WindupOnly(BounceWindup()));
+            }
+            bounce.activationBurst ??= new List<SpiralParticleStyle>();
+            if (bounce.activationBurst.Count == 0)
+            {
+                bounce.activationBurst.AddRange(GenericBurst());
+                foreach (SpiralParticleStyle style in bounce.activationBurst)
+                    if (style.sprite == "CircleImpact02Suelo")
+                    {
+                        style.sprite = "CircleImpact04Anillo";
+                        style.count = 2;
+                    }
+            }
+            bounce.pushHit ??= new List<SpiralParticleStyle>();
+            if (bounce.pushHit.Count == 0) bounce.pushHit.AddRange(BounceHit());
+            bounce.hitTrail ??= new List<SpecialParticleStyle>();
+            if (bounce.hitTrail.Count == 0) bounce.hitTrail.AddRange(BounceTrail());
+            bounce.endBurst ??= new List<SpiralParticleStyle>();
+            if (bounce.endBurst.Count == 0) bounce.endBurst.AddRange(BounceEnd());
+            return "Rebote" + (added ? " (nuevo)" : "") + (bounce.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        /// <summary>
+        /// La burbuja: esfera entera rosa translúcida con el borde fino y el contorno gris, líneas de velocidad que la recorren
+        /// sobre un eje inclinado 35° que se bambolea; crece desde pequeña en la carga y al acabar se infla un poco y se
+        /// desvanece. En cada rebote, la Zbam (hitTexture) desde el punto del golpe.
+        /// </summary>
+        private static ChargeDomeStyle BounceBubble() => new ChargeDomeStyle
+        {
+            sphere = true, radius = 1.1f, heightScale = 1f, height = 0f, growEase = 2.5f, startRadius = 0.15f,
+            funnelPhase = 0f, topCut = 0f, insideAlpha = 0f,
+            bodyColor = new Color(1f, 0.6f, 0.85f, 0.16f), rimColor = new Color(BouncePink.r, BouncePink.g, BouncePink.b, 0.9f),
+            outlineColor = new Color(0.47f, 0.47f, 0.47f, 0.8f), swirlColor = new Color(1f, 1f, 1f, 0.8f),
+            swirlColor2 = new Color(BouncePink.r, BouncePink.g, BouncePink.b, 0.5f), rimWidth = 0.16f, outlineWidth = 0.04f,
+            linesTiling = new Vector2(3f, 1f), linesSpeed = 0.7f, linesTwist = 0.3f, axisTilt = 35f, axisPrecess = 0.25f,
+            swirlLines = 0f, swirlTwist = 0f, swirlSpeed = 0f, swirlWidth = 0f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.35f, popScale = 1.15f, popFlash = 0.4f,
+            hitColor = new Color(1f, 0.92f, 0.97f, 1f), hitShadowColor = new Color(0.3f, 0.3f, 0.3f, 0.6f),
+            hitScale = new Vector2(0.15f, 1.1f), hitDuration = 0.35f, hitFlash = 0.5f, hitBump = 0.12f
+        };
+
+        /// <summary>Viñetas 1-2, la carga: líneas que suben alrededor desde el suelo y chispas que se tragan.</summary>
+        private static SpiralParticleStyle[] BounceWindup() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", rate = 60f, radius = new Vector2(0.7f, 1.2f), height = new Vector2(0f, 0.2f),
+                tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(-0.6f, -0.2f), upSpeed = new Vector2(3f, 4.5f),
+                size = new Vector2(0.03f, 0.05f), lifetime = new Vector2(0.15f, 0.22f), color = Color.white, color2 = BouncePink
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas que se tragan", sprite = "Chispa", rate = 40f, radius = new Vector2(1.4f, 1.9f), height = new Vector2(0f, 0.8f),
+                tangentialSpeed = new Vector2(2f, 3.5f), outwardSpeed = new Vector2(-5.5f, -4f), upSpeed = new Vector2(0f, 0.5f),
+                size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.3f, 0.4f), color = Color.white, color2 = BouncePink
+            }
+        };
+
+        /// <summary>A1-A2, cada rebote en el lado del rival: dos círculos que se abren, un estallido de cómic, chispas y Zbam.</summary>
+        private static SpiralParticleStyle[] BounceHit() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Círculos", sprite = "CircleImpact04", count = 2, radius = new Vector2(0f, 0.15f), height = new Vector2(0.2f, 0.45f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.3f, 1.8f),
+                lifetime = new Vector2(0.3f, 0.35f), color = Color.white, color2 = BouncePale, alpha = 0.95f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Estallido", sprite = "Impact10", count = 1, radius = Vector2.zero, height = new Vector2(0.35f, 0.35f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.6f, 1.6f),
+                lifetime = Vector2.zero, color = BouncePale, color2 = BouncePale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas", sprite = "Chispa", count = 14, radius = new Vector2(0.1f, 0.3f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 6f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.05f, 0.09f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = BouncePink
+            },
+            new SpiralParticleStyle
+            {
+                name = "Zbam", spriteVariants = new List<string> { "ZbamSube", "Zbam3Sube" }, count = 3, radius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.2f, 0.5f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(1.5f, 3f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.35f, 0.55f), lifetime = new Vector2(0.3f, 0.4f),
+                color = Color.white, color2 = BouncePale
+            }
+        };
+
+        /// <summary>A2: la peonza rebotada deja humo y chispas rosas mientras sale disparada.</summary>
+        private static SpecialParticleStyle[] BounceTrail()
+        {
+            SpecialParticleStyle[] trail = GenericHitTrail();
+            foreach (SpecialParticleStyle style in trail)
+            {
+                style.powerTint = 0f;
+                style.color2 = style.sprite == "Chispa" ? BouncePink : BouncePale;
+            }
+            return trail;
+        }
+
+        /// <summary>
+        /// B1-B3, al terminar: la burbuja se rompe en trozos rosas y blancos que saltan y caen, humo que se disuelve, líneas que
+        /// salen y dos círculos que se abren.
+        /// </summary>
+        private static SpiralParticleStyle[] BounceEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Trozos de la burbuja", sprite = "Trozo", count = 26, radius = new Vector2(0.8f, 1.1f), height = new Vector2(0.2f, 1.7f),
+                tangentialSpeed = new Vector2(0f, 0.5f), outwardSpeed = new Vector2(1.5f, 3.5f), upSpeed = new Vector2(1.5f, 3.5f),
+                size = new Vector2(0.12f, 0.22f), lifetime = new Vector2(0.6f, 0.9f), color = BouncePale, color2 = Color.white
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo", sprite = "HumoViento", count = 12, radius = new Vector2(0.6f, 0.9f), height = new Vector2(0.2f, 1.2f),
+                tangentialSpeed = new Vector2(0.2f, 0.6f), outwardSpeed = new Vector2(1f, 2.5f), upSpeed = new Vector2(0.3f, 1f),
+                size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.8f, 1.1f), color = Color.white, color2 = BouncePale
+            },
+            OutwardLines("Líneas que salen", 20, Color.white, BouncePink),
+            ShockCircle("Círculos", "CircleImpact04Anillo", 3.6f, 0.05f, 0.4f, BouncePink, 0.9f, count: 2)
         };
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);

@@ -9,6 +9,10 @@
 // Con interior (malla con las caras de dentro, uv2.x = 1, y _InsideAlpha): se ve por dentro a través del corte de arriba.
 // Rebote (K8, 2026-10-21): la malla puede ser una esfera entera (burbuja) y en cada rebote se abre en ella una Zbam desde el
 // punto del golpe (_HitTex, _Hit, _HitRot, _HitColor, _HitShadowColor), como el anillo de la peonza golpeada (BladeOverlay).
+// Máscara e inestabilidad (Defensa, K8, 2026-10-24; pedido del usuario): huecos con corte duro y una línea en su borde, de
+// una textura o de ruido, que se deslizan y se comen más arriba (el borde de arriba no parece un cilindro); la superficie se
+// ondula (vértices) y franjas horizontales se desplazan de lado (glitch). El latido de los huecos y el parpadeo los mueve
+// BladeChargeDome con _Mask.x y _Alpha.
 Shader "FakeBlade/ChargeDome"
 {
     Properties
@@ -40,6 +44,13 @@ Shader "FakeBlade/ChargeDome"
         _HitRot ("Golpe: giro (cos x, sen y) y tamaño de la sombra (z)", Vector) = (1, 0, 1.12, 0)
         _HitColor ("Golpe: color", Color) = (1, 1, 1, 0)
         _HitShadowColor ("Golpe: sombra", Color) = (0, 0, 0, 0)
+        [NoScaleOffset] _MaskTex ("Máscara (gris o alfa)", 2D) = "white" {}
+        _Mask ("Máscara: parte oculta (x; < 0 = sin máscara), repeticiones alrededor (y) y de alto (z), borde (w)", Vector) = (-1, 3, 1.5, 0.06)
+        _MaskScroll ("Máscara: desliz alrededor (x) y hacia arriba (y), con textura (z: 1) o ruido (0)", Vector) = (0, 0, 0, 0)
+        _MaskTop ("Máscara: cuánto más se oculta arriba (x) y desde qué altura (y)", Vector) = (0, 0.5, 0, 0)
+        _MaskEdgeColor ("Máscara: línea del borde de los huecos", Color) = (1, 1, 1, 0.9)
+        _Wobble ("Ondulación: fuerza (x), ondas alrededor (y) y de alto (z), fase (w)", Vector) = (0, 5, 2, 0)
+        _Glitch ("Bandas: cuántas (x), desplazamiento (y), fuerza ahora (z), semilla (w)", Vector) = (8, 0.05, 0, 0)
     }
 
     SubShader
@@ -64,6 +75,8 @@ Shader "FakeBlade/ChargeDome"
             SAMPLER(sampler_LinesTex);
             TEXTURE2D(_HitTex);
             SAMPLER(sampler_HitTex);
+            TEXTURE2D(_MaskTex);
+            SAMPLER(sampler_MaskTex);
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BodyColor;
@@ -91,6 +104,12 @@ Shader "FakeBlade/ChargeDome"
                 float4 _HitRot;
                 half4 _HitColor;
                 half4 _HitShadowColor;
+                float4 _Mask;
+                float4 _MaskScroll;
+                float4 _MaskTop;
+                half4 _MaskEdgeColor;
+                float4 _Wobble;
+                float4 _Glitch;
             CBUFFER_END
 
             struct Attributes
@@ -126,6 +145,12 @@ Shader "FakeBlade/ChargeDome"
                 float3 funnelNormal = normalize(around * _FunnelShape.z - float3(0.0, (_FunnelShape.y - _FunnelShape.x) * 2.0 * v, 0.0));
                 float3 positionOS = lerp(input.positionOS.xyz, funnelPos, _Funnel);
                 float3 normalOS = normalize(lerp(input.normalOS, funnelNormal, _Funnel));
+                // Ondulación (2026-10-24): ondas que recorren la superficie hacia fuera y hacia dentro; la base, quieta en el suelo
+                if (_Wobble.x > 0.0)
+                {
+                    float wave = sin(theta * _Wobble.y + _Wobble.w) * 0.6 + sin(v * _Wobble.z * 6.2831853 - _Wobble.w * 1.7 + theta * 2.0) * 0.4;
+                    positionOS += normalOS * _Wobble.x * wave * smoothstep(0.0, 0.15, v);
+                }
                 output.positionWS = TransformObjectToWorld(positionOS);
                 output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.normalWS = TransformObjectToWorldNormal(normalOS);
@@ -159,16 +184,70 @@ Shader "FakeBlade/ChargeDome"
                 return SAMPLE_TEXTURE2D_LOD(_HitTex, sampler_HitTex, uv, 0).a;
             }
 
+            float Hash21(float2 p)
+            {
+                p = frac(p * float2(123.34, 456.21));
+                p += dot(p, p + 45.32);
+                return frac(p.x * p.y);
+            }
+
+            // Ruido de valor que se repite cada period casillas alrededor (sin costura)
+            float ValueNoise(float2 p, float period)
+            {
+                float2 i = floor(p);
+                float2 f = frac(p);
+                f = f * f * (3.0 - 2.0 * f);
+                float x0 = i.x - period * floor(i.x / period);
+                float x1 = x0 + 1.0 - period * floor((x0 + 1.0) / period);
+                float a = Hash21(float2(x0, i.y));
+                float b = Hash21(float2(x1, i.y));
+                float c = Hash21(float2(x0, i.y + 1.0));
+                float d = Hash21(float2(x1, i.y + 1.0));
+                return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
+            }
+
+            // Máscara (0-1) en un punto de la superficie (uv: vuelta y altura): la textura o dos capas de ruido
+            float MaskValue(float2 uv)
+            {
+                float repeat = max(1.0, floor(_Mask.y + 0.5));
+                float2 q = float2((uv.x + _MaskScroll.x) * repeat, uv.y * _Mask.z - _MaskScroll.y);
+                if (_MaskScroll.z > 0.5)
+                {
+                    half4 m = SAMPLE_TEXTURE2D_LOD(_MaskTex, sampler_MaskTex, frac(q), 0);
+                    return min(m.r, m.a);
+                }
+                return ValueNoise(q, repeat) * 0.65 + ValueNoise(q * 2.0 + 17.0, repeat * 2.0) * 0.35;
+            }
+
             half4 Frag(Varyings input) : SV_Target
             {
+                // Bandas desplazadas (2026-10-24): durante un glitch, algunas franjas horizontales se corren de lado
+                float shift = 0.0;
+                if (_Glitch.z > 0.0)
+                {
+                    float band = floor(input.uv.y * max(1.0, _Glitch.x));
+                    if (Hash21(float2(band, _Glitch.w)) < 0.5)
+                        shift = (Hash21(float2(band + 7.0, _Glitch.w)) - 0.5) * 2.0 * _Glitch.y * _Glitch.z;
+                }
+                float2 uvShifted = float2(input.uv.x + shift, input.uv.y);
+
                 // Corte de arriba en picos (Tornado: aro de picos abierto arriba). Cada pico baja una altura distinta
                 if (_TopCut.x > 0.0)
                 {
                     float spikes = max(1.0, floor(_TopCut.y + 0.5));
-                    float k = input.uv.x * spikes + _TopCut.z;
+                    float k = uvShifted.x * spikes + _TopCut.z;
                     float tooth = 1.0 - abs(frac(k) - 0.5) * 2.0;
                     float jitter = frac(sin(floor(k) * 12.9898) * 43758.5453);
                     if (input.uv.y > 1.0 - _TopCut.x * (1.0 - tooth * (0.55 + jitter * 0.45))) discard;
+                }
+                // Huecos de la máscara, con corte duro; arriba se oculta más (el borde de arriba se deshace)
+                half maskEdge = 0.0;
+                if (_Mask.x >= 0.0)
+                {
+                    float threshold = _Mask.x + _MaskTop.x * saturate((input.uv.y - _MaskTop.y) / max(0.001, 1.0 - _MaskTop.y));
+                    float m = MaskValue(uvShifted);
+                    if (m < threshold) discard;
+                    maskEdge = step(m, threshold + _Mask.w) * step(0.001, threshold);
                 }
                 float3 normal = normalize(input.normalWS);
                 float3 view = normalize(GetWorldSpaceViewDir(input.positionWS));
@@ -177,7 +256,7 @@ Shader "FakeBlade/ChargeDome"
                 // Vuelta alrededor del eje inclinado (0-1) y altura a lo largo de él (0-1)
                 float3 p = normalize(input.domeOS);
                 float along = dot(p, _Axis.xyz) * 0.5 + 0.5;
-                float turn = atan2(dot(p, _AxisT2.xyz), dot(p, _AxisT1.xyz)) * (0.5 / PI) + 0.5;
+                float turn = atan2(dot(p, _AxisT2.xyz), dot(p, _AxisT1.xyz)) * (0.5 / PI) + 0.5 + shift;
                 // Todo se apaga cerca del extremo del eje, donde se juntan las líneas
                 half top = 1.0 - step(0.9, along);
 
@@ -205,6 +284,7 @@ Shader "FakeBlade/ChargeDome"
                 color = Over(color, _RimColor, rim);
                 half outline = max(step(1.0 - _OutlineWidth, fresnel), step(input.uv.y, 0.025));
                 color = Over(color, _OutlineColor, outline);
+                color = Over(color, _MaskEdgeColor, maskEdge);
 
                 // Zbam del golpe, con su sombra más grande por debajo
                 if (_Hit.w > 0.0)

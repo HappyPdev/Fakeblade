@@ -50,6 +50,13 @@ namespace FakeBlade.Core
         private static readonly int HitRotId = Shader.PropertyToID("_HitRot");
         private static readonly int HitColorId = Shader.PropertyToID("_HitColor");
         private static readonly int HitShadowColorId = Shader.PropertyToID("_HitShadowColor");
+        private static readonly int MaskTexId = Shader.PropertyToID("_MaskTex");
+        private static readonly int MaskId = Shader.PropertyToID("_Mask");
+        private static readonly int MaskScrollId = Shader.PropertyToID("_MaskScroll");
+        private static readonly int MaskTopId = Shader.PropertyToID("_MaskTop");
+        private static readonly int MaskEdgeColorId = Shader.PropertyToID("_MaskEdgeColor");
+        private static readonly int WobbleId = Shader.PropertyToID("_Wobble");
+        private static readonly int GlitchId = Shader.PropertyToID("_Glitch");
 
         private static Mesh _mesh;
         private static Mesh _meshInside;
@@ -81,6 +88,14 @@ namespace FakeBlade.Core
         private bool _hitPending;
         private Vector3 _hitDir = Vector3.right;
         private float _hitAngle;
+        // Máscara e inestabilidad (Defensa): desliz de la máscara, latido de los huecos, ondas, parpadeo y glitch
+        private Vector2 _maskPhase;
+        private float _pulse;
+        private float _pulseWait;
+        private float _wobblePhase;
+        private float _flicker;
+        private float _glitch;
+        private float _glitchSeed;
 
         private readonly string _name;
         private readonly int _sortingOrder;
@@ -221,6 +236,7 @@ namespace FakeBlade.Core
             _block.SetVector(TopCutId, new Vector4(style.topCut, style.topSpikes, _topPhase * style.topSpikes, 0f));
             SetLines(style);
             SetHit(style, hitPhase);
+            SetInstability(style, dt, alpha);
             _renderer.SetPropertyBlock(_block);
             SetVisible(true);
         }
@@ -266,6 +282,49 @@ namespace FakeBlade.Core
             Color shadow = style.hitShadowColor;
             shadow.a *= fade;
             _block.SetColor(HitShadowColorId, shadow);
+        }
+
+        /// <summary>
+        /// Máscara e inestabilidad (Defensa, 2026-10-24): huecos que se deslizan y laten a golpes irregulares, ondas en la
+        /// superficie, parpadeos y bandas desplazadas al azar. alpha: la transparencia de este frame (el parpadeo la baja).
+        /// </summary>
+        private void SetInstability(ChargeDomeStyle style, float dt, float alpha)
+        {
+            bool masked = style.maskAmount > 0f || style.topErode > 0f || style.holePulse > 0f;
+            if (masked)
+            {
+                _maskPhase.x = Mathf.Repeat(_maskPhase.x + style.maskScroll.x * dt, 1f);
+                _maskPhase.y = Mathf.Repeat(_maskPhase.y + style.maskScroll.y * dt, 64f);
+                _pulse = Mathf.Max(0f, _pulse - dt / style.holePulseDecay);
+                if (style.holePulse > 0f && (_pulseWait -= dt) <= 0f)
+                {
+                    _pulse = 1f;
+                    _pulseWait = Random.Range(style.holePulseInterval.x, style.holePulseInterval.y);
+                }
+                bool hasTexture = style.maskTexture != null;
+                if (hasTexture) _block.SetTexture(MaskTexId, style.maskTexture);
+                _block.SetVector(MaskScrollId, new Vector4(_maskPhase.x, _maskPhase.y, hasTexture ? 1f : 0f, 0f));
+                _block.SetVector(MaskTopId, new Vector4(style.topErode, style.topErodeFrom, 0f, 0f));
+                _block.SetColor(MaskEdgeColorId, style.maskEdgeColor);
+            }
+            _block.SetVector(MaskId, new Vector4(masked ? style.maskAmount + style.holePulse * _pulse : -1f,
+                Mathf.Max(1f, Mathf.Round(style.maskTiling.x)), style.maskTiling.y, style.maskEdge));
+
+            _wobblePhase = Mathf.Repeat(_wobblePhase + style.wobbleSpeed * dt, Mathf.PI * 200f);
+            _block.SetVector(WobbleId, new Vector4(style.wobble, Mathf.Max(1f, Mathf.Round(style.wobbleWaves.x)), style.wobbleWaves.y,
+                _wobblePhase));
+
+            // Parpadeo y glitch: a ratos al azar (de media, Rate por segundo), cada uno su tiempo
+            if (_flicker > 0f) _flicker -= dt;
+            else if (style.flickerRate > 0f && Random.value < style.flickerRate * dt) _flicker = style.flickerTime;
+            if (_flicker > 0f) _block.SetFloat(AlphaId, alpha * style.flickerAlpha);
+            if (_glitch > 0f) _glitch -= dt;
+            else if (style.glitchRate > 0f && Random.value < style.glitchRate * dt)
+            {
+                _glitch = style.glitchTime;
+                _glitchSeed = Random.Range(0f, 100f);
+            }
+            _block.SetVector(GlitchId, new Vector4(style.glitchBands, style.glitchOffset, _glitch > 0f ? 1f : 0f, _glitchSeed));
         }
 
         /// <summary>

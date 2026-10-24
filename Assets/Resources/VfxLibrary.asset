@@ -4216,6 +4216,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -4261,6 +4282,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -4956,6 +4998,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -5001,6 +5064,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -5452,6 +5536,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -5497,6 +5602,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -6078,6 +6204,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -6123,6 +6270,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -6655,6 +6823,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -6700,6 +6889,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -7427,6 +7637,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 1.25
@@ -7472,6 +7703,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush:
     - name: Trozos de suelo
       emitter: 19
@@ -8297,6 +8549,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -8342,6 +8615,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush:
     - name: "Semic\xEDrculos que se abren"
       emitter: 19
@@ -9340,6 +9634,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 1.3
@@ -9385,6 +9700,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -9684,23 +10020,23 @@ MonoBehaviour:
     overlay:
       enabled: 1
       powerColor: 0
-      color: {r: 0.45, g: 0.6, b: 1, a: 1}
-      hotColor: {r: 1, g: 1, b: 1, a: 1}
-      baseRim: 0.2
-      baseFlash: 0
+      color: {r: 0.64227116, g: 0.8282078, b: 0.96981126, a: 1}
+      hotColor: {r: 0.4509804, g: 0.6, b: 1, a: 1}
+      baseRim: 15.18
+      baseFlash: 0.2
       pulseRim: {x: 0.4, y: 0.9}
       pulseFlash: {x: 0, y: 0.04}
       pulseInterval: {x: 0.25, y: 0.5}
-      pulseDecay: 0.3
-      texture: {fileID: 0}
-      tilesX: 8
-      tilesY: 8
+      pulseDecay: 0.4
+      texture: {fileID: 2800000, guid: 0dade4177df7f9f40aef29e5629784c7, type: 3}
+      tilesX: 2
+      tilesY: 1
       firstFrame: 0
-      frames: 61
-      cycle: 1
-      textureScale: 2.2
-      textureSpin: 120
-      textureColor: {r: 1, g: 1, b: 1, a: 1}
+      frames: 10
+      cycle: 11
+      textureScale: 0.7
+      textureSpin: 544.8
+      textureColor: {r: 0.4509804, g: 0.6, b: 1, a: 1}
     particles: []
     scorch:
       sprite: 
@@ -9732,8 +10068,8 @@ MonoBehaviour:
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
       clockwise: 1
-      size: {x: 3.5, y: 3.5}
-      lifetime: {x: 0.4, y: 0.4}
+      size: {x: 4, y: 4}
+      lifetime: {x: 0.6, y: 0.6}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
       color2: {r: 0.82, g: 0.9, b: 1, a: 1}
       alpha: 0.9
@@ -9748,14 +10084,14 @@ MonoBehaviour:
       forwardOffset: 0
       rate: 70
       count: 40
-      radius: {x: 0.5, y: 0.9}
+      radius: {x: 0.6, y: 1.1}
       height: {x: 0, y: 0.2}
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0.5, y: 1.2}
-      upSpeed: {x: 4, y: 6}
+      upSpeed: {x: 7, y: 6}
       clockwise: 1
       size: {x: 0.03, y: 0.05}
-      lifetime: {x: 0.15, y: 0.22}
+      lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.45, g: 0.6, b: 1, a: 1}
       alpha: 1
@@ -9770,14 +10106,14 @@ MonoBehaviour:
       forwardOffset: 0
       rate: 40
       count: 40
-      radius: {x: 0.4, y: 0.7}
+      radius: {x: 0.6, y: 0.9}
       height: {x: 0, y: 0.4}
-      tangentialSpeed: {x: 0.5, y: 1}
+      tangentialSpeed: {x: 4, y: 1}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 2, y: 4}
       clockwise: 1
-      size: {x: 0.05, y: 0.08}
-      lifetime: {x: 0.35, y: 0.5}
+      size: {x: 0.09, y: 0.08}
+      lifetime: {x: 0.45, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.45, g: 0.6, b: 1, a: 1}
       alpha: 1
@@ -9790,16 +10126,16 @@ MonoBehaviour:
       rotation: {x: 0, y: 360}
       alignToDirection: 0
       forwardOffset: 0
-      rate: 18
+      rate: 45
       count: 40
-      radius: {x: 0.5, y: 0.8}
+      radius: {x: 1, y: 1.2}
       height: {x: 0, y: 0.3}
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 2, y: 3.5}
-      upSpeed: {x: 0.3, y: 0.8}
+      upSpeed: {x: 0.3, y: 0.5}
       clockwise: 1
-      size: {x: 0.4, y: 0.65}
-      lifetime: {x: 0.5, y: 0.7}
+      size: {x: 0.05, y: 0.1}
+      lifetime: {x: 0.5, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.82, g: 0.9, b: 1, a: 1}
       alpha: 0.85
@@ -9843,7 +10179,7 @@ MonoBehaviour:
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
       clockwise: 1
-      size: {x: 0.07, y: 0.1}
+      size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.45, g: 0.6, b: 1, a: 1}
@@ -9861,11 +10197,11 @@ MonoBehaviour:
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
-      tangentialSpeed: {x: 0.5, y: 1.5}
-      outwardSpeed: {x: 3, y: 6}
+      tangentialSpeed: {x: 2.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 4}
       upSpeed: {x: 0.2, y: 0.6}
       clockwise: 1
-      size: {x: 0.6, y: 1}
+      size: {x: 0.3, y: 0.4}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 0.82, g: 0.9, b: 1, a: 1}
@@ -10094,26 +10430,26 @@ MonoBehaviour:
       clashDuration: 0.25
     dome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
-      radius: 0.8
+      radius: 1
       heightScale: 1
       height: 0
       growEase: 1.5
-      bodyColor: {r: 0.55, g: 0.7, b: 1, a: 0.14}
+      bodyColor: {r: 0.55, g: 0.7, b: 1, a: 0.75686276}
       rimColor: {r: 0.45, g: 0.6, b: 1, a: 0.85}
       outlineColor: {r: 0.47, g: 0.47, b: 0.47, a: 0.8}
       swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
       swirlColor2: {r: 0.45, g: 0.6, b: 1, a: 0.5}
-      rimWidth: 0.2
-      outlineWidth: 0.05
-      linesTexture: {fileID: 0}
-      linesTiling: {x: 5, y: 2}
-      linesSpeed: 0
+      rimWidth: 0.404
+      outlineWidth: 0.204
+      linesTexture: {fileID: 2800000, guid: 2e2b57d1a1eb34a49928fb7f02680e71, type: 3}
+      linesTiling: {x: 1, y: 1.5}
+      linesSpeed: 2.39
       linesTwist: 0
-      axisTilt: 0
-      axisPrecess: 0
-      swirlLines: 7
-      swirlTwist: 0.05
-      swirlSpeed: 0.35
+      axisTilt: 4.9
+      axisPrecess: 1
+      swirlLines: 6
+      swirlTwist: 1.37
+      swirlSpeed: 5
       swirlWidth: 0.06
       shakeFrom: 1
       shakeScale: 0
@@ -10121,14 +10457,14 @@ MonoBehaviour:
       popTime: 0.3
       popScale: 1.2
       popFlash: 0.5
-      startRadius: 0.6
-      funnelPhase: 1
-      funnelMorph: 0.2
-      funnelShape: {x: 0.9, y: 1.15, z: 1.9}
-      topCut: 0.22
-      topSpikes: 9
-      topSpikesSpeed: 0.3
-      insideAlpha: 0.3
+      startRadius: 0
+      funnelPhase: 0.752
+      funnelMorph: 1
+      funnelShape: {x: 1.07, y: 1.28, z: 1.01}
+      topCut: 0.133
+      topSpikes: 19
+      topSpikesSpeed: 1.13
+      insideAlpha: 0.617
       sphere: 0
       hitTexture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
       hitColor: {r: 0.9, g: 0.95, b: 1, a: 1}
@@ -10137,28 +10473,49 @@ MonoBehaviour:
       hitDuration: 0.3
       hitFlash: 0.5
       hitBump: 0.08
+      maskTexture: {fileID: 2800000, guid: aee727f4833685e4b989448e47b815ef, type: 3}
+      maskAmount: 0.174
+      maskTiling: {x: 4, y: 4}
+      maskScroll: {x: 1.53, y: 2}
+      maskEdge: 0.03
+      maskEdgeColor: {r: 0.85, g: 0.92, b: 1, a: 0.9}
+      topErode: 1
+      topErodeFrom: 0.654
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 5
+      flickerRate: 0.8
+      flickerAlpha: 0
+      flickerTime: 0.01
+      glitchRate: 0
+      glitchBands: 1
+      glitchOffset: 0.04
+      glitchTime: 9999
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
-      radius: 1.2
-      heightScale: 0.45
+      radius: 1.15
+      heightScale: 0.48
       height: 0
       growEase: 2
-      bodyColor: {r: 0.45, g: 0.6, b: 1, a: 0.22}
+      bodyColor: {r: 0.45, g: 0.6, b: 1, a: 1}
       rimColor: {r: 1, g: 1, b: 1, a: 0.9}
       outlineColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.85}
       swirlColor: {r: 1, g: 1, b: 1, a: 0.6}
       swirlColor2: {r: 0, g: 0, b: 0, a: 0}
-      rimWidth: 0.12
-      outlineWidth: 0.04
-      linesTexture: {fileID: 0}
-      linesTiling: {x: 6, y: 2}
-      linesSpeed: 0
-      linesTwist: 0
+      rimWidth: 0.217
+      outlineWidth: 0.183
+      linesTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
+      linesTiling: {x: 8, y: 1}
+      linesSpeed: 0.45
+      linesTwist: 0.11
       axisTilt: 0
       axisPrecess: 0
-      swirlLines: 10
-      swirlTwist: 0
-      swirlSpeed: -0.25
+      swirlLines: 9.22
+      swirlTwist: 1.69
+      swirlSpeed: 2.88
       swirlWidth: 0.04
       shakeFrom: 1
       shakeScale: 0
@@ -10182,6 +10539,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0.15
+      maskTiling: {x: 7, y: 1}
+      maskScroll: {x: -0.1, y: 0.3}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0.3
+      topErodeFrom: 0.5
+      holePulse: 0.074
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0.03
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0.4
+      flickerAlpha: 0.35
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.1
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -10651,6 +11029,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -10696,6 +11095,27 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
     rush: []
     spiralTrail:
       material: {fileID: 0}

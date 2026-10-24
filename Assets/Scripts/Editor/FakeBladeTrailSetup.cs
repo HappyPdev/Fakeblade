@@ -1811,6 +1811,7 @@ namespace FakeBlade.Core.Editor
 
             defense.dome ??= DefenseAura();
             defense.baseDome ??= DefenseCrown();
+            AddDefenseInstability(defense);
             Shader domeShader = Shader.Find(ChargeDomeShaderName);
             Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
             if (defense.dome.material == null) defense.dome.material = domeMaterial;
@@ -1853,6 +1854,62 @@ namespace FakeBlade.Core.Editor
             hitColor = new Color(0.9f, 0.95f, 1f, 1f), hitShadowColor = new Color(0.3f, 0.3f, 0.3f, 0.6f),
             hitScale = new Vector2(0.15f, 0.9f), hitDuration = 0.3f, hitFlash = 0.5f, hitBump = 0.08f
         };
+
+        /// <summary>
+        /// Huecos e inestabilidad del aura (2026-10-24, pedido del usuario): huecos de ruido que suben y laten, más arriba
+        /// (el borde de arriba se deshace: no parece un cilindro), ondas, parpadeos y bandas desplazadas.
+        /// </summary>
+        private static void DefenseAuraInstability(ChargeDomeStyle d)
+        {
+            d.maskAmount = 0.25f;
+            d.maskTiling = new Vector2(5f, 2f);
+            d.maskScroll = new Vector2(0.08f, 0.5f);
+            d.maskEdge = 0.05f;
+            d.maskEdgeColor = new Color(0.85f, 0.92f, 1f, 0.9f);
+            d.topErode = 0.55f;
+            d.topErodeFrom = 0.45f;
+            d.holePulse = 0.2f;
+            d.holePulseInterval = new Vector2(0.15f, 0.5f);
+            d.holePulseDecay = 0.2f;
+            d.wobble = 0.04f;
+            d.wobbleWaves = new Vector2(5f, 2f);
+            d.wobbleSpeed = 5f;
+            d.flickerRate = 0.8f;
+            d.flickerAlpha = 0.35f;
+            d.flickerTime = 0.05f;
+            d.glitchRate = 0.6f;
+            d.glitchBands = 8;
+            d.glitchOffset = 0.04f;
+            d.glitchTime = 0.08f;
+        }
+
+        /// <summary>La corona de la base, más tranquila: pocos huecos, algo de ondas y algún parpadeo.</summary>
+        private static void DefenseCrownInstability(ChargeDomeStyle d)
+        {
+            d.maskAmount = 0.15f;
+            d.maskTiling = new Vector2(7f, 1f);
+            d.maskScroll = new Vector2(-0.1f, 0.3f);
+            d.maskEdge = 0.05f;
+            d.maskEdgeColor = new Color(1f, 1f, 1f, 0.9f);
+            d.topErode = 0.3f;
+            d.topErodeFrom = 0.5f;
+            d.holePulse = 0.15f;
+            d.wobble = 0.03f;
+            d.flickerRate = 0.4f;
+            d.flickerAlpha = 0.35f;
+        }
+
+        /// <summary>
+        /// Pone la máscara y la inestabilidad de la Defensa en sus cúpulas si aún no las tienen (todo a 0: se crearon antes del
+        /// 2026-10-24). Lo demás, como lo haya dejado el usuario.
+        /// </summary>
+        private static void AddDefenseInstability(SpecialVfxStyle defense)
+        {
+            bool Missing(ChargeDomeStyle d) => d.maskAmount <= 0f && d.topErode <= 0f && d.holePulse <= 0f && d.wobble <= 0f &&
+                                               d.flickerRate <= 0f && d.glitchRate <= 0f;
+            if (Missing(defense.dome)) DefenseAuraInstability(defense.dome);
+            if (Missing(defense.baseDome)) DefenseCrownInstability(defense.baseDome);
+        }
 
         /// <summary>
         /// Viñeta 2, en la base: corona en zigzag, un embudo bajo y más ancho que el de dentro con picos grandes que giran hacia

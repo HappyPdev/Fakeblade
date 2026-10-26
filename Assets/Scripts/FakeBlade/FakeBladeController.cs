@@ -1559,7 +1559,8 @@ namespace FakeBlade.Core
                 // Carga solo de los efectos más larga que la de juego (Defensa, 2026-10-23): hasta entonces siguen los de la carga
                 float visualWindup = specialVfx != null ? specialVfx.visualWindupTime : 0f;
                 bool visualCharge = visualWindup > 0f && _special.IsActive && _special.ActiveTime < visualWindup;
-                bool windingUp = _special.IsWindingUp || visualCharge;
+                // Rastro de agua (2026-10-26): la carga visual solo para las cúpulas; lo demás, con la de juego
+                bool windingUp = _special.IsWindingUp || (visualCharge && !specialVfx.visualWindupDomesOnly);
                 bool effectsOn = _special.IsActive && !windingUp && !_isDestroyed;
                 bool rushing = effectsOn && _special.Ability != null && _special.Ability.IsRushing;
                 bool tipOn = effectsOn;

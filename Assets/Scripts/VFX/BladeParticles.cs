@@ -474,20 +474,24 @@ namespace FakeBlade.Core
             float groundY = tip.y + 0.03f;
             int capacity = water.PuddleCapacity;
 
-            // Cada trozo mojado emite lo suyo (unas 18 gotas/s y alguna onda), más tenue al secarse
+            // Cada trozo mojado emite lo suyo (unas 18 gotas/s y alguna onda), más tenue al secarse; los más grandes (el charco
+            // del final, 2026-10-26), más, repartidas por todo el charco
             float dropChance = 18f * mul * dt;
             float rippleChance = 0.8f * mul * dt;
+            float baseRadius = Mathf.Max(0.1f, water.PuddleRadius);
             for (int index = 0; index < capacity; index++)
             {
                 if (!water.IsPuddleAlive(index)) continue;
                 Vector3 center = water.PuddlePosition(index);
                 center.y = groundY;
                 float life = water.PuddleLife(index);
+                float spread = water.PuddleRadiusAt(index) / baseRadius;
+                float area = Mathf.Min(spread * spread, 8f);
 
-                for (float chance = dropChance; chance > 0f; chance -= 1f)
+                for (float chance = dropChance * area; chance > 0f; chance -= 1f)
                 {
                     if (Random.value >= chance) break;
-                    Vector3 p = center + RandomFlatDirection() * Random.Range(0f, 0.5f);
+                    Vector3 p = center + RandomFlatDirection() * Random.Range(0f, 0.5f * spread);
                     Color c = color;
                     c.a = 0.4f + 0.6f * life;
                     VfxSystem.EmitParticle(VfxType.Trail, p, Vector3.up * 0.1f, c, 0.2f, 0.5f);
@@ -685,8 +689,10 @@ namespace FakeBlade.Core
         /// </summary>
         private void UpdateStatusParticles(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
         {
-            // Mojada (aparte del estado principal): gotas que caen y salpican
-            if (_blade.Status.IsWet)
+            // Mojada (aparte del estado principal): gotas que caen y salpican (con los efectos propios de la biblioteca, 2026-10-26,
+            // las emite BladeSpecialFx)
+            StatusVfxStyle wetFx = lib.WetEffects;
+            if (_blade.Status.IsWet && (wetFx == null || (wetFx.particles.Count == 0 && wetFx.swirl.Count == 0)))
             {
                 Color wet = lib.GetStatusColor(StatusEffectType.Wet);
                 int drops = Accumulate(ref _wetAcc, lib.statusParticleRate * mul, dt);

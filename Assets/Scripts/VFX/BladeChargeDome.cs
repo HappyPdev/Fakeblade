@@ -18,6 +18,8 @@ namespace FakeBlade.Core
     /// dura el poder y se desvanece al acabar; en cada rebote, una Zbam se abre en ella desde el punto del golpe (Pulse).
     /// Defensa (2026-10-23, boceto del usuario): dos embudos con picos (el de dentro, alto; el de la base, una corona en
     /// zigzag) que suben en la carga y se quedan como aura mientras dura; la Zbam, al embestirla.
+    /// Rastro de agua (2026-10-26, boceto del usuario): los mismos dos embudos, como cilindros de agua con franjas que suben;
+    /// salen al final de la carga, después de la salpicadura (appearFrom), y al terminar caen al suelo (popFall).
     /// </summary>
     public sealed class BladeChargeDome
     {
@@ -155,6 +157,17 @@ namespace FakeBlade.Core
             if (windingUp)
             {
                 float p = Mathf.Clamp01(progress);
+                // Aparece tarde (Rastro de agua: después de la salpicadura) y crece en lo que queda de carga
+                if (style.appearFrom > 0f)
+                {
+                    if (p < style.appearFrom)
+                    {
+                        _lastRadius = 0f;
+                        SetVisible(false);
+                        return;
+                    }
+                    p = (p - style.appearFrom) / (1f - style.appearFrom);
+                }
                 radius = style.radius * Mathf.Lerp(style.startRadius, 1f, 1f - Mathf.Pow(1f - p, style.growEase));
                 // Tornado: al principio, embudo que sube desde el suelo; después se ensancha y baja hasta ser la cúpula
                 funnel = 0f;
@@ -183,7 +196,8 @@ namespace FakeBlade.Core
                 float ease = 1f - (1f - t) * (1f - t);
                 radius = _popRadius * Mathf.Lerp(1f, style.popScale, ease);
                 funnel = _lastFunnel;
-                rise = _lastRise;
+                // Cae al suelo cada vez más deprisa (el agua del Rastro de agua, 2026-10-26)
+                rise = _lastRise * (1f - style.popFall * t * t);
                 alpha = 1f - t;
                 flash = style.popFlash * (1f - t);
             }

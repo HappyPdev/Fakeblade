@@ -180,7 +180,8 @@ namespace FakeBlade.Core
 
             // Estado: impulsos naranjas del borde (quemada) o escarcha quieta (congelada). El último sigue mandando
             // mientras se apaga
-            StatusVfxStyle status = BladeSpecialFx.StatusStyle(_blade);
+            // Mojada (2026-10-26), si no tiene otro estado: borde azul
+            StatusVfxStyle status = BladeSpecialFx.StatusOrWetStyle(_blade);
             if (status != null) _lastStatusOverlay = status.overlay;
             Pulses(_statusPulse, _lastStatusOverlay, status != null, dt, center, ref rim, ref rimColor, ref flash,
                 ref flashColor, ref fx, ref fxSheet, ref fxColor, ref fxTexture);

@@ -107,6 +107,15 @@ namespace FakeBlade.Core
         public float spin;
         [Tooltip("Cuántas puede haber a la vez (entre todas las peonzas)")]
         [Min(1)] public int maxParticles = 128;
+        [Header("Choque con el suelo (2026-10-26; gotas del Rastro de agua). Se aplica al empezar la partida, sin Setup")]
+        [Tooltip("Desaparece al tocar el suelo (VfxLibrary.groundHeight). Para las que caen con gravedad: si no, lo atraviesan")]
+        public bool groundCollision;
+        [Tooltip("Sprite de esta lista que sale donde toca el suelo, con su color (el «plic»; vacío = ninguno)")]
+        public string groundSplash;
+        [Tooltip("Tamaño del plic (m)")]
+        [Min(0.01f)] public float groundSplashSize = 0.3f;
+        [Tooltip("Parte de las partículas que sueltan plic al tocar el suelo (1 = todas; menos = más barato)")]
+        [Range(0f, 1f)] public float groundSplashChance = 1f;
         [Tooltip("Lo crea Setup Impactos (sprites) al cambiar la textura, la rejilla o la duración")]
         public ParticleSystem prefab;
     }
@@ -425,6 +434,10 @@ namespace FakeBlade.Core
                  "la carga y la cúpula siguen hasta entonces y el encendido sale al acabar, aunque el poder ya funcione (Defensa: " +
                  "0,5 con 0,3 de juego)")]
         [Min(0f)] public float visualWindupTime;
+        [Tooltip("La carga de los efectos (Visual Windup Time) solo alarga las cúpulas: las partículas de la carga y el encendido " +
+                 "siguen la de juego. Rastro de agua (2026-10-26): la salpicadura sale al acabar la carga de juego (0,3 s) y los " +
+                 "cilindros suben después, hasta los 0,5 s (con Appear From en las cúpulas)")]
+        public bool visualWindupDomesOnly;
         [Tooltip("Otro remolino propio mientras dura el poder, además del de la carga (Hielo: vaho a ras de suelo que gira " +
                  "y se queda posado). Usa Rate, no Count")]
         public List<SpiralParticleStyle> swirl = new List<SpiralParticleStyle>();
@@ -589,6 +602,12 @@ namespace FakeBlade.Core
         [Min(1f)] public float popScale = 1.7f;
         [Tooltip("Destello blanco al reventar (0-1)")]
         [Range(0f, 1f)] public float popFlash = 0.8f;
+        [Tooltip("Al acabar, cuánto se cae al suelo mientras se desvanece, cada vez más deprisa (0 = no cae; 1 = hasta el suelo). " +
+                 "Rastro de agua: el agua cae en seco (2026-10-26). Con Pop Scale 1 no se infla")]
+        [Range(0f, 1f)] public float popFall;
+        [Tooltip("Parte de la carga en la que aún no se ve (0 = sale al empezarla; 0,6 = aparece en el último 40% y crece en él). " +
+                 "Rastro de agua: los cilindros salen después de la salpicadura (2026-10-26)")]
+        [Range(0f, 0.95f)] public float appearFrom;
 
         [Header("Embudo y picos de arriba (Tornado)")]
         [Tooltip("Radio al empezar, en partes del final (0 = crece desde nada, como en Onda de choque)")]
@@ -889,6 +908,9 @@ namespace FakeBlade.Core
         public Vector2 outwardSpeed = new Vector2(4f, 7f);
         [Tooltip("Velocidad hacia arriba (m/s), entre x e y")]
         public Vector2 upSpeed = new Vector2(2f, 4f);
+        [Tooltip("Velocidad de más hacia el golpe (en los choques: hacia el lado del choque) o hacia la marcha (m/s), entre x e " +
+                 "y. Rastro de agua: más gotas hacia donde se golpea (2026-10-26)")]
+        public Vector2 directionalSpeed = Vector2.zero;
         [Tooltip("Gira en el sentido de las agujas del reloj, visto desde arriba")]
         public bool clockwise = true;
         [Tooltip("Tamaño (m), entre x e y")]
@@ -932,6 +954,9 @@ namespace FakeBlade.Core
         public Vector2 forwardOffset = Vector2.zero;
         [Tooltip("Partículas por segundo, seguidas")]
         [Min(0f)] public float rate = 10f;
+        [Tooltip("Partículas por segundo de más por cada m/s de la peonza (0 = igual parada que corriendo). Rastro de agua: " +
+                 "salpica más cuanto más deprisa va (2026-10-26)")]
+        [Min(0f)] public float ratePerSpeed;
         [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
         public Vector2 burstInterval = Vector2.zero;
         [Tooltip("Partículas de cada chasquido, al azar entre x e y")]
@@ -1024,6 +1049,8 @@ namespace FakeBlade.Core
         [Header("Giro")]
         [Tooltip("Giro visual del disco mientras dura (1 = normal; 0,5 = la mitad, como rígido por el hielo). Solo se ve")]
         [Range(0f, 1f)] public float discSpin = 1f;
+        [Header("Manchas en el suelo (Mojada, 2026-10-26: rastro de mojado que no moja)")]
+        public ScorchStyle scorch = new ScorchStyle();
     }
 
     /// <summary>Un destello sobre la peonza por un evento (golpe recibido, parry, bloqueo...): sube de golpe y se apaga.</summary>
@@ -1292,6 +1319,12 @@ namespace FakeBlade.Core
         public StatusVfxStyle frozen = new StatusVfxStyle();
         [Tooltip("Peonza lanzada (golpe fuerte de Rayos, onda de choque): borde amarillo que parpadea, chispas que saltan y aura")]
         public StatusVfxStyle launched = new StatusVfxStyle();
+        [Tooltip("Peonza mojada (Rastro de agua, 2026-10-26): borde azul, gotas que salen despedidas y un rastro de mojado que " +
+                 "no moja. Va aparte del estado principal: sus partículas y su rastro salen también con otro estado, y el borde, " +
+                 "si el otro no tiene. Apagada hasta que Setup Rastros la rellena (salen las gotas de antes)")]
+        public StatusVfxStyle wet = new StatusVfxStyle { enabled = false };
+        [Tooltip("Altura del suelo para las partículas que chocan con él (Ground Collision de los sprites)")]
+        public float groundHeight;
         [Tooltip("Aviso de usos de los poderes con varios usos (Onda de choque): marcas que giran alrededor de la peonza")]
         public UsesIndicatorStyle usesIndicator = new UsesIndicatorStyle();
 
@@ -1318,6 +1351,9 @@ namespace FakeBlade.Core
                 : null;
             return style != null && style.enabled ? style : null;
         }
+
+        /// <summary>Efectos de la peonza mojada, o null si están apagados (va aparte del estado principal).</summary>
+        public StatusVfxStyle WetEffects => wet != null && wet.enabled ? wet : null;
 
         [Header("Estela (partículas)")]
         [Tooltip("Metros recorridos entre dos partículas de la estela (0,12 hasta K7; ahora la cinta es el rastro principal)")]

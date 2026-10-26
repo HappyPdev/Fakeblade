@@ -231,7 +231,8 @@ namespace FakeBlade.Core.Editor
             return "especiales: Fuego" + (added ? " (nuevo)" : "") + "; " + SetupBurn(library, shader, firespin) + "; " +
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
                    SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
-                   SetupDefense(library) + "; " + SetupGenericSpecial(library);
+                   SetupDefense(library) + "; " + SetupWaterTrail(library) + "; " + SetupWet(library) + "; " +
+                   SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -2043,6 +2044,305 @@ namespace FakeBlade.Core.Editor
             OutwardLines("Líneas que salen", 18, Color.white, DefenseBlue),
             ShockCircle("Círculo", "CircleImpact04Anillo", 3.4f, 0.05f, 0.4f, DefensePale, 0.9f)
         };
+
+        // Rastro de agua (2026-10-26, decidido con el usuario): azul y cian con espuma blanca
+        private static readonly Color WaterBlue = new Color(0.25f, 0.6f, 1f);
+        private static readonly Color WaterCyan = new Color(0.5f, 0.95f, 1f);
+        private static readonly Color WaterPale = new Color(0.85f, 0.97f, 1f);
+
+        /// <summary>
+        /// Rastro de agua (K8, 2026-10-26; boceto del usuario en cuatro viñetas, Tide Core), empezado copiando la Defensa (sus
+        /// cúpulas, tal como las dejó el usuario). Carga (0,5 s de efectos con 0,3 de juego): círculos que se cierran en el
+        /// suelo, gotas que suben y vaho y humo que se tragan; al encenderse, la salpicadura (corona de gotas, ondas que se abren
+        /// y vaho), y después suben los dos cilindros de agua con franjas onduladas que suben sin parar. Mientras dura: salpica
+        /// más cuanto más deprisa va, deja manchas de agua donde están los charcos y gotas y vaho alrededor. Al chocar, muchas
+        /// gotas que caen con gravedad hasta el suelo (plic), más hacia el golpe, vaho y gotas rápidas. Al terminar, los
+        /// cilindros caen en seco al suelo y queda el charco grande (su mancha, en End Burst). Las gotas y brillos de antes sobre
+        /// los charcos se quedan (Replace Aura apagado). Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupWaterTrail(VfxLibrary library)
+        {
+            SpecialVfxStyle water = library.GetSpecialEffects(SpecialAbilityType.WaterTrail);
+            bool added = water == null;
+            if (added)
+            {
+                water = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.WaterTrail, replaceAura = false, windupSustain = 0f, visualWindupTime = 0.5f,
+                    visualWindupDomesOnly = true
+                };
+                water.tip.cups.Clear();
+                water.tip.particleSprite = "";
+                water.tip.ground = new TipGroundSprite();
+                water.overlay = new SpecialOverlayStyle
+                {
+                    color = WaterCyan, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.4f, 0.8f),
+                    pulseFlash = new Vector2(0f, 0.04f), pulseInterval = new Vector2(0.3f, 0.6f), pulseDecay = 0.3f
+                };
+                // Las cúpulas de la Defensa, como las dejó el usuario (o las de por defecto si no hay)
+                SpecialVfxStyle defense = library.GetSpecialEffects(SpecialAbilityType.Defense);
+                water.dome = CloneDome(defense != null && defense.dome != null ? defense.dome : DefenseAura());
+                water.baseDome = CloneDome(defense != null && defense.baseDome != null ? defense.baseDome : DefenseCrown());
+                WaterCylinder(water.dome, "FranjasAgua", 0.4f, new Vector2(1f, 1f), new Vector2(0f, 0.5f), 0.5f, 0.05f, 0.22f);
+                WaterCylinder(water.baseDome, "FranjasAguaRotas", 0.35f, new Vector2(2f, 1f), new Vector2(0.05f, 0.7f), 0.3f, 0.04f, 0.3f);
+                water.scorch = new ScorchStyle
+                {
+                    sprite = "Charco", spacing = 0.4f, idleInterval = 0.5f, size = new Vector2(1.4f, 1.8f), lifetime = 3f,
+                    color = WaterBlue, alpha = 0.45f, height = 0.01f
+                };
+                library.specialEffects.Add(water);
+            }
+
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+            water.dome ??= new ChargeDomeStyle();
+            water.baseDome ??= new ChargeDomeStyle();
+            if (water.dome.material == null) water.dome.material = domeMaterial;
+            if (water.baseDome.material == null) water.baseDome.material = domeMaterial;
+
+            water.windup ??= new List<SpiralParticleStyle>();
+            if (water.windup.Count == 0) water.windup.AddRange(WindupOnly(WaterWindup()));
+            water.activationBurst ??= new List<SpiralParticleStyle>();
+            if (water.activationBurst.Count == 0) water.activationBurst.AddRange(WaterSplash());
+            water.swirl ??= new List<SpiralParticleStyle>();
+            if (water.swirl.Count == 0) water.swirl.AddRange(WaterSwirl());
+            water.particles ??= new List<SpecialParticleStyle>();
+            if (water.particles.Count == 0) water.particles.AddRange(WaterSpray());
+            water.impact ??= new List<SpiralParticleStyle>();
+            if (water.impact.Count == 0) water.impact.AddRange(WaterImpact());
+            water.endBurst ??= new List<SpiralParticleStyle>();
+            if (water.endBurst.Count == 0) water.endBurst.AddRange(WaterEnd());
+            return "Rastro de agua" + (added ? " (nuevo)" : "") + (water.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        /// <summary>Copia de una cúpula (con sus texturas y materiales), para empezar otra a partir de ella.</summary>
+        private static ChargeDomeStyle CloneDome(ChargeDomeStyle source)
+        {
+            var copy = new ChargeDomeStyle();
+            EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(source), copy);
+            return copy;
+        }
+
+        /// <summary>
+        /// Una cúpula copiada de la Defensa, en agua: azul con algo de transparencia, orilla cian y espuma blanca en el borde de
+        /// los huecos; máscara de franjas onduladas que suben sin parar (Mask Scroll Y) y ondulación; sin latido, parpadeo ni
+        /// glitch. Sale después de la salpicadura (el último 40% de la carga) y al terminar cae en seco al suelo.
+        /// </summary>
+        private static void WaterCylinder(ChargeDomeStyle d, string mask, float amount, Vector2 tiling, Vector2 scroll, float topErode,
+            float wobble, float bodyAlpha)
+        {
+            d.bodyColor = new Color(0.35f, 0.7f, 1f, bodyAlpha);
+            d.rimColor = new Color(WaterCyan.r, WaterCyan.g, WaterCyan.b, 0.9f);
+            d.outlineColor = new Color(0.15f, 0.3f, 0.6f, 0.75f);
+            d.swirlColor = new Color(1f, 1f, 1f, 0.7f);
+            d.swirlColor2 = new Color(WaterCyan.r, WaterCyan.g, WaterCyan.b, 0.5f);
+            d.maskEnabled = true;
+            d.maskTexture = FakeBladeImpactSetup.WaterMaskTexture(mask);
+            d.maskAmount = amount;
+            d.maskTiling = tiling;
+            d.maskScroll = scroll;
+            d.maskEdge = 0.06f;
+            d.maskEdgeColor = new Color(1f, 1f, 1f, 0.95f);
+            d.topErodeEnabled = true;
+            d.topErode = topErode;
+            d.topErodeFrom = 0.5f;
+            d.holePulse = 0f;
+            d.wobbleEnabled = true;
+            d.wobble = wobble;
+            d.wobbleWaves = new Vector2(6f, 2f);
+            d.wobbleSpeed = 5f;
+            d.flickerRate = 0f;
+            d.glitchRate = 0f;
+            d.appearFrom = 0.6f;
+            d.popTime = 0.4f;
+            d.popScale = 1.05f;
+            d.popFlash = 0.15f;
+            d.popFall = 1f;
+        }
+
+        /// <summary>
+        /// Viñeta 1, la carga: círculos que se cierran hacia la peonza en el suelo, gotas que salen hacia arriba (y caen con su
+        /// plic) y vaho y humo blanco que se tragan hacia el centro, para dar profundidad.
+        /// </summary>
+        private static SpiralParticleStyle[] WaterWindup() => new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 3.5f, 0.03f, 0.4f, WaterPale, 0.9f, rate: 5f),
+            ShockCircle("Media luna que se cierra (suelo)", "CircleImpact04Cierra", 2.6f, 0.05f, 0.4f, WaterCyan, 0.8f, rate: 4f),
+            new SpiralParticleStyle
+            {
+                name = "Gotas que suben", sprite = "Gota", rate = 70f, radius = new Vector2(0.2f, 0.5f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = new Vector2(0f, 0.5f), outwardSpeed = new Vector2(0.3f, 1.2f), upSpeed = new Vector2(3f, 5.5f),
+                size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(1.2f, 1.6f), color = WaterPale, color2 = WaterCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Vaho que se traga", sprite = "Vaho", rate = 22f, radius = new Vector2(1.2f, 1.6f), height = new Vector2(0.05f, 0.4f),
+                tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(-3f, -2f), upSpeed = new Vector2(0f, 0.3f),
+                size = new Vector2(0.4f, 0.6f), lifetime = new Vector2(0.4f, 0.55f), color = Color.white, color2 = WaterPale, alpha = 0.8f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo blanco que se traga", sprite = "HumoTraga", rate = 12f, radius = new Vector2(1.3f, 1.8f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(-4f, -3f),
+                upSpeed = Vector2.zero, size = new Vector2(0.35f, 0.55f), lifetime = new Vector2(0.4f, 0.5f), color = Color.white,
+                color2 = WaterPale, alpha = 0.85f
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 2, la salpicadura al encenderse (como algo que cae al agua): corona de gotas que suben y caen alrededor, gotas
+        /// pequeñas y rápidas, ondas que se abren en el suelo y vaho que sale.
+        /// </summary>
+        private static SpiralParticleStyle[] WaterSplash() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Corona de gotas", sprite = "Gota", count = 40, radius = new Vector2(0.3f, 0.5f), height = new Vector2(0.1f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(4f, 6.5f),
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(1.3f, 1.7f), color = WaterPale, color2 = WaterCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Gotas rápidas", sprite = "Gota", count = 30, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.1f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 5f), upSpeed = new Vector2(2f, 4f),
+                size = new Vector2(0.04f, 0.06f), lifetime = new Vector2(1f, 1.3f), color = Color.white, color2 = WaterCyan
+            },
+            ShockCircle("Onda", "CircleImpact02Suelo", 4f, 0.03f, 0.45f, WaterPale, 0.9f, count: 2),
+            ShockCircle("Onda pequeña", "CircleImpact04Anillo", 2.6f, 0.04f, 0.4f, WaterCyan, 0.8f, count: 2),
+            OutwardSmokeBurst("Vaho que sale", "Vaho", Color.white, WaterPale)
+        };
+
+        /// <summary>Mientras dura, alrededor: vaho a ras de suelo que gira y sale, y gotas que saltan de los cilindros.</summary>
+        private static SpiralParticleStyle[] WaterSwirl() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Vaho a ras de suelo", sprite = "VahoSuelo", rate = 8f, radius = new Vector2(0.6f, 0.9f),
+                height = new Vector2(0.02f, 0.05f), tangentialSpeed = new Vector2(1.5f, 2.5f), outwardSpeed = new Vector2(0.8f, 1.5f),
+                upSpeed = Vector2.zero, size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.8f, 1.1f), color = Color.white,
+                color2 = WaterPale, alpha = 0.6f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Gotas que saltan", sprite = "Gota", rate = 12f, radius = new Vector2(0.6f, 0.9f), height = new Vector2(0.2f, 0.8f),
+                tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(0.5f, 1.5f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(1f, 1.3f), color = WaterPale, color2 = WaterCyan
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 4, al moverse: salpica muchas gotas, más cuanto más deprisa va (Rate Per Speed), hacia atrás y a los lados, y
+        /// algo de espuma a ras de suelo (la estela de una lancha).
+        /// </summary>
+        private static SpecialParticleStyle[] WaterSpray() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Salpicadura al moverse", sprite = "Gota", rate = 3f, ratePerSpeed = 7f, spawnRadius = new Vector2(0.3f, 0.6f),
+                height = new Vector2(0.05f, 0.2f), coneAngle = 60f, speed = new Vector2(2f, 4f), inheritVelocity = -0.15f,
+                forwardOffset = new Vector2(-0.3f, 0f), size = new Vector2(0.04f, 0.08f), lifetime = new Vector2(0.9f, 1.3f),
+                rotation = Vector2.zero, color = WaterPale, color2 = WaterCyan
+            },
+            new SpecialParticleStyle
+            {
+                name = "Espuma", sprite = "VahoSuelo", rate = 0f, ratePerSpeed = 1.2f, spawnRadius = new Vector2(0.2f, 0.5f),
+                height = new Vector2(0.02f, 0.04f), coneAngle = 90f, speed = new Vector2(0.3f, 0.8f), inheritVelocity = 0f,
+                forwardOffset = new Vector2(-0.5f, -0.2f), size = new Vector2(0.5f, 0.8f), lifetime = new Vector2(0.6f, 0.9f),
+                color = Color.white, color2 = WaterPale, alpha = 0.6f
+            }
+        };
+
+        /// <summary>
+        /// Viñeta 4, al chocar: muchas gotas grandes en todas direcciones, más hacia el golpe (Directional Speed), que caen con
+        /// gravedad y viven hasta llegar al suelo (plic); gotas pequeñas más rápidas, vaho y un círculo en el suelo.
+        /// </summary>
+        private static SpiralParticleStyle[] WaterImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Gotas grandes", sprite = "Gota", count = 30, radius = new Vector2(0f, 0.2f), height = new Vector2(0.2f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(3f, 6f),
+                directionalSpeed = new Vector2(1.5f, 3.5f), size = new Vector2(0.08f, 0.12f), lifetime = new Vector2(1.5f, 1.9f),
+                color = WaterPale, color2 = WaterCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Gotas rápidas", sprite = "Gota", count = 25, radius = new Vector2(0f, 0.15f), height = new Vector2(0.15f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(4f, 7f), upSpeed = new Vector2(1f, 3f),
+                directionalSpeed = new Vector2(2f, 4f), size = new Vector2(0.04f, 0.06f), lifetime = new Vector2(1f, 1.3f),
+                color = Color.white, color2 = WaterCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Vaho", sprite = "Vaho", count = 6, radius = new Vector2(0f, 0.2f), height = new Vector2(0.2f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2f), upSpeed = new Vector2(0.3f, 0.8f),
+                directionalSpeed = new Vector2(0.5f, 1f), size = new Vector2(0.4f, 0.6f), lifetime = new Vector2(0.6f, 0.9f),
+                color = Color.white, color2 = WaterPale, alpha = 0.8f
+            },
+            ShockCircle("Círculo", "CircleImpact02Suelo", 1.6f, 0.03f, 0.35f, WaterPale, 0.9f)
+        };
+
+        /// <summary>
+        /// Al terminar: el agua de los cilindros cae al suelo (gotas que bajan), queda el charco grande (la mancha: mismo tamaño
+        /// y duración que el charco de juego del asset WaterTrail, 2 m de radio y 6 s), vaho a ras de suelo y ondas.
+        /// </summary>
+        private static SpiralParticleStyle[] WaterEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Agua que cae", sprite = "Gota", count = 50, radius = new Vector2(0.5f, 0.9f), height = new Vector2(0.3f, 1.2f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0.2f, 0.8f), upSpeed = new Vector2(-0.5f, 0.5f),
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(1.2f, 1.5f), color = WaterPale, color2 = WaterCyan
+            },
+            new SpiralParticleStyle
+            {
+                name = "Charco grande", sprite = "Charco", count = 1, radius = Vector2.zero, height = new Vector2(0.012f, 0.012f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(4f, 4f),
+                lifetime = new Vector2(6f, 6f), color = WaterBlue, color2 = WaterBlue, alpha = 0.5f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Vaho a ras de suelo", sprite = "VahoSuelo", count = 8, radius = new Vector2(0.5f, 0.9f),
+                height = new Vector2(0.02f, 0.05f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(1f, 2f),
+                upSpeed = Vector2.zero, size = new Vector2(0.7f, 1f), lifetime = new Vector2(1f, 1.4f), color = Color.white,
+                color2 = WaterPale, alpha = 0.6f
+            },
+            ShockCircle("Ondas", "CircleImpact02Suelo", 4.5f, 0.03f, 0.5f, WaterPale, 0.85f, count: 2)
+        };
+
+        /// <summary>
+        /// Peonza mojada (2026-10-26, decidido con el usuario): borde azul, gotas que salen despedidas hacia fuera (con su plic)
+        /// y un rastro de mojado pequeño que no moja y se seca mucho antes que el agua del poder. Va aparte del estado principal.
+        /// Solo la rellena (y la enciende) si está vacía.
+        /// </summary>
+        private static string SetupWet(VfxLibrary library)
+        {
+            library.wet ??= new StatusVfxStyle { enabled = false };
+            StatusVfxStyle wet = library.wet;
+            if (wet.particles.Count > 0 || wet.swirl.Count > 0) return "mojada";
+            wet.enabled = true;
+            wet.tip.cups.Clear();
+            wet.tip.particleSprite = "";
+            wet.tip.ground = new TipGroundSprite();
+            wet.overlay = new SpecialOverlayStyle
+            {
+                color = WaterBlue, hotColor = WaterCyan, baseRim = 0.35f, pulseRim = new Vector2(0.5f, 0.9f),
+                pulseFlash = new Vector2(0f, 0.05f), pulseInterval = new Vector2(0.3f, 0.6f), pulseDecay = 0.3f
+            };
+            wet.particles.Add(new SpecialParticleStyle
+            {
+                name = "Gotas que salen despedidas", sprite = "Gota", rate = 16f, ratePerSpeed = 2f, spawnRadius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.15f, 0.3f), coneAngle = 80f, speed = new Vector2(2.5f, 4f), inheritVelocity = 0.3f,
+                size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(0.8f, 1.1f), rotation = Vector2.zero,
+                color = WaterPale, color2 = WaterCyan
+            });
+            wet.scorch = new ScorchStyle
+            {
+                sprite = "Charco", spacing = 0.5f, idleInterval = 0f, size = new Vector2(0.5f, 0.8f), lifetime = 0.8f,
+                color = WaterBlue, alpha = 0.35f, height = 0.01f
+            };
+            return "mojada (nueva)";
+        }
 
         private static readonly Color LightningYellow = new Color(1f, 0.85f, 0.25f);
         private static readonly Color LightningOrange = new Color(1f, 0.5f, 0.05f);

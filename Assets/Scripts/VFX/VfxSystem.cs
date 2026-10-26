@@ -316,6 +316,59 @@ namespace FakeBlade.Core
                 emitter.Play();
                 _impactEmitters.Add(sprite.id, new ImpactEmitter(emitter, sprite));
             }
+            foreach (ImpactEmitter impact in _impactEmitters.Values)
+                if (impact.Sprite.groundCollision) SetupGroundCollision(impact.System, impact.Sprite, library);
+        }
+
+        private Transform _groundPlane;
+
+        /// <summary>
+        /// Choque con el suelo (2026-10-26; gotas del Rastro de agua): la partícula desaparece al cruzar un plano a la altura
+        /// del suelo y, si el sprite lo pide, suelta en ese punto su «plic» (otro sprite de la lista, con su color). El plic es
+        /// una copia de su emisor colgada de este (los sub-emisores tienen que ser hijos), que solo emite cuando lo pide el
+        /// choque. Se monta una vez, al crear el sistema: en combate no se instancia nada.
+        /// </summary>
+        private void SetupGroundCollision(ParticleSystem emitter, ImpactSprite sprite, VfxLibrary library)
+        {
+            if (_groundPlane == null)
+            {
+                _groundPlane = new GameObject("GroundPlane").transform;
+                _groundPlane.SetParent(transform, false);
+                _groundPlane.position = new Vector3(0f, library.groundHeight, 0f);
+            }
+            var collision = emitter.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.Planes;
+            collision.SetPlane(0, _groundPlane);
+            collision.bounce = 0f;
+            collision.dampen = 1f;
+            collision.lifetimeLoss = 1f;
+            collision.radiusScale = 0.3f;
+            collision.sendCollisionMessages = false;
+
+            ImpactSprite splash = library.GetImpactSprite(sprite.groundSplash);
+            if (splash == null || splash.prefab == null || splash == sprite) return;
+            ParticleSystem child = Instantiate(splash.prefab, emitter.transform);
+            child.name = "Splash_" + splash.id;
+            var main = child.main;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.playOnAwake = false;
+            main.loop = false;
+            main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
+            main.startSize = sprite.groundSplashSize;
+            main.startSpeed = 0f;
+            var emission = child.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            emission.rateOverDistance = 0f;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 1) });
+            var shape = child.shape;
+            shape.enabled = false;
+            child.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); // no emite por su cuenta, solo con el choque
+            var subEmitters = emitter.subEmitters;
+            subEmitters.enabled = true;
+            subEmitters.AddSubEmitter(child, ParticleSystemSubEmitterType.Collision, ParticleSystemSubEmitterProperties.InheritColor,
+                sprite.groundSplashChance);
         }
 
         #region API

@@ -464,10 +464,11 @@ namespace FakeBlade.Core
                 if (other == Blade || other.IsGhost || !other.CanHarm(Blade)) continue;
                 if (!(other.Special.Ability is WaterTrailAbility trail) || (!other.Special.IsActive && !other.Special.IsLingering))
                     continue;
-                float reach = trail.PuddleRadius + PuddleMargin;
                 for (int i = 0; i < trail.PuddleCapacity; i++)
                 {
                     if (!trail.IsPuddleAlive(i)) continue;
+                    // Cada trozo con su radio (el charco del final es más grande)
+                    float reach = trail.PuddleRadiusAt(i) + PuddleMargin;
                     Vector3 offset = ahead - trail.PuddlePosition(i);
                     offset.y = 0f;
                     float distance = offset.magnitude;

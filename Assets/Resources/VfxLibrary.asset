@@ -148,6 +148,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7493620425961970260, guid: bcaab6f752932c44491f5a1a7218a7cb, type: 3}
   - id: Impact01Sombra
     texture: {fileID: 2800000, guid: 916e700735e73d54eabaef966d440fba, type: 3}
@@ -205,6 +209,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 6837455975799725347, guid: 767cfd9b1be11d043b8e3c2c5d9b3fd9, type: 3}
   - id: Impact10
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -262,6 +270,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4820296468046461587, guid: f567f9a80145d1e47a58ce98a32e5a00, type: 3}
   - id: Impact10Sombra
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -319,6 +331,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8935827684308156431, guid: a1f89704e43ef5948a4bd5102157931c, type: 3}
   - id: Impact05
     texture: {fileID: 2800000, guid: 0c150b922ed7f8e4f9d639f4bdbbf6ca, type: 3}
@@ -376,6 +392,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3852015802631683895, guid: 313a1f0fda026a540a239c7088e65441, type: 3}
   - id: Impact06
     texture: {fileID: 2800000, guid: baace82a6fd0890409bf2342ae47aeb0, type: 3}
@@ -433,6 +453,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8243854606329717608, guid: ea3f5f519e2ab6e4490b54495586688e, type: 3}
   - id: Impact04
     texture: {fileID: 2800000, guid: 54a3f30885e6df14bb341d22b0e67c27, type: 3}
@@ -490,6 +514,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8043148743005767147, guid: 325d054e5fb316a469a62ba34425edcb, type: 3}
   - id: Impact07
     texture: {fileID: 2800000, guid: 13f3d2707b216a94ba4d5eaabc0cc812, type: 3}
@@ -547,6 +575,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1490056499788237840, guid: 9be629499110469468f22b576ff75973, type: 3}
   - id: Impact08
     texture: {fileID: 2800000, guid: 811d5a445e39c194d90f059c61d2f543, type: 3}
@@ -604,6 +636,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1000667846076465648, guid: 4d651594f5c1cbd45a0809b77a1d1b71, type: 3}
   - id: ShotValo
     texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
@@ -661,6 +697,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1638198979859757528, guid: a30a50292f46ced4cb8f77c2dc7fcad7, type: 3}
   - id: ShotValo2
     texture: {fileID: 2800000, guid: 4d186aafd82497d47a28abb13c9e0e98, type: 3}
@@ -718,6 +758,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1661854835326856971, guid: 6bebb0629bd73454c8d7e4ae394b8fe0, type: 3}
   - id: Valo5Blanco
     texture: {fileID: 2800000, guid: 5706d8da1c2de9748a8f0660f488c93e, type: 3}
@@ -775,6 +819,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8990726537784216757, guid: 422617d620ff9434cb9534ec51da5d62, type: 3}
   - id: MuzzleNeo
     texture: {fileID: 2800000, guid: 00668c216132a9b46b34ea8a88a9f47a, type: 3}
@@ -832,6 +880,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4208872165873426256, guid: 2249a92296621814d9adae58db88ca56, type: 3}
   - id: Impact10Encima
     texture: {fileID: 2800000, guid: 0448bb8a833df974186a6a390587aa2d, type: 3}
@@ -889,6 +941,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 25638163887294890, guid: 0f57d205efd301144a98fb8dbea06598, type: 3}
   - id: CrossShoot
     texture: {fileID: 2800000, guid: 428be4e2fb9b24944a267eba76ab2bc6, type: 3}
@@ -946,6 +1002,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2377118499208420869, guid: e3a57678fcbd1c74dbd5952d0f0f5fa8, type: 3}
   - id: CircleImpact04
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -1003,6 +1063,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2604399139800675254, guid: b6d3192acbf03b544be365aa2956dc6f, type: 3}
   - id: CircleImpact02
     texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
@@ -1060,6 +1124,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4602646390712052394, guid: b063f512e2acaf84faf18b7af1f65787, type: 3}
   - id: Valo4
     texture: {fileID: 2800000, guid: 18448b2385b81ab42ad1e124af522620, type: 3}
@@ -1117,6 +1185,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3558921066601637467, guid: c6315721af0dcba469d5407a99535348, type: 3}
   - id: Valo8
     texture: {fileID: 2800000, guid: ab41667d3e5495147a0b5ed61c88c5e4, type: 3}
@@ -1174,6 +1246,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2393841441564826898, guid: e976ba0cb4d32cb428dff6d11f22480a, type: 3}
   - id: CircleImpact04Anillo
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -1231,6 +1307,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5119328486904876569, guid: db6d52e7c83aa9e439949306f155a9a5, type: 3}
   - id: Llama11
     texture: {fileID: 2800000, guid: 26f2f75d2a87207499ef241e5e5782f0, type: 3}
@@ -1288,6 +1368,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 6229379388671274524, guid: 5dc318de35c7208438c601f039695dd9, type: 3}
   - id: Quemado
     texture: {fileID: 2800000, guid: 9a52a40080e7ffc4bb117f17bfdc27d5, type: 3}
@@ -1345,6 +1429,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 600
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4374145376275296882, guid: e75a8ab61b50422478912f0ef3c1f2b3, type: 3}
   - id: Vaho
     texture: {fileID: 2800000, guid: 75441233fbfeabd4db5c4b7dbb83f6dd, type: 3}
@@ -1402,6 +1490,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 25
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 6004662944321763171, guid: 873b56b4e480cd64092b140d427fe900, type: 3}
   - id: VahoSuelo
     texture: {fileID: 2800000, guid: 75441233fbfeabd4db5c4b7dbb83f6dd, type: 3}
@@ -1459,6 +1551,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 40
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7798411352100960854, guid: a503c0f82a7a68341a6ef2e31d30c3f1, type: 3}
   - id: Ceniza
     texture: {fileID: 2800000, guid: 61987c5e87c22df4b96577c15673ec00, type: 3}
@@ -1516,6 +1612,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 652739629231115821, guid: 5d0f290a621c1fa4f956dbbf09862345, type: 3}
   - id: Chispa
     texture: {fileID: 2800000, guid: 1f01ddd7038ae5a4aba618ac6e0aaa72, type: 3}
@@ -1573,6 +1673,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2201027113043254691, guid: 1ccde8c1376105440a7a08f66bb920af, type: 3}
   - id: AroPicos
     texture: {fileID: 2800000, guid: dfa407baec69dfd4399c1137aabb39be, type: 3}
@@ -1630,6 +1734,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 64
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3967864796834751695, guid: 20c48509f20734f489c7addf1bfe8e32, type: 3}
   - id: OndaChoque
     texture: {fileID: 2800000, guid: 0dade4177df7f9f40aef29e5629784c7, type: 3}
@@ -1687,6 +1795,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7791863894521361254, guid: 04e5a8535faa6a3429a1edc0c64900f9, type: 3}
   - id: NubeComic
     texture: {fileID: 2800000, guid: d626e9163fe40144da24d884556e039a, type: 3}
@@ -1744,6 +1856,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 40
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2704658931854623929, guid: 72dcafa19fc23194992b12ab15807110, type: 3}
   - id: NubeComicTraga
     texture: {fileID: 2800000, guid: d626e9163fe40144da24d884556e039a, type: 3}
@@ -1801,6 +1917,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 90
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8068066642250669536, guid: 77ff6f36ddf422b43817db235f667ae9, type: 3}
   - id: Grietas
     texture: {fileID: 2800000, guid: 1983b2140557aec4cb58e0c8e8f190c5, type: 3}
@@ -1858,6 +1978,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7456334905717343088, guid: 3ed8e2698e77a1e43a0a71e854f06828, type: 3}
   - id: Linea
     texture: {fileID: 2800000, guid: 1f01ddd7038ae5a4aba618ac6e0aaa72, type: 3}
@@ -1915,6 +2039,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1997535197982163363, guid: 36d1de93563f6c6408999359bce1eb56, type: 3}
   - id: CircleImpact02Suelo
     texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
@@ -1972,6 +2100,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5285928358895070287, guid: db379c350caadbe4bb6d9b718991f37a, type: 3}
   - id: FP_CircleImpactSuelo
     texture: {fileID: 2800000, guid: 1609778b7d13c4f43b5b88d08b59fab6, type: 3}
@@ -2029,6 +2161,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2162804449346294805, guid: e08c3a12a7d8adf46a541e0aeaf3045d, type: 3}
   - id: ShotValo2Suelo
     texture: {fileID: 2800000, guid: 4d186aafd82497d47a28abb13c9e0e98, type: 3}
@@ -2086,6 +2222,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5543716688967673002, guid: fcaa1317bf3da6a4ab090b438eb584d0, type: 3}
   - id: CircleImpact02Cierra
     texture: {fileID: 2800000, guid: b6864c837f18aa6468b417f253b74ca9, type: 3}
@@ -2143,6 +2283,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8130061773891888272, guid: 997bf1b1a0f22ae48ba69eadd4f04272, type: 3}
   - id: FP_CircleImpactCierra
     texture: {fileID: 2800000, guid: 1609778b7d13c4f43b5b88d08b59fab6, type: 3}
@@ -2200,6 +2344,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1779408886521806671, guid: 2a60a839fa7510449ac6392e1d7a39b4, type: 3}
   - id: HumoExplosion
     texture: {fileID: 2800000, guid: 561837051e4df064bad00a419f33d746, type: 3}
@@ -2257,6 +2405,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 3
     spin: 30
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3216133590292585087, guid: ffd3921e3899f334098cefe7b791d163, type: 3}
   - id: CircleImpact04Cierra
     texture: {fileID: 2800000, guid: 8008ed67b16b390488b9b4ec7aa13e21, type: 3}
@@ -2314,6 +2466,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5759216915313348081, guid: 5d1537675de373a47a2142b4abf1d32d, type: 3}
   - id: ShotValoSuelo
     texture: {fileID: 2800000, guid: d9f09f05eb95a534b8eca2a21fef91e5, type: 3}
@@ -2371,6 +2527,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5669095784625860067, guid: f27a517ef679757448611dc498d80654, type: 3}
   - id: HumoTraga
     texture: {fileID: 2800000, guid: 561837051e4df064bad00a419f33d746, type: 3}
@@ -2428,6 +2588,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 3
     spin: 90
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7942904132325344801, guid: 87e8e833f1a6bc6479d4018c7b644216, type: 3}
   - id: HumoViento
     texture: {fileID: 2800000, guid: 561837051e4df064bad00a419f33d746, type: 3}
@@ -2485,6 +2649,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 3
     spin: 30
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 726316752928012809, guid: 03a6d7f47a861de47bbf035754d7b0d3, type: 3}
   - id: Grieta00
     texture: {fileID: 2800000, guid: 95f726cf76062fe47936d73042ba9e59, type: 3}
@@ -2542,6 +2710,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 6957225367189290716, guid: 5b7397603c365a74b98b92eb82b0b1cf, type: 3}
   - id: Grieta01
     texture: {fileID: 2800000, guid: c50ff1842d6aa864397627d328ebd24e, type: 3}
@@ -2599,6 +2771,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5020736792274575823, guid: 90a6775f577b19b418afaec02a4f5a77, type: 3}
   - id: Grieta02
     texture: {fileID: 2800000, guid: 4a8fc0cd7a4c5c741a98f80fe1b6a0b3, type: 3}
@@ -2656,6 +2832,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2819179210116138496, guid: fb40193a6914d9446a5ab11b82c4f0cd, type: 3}
   - id: Grieta03
     texture: {fileID: 2800000, guid: 344fd6c0ede941f4493f993b67e681d0, type: 3}
@@ -2713,6 +2893,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2397001285090405961, guid: 8b1515a6fa30f1b4d91214ff0414a7c8, type: 3}
   - id: GrietaInicio00
     texture: {fileID: 2800000, guid: 86c1d0b7d035287489bbee1c846d4b9d, type: 3}
@@ -2770,6 +2954,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4506236542688773407, guid: 8fe23434fb5dd364695ad815979c328f, type: 3}
   - id: GrietaCircular01
     texture: {fileID: 2800000, guid: 614b6af8d62b5ce40984793ed82ca990, type: 3}
@@ -2827,6 +3015,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 8462424753179223796, guid: 6f417605d341f4645958ac0eb04be655, type: 3}
   - id: GrietaCircular02
     texture: {fileID: 2800000, guid: 13d9e8065216f944cb4a0fadaabfecbf, type: 3}
@@ -2884,6 +3076,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3080590544846203164, guid: 80c0e39027994754bb39ae040179d409, type: 3}
   - id: GrietaCircular03
     texture: {fileID: 2800000, guid: de3194f4a9a9c4e48bb496218734e741, type: 3}
@@ -2941,6 +3137,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 7675515967088153634, guid: 0ae70859b1dcb0f47927e124f1b12e5e, type: 3}
   - id: ZbamSube
     texture: {fileID: 2800000, guid: 9dfaa62ae7670b844864d73fe4ae8960, type: 3}
@@ -2998,6 +3198,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5118759156765771999, guid: 2225a61d2144c42478c99d02404923fd, type: 3}
   - id: Zbam3Sube
     texture: {fileID: 2800000, guid: d868de730a7a8e64f8fdbcc1972f04c2, type: 3}
@@ -3055,6 +3259,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2884107219122539188, guid: 23bf8c1b116969a429dbd4fa251458e0, type: 3}
   - id: MediaLuna
     texture: {fileID: 2800000, guid: a873c2856883c134dbb18fe43e0f9f94, type: 3}
@@ -3112,6 +3320,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 2861047561136501433, guid: 0778528fd88c8f14f83e3d8bba5446ac, type: 3}
   - id: Tajo
     texture: {fileID: 2800000, guid: 3bc6b31ecb47dd44480d315891fdce2c, type: 3}
@@ -3169,6 +3381,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 4698660603510253640, guid: 5dd04caf07fd6814cb3cf64ef9897c76, type: 3}
   - id: Trozo
     texture: {fileID: 2800000, guid: 61987c5e87c22df4b96577c15673ec00, type: 3}
@@ -3226,6 +3442,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 540
     maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 5470646174426045969, guid: 3f19bea7c66e15847a8fa0167ea15a78, type: 3}
   - id: ParticulasRastro
     texture: {fileID: 2800000, guid: 0e43ba6668c9bbd4d84e3cec581cf7f7, type: 3}
@@ -3283,6 +3503,10 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 256
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 1802617797434618097, guid: 2b558adb01fa5ec49b4d59d57256383c, type: 3}
   - id: AroPicosCrece
     texture: {fileID: 2800000, guid: dfa407baec69dfd4399c1137aabb39be, type: 3}
@@ -3340,7 +3564,194 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     spin: 0
     maxParticles: 32
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
     prefab: {fileID: 3922839531955839302, guid: 8c1cff350f04dad4799acb2447d88c9f, type: 3}
+  - id: Gota
+    texture: {fileID: 2800000, guid: e722a1930bec1894b9fae61c3ba5d433, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.4
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 1.6
+    drag: 0
+    fadeOut: 0.15
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0.02
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 1024
+    groundCollision: 1
+    groundSplash: Plic
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 743148665286801877, guid: 318dcee465ad81f469f98e5483ab80d7, type: 3}
+  - id: Plic
+    texture: {fileID: 2800000, guid: bf5d9be6961e14c428525b9c90251841, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.3
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 6203485923146255238, guid: a5e3b72456b440243ad0542c358318aa, type: 3}
+  - id: Charco
+    texture: {fileID: 2800000, guid: e88f9be34ba37884090af26df3190f9c, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 3
+    randomRotation: 1
+    order: -1
+    depthTested: 1
+    flat: 1
+    gravity: 0
+    drag: 0
+    fadeOut: 0.4
+    fadeIn: 0.1
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 400
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 3323835022798864601, guid: eac529b053c39f54f9832da2ac13eded, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -3717,6 +4128,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 10
+      ratePerSpeed: 0
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -3737,6 +4149,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 8
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.7}
@@ -3788,6 +4201,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 6, y: 9}
       outwardSpeed: {x: -3, y: -2}
       upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
@@ -3810,6 +4224,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 7, y: 10}
       outwardSpeed: {x: -2, y: -1}
       upSpeed: {x: 3, y: 5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.08, y: 0.12}
       lifetime: {x: 0.3, y: 0.5}
@@ -3832,6 +4247,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
@@ -3854,6 +4270,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2, y: 2}
       lifetime: {x: 0.4, y: 0.4}
@@ -3876,6 +4293,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -8, y: -6}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.18, y: 0.28}
       lifetime: {x: 0.25, y: 0.35}
@@ -3898,6 +4316,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.25, y: 0.32}
@@ -3921,6 +4340,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 3.5}
       outwardSpeed: {x: 0.8, y: 1.5}
       upSpeed: {x: 0.6, y: 1.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.22, y: 0.36}
       lifetime: {x: 0.22, y: 0.35}
@@ -3943,6 +4363,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 4.5}
       outwardSpeed: {x: 1.2, y: 2.2}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.08, y: 0.14}
       lifetime: {x: 0.25, y: 0.45}
@@ -3965,6 +4386,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -3987,6 +4409,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 4, y: 4}
       lifetime: {x: 0.4, y: 0.4}
@@ -4009,6 +4432,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 9, y: 7}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.3, y: 0.4}
@@ -4031,6 +4455,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -8, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.25, y: 0.4}
       lifetime: {x: 1.4, y: 1}
@@ -4053,6 +4478,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
@@ -4063,6 +4489,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0.25
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl: []
     impact:
     - name: Aro de llamas
@@ -4079,6 +4506,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 4, y: 5}
       upSpeed: {x: 0.3, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.28, y: 0.4}
       lifetime: {x: 0.25, y: 0.35}
@@ -4101,6 +4529,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 4, y: 7}
       upSpeed: {x: 3, y: 6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.5, y: 0.9}
@@ -4123,6 +4552,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.6}
       outwardSpeed: {x: 1.2, y: 2.4}
       upSpeed: {x: 0.8, y: 1.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 1.2, y: 2}
@@ -4200,6 +4630,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -4272,6 +4704,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -4344,6 +4778,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 70
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -4364,6 +4799,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -4476,6 +4912,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0.3, y: 0.9}
       burstCount: {x: 2, y: 4}
       spawnRadius: {x: 0.3, y: 0.8}
@@ -4496,6 +4933,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 7
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -4538,6 +4976,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 5, y: 8}
       outwardSpeed: {x: -3, y: -2}
       upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.14, y: 0.24}
       lifetime: {x: 0.25, y: 0.4}
@@ -4560,6 +4999,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -2.5, y: -1.5}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.3, y: 0.5}
@@ -4582,6 +5022,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 3}
       lifetime: {x: 0.3, y: 0.3}
@@ -4604,6 +5045,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2, y: 2}
       lifetime: {x: 0.4, y: 0.4}
@@ -4626,6 +5068,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -8, y: -6}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.14, y: 0.22}
       lifetime: {x: 0.25, y: 0.35}
@@ -4648,6 +5091,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.25, y: 0.32}
@@ -4671,6 +5115,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 3.5}
       outwardSpeed: {x: 1.2, y: 2.2}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.08, y: 0.14}
       lifetime: {x: 0.25, y: 0.45}
@@ -4693,6 +5138,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: 0.6, y: 1.2}
       upSpeed: {x: 0.3, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.18, y: 0.3}
       lifetime: {x: 0.25, y: 0.4}
@@ -4715,6 +5161,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1.5, y: 2.5}
       outwardSpeed: {x: 1, y: 1.8}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1, y: 1.5}
       lifetime: {x: 1, y: 1.6}
@@ -4737,6 +5184,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -4759,6 +5207,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3.5, y: 3.5}
       lifetime: {x: 0.35, y: 0.35}
@@ -4781,6 +5230,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 6.5}
       outwardSpeed: {x: 5, y: 7}
       upSpeed: {x: 0.4, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 0.4, y: 0.3}
@@ -4803,6 +5253,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -6, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.35, y: 0.5}
       lifetime: {x: 0.4, y: 0.7}
@@ -4825,6 +5276,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 4, y: 6}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 0.2}
       lifetime: {x: 0.9, y: 0.6}
@@ -4835,6 +5287,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0.25
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl:
     - name: Vaho a ras de suelo
       emitter: 15
@@ -4850,6 +5303,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1.2, y: 2}
       outwardSpeed: {x: 0.2, y: 0.6}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1, y: 1.6}
       lifetime: {x: 1.5, y: 2.2}
@@ -4873,6 +5327,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 5, y: 8}
       upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.09, y: 0.16}
       lifetime: {x: 0.35, y: 0.6}
@@ -4895,6 +5350,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.2, y: 0.32}
       lifetime: {x: 0.25, y: 0.45}
@@ -4917,6 +5373,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.6}
       outwardSpeed: {x: 1.5, y: 2.5}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.8, y: 1.2}
       lifetime: {x: 0.8, y: 1.3}
@@ -4994,6 +5451,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5066,6 +5525,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5138,6 +5599,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 50
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -5158,6 +5620,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 15
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.3}
@@ -5286,6 +5749,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 6, y: 9}
       outwardSpeed: {x: -3, y: -2}
       upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
@@ -5308,6 +5772,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 7, y: 10}
       outwardSpeed: {x: -2, y: -1}
       upSpeed: {x: 3, y: 5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.5}
@@ -5330,6 +5795,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -0.5, y: 0.3}
       upSpeed: {x: 0.8, y: 1.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.16}
       lifetime: {x: 0.8, y: 2}
@@ -5353,6 +5819,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 3.5}
       outwardSpeed: {x: 0.8, y: 1.5}
       upSpeed: {x: 0.6, y: 1.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.22, y: 0.36}
       lifetime: {x: 0.22, y: 0.35}
@@ -5375,6 +5842,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 4.5}
       outwardSpeed: {x: 1.2, y: 2.2}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.25, y: 0.45}
@@ -5397,6 +5865,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 0.5, y: 1.5}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.12, y: 0.22}
       lifetime: {x: 1.2, y: 2}
@@ -5407,6 +5876,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0.25
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl: []
     impact:
     - name: Chispas
@@ -5423,6 +5893,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 1, y: 2.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.25, y: 0.5}
@@ -5446,6 +5917,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 6, y: 10}
       upSpeed: {x: 1, y: 2.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.11}
       lifetime: {x: 0.25, y: 0.5}
@@ -5468,6 +5940,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.12, y: 0.22}
       lifetime: {x: 1.2, y: 2}
@@ -5544,6 +6017,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5616,6 +6091,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5765,6 +6242,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 14
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.4}
@@ -5807,6 +6285,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -5829,6 +6308,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3.6, y: 3.6}
       lifetime: {x: 0.4, y: 0.4}
@@ -5851,6 +6331,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -9, y: -7}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.3}
@@ -5873,6 +6354,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.25, y: 0.45}
       lifetime: {x: 0.35, y: 0.45}
@@ -5895,6 +6377,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 4, y: 6}
       outwardSpeed: {x: -4, y: -3}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
@@ -5918,6 +6401,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 10.5, y: 10.5}
       lifetime: {x: 0.45, y: 0.45}
@@ -5940,6 +6424,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 8, y: 8}
       lifetime: {x: 0.4, y: 0.4}
@@ -5962,6 +6447,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5.5, y: 5.5}
       lifetime: {x: 0.35, y: 0.35}
@@ -5984,6 +6470,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 7, y: 7}
       lifetime: {x: 0.4, y: 0.4}
@@ -6006,6 +6493,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 13}
       upSpeed: {x: 0.3, y: 0.7}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.3, y: 1}
       lifetime: {x: 0.4, y: 1}
@@ -6028,6 +6516,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 3, y: 7}
       upSpeed: {x: 0.1, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.3, y: 1}
       lifetime: {x: 1, y: 1.4}
@@ -6050,6 +6539,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 6, y: 10}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
@@ -6077,6 +6567,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 4, y: 5}
       lifetime: {x: 2, y: 2}
@@ -6087,6 +6578,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl:
     - name: Nubes que se tragan
       emitter: 15
@@ -6102,6 +6594,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.25, y: 0.45}
       lifetime: {x: 0.35, y: 0.45}
@@ -6124,6 +6617,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 4, y: 6}
       outwardSpeed: {x: -4, y: -3}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
@@ -6147,6 +6641,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 2, y: 3}
       upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.4}
       lifetime: {x: 0.3, y: 0.5}
@@ -6224,6 +6719,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -6296,6 +6793,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -6372,6 +6871,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 0.5, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.7}
       lifetime: {x: 0.45, y: 0.6}
@@ -6394,6 +6894,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
@@ -6410,6 +6911,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -6438,6 +6940,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 0.5, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.3, y: 0.5}
       lifetime: {x: 0.3, y: 0.7}
@@ -6460,6 +6963,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 4, y: 8}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
@@ -6575,6 +7079,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 10, y: 10}
       lifetime: {x: 0.4, y: 0.4}
@@ -6597,6 +7102,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -6619,6 +7125,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 7, y: 7}
       lifetime: {x: 0.4, y: 0.4}
@@ -6641,6 +7148,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -10, y: -8}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.3}
@@ -6663,6 +7171,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.75}
       lifetime: {x: 0.4, y: 0.5}
@@ -6686,6 +7195,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 0.1, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.5, y: 0.8}
       lifetime: {x: 0.7, y: 0.9}
@@ -6696,6 +7206,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl:
     - name: Rayas del alcance
       emitter: 2
@@ -6711,6 +7222,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 6, y: 8}
       outwardSpeed: {x: -5.5, y: -4.5}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.01, y: 0.1}
       lifetime: {x: 0.3, y: 0.6}
@@ -6733,6 +7245,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 6, y: 6}
       lifetime: {x: 0.4, y: 0.4}
@@ -6755,6 +7268,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.75}
       lifetime: {x: 0.4, y: 0.5}
@@ -6778,6 +7292,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 4, y: 7}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.6}
@@ -6855,6 +7370,8 @@ MonoBehaviour:
       popTime: 0.2
       popScale: 1.9
       popFlash: 0.6
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.703
       funnelPhase: 0.651
       funnelMorph: 0.386
@@ -6927,6 +7444,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -7002,6 +7521,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 12, y: 12}
       lifetime: {x: 0.45, y: 0.45}
@@ -7024,6 +7544,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 9, y: 9}
       lifetime: {x: 0.4, y: 0.4}
@@ -7046,6 +7567,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 6.5, y: 6.5}
       lifetime: {x: 0.35, y: 0.35}
@@ -7068,6 +7590,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 14, y: 20}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
@@ -7090,6 +7613,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2.5}
       outwardSpeed: {x: 2, y: 3}
       upSpeed: {x: 0.1, y: 0.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.6}
       lifetime: {x: 0.6, y: 1}
@@ -7112,6 +7636,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 1, y: 3}
       upSpeed: {x: 0.1, y: 0.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.2, y: 0.4}
       lifetime: {x: 1, y: 1.4}
@@ -7135,6 +7660,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 0.1, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.5, y: 0.8}
       lifetime: {x: 0.6, y: 0.8}
@@ -7157,6 +7683,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 5, y: 8}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
@@ -7173,6 +7700,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -7201,6 +7729,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 0.1, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.5, y: 0.9}
       lifetime: {x: 0.6, y: 0.8}
@@ -7223,6 +7752,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 5, y: 8}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
@@ -7357,6 +7887,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -7379,6 +7910,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
@@ -7401,6 +7933,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
@@ -7423,6 +7956,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
@@ -7445,6 +7979,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0.3, y: 0.8}
       upSpeed: {x: 3, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.025, y: 0.04}
       lifetime: {x: 0.12, y: 0.18}
@@ -7467,6 +8002,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.4}
@@ -7490,6 +8026,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -7512,6 +8049,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
@@ -7534,6 +8072,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -6, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
@@ -7556,6 +8095,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 3}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 0.1, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.2, y: 0.6}
       lifetime: {x: 0.4, y: 0.9}
@@ -7578,6 +8118,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2.2, y: 2.8}
       lifetime: {x: 1.4, y: 1.4}
@@ -7600,6 +8141,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -7610,6 +8152,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl: []
     impact: []
     strongImpact: []
@@ -7681,6 +8224,8 @@ MonoBehaviour:
       popTime: 0.14
       popScale: 1.25
       popFlash: 0.083
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.93
       funnelPhase: 1
       funnelMorph: 1
@@ -7753,6 +8298,8 @@ MonoBehaviour:
       popTime: 0.12
       popScale: 1
       popFlash: 0.074
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.85
       funnelPhase: 1
       funnelMorph: 0.2
@@ -7804,6 +8351,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: -0.5, y: -0.2}
       rate: 35
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -7824,6 +8372,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: -0.7, y: -0.5}
       rate: 79
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 1, y: 1}
       spawnRadius: {x: 0.15, y: 0.3}
@@ -7844,6 +8393,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 90
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -7889,6 +8439,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2.8, y: 2.8}
       lifetime: {x: 0.25, y: 0.25}
@@ -7911,6 +8462,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1.6, y: 2.2}
       lifetime: {x: 0.3, y: 0.3}
@@ -7935,6 +8487,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.35, y: 0.6}
       lifetime: {x: 0.3, y: 0.4}
@@ -7957,6 +8510,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2.5, y: 5}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -7979,6 +8533,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 4, y: 8}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.5}
@@ -7995,6 +8550,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8015,6 +8571,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8045,6 +8602,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.35, y: 0.6}
       lifetime: {x: 0.3, y: 0.4}
@@ -8067,6 +8625,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -8083,6 +8642,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8103,6 +8663,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8237,6 +8798,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -8259,6 +8821,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
@@ -8281,6 +8844,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
@@ -8303,6 +8867,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
@@ -8325,6 +8890,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: -6.5, y: -4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2.6, y: 3.4}
       lifetime: {x: 0.3, y: 0.35}
@@ -8347,6 +8913,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1.5, y: 1.9}
       lifetime: {x: 0.15, y: 0.2}
@@ -8370,6 +8937,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -8392,6 +8960,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
@@ -8414,6 +8983,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -6, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
@@ -8436,6 +9006,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
@@ -8458,6 +9029,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 0.9}
       lifetime: {x: 0.7, y: 0.9}
@@ -8480,6 +9052,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 7, y: 9}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.28}
@@ -8502,6 +9075,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 2.5, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
@@ -8524,6 +9098,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -8534,6 +9109,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl: []
     impact: []
     strongImpact: []
@@ -8605,6 +9181,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -8677,6 +9255,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -8728,6 +9308,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: -0.3, y: -0.1}
       rate: 9
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0, y: 0.2}
@@ -8748,6 +9329,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 35
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -8768,6 +9350,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 10
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.3}
@@ -8788,6 +9371,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 12
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8830,6 +9414,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 8.25, y: 8.25}
       lifetime: {x: 0, y: 0}
@@ -8852,6 +9437,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1.4, y: 1.4}
       lifetime: {x: 0, y: 0}
@@ -8876,6 +9462,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 9, y: 9}
       lifetime: {x: 0.5, y: 0.5}
@@ -8898,6 +9485,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 9.75, y: 9.75}
       lifetime: {x: 0.4, y: 0.4}
@@ -8928,6 +9516,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 4.5}
       lifetime: {x: 1.4, y: 1.4}
@@ -8950,6 +9539,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 2, y: 4.5}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.8, y: 1.2}
       lifetime: {x: 0.9, y: 1.2}
@@ -8972,6 +9562,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 1}
       outwardSpeed: {x: 5, y: 9}
       upSpeed: {x: 0.1, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.9, y: 1.3}
       lifetime: {x: 1, y: 1.3}
@@ -8994,6 +9585,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 2.6, y: 2.6}
       lifetime: {x: 0, y: 0}
@@ -9016,6 +9608,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 4, y: 8}
       upSpeed: {x: 2.5, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
@@ -9038,6 +9631,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2.5, y: 5}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -9060,6 +9654,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1, y: 2}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1, y: 1.4}
       lifetime: {x: 0.3, y: 0.35}
@@ -9083,6 +9678,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 2.5, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
@@ -9105,6 +9701,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -9127,6 +9724,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1, y: 2}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1, y: 1.4}
       lifetime: {x: 0.3, y: 0.35}
@@ -9143,6 +9741,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -9163,6 +9762,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -9191,6 +9791,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
@@ -9213,6 +9814,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 2, y: 4}
       upSpeed: {x: 2.5, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
@@ -9316,6 +9918,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 10
+      ratePerSpeed: 0
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -9336,6 +9939,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 15
+      ratePerSpeed: 0
       burstInterval: {x: 1, y: 2}
       burstCount: {x: 8, y: 12}
       spawnRadius: {x: 0.4, y: 0.6}
@@ -9378,6 +9982,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 8, y: 8}
       lifetime: {x: 0.4, y: 0.4}
@@ -9400,6 +10005,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 6, y: 6}
       lifetime: {x: 0.4, y: 0.4}
@@ -9422,6 +10028,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
@@ -9444,6 +10051,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.3}
       lifetime: {x: 0.4, y: 0.5}
@@ -9466,6 +10074,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1}
       outwardSpeed: {x: -0.6, y: -0.2}
       upSpeed: {x: 3, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.03, y: 0.05}
       lifetime: {x: 0.15, y: 0.22}
@@ -9488,6 +10097,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3.5}
       outwardSpeed: {x: -5.5, y: -4}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.4}
@@ -9511,6 +10121,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
@@ -9533,6 +10144,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -6, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.2}
       lifetime: {x: 0.4, y: 0.5}
@@ -9555,6 +10167,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 10, y: 10}
       lifetime: {x: 0.4, y: 0.4}
@@ -9577,6 +10190,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 0.2, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 0.3}
       lifetime: {x: 0.8, y: 0.48}
@@ -9587,6 +10201,7 @@ MonoBehaviour:
       powerTint: 0.3
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl:
     - name: Chispas se expulsan
       emitter: 15
@@ -9602,6 +10217,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: 4, y: 3}
       upSpeed: {x: 0.3, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
@@ -9624,6 +10240,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 5}
       outwardSpeed: {x: -6, y: -4.5}
       upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.15, y: 0.25}
       lifetime: {x: 0.35, y: 0.45}
@@ -9702,6 +10319,8 @@ MonoBehaviour:
       popTime: 0.35
       popScale: 1.15
       popFlash: 0.4
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.15
       funnelPhase: 0
       funnelMorph: 0.2
@@ -9774,6 +10393,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 1
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.493
       funnelPhase: 0.441
       funnelMorph: 0.667
@@ -9848,6 +10469,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 3, y: 3}
       outwardSpeed: {x: 1.5, y: 3.5}
       upSpeed: {x: 1.5, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.2}
       lifetime: {x: 0.6, y: 0.9}
@@ -9870,6 +10492,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: 1, y: 2.5}
       upSpeed: {x: 0.1, y: 0.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.3}
       lifetime: {x: 0.8, y: 0.62}
@@ -9892,6 +10515,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.42}
@@ -9914,6 +10538,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 7, y: 7}
       lifetime: {x: 0.6, y: 0.6}
@@ -9938,6 +10563,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 4}
       lifetime: {x: 0.3, y: 0.35}
@@ -9960,6 +10586,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1.6, y: 1.6}
       lifetime: {x: 0, y: 0}
@@ -9982,6 +10609,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.1}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
@@ -10006,6 +10634,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.35, y: 0.55}
       lifetime: {x: 0.3, y: 0.4}
@@ -10024,6 +10653,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -10044,6 +10674,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -10163,6 +10794,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 4, y: 4}
       lifetime: {x: 0.6, y: 0.6}
@@ -10185,6 +10817,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0.5, y: 1.2}
       upSpeed: {x: 7, y: 6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.03, y: 0.05}
       lifetime: {x: 0.3, y: 0.5}
@@ -10207,6 +10840,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 4, y: 1}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.09, y: 0.08}
       lifetime: {x: 0.45, y: 0.7}
@@ -10229,6 +10863,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 2, y: 3.5}
       upSpeed: {x: 0.3, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.5, y: 0.4}
@@ -10252,6 +10887,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -10274,6 +10910,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
@@ -10296,6 +10933,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2.5, y: 1.5}
       outwardSpeed: {x: 3, y: 4}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.3, y: 0.4}
       lifetime: {x: 0.8, y: 1.1}
@@ -10318,6 +10956,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.4, y: 0.55}
@@ -10328,6 +10967,7 @@ MonoBehaviour:
       powerTint: 0
     windupSustain: 0
     visualWindupTime: 0.5
+    visualWindupDomesOnly: 0
     swirl:
     - name: Vaho que gira y sale
       emitter: 15
@@ -10343,6 +10983,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: 1, y: 1.8}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 0.9}
       lifetime: {x: 0.8, y: 1.1}
@@ -10365,6 +11006,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 5, y: 7}
       outwardSpeed: {x: 1.5, y: 2.5}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 0.3, y: 0.45}
@@ -10387,6 +11029,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.04, y: 0.07}
       lifetime: {x: 0.4, y: 0.6}
@@ -10409,6 +11052,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.3, y: 0.8}
       outwardSpeed: {x: 0.2, y: 0.5}
       upSpeed: {x: 3, y: 4.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.05}
       lifetime: {x: 0.3, y: 0.4}
@@ -10431,6 +11075,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.3, y: 0.4}
@@ -10456,6 +11101,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.3, y: 0.45}
@@ -10478,6 +11124,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 1.1, y: 1.4}
       lifetime: {x: 0.25, y: 0.3}
@@ -10553,6 +11200,8 @@ MonoBehaviour:
       popTime: 0.3
       popScale: 1.2
       popFlash: 0.5
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
@@ -10625,6 +11274,8 @@ MonoBehaviour:
       popTime: 0.25
       popScale: 1.4
       popFlash: 0.6
+      popFall: 0
+      appearFrom: 0
       startRadius: 0.383
       funnelPhase: 1
       funnelMorph: 0.2
@@ -10699,6 +11350,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 2}
       outwardSpeed: {x: 1.5, y: 3}
       upSpeed: {x: 1, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.12, y: 0.08}
       lifetime: {x: 0.3, y: 0.6}
@@ -10721,6 +11373,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.2, y: 0.6}
       outwardSpeed: {x: 1, y: 2.5}
       upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 0
       size: {x: 0.6, y: 0.3}
       lifetime: {x: 0.8, y: 1.1}
@@ -10743,6 +11396,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 6, y: 1.5}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.5, y: 0.3}
@@ -10765,12 +11419,833 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 6, y: 6}
       lifetime: {x: 0.8, y: 0.8}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
       color2: {r: 0.82, g: 0.9, b: 1, a: 1}
       alpha: 0.944
+      windupOnly: 0
+      powerTint: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail: []
+    hitTrailTime: 0.4
+  - type: 13
+    replaceAura: 0
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 3dacf7558eb39c44990dc773a3c06cc6, type: 2}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 5
+      size: 2
+      scale: {x: 1.5, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0.026
+      fade: {x: 0.04, y: 0.12}
+      cups:
+      - angle: 0
+        spinSpeed: 90
+        scale: {x: 1.2, y: 1}
+        playerColor: 0
+        color: {r: 0.34901962, g: 0.69803923, b: 1, a: 0}
+      - angle: 0
+        spinSpeed: 25
+        scale: {x: 1.6, y: 1}
+        playerColor: 0
+        color: {r: 0.34901962, g: 0.69803923, b: 1, a: 0}
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.5, g: 0.95, b: 1, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.2
+      baseFlash: 0
+      pulseRim: {x: 0.4, y: 0.8}
+      pulseFlash: {x: 0, y: 0.04}
+      pulseInterval: {x: 0.3, y: 0.6}
+      pulseDecay: 0.3
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Salpicadura al moverse
+      emitter: 19
+      sprite: Gota
+      rotation: {x: 0, y: 0}
+      alignToMotion: 0
+      forwardOffset: {x: -0.3, y: 0}
+      rate: 3
+      ratePerSpeed: 10
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.3, y: 0.6}
+      height: {x: 0.05, y: 0.9}
+      coneAngle: 60
+      speed: {x: 3, y: 4}
+      inheritVelocity: -0.15
+      size: {x: 0.04, y: 0.08}
+      lifetime: {x: 0.9, y: 1.3}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    - name: Espuma
+      emitter: 19
+      sprite: VahoSuelo
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: -0.5, y: -0.2}
+      rate: 0
+      ratePerSpeed: 1.2
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.5}
+      height: {x: 0.02, y: 0.04}
+      coneAngle: 90
+      speed: {x: 0.3, y: 0.8}
+      inheritVelocity: 0
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.628
+      powerTint: 0.264
+    scorch:
+      sprite: Charco
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1.4, y: 1.8}
+      lifetime: 3
+      color: {r: 0.25, g: 0.6, b: 1, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 5
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 3.5, y: 3.5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 0
+    - name: Media luna que se cierra (suelo)
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 4
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 2.6, y: 2.6}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.5, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Gotas que suben
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 70
+      count: 40
+      radius: {x: 0.2, y: 0.5}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0.5}
+      outwardSpeed: {x: 0.3, y: 1.2}
+      upSpeed: {x: 3, y: 5.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 1.2, y: 1.6}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: Vaho que se traga
+      emitter: 15
+      sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 22
+      count: 40
+      radius: {x: 1.2, y: 1.6}
+      height: {x: 0.05, y: 0.4}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -3, y: -2}
+      upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.4, y: 0.55}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Humo blanco que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 12
+      count: 40
+      radius: {x: 1.3, y: 1.8}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -4, y: -3}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.35, y: 0.55}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0
+    activationBurst:
+    - name: Corona de gotas
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 40
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 4, y: 6.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 1.3, y: 1.7}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Gotas r\xE1pidas"
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 30
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 1, y: 1.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 4, y: 4}
+      lifetime: {x: 0.45, y: 0.45}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: "Onda peque\xF1a"
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.04, y: 0.04}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 2.6, y: 2.6}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.5, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Vaho que sale
+      emitter: 15
+      sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 14
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    visualWindupTime: 0.5
+    visualWindupDomesOnly: 1
+    swirl:
+    - name: Vaho a ras de suelo
+      emitter: 15
+      sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 8
+      count: 40
+      radius: {x: 0.6, y: 0.9}
+      height: {x: 0.02, y: 0.05}
+      tangentialSpeed: {x: 1.5, y: 2.5}
+      outwardSpeed: {x: 0.8, y: 1.5}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.6, y: 0.9}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.6
+      windupOnly: 0
+      powerTint: 0
+    - name: Gotas que saltan
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 40
+      count: 40
+      radius: {x: 1.1, y: 0.9}
+      height: {x: 0.2, y: 0.8}
+      tangentialSpeed: {x: 4, y: 1}
+      outwardSpeed: {x: 2, y: 1.5}
+      upSpeed: {x: 2, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.04, y: 0.07}
+      lifetime: {x: 1, y: 1.3}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    impact:
+    - name: Gotas grandes
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 30
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.2, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 3, y: 6}
+      directionalSpeed: {x: 1.5, y: 3.5}
+      clockwise: 1
+      size: {x: 0.08, y: 0.12}
+      lifetime: {x: 1.5, y: 1.9}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Gotas r\xE1pidas"
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 25
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 4, y: 7}
+      upSpeed: {x: 1, y: 3}
+      directionalSpeed: {x: 2, y: 4}
+      clockwise: 1
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 1, y: 1.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Vaho
+      emitter: 15
+      sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 6
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.2, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 0.3, y: 0.8}
+      directionalSpeed: {x: 0.5, y: 1}
+      clockwise: 1
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo"
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 1.6, y: 1.6}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    strongImpact: []
+    guardHit: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1
+      heightScale: 1
+      height: 0
+      growEase: 1.5
+      bodyColor: {r: 0.35, g: 0.7, b: 1, a: 0.6313726}
+      rimColor: {r: 0.5, g: 0.95, b: 1, a: 0.9}
+      outlineColor: {r: 0.15, g: 0.3, b: 0.6, a: 0.75}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.7}
+      swirlColor2: {r: 0.5, g: 0.95, b: 1, a: 0.5}
+      rimWidth: 0.404
+      outlineWidth: 0.204
+      linesTexture: {fileID: 2800000, guid: 2e2b57d1a1eb34a49928fb7f02680e71, type: 3}
+      linesTiling: {x: 1, y: 1.5}
+      linesSpeed: 2.39
+      linesTwist: 0
+      axisTilt: 4.9
+      axisPrecess: 1
+      swirlLines: 6
+      swirlTwist: 1.37
+      swirlSpeed: 5
+      swirlWidth: 0.06
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.4
+      popScale: 1.05
+      popFlash: 0.15
+      popFall: 1
+      appearFrom: 0.6
+      startRadius: 0
+      funnelPhase: 0.752
+      funnelMorph: 1
+      funnelShape: {x: 1.07, y: 1.28, z: 1.01}
+      topCut: 0.052
+      topSpikes: 19
+      topSpikesSpeed: 1.13
+      insideAlpha: 0.948
+      sphere: 0
+      hitTexture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
+      hitColor: {r: 0.9, g: 0.95, b: 1, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 0.9}
+      hitDuration: 0.3
+      hitFlash: 0.5
+      hitBump: 0.08
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: fa493497f38a73645a7cde63d042728a, type: 3}
+      maskAmount: 0.4
+      maskTiling: {x: 1, y: 0.2}
+      maskScroll: {x: 1, y: 0.56}
+      maskEdge: 0.263
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.95}
+      topErodeEnabled: 1
+      topErode: 0.157
+      topErodeFrom: 0.301
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0.091
+      wobbleWaves: {x: 6, y: 2}
+      wobbleSpeed: 5
+      flickerEnabled: 0
+      flickerRate: 0
+      flickerAlpha: 0
+      flickerTime: 0.01
+      glitchEnabled: 0
+      glitchRate: 0
+      glitchBands: 1
+      glitchOffset: 0.04
+      glitchTime: 9999
+    baseDome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1.15
+      heightScale: 0.48
+      height: 0
+      growEase: 2
+      bodyColor: {r: 0.35, g: 0.7, b: 1, a: 0.57254905}
+      rimColor: {r: 0.5, g: 0.95, b: 1, a: 0.9}
+      outlineColor: {r: 0.15, g: 0.3, b: 0.6, a: 0.75}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.7}
+      swirlColor2: {r: 0.5, g: 0.95, b: 1, a: 0.5}
+      rimWidth: 0.222
+      outlineWidth: 0.1
+      linesTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
+      linesTiling: {x: 8, y: 1}
+      linesSpeed: 0.45
+      linesTwist: 0.11
+      axisTilt: 0
+      axisPrecess: 0
+      swirlLines: 9.22
+      swirlTwist: 1.69
+      swirlSpeed: 2.88
+      swirlWidth: 0.04
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.4
+      popScale: 1.05
+      popFlash: 0.15
+      popFall: 1
+      appearFrom: 0.6
+      startRadius: 0.383
+      funnelPhase: 1
+      funnelMorph: 0.2
+      funnelShape: {x: 0.95, y: 1.2, z: 1.2}
+      topCut: 0
+      topSpikes: 2
+      topSpikesSpeed: -0.4
+      insideAlpha: 0.25
+      sphere: 0
+      hitTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 0
+      maskTexture: {fileID: 2800000, guid: bbb1fdb1b8a35364b8f6cee88dc04009, type: 3}
+      maskAmount: 0.35
+      maskTiling: {x: 1, y: 0.5}
+      maskScroll: {x: 2, y: 0.2}
+      maskEdge: 0.3
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.95}
+      topErodeEnabled: 1
+      topErode: 0.291
+      topErodeFrom: 0.43
+      holePulseEnabled: 0
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0.083
+      wobbleWaves: {x: 6, y: 2}
+      wobbleSpeed: 5
+      flickerEnabled: 0
+      flickerRate: 0
+      flickerAlpha: 0.35
+      flickerTime: 0.05
+      glitchEnabled: 0
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.1
+    rush: []
+    spiralTrail:
+      material: {fileID: 0}
+      onlyWhileRushing: 1
+      strands: 2
+      radius: 0.55
+      turnsPerSecond: 3
+      height: 0.3
+      width: 0.09
+      tailWidth: 0.3
+      time: 0.35
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      tailAlpha: 0
+      powerTint: {x: 0, y: 1}
+    targetMark: []
+    endBurst:
+    - name: Agua que cae
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 50
+      radius: {x: 0.5, y: 0.9}
+      height: {x: 0.3, y: 1.2}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0.2, y: 0.8}
+      upSpeed: {x: -0.5, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 1.2, y: 1.5}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Charco grande
+      emitter: 15
+      sprite: Charco
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.012, y: 0.012}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 4, y: 4}
+      lifetime: {x: 6, y: 6}
+      color: {r: 0.25, g: 0.6, b: 1, a: 1}
+      color2: {r: 0.25, g: 0.6, b: 1, a: 1}
+      alpha: 0.5
+      windupOnly: 0
+      powerTint: 0
+    - name: Vaho a ras de suelo
+      emitter: 15
+      sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      count: 8
+      radius: {x: 0.5, y: 0.9}
+      height: {x: 0.02, y: 0.05}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.7, y: 1}
+      lifetime: {x: 1, y: 1.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.6
+      windupOnly: 0
+      powerTint: 0
+    - name: Ondas
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 4.5, y: 4.5}
+      lifetime: {x: 1.5, y: 1.5}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 0.575
       windupOnly: 0
       powerTint: 0
     release: []
@@ -10885,6 +12360,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -10907,6 +12383,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
@@ -10929,6 +12406,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 2}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
@@ -10951,6 +12429,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 4}
       outwardSpeed: {x: -5, y: -4}
       upSpeed: {x: 0, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
@@ -10974,6 +12453,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 0, y: 0}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
@@ -10996,6 +12476,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 6, y: 9}
       upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
@@ -11018,6 +12499,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 2, y: 3}
       outwardSpeed: {x: -6, y: -5}
       upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
@@ -11040,6 +12522,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.5, y: 1.5}
       outwardSpeed: {x: 3, y: 6}
       upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
@@ -11050,6 +12533,7 @@ MonoBehaviour:
       powerTint: 0.3
     windupSustain: 0
     visualWindupTime: 0
+    visualWindupDomesOnly: 0
     swirl: []
     impact: []
     strongImpact: []
@@ -11121,6 +12605,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -11193,6 +12679,8 @@ MonoBehaviour:
       popTime: 0.16
       popScale: 1.7
       popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -11265,6 +12753,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 25
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -11285,6 +12774,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 30
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -11383,6 +12873,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 4
+      ratePerSpeed: 0
       burstInterval: {x: 0.3, y: 0.8}
       burstCount: {x: 2, y: 4}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -11403,6 +12894,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 6
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -11423,6 +12915,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 6
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.4}
@@ -11451,6 +12944,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 4, y: 6}
       outwardSpeed: {x: -2, y: -1.2}
       upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.12, y: 0.2}
       lifetime: {x: 0.25, y: 0.4}
@@ -11473,6 +12967,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 4.5, y: 6.5}
       outwardSpeed: {x: -1.2, y: -0.6}
       upSpeed: {x: 2, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.3, y: 0.5}
@@ -11515,6 +13010,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 0.4, y: 0.7}
@@ -11537,6 +13033,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0.2, y: 0.4}
       outwardSpeed: {x: 1, y: 2}
       upSpeed: {x: 0.6, y: 1.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 1, y: 1.6}
@@ -11546,6 +13043,19 @@ MonoBehaviour:
       windupOnly: 0
       powerTint: 0
     discSpin: 1
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
   frozen:
     enabled: 1
     tip:
@@ -11629,6 +13139,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 5
+      ratePerSpeed: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -11657,6 +13168,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 1, y: 1.6}
       outwardSpeed: {x: -0.3, y: 0}
       upSpeed: {x: 0.1, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.4, y: 0.7}
@@ -11681,6 +13193,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 0.5, y: 1.2}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 0.3, y: 0.5}
@@ -11703,6 +13216,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 1, y: 2}
       upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
@@ -11712,6 +13226,19 @@ MonoBehaviour:
       windupOnly: 0
       powerTint: 0
     discSpin: 0.5
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
   launched:
     enabled: 1
     tip:
@@ -11795,6 +13322,7 @@ MonoBehaviour:
       alignToMotion: 0
       forwardOffset: {x: 0, y: 0}
       rate: 20
+      ratePerSpeed: 0
       burstInterval: {x: 0.05, y: 0.15}
       burstCount: {x: 2, y: 5}
       spawnRadius: {x: 0.3, y: 0.6}
@@ -11825,6 +13353,7 @@ MonoBehaviour:
       tangentialSpeed: {x: 0, y: 0}
       outwardSpeed: {x: 3, y: 5}
       upSpeed: {x: 1, y: 2.5}
+      directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.04, y: 0.07}
       lifetime: {x: 0.25, y: 0.5}
@@ -11834,6 +13363,134 @@ MonoBehaviour:
       windupOnly: 0
       powerTint: 0
     discSpin: 1
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+  wet:
+    enabled: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.25, g: 0.6, b: 1, a: 1}
+      hotColor: {r: 0.5, g: 0.95, b: 1, a: 1}
+      baseRim: 0.35
+      baseFlash: 0
+      pulseRim: {x: 0.5, y: 0.9}
+      pulseFlash: {x: 0, y: 0.05}
+      pulseInterval: {x: 0.3, y: 0.6}
+      pulseDecay: 0.3
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Gotas que salen despedidas
+      emitter: 19
+      sprite: Gota
+      rotation: {x: 0, y: 0}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 16
+      ratePerSpeed: 2
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.3, y: 0.5}
+      height: {x: 0.15, y: 0.3}
+      coneAngle: 80
+      speed: {x: 2.5, y: 4}
+      inheritVelocity: 0.3
+      size: {x: 0.04, y: 0.07}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    swirl: []
+    auras: []
+    impact: []
+    discSpin: 1
+    scorch:
+      sprite: Charco
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.5
+      idleInterval: 0
+      size: {x: 0.5, y: 0.8}
+      lifetime: 0.8
+      color: {r: 0.25, g: 0.6, b: 1, a: 1}
+      alpha: 0.35
+      height: 0.01
+  groundHeight: 0
   usesIndicator:
     enabled: 1
     material: {fileID: 2100000, guid: 6f86cb2daf63a0d489a1f08984d1a72d, type: 2}

@@ -64,6 +64,9 @@ namespace FakeBlade.Core.Editor
             public bool RandomFrame;
             public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut, GrowIn, Stretch;
             public int Max;
+            /// <summary>Desaparece al tocar el suelo y suelta allí este sprite (el «plic» de las gotas; vacío = no choca).</summary>
+            public string GroundSplash;
+            public float GroundSplashSize;
         }
 
         // Orden: sombras y fondos 0, capas sutiles 1, impacto principal 2, capas por delante del principal 3
@@ -160,6 +163,12 @@ namespace FakeBlade.Core.Editor
             // desvanece (la elipse con picos de la última viñeta)
             new DefaultSprite { Id = "AroPicosCrece", Generated = "AroPicos", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.5f, Order = -1, DepthTested = true, Flat = true, GrowIn = 0.35f, FadeOut = 0.5f, Max = 32 },
             new DefaultSprite { Id = "Trozo", CutShard = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, DepthTested = true, FadeOut = 0.3f, Gravity = 1.4f, Drag = 0.2f, Spin = 540f, Max = 512 },
+            // Rastro de agua (K8, 2026-10-26; boceto del usuario; texturas provisionales generadas, blancas para teñirlas): la gota
+            // pixel, que cae con bastante gravedad, se estira al ir deprisa y, al tocar el suelo, desaparece con un plic (la
+            // salpicadura pixel de Wallcoeur, LiquidPixel); y la mancha de agua de los charcos, tumbada en el suelo
+            new DefaultSprite { Id = "Gota", Generated = "Gota", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.4f, Order = 1, Upright = true, DepthTested = true, FadeOut = 0.15f, Gravity = 1.6f, Stretch = 0.02f, Max = 1024, GroundSplash = "Plic", GroundSplashSize = 0.3f },
+            new DefaultSprite { Id = "Plic", Texture = "LiquidPixel", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.3f, Order = 1, Upright = true, DepthTested = true, Max = 512 },
+            new DefaultSprite { Id = "Charco", Generated = "Charco", TilesX = 1, TilesY = 1, Frames = 1, Life = 3f, Order = -1, DepthTested = true, Flat = true, FadeIn = 0.1f, FadeOut = 0.4f, Max = 400 },
         };
 
         [MenuItem("FakeBlade/Setup Impactos (sprites)")]
@@ -185,7 +194,9 @@ namespace FakeBlade.Core.Editor
                     id = d.Id, texture = GetTexture(d), tilesX = d.TilesX, tilesY = d.TilesY, firstFrame = d.FirstFrame,
                     frames = d.Frames, life = d.Life, order = d.Order, randomRotation = !d.Upright, depthTested = d.DepthTested, flat = d.Flat,
                     fadeOut = d.FadeOut, fadeIn = d.FadeIn, shrinkOut = d.ShrinkOut, growIn = d.GrowIn, stretch = d.Stretch, reverse = d.Reverse, randomFrame = d.RandomFrame, gravity = d.Gravity, drag = d.Drag, spin = d.Spin,
-                    maxParticles = d.Max > 0 ? d.Max : 128
+                    maxParticles = d.Max > 0 ? d.Max : 128,
+                    groundCollision = !string.IsNullOrEmpty(d.GroundSplash), groundSplash = d.GroundSplash,
+                    groundSplashSize = d.GroundSplashSize > 0f ? d.GroundSplashSize : 0.3f
                 });
                 ImpactSprite created = library.impactSprites[library.impactSprites.Count - 1];
                 if (!string.IsNullOrEmpty(d.Dissolve)) created.dissolveTexture = GeneratedTexture(d.Dissolve);
@@ -546,6 +557,10 @@ namespace FakeBlade.Core.Editor
                 case "NubeComicDisuelve": return SaveTexture(target, 64, DissolveNoisePixels(64));
                 case "HumoComic": return SaveTexture(target, 128, SmokeSheetPixels(64));
                 case "HumoComicDisuelve": return SaveTexture(target, 128, TileSheet(64, (size, index) => DissolveNoisePixels(size, 27 + index)));
+                case "Gota": return SaveTexture(target, 8, DropPixels());
+                case "Charco": return SaveTexture(target, 64, PuddlePixels(64));
+                case "FranjasAgua": return SaveMask(target, 256, WaterStripePixels(256, false));
+                case "FranjasAguaRotas": return SaveMask(target, 256, WaterStripePixels(256, true));
                 default: return DotTexture();
             }
         }
@@ -558,6 +573,112 @@ namespace FakeBlade.Core.Editor
 
         /// <summary>Líneas de velocidad horizontales (textura que recorre la cúpula de Onda de choque; la crea si falta).</summary>
         public static Texture2D SpeedLinesTexture() => GeneratedTexture("LineasVelocidad");
+
+        /// <summary>
+        /// Máscara de franjas onduladas del Rastro de agua (2026-10-26; FranjasAgua o FranjasAguaRotas; la crea si falta), para
+        /// las cúpulas: con Mask Scroll Y suben sin parar.
+        /// </summary>
+        public static Texture2D WaterMaskTexture(string name) => GeneratedTexture(name);
+
+        /// <summary>
+        /// Gota pixel (Rastro de agua, 2026-10-26; provisional): 8 × 8, gris claro con un brillo blanco arriba a la izquierda y
+        /// algo más oscura abajo, para teñirla de azul.
+        /// </summary>
+        private static Color32[] DropPixels()
+        {
+            // De abajo arriba (la fila 0 es la de abajo): punta arriba, redonda abajo
+            string[] rows =
+            {
+                "..oooo..",
+                ".oxxxxo.",
+                "oxxxxxxo",
+                "oxxxxxxo",
+                "oxhxxxxo",
+                ".oxhxxo.",
+                "..oxxo..",
+                "...oo..."
+            };
+            var pixels = new Color32[64];
+            for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+            {
+                char c = rows[y][x];
+                pixels[y * 8 + x] = c == 'x' ? new Color32(225, 225, 225, 255)
+                    : c == 'h' ? new Color32(255, 255, 255, 255)
+                    : c == 'o' ? new Color32(170, 170, 170, 255)
+                    : Clear;
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Mancha de agua de los charcos (Rastro de agua, 2026-10-26; provisional): blanca para teñirla, con bordes irregulares
+        /// por ruido, el cuerpo medio transparente, el borde más opaco (la orilla) y algún brillo; en 4 niveles (pixel art).
+        /// </summary>
+        private static Color32[] PuddlePixels(int size)
+        {
+            var random = new System.Random(41);
+            float[,] coarse = RandomLattice(random, 9);
+            float[,] fine = RandomLattice(random, 17);
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size, v = (y + 0.5f) / size;
+                float d = Mathf.Sqrt((u - 0.5f) * (u - 0.5f) + (v - 0.5f) * (v - 0.5f)) * 2f;
+                float noise = Lattice(coarse, u * 8f, v * 8f) * 0.7f + Lattice(fine, u * 16f, v * 16f) * 0.3f;
+                float edge = d + (noise - 0.5f) * 0.5f; // < 0,85 dentro del charco
+                float a = 0f;
+                if (edge < 0.85f) a = edge > 0.72f ? 1f : 0.5f;
+                // Brillos: alguna mancha clara dentro
+                if (edge < 0.6f && Lattice(fine, u * 16f + 3.7f, v * 16f + 1.3f) > 0.8f) a = 0.75f;
+                a = Mathf.Round(a * 4f) / 4f;
+                pixels[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Franjas horizontales onduladas que se repiten sin cortes (Rastro de agua, 2026-10-26; provisional): gris con
+        /// degradado (lo oscuro se oculta antes: con Mask Amount se elige el grosor), 4 franjas de alto y ondas con frecuencias
+        /// enteras para que casen en los dos bordes. Rotas: además, cortes de ruido periódico que las parten a trozos.
+        /// </summary>
+        private static Color32[] WaterStripePixels(int size, bool broken)
+        {
+            const float twoPi = Mathf.PI * 2f;
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (float)x / size, v = (float)y / size;
+                float wave = 0.08f * Mathf.Sin(twoPi * 3f * u) + 0.04f * Mathf.Sin(twoPi * (7f * u + 2f * v) + 1.1f);
+                float stripes = 0.5f + 0.5f * Mathf.Sin(twoPi * (4f * v + wave));
+                float value = stripes;
+                if (broken)
+                {
+                    float n = 0.5f + 0.25f * Mathf.Sin(twoPi * (3f * u + 2f * v) + 1.3f) + 0.25f * Mathf.Sin(twoPi * (5f * u - 3f * v) + 0.7f);
+                    value = stripes * 0.7f + n * 0.3f;
+                }
+                byte g = (byte)(Mathf.Clamp01(value) * 255f);
+                pixels[y * size + x] = new Color32(g, g, g, 255);
+            }
+            return pixels;
+        }
+
+        /// <summary>
+        /// Guarda una máscara de cúpula: datos y no color (sin sRGB, para que 0,5 sea la mitad), con filtro bilineal (bordes de
+        /// los huecos sin escalones), que se repite y sin mipmaps ni compresión.
+        /// </summary>
+        private static Texture2D SaveMask(string target, int size, Color32[] pixels)
+        {
+            SaveTexture(target, size, pixels, 0, TextureWrapMode.Repeat);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(target);
+            importer.sRGBTexture = false;
+            importer.alphaIsTransparency = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(target);
+        }
 
         /// <summary>
         /// Marca del aviso de usos (2026-10-18): círculo de 16 × 16 blanco con contorno negro y un brillo, para teñirlo con el

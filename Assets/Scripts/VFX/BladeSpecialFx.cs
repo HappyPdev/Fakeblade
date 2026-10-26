@@ -13,6 +13,8 @@ namespace FakeBlade.Core
     ///   (PlayClashImpact, desde VfxSystem).
     /// - Peonza quemada o congelada (VfxLibrary.burn / frozen): sus partículas, su remolino, sus auras (Aura Burn y Aura
     ///   Smoke en la quemada) y un círculo más pequeño al chocar.
+    /// - Peonza mojada (VfxLibrary.wet, 2026-10-26): gotas que salen despedidas y un rastro de mojado; va aparte del estado
+    ///   principal y sale también con él.
     /// Lo demás lo pintan BladeBurstTip (punta), BladeOverlay (sobre la peonza) y BladePartSpin (giro del disco).
     ///
     /// Clase C# pura que posee FakeBladeController. Emite partículas de pools que ya existen y la copia de cada aura se crea
@@ -65,10 +67,28 @@ namespace FakeBlade.Core
         private bool _effectsWereOn;
         private bool _wasWindingUp;
         private bool _wasSpecialActive;
-        private float _scorchDistance;
-        private float _scorchIdle;
-        private Vector3 _lastPosition;
-        private bool _hasLastPosition;
+
+        /// <summary>Lo recorrido desde la última mancha en el suelo (una por rastro: el del especial y el de mojada).</summary>
+        private sealed class ScorchTrail
+        {
+            public float Distance;
+            public float Idle;
+            public Vector3 Last;
+            public bool HasLast;
+
+            public void Reset()
+            {
+                HasLast = false;
+                Distance = Idle = 0f;
+            }
+        }
+
+        private readonly ScorchTrail _specialScorch = new ScorchTrail();
+        private readonly ScorchTrail _wetScorch = new ScorchTrail();
+        // Mojada (2026-10-26): va aparte del estado principal, con sus propios acumulados
+        private readonly float[] _wetAcc = new float[MaxStyles];
+        private readonly float[] _wetBurst = new float[MaxStyles];
+        private readonly float[] _wetSwirlAcc = new float[MaxStyles];
         // Estela en la golpeada: el estilo y el color del poder de quien la golpeó, y lo que le queda
         private SpecialVfxStyle _hitTrailStyle;
         private Color _hitTrailPower;
@@ -141,13 +161,18 @@ namespace FakeBlade.Core
             bool rushing = effectsOn && ability != null && ability.IsRushing;
             Emit(rushing && visible ? special.rush : null, _rushAcc, _rushBurst, tip, dt, motion);
             bool scorch = effectsOn && special.scorch != null && (!special.scorch.onlyWhileRushing || rushing);
-            UpdateScorch(scorch ? special.scorch : null, tip, dt, motion);
+            UpdateScorch(scorch ? special.scorch : null, _specialScorch, tip, dt, motion);
             UpdateAuras(special != null ? special.auras : null, _specialAuras, effectsOn, tipOffset, dt);
 
             s_power = Color.white;
             StatusVfxStyle status = StatusStyle(_blade);
             Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt, motion);
             EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt, motion);
+            // Mojada (2026-10-26): gotas que salen despedidas y rastro de mojado (no moja), aunque tenga otro estado
+            StatusVfxStyle wet = WetStyle(_blade);
+            Emit(wet != null && visible ? wet.particles : null, _wetAcc, _wetBurst, tip, dt, motion);
+            EmitSpirals(wet != null && visible ? wet.swirl : null, _wetSwirlAcc, 1f, tip, dt, motion);
+            UpdateScorch(wet?.scorch, _wetScorch, tip, dt, motion);
             UpdateAuras(lib != null ? lib.burn?.auras : null, _burnAuras, status != null && status == lib.burn, tipOffset, dt);
             UpdateAuras(lib != null ? lib.frozen?.auras : null, _frozenAuras, status != null && status == lib.frozen, tipOffset, dt);
             UpdateAuras(lib != null ? lib.launched?.auras : null, _launchedAuras, status != null && status == lib.launched, tipOffset, dt);
@@ -198,16 +223,30 @@ namespace FakeBlade.Core
             return lib == null || blade.IsDestroyed ? null : lib.GetStatusEffects(blade.Status.Current);
         }
 
+        /// <summary>Efectos de mojada si la peonza lo está (y están encendidos en la biblioteca), o null.</summary>
+        public static StatusVfxStyle WetStyle(FakeBladeController blade)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            return lib == null || blade.IsDestroyed || !blade.Status.IsWet ? null : lib.WetEffects;
+        }
+
+        /// <summary>
+        /// El estado que pinta el borde de la peonza: el principal (quemada, congelada, lanzada) o, si no tiene, mojada (que va
+        /// aparte y puede ir con otro).
+        /// </summary>
+        public static StatusVfxStyle StatusOrWetStyle(FakeBladeController blade) => StatusStyle(blade) ?? WetStyle(blade);
+
         public void Clear()
         {
             for (int i = 0; i < MaxStyles; i++)
                 _specialAcc[i] = _specialBurst[i] = _statusAcc[i] = _statusBurst[i] = _windupAcc[i] =
-                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = _launchAcc[i] = _launchBurst[i] = _rushAcc[i] = _rushBurst[i] = 0f;
-            _hasLastPosition = false;
+                    _specialSwirlAcc[i] = _statusSwirlAcc[i] = _launchAcc[i] = _launchBurst[i] = _rushAcc[i] = _rushBurst[i] =
+                        _wetAcc[i] = _wetBurst[i] = _wetSwirlAcc[i] = 0f;
             _effectsWereOn = false;
             _wasWindingUp = false;
             _wasSpecialActive = false;
-            _scorchDistance = _scorchIdle = 0f;
+            _specialScorch.Reset();
+            _wetScorch.Reset();
             for (int i = 0; i < MaxAuras; i++)
             {
                 StopAura(_specialAuras[i]);
@@ -487,7 +526,11 @@ namespace FakeBlade.Core
                 if (style != null && style.impact != null && style.impact.Count > 0)
                 {
                     s_power = special.Color;
-                    Burst(style.impact, groundPoint);
+                    // Hacia el lado del choque, para las que tienen Directional Speed (Rastro de agua: más gotas hacia el golpe)
+                    Vector3 toward = groundPoint - blade.Position;
+                    toward.y = 0f;
+                    toward = toward.sqrMagnitude > 0.0001f ? toward.normalized : Vector3.zero;
+                    Burst(style.impact, groundPoint, default, 0f, float.MaxValue, toward);
                     return;
                 }
             }
@@ -534,7 +577,7 @@ namespace FakeBlade.Core
         /// partícula (la marca y la caída del Salto junto a la pared, para no salir de la arena).
         /// </summary>
         private static void Burst(List<SpiralParticleStyle> styles, Vector3 tip, Vector3 direction = default, float untilTime = 0f,
-            float maxSize = float.MaxValue)
+            float maxSize = float.MaxValue, Vector3 push = default)
         {
             if (styles == null) return;
             float mul = SettingsService.ParticleMultiplier;
@@ -544,16 +587,18 @@ namespace FakeBlade.Core
                 if (style == null) continue;
                 int n = Mathf.Min(MaxBurstParticles, Mathf.RoundToInt(style.count * mul));
                 float step = Mathf.PI * 2f / Mathf.Max(1, n);
-                for (int k = 0; k < n; k++) EmitSpiral(style, tip, k * step + Random.Range(0f, step), direction, untilTime, maxSize);
+                for (int k = 0; k < n; k++)
+                    EmitSpiral(style, tip, k * step + Random.Range(0f, step), direction, untilTime, maxSize, push);
             }
         }
 
         /// <summary>
         /// Una partícula del anillo en el ángulo dado: gira alrededor de la peonza, sale (o entra) y sube. direction: la marcha
-        /// o el golpe (Forward Offset y Align To Direction; cero = ninguna). untilTime: ver Burst.
+        /// o el golpe (Forward Offset y Align To Direction; cero = ninguna). untilTime: ver Burst. push: hacia dónde va la
+        /// velocidad de más (Directional Speed; cero = direction): en los choques, hacia el lado del choque.
         /// </summary>
         private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle, Vector3 direction, float untilTime = 0f,
-            float maxSize = float.MaxValue)
+            float maxSize = float.MaxValue, Vector3 push = default)
         {
             var outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
             // Tangente vista desde arriba: en el sentido de las agujas del reloj, (z, -x)
@@ -563,6 +608,8 @@ namespace FakeBlade.Core
             Vector3 velocity = tangent * Random.Range(style.tangentialSpeed.x, style.tangentialSpeed.y) +
                                outward * Random.Range(style.outwardSpeed.x, style.outwardSpeed.y) +
                                Vector3.up * Random.Range(style.upSpeed.x, style.upSpeed.y);
+            if (style.directionalSpeed.y > 0f)
+                velocity += (push.sqrMagnitude > 0.0001f ? push : direction) * Random.Range(style.directionalSpeed.x, style.directionalSpeed.y);
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
             color.a = style.alpha;
             float size = Mathf.Min(Random.Range(style.size.x, style.size.y), maxSize);
@@ -593,7 +640,14 @@ namespace FakeBlade.Core
                     continue;
                 }
 
-                acc[i] += dt * style.rate * mul;
+                // Más cuanto más deprisa va (Rate Per Speed: el agua salpica al correr)
+                float rate = style.rate;
+                if (style.ratePerSpeed > 0f)
+                {
+                    Vector3 v = _blade.Velocity;
+                    rate += style.ratePerSpeed * Mathf.Sqrt(v.x * v.x + v.z * v.z);
+                }
+                acc[i] += dt * rate * mul;
                 int n = (int)acc[i];
                 acc[i] -= n;
                 if (style.burstInterval.y > 0f)
@@ -641,32 +695,31 @@ namespace FakeBlade.Core
         /// Una mancha cada Spacing metros recorridos (y cada Idle Interval segundos aunque no se mueva). Con varios sprites, uno
         /// al azar; con Align To Motion, girada hacia la marcha (las grietas de la Embestida siguen el camino).
         /// </summary>
-        private void UpdateScorch(ScorchStyle style, Vector3 tip, float dt, Vector3 motion)
+        private void UpdateScorch(ScorchStyle style, ScorchTrail trail, Vector3 tip, float dt, Vector3 motion)
         {
             bool hasSprite = style != null && (!string.IsNullOrEmpty(style.sprite) || (style.spriteVariants != null && style.spriteVariants.Count > 0));
             if (!hasSprite || _blade.IsDestroyed || _blade.IsLeaping)
             {
-                _hasLastPosition = false;
-                _scorchDistance = _scorchIdle = 0f;
+                trail.Reset();
                 return;
             }
-            if (!_hasLastPosition)
+            if (!trail.HasLast)
             {
-                _hasLastPosition = true;
-                _lastPosition = tip;
+                trail.HasLast = true;
+                trail.Last = tip;
                 // La primera, nada más empezar; las de la arrancada no (la Embestida ya deja su grieta de salida)
-                _scorchDistance = style.onlyWhileRushing ? 0f : style.spacing;
+                trail.Distance = style.onlyWhileRushing ? 0f : style.spacing;
             }
-            float dx = tip.x - _lastPosition.x, dz = tip.z - _lastPosition.z;
-            _scorchDistance += Mathf.Sqrt(dx * dx + dz * dz);
-            _lastPosition = tip;
-            _scorchIdle += dt;
+            float dx = tip.x - trail.Last.x, dz = tip.z - trail.Last.z;
+            trail.Distance += Mathf.Sqrt(dx * dx + dz * dz);
+            trail.Last = tip;
+            trail.Idle += dt;
 
-            bool idle = style.idleInterval > 0f && _scorchIdle >= style.idleInterval;
-            if (_scorchDistance < style.spacing && !idle) return;
-            _scorchDistance = Mathf.Min(_scorchDistance - style.spacing, style.spacing); // sin ráfagas tras un salto
-            if (_scorchDistance < 0f) _scorchDistance = 0f;
-            _scorchIdle = 0f;
+            bool idle = style.idleInterval > 0f && trail.Idle >= style.idleInterval;
+            if (trail.Distance < style.spacing && !idle) return;
+            trail.Distance = Mathf.Min(trail.Distance - style.spacing, style.spacing); // sin ráfagas tras un salto
+            if (trail.Distance < 0f) trail.Distance = 0f;
+            trail.Idle = 0f;
             if (!VfxSystem.IsOnScreen(tip)) return;
 
             Color color = style.color;

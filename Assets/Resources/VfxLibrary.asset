@@ -6858,8 +6858,8 @@ MonoBehaviour:
       startRadius: 0.703
       funnelPhase: 0.651
       funnelMorph: 0.386
-      funnelShape: {x: 0.6, y: 2, z: 3}
-      topCut: 0.228
+      funnelShape: {x: 0.6, y: 2, z: 2.52}
+      topCut: 0.026
       topSpikes: 5
       topSpikesSpeed: 3
       insideAlpha: 0.7
@@ -6872,28 +6872,28 @@ MonoBehaviour:
       hitFlash: 0.5
       hitBump: 0.12
       maskEnabled: 1
-      maskTexture: {fileID: 0}
-      maskAmount: 0
-      maskTiling: {x: 4, y: 2}
-      maskScroll: {x: 0.1, y: 0.4}
+      maskTexture: {fileID: 2800000, guid: 830ebc02c18ce0a45a520166a99bc7dd, type: 3}
+      maskAmount: 0.07
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 1, y: 1}
       maskEdge: 0.05
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.02745098}
       topErodeEnabled: 1
-      topErode: 0
-      topErodeFrom: 0.5
-      holePulseEnabled: 1
+      topErode: 0.717
+      topErodeFrom: 0.9
+      holePulseEnabled: 0
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
-      wobbleEnabled: 1
-      wobble: 0
-      wobbleWaves: {x: 5, y: 2}
+      wobbleEnabled: 0
+      wobble: 0.095
+      wobbleWaves: {x: 3.05, y: 8.51}
       wobbleSpeed: 4
-      flickerEnabled: 1
+      flickerEnabled: 0
       flickerRate: 0
       flickerAlpha: 0.3
       flickerTime: 0.05
-      glitchEnabled: 1
+      glitchEnabled: 0
       glitchRate: 0
       glitchBands: 8
       glitchOffset: 0.05

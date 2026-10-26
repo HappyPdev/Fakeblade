@@ -290,13 +290,23 @@ namespace FakeBlade.Core
         /// </summary>
         private void SetInstability(ChargeDomeStyle style, float dt, float alpha)
         {
-            bool masked = style.maskAmount > 0f || style.topErode > 0f || style.holePulse > 0f;
+            // Cada efecto con su interruptor (2026-10-26): apagado cuenta como 0, sin tocar sus valores
+            float maskAmount = style.maskEnabled ? style.maskAmount : 0f;
+            float topErode = style.topErodeEnabled ? style.topErode : 0f;
+            float holePulse = style.holePulseEnabled && style.maskEnabled ? style.holePulse : 0f;
+            float wobble = style.wobbleEnabled ? style.wobble : 0f;
+            float flickerRate = style.flickerEnabled ? style.flickerRate : 0f;
+            float glitchRate = style.glitchEnabled ? style.glitchRate : 0f;
+            if (!style.flickerEnabled) _flicker = 0f;
+            if (!style.glitchEnabled) _glitch = 0f;
+
+            bool masked = maskAmount > 0f || topErode > 0f || holePulse > 0f;
             if (masked)
             {
                 _maskPhase.x = Mathf.Repeat(_maskPhase.x + style.maskScroll.x * dt, 1f);
                 _maskPhase.y = Mathf.Repeat(_maskPhase.y + style.maskScroll.y * dt, 64f);
                 _pulse = Mathf.Max(0f, _pulse - dt / style.holePulseDecay);
-                if (style.holePulse > 0f && (_pulseWait -= dt) <= 0f)
+                if (holePulse > 0f && (_pulseWait -= dt) <= 0f)
                 {
                     _pulse = 1f;
                     _pulseWait = Random.Range(style.holePulseInterval.x, style.holePulseInterval.y);
@@ -304,22 +314,22 @@ namespace FakeBlade.Core
                 bool hasTexture = style.maskTexture != null;
                 if (hasTexture) _block.SetTexture(MaskTexId, style.maskTexture);
                 _block.SetVector(MaskScrollId, new Vector4(_maskPhase.x, _maskPhase.y, hasTexture ? 1f : 0f, 0f));
-                _block.SetVector(MaskTopId, new Vector4(style.topErode, style.topErodeFrom, 0f, 0f));
+                _block.SetVector(MaskTopId, new Vector4(topErode, style.topErodeFrom, 0f, 0f));
                 _block.SetColor(MaskEdgeColorId, style.maskEdgeColor);
             }
-            _block.SetVector(MaskId, new Vector4(masked ? style.maskAmount + style.holePulse * _pulse : -1f,
+            _block.SetVector(MaskId, new Vector4(masked ? maskAmount + holePulse * _pulse : -1f,
                 Mathf.Max(1f, Mathf.Round(style.maskTiling.x)), style.maskTiling.y, style.maskEdge));
 
             _wobblePhase = Mathf.Repeat(_wobblePhase + style.wobbleSpeed * dt, Mathf.PI * 200f);
-            _block.SetVector(WobbleId, new Vector4(style.wobble, Mathf.Max(1f, Mathf.Round(style.wobbleWaves.x)), style.wobbleWaves.y,
+            _block.SetVector(WobbleId, new Vector4(wobble, Mathf.Max(1f, Mathf.Round(style.wobbleWaves.x)), style.wobbleWaves.y,
                 _wobblePhase));
 
             // Parpadeo y glitch: a ratos al azar (de media, Rate por segundo), cada uno su tiempo
             if (_flicker > 0f) _flicker -= dt;
-            else if (style.flickerRate > 0f && Random.value < style.flickerRate * dt) _flicker = style.flickerTime;
+            else if (flickerRate > 0f && Random.value < flickerRate * dt) _flicker = style.flickerTime;
             if (_flicker > 0f) _block.SetFloat(AlphaId, alpha * style.flickerAlpha);
             if (_glitch > 0f) _glitch -= dt;
-            else if (style.glitchRate > 0f && Random.value < style.glitchRate * dt)
+            else if (glitchRate > 0f && Random.value < glitchRate * dt)
             {
                 _glitch = style.glitchTime;
                 _glitchSeed = Random.Range(0f, 100f);

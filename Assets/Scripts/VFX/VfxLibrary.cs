@@ -629,6 +629,8 @@ namespace FakeBlade.Core
         [Min(0f)] public float hitBump = 0.12f;
 
         [Header("Máscara (huecos; Defensa, 2026-10-24)")]
+        [Tooltip("Apagado: sin huecos, sin perder los valores de abajo")]
+        public bool maskEnabled = true;
         [Tooltip("Textura que marca lo que se oculta (gris, o blanca con alfa: lo oscuro o transparente es hueco). Vacía = ruido " +
                  "del shader")]
         public Texture2D maskTexture;
@@ -641,30 +643,48 @@ namespace FakeBlade.Core
         [Tooltip("Ancho de la línea en el borde de los huecos (0 = sin línea)")]
         [Range(0f, 0.3f)] public float maskEdge = 0.05f;
         public Color maskEdgeColor = new Color(1f, 1f, 1f, 0.9f);
+
+        [Header("Borde de arriba roto")]
+        [Tooltip("Apagado: el borde de arriba entero, sin perder los valores de abajo")]
+        public bool topErodeEnabled = true;
         [Tooltip("Cuánto más se oculta hacia arriba (deshace el borde de arriba: que no parezca un cilindro; 0 = igual)")]
         [Range(0f, 1f)] public float topErode;
         [Tooltip("Altura desde la que empieza a ocultarse más (0 = abajo, 1 = arriba)")]
         [Range(0f, 0.99f)] public float topErodeFrom = 0.5f;
 
-        [Header("Inestabilidad (Defensa, 2026-10-24)")]
-        [Tooltip("Huecos que laten: cuánto más se abren en cada golpe (0 = no laten). Necesita la máscara")]
+        [Header("Inestabilidad (Defensa, 2026-10-24): huecos que laten")]
+        [Tooltip("Apagado: los huecos no laten, sin perder los valores de abajo")]
+        public bool holePulseEnabled = true;
+        [Tooltip("Huecos que laten: cuánto más se abren en cada golpe (0 = no laten). Necesita la máscara encendida")]
         [Range(0f, 1f)] public float holePulse;
         [Tooltip("Tiempo entre golpes (s), al azar entre x e y")]
         public Vector2 holePulseInterval = new Vector2(0.15f, 0.5f);
         [Tooltip("Lo que tardan en cerrarse tras cada golpe (s)")]
         [Min(0.02f)] public float holePulseDecay = 0.2f;
+
+        [Header("Ondulación")]
+        [Tooltip("Apagado: la superficie quieta, sin perder los valores de abajo")]
+        public bool wobbleEnabled = true;
         [Tooltip("Ondulación: cuánto se mueve la superficie hacia fuera y hacia dentro (en partes del radio; 0 = quieta)")]
         [Range(0f, 0.3f)] public float wobble;
         [Tooltip("Ondas alrededor (x, se redondea) y de abajo arriba (y)")]
         public Vector2 wobbleWaves = new Vector2(5f, 2f);
         [Tooltip("Velocidad de las ondas")]
         public float wobbleSpeed = 4f;
+
+        [Header("Parpadeo")]
+        [Tooltip("Apagado: no parpadea, sin perder los valores de abajo")]
+        public bool flickerEnabled = true;
         [Tooltip("Parpadeos por segundo, de media (0 = no parpadea)")]
         [Min(0f)] public float flickerRate;
         [Tooltip("Transparencia durante el parpadeo (0 = desaparece; 0,4 = se queda en un 40%)")]
         [Range(0f, 1f)] public float flickerAlpha = 0.3f;
         [Tooltip("Lo que dura cada parpadeo (s)")]
         [Min(0.01f)] public float flickerTime = 0.05f;
+
+        [Header("Glitch (bandas desplazadas)")]
+        [Tooltip("Apagado: sin glitch, sin perder los valores de abajo")]
+        public bool glitchEnabled = true;
         [Tooltip("Bandas desplazadas (glitch) por segundo, de media (0 = ninguna)")]
         [Min(0f)] public float glitchRate;
         [Tooltip("Franjas horizontales en que se parte")]

@@ -115,6 +115,12 @@ namespace FakeBlade.Core
         public virtual bool OnPressedWhileActive() => false;
 
         /// <summary>
+        /// Se pulsa Especial con el poder terminado y lo que deja todavía puesto (Fantasma: cambiar de sitio con el clon).
+        /// Devuelve true si el poder lo ha usado (si no, la pulsación activa el poder otra vez, si está lleno).
+        /// </summary>
+        public virtual bool OnPressedWhileLingering() => false;
+
+        /// <summary>
         /// Distancia al rival (entre centros, m) a la que conviene activarlo o volver a pulsarlo; 0 = cualquiera.
         /// La usa la IA (Onda de choque: dentro de su radio).
         /// </summary>

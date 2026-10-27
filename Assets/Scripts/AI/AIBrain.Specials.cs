@@ -58,6 +58,12 @@ namespace FakeBlade.Core
         private const float DefenseAggressionBonus = 0.3f;
         /// <summary>Onda de choque del rival: a menos de esto de la pared (m) se coloca del lado del centro.</summary>
         private const float ShockWaveWallDistance = 2.5f;
+        // Fantasma (2026-10-28): cambia de sitio con el clon si está a menos de esto del muro con el rival cerca, o con un ataque
+        // a menos de SwapThreatGap; el clon, al menos a SwapSafeWallDistance del muro y SwapSaferBy m más lejos del rival que ella
+        private const float SwapWallDistance = 1.2f;
+        private const float SwapThreatGap = 1.5f;
+        private const float SwapSafeWallDistance = 2.5f;
+        private const float SwapSaferBy = 1.5f;
         /// <summary>
         /// Lo más que adelanta la puntería del Salto (s): el salto tarda casi 1 s (1,25 s hasta el 2026-10-15) y en ese tiempo el rival gira, así que
         /// adelantarlo todo en línea recta falla (medido el 2026-10-14: con J1 dando vueltas, caía a ~4 m de él).
@@ -141,6 +147,9 @@ namespace FakeBlade.Core
                 tornado.PullProgress >= TornadoEarlyProgress && Perception.TargetWallDistance < PinWallDistance &&
                 Vector3.Dot(Perception.ToTarget, Perception.TargetOutward) > 0.5f)
                 PressSpecial();
+
+            // Fantasma (2026-10-28, decidido con el usuario): cambia de sitio con el clon para escapar
+            if (Blade.Special.Ability is GhostAbility ghost && ghost.CanSwap && WantsGhostSwap()) PressSpecial();
 
             // El del rival más cercano o, si ese no amenaza desde lejos, el de otro rival que sí (D11.3)
             SpecialAbility power = Perception.TargetPower;
@@ -651,6 +660,30 @@ namespace FakeBlade.Core
 
         /// <summary>El clon de su Fantasma está en la arena.</summary>
         private bool GhostOut => Blade.GhostClone != null && Blade.GhostClone.gameObject.activeSelf;
+
+        /// <summary>
+        /// Fantasma (capa táctica): cambia de sitio con el clon para escapar, si está pegada al muro con un rival encima o le
+        /// llega un ataque de cerca, y el clon está en un sitio más seguro (lejos del muro y más lejos del rival que ella).
+        /// </summary>
+        private bool WantsGhostSwap()
+        {
+            AIPerception p = Perception;
+            FakeBladeController clone = Blade.GhostClone;
+            if (!Level.tactical || p.Target == null || clone == null) return false;
+            bool pinned = p.WallDistance < SwapWallDistance && p.Gap < AttackRange;
+            bool cornered = p.IncomingAttack && p.Gap < SwapThreatGap;
+            if (!pinned && !cornered) return false;
+
+            if (_arena != null)
+            {
+                Vector3 offset = clone.Position - _arena.Center;
+                offset.y = 0f;
+                if (_arena.InnerRadius - offset.magnitude < SwapSafeWallDistance) return false;
+            }
+            Vector3 cloneToTarget = clone.Position - p.Target.Position;
+            cloneToTarget.y = 0f;
+            return cloneToTarget.magnitude > p.Distance + SwapSaferBy;
+        }
         #endregion
     }
 }

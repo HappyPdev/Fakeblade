@@ -341,7 +341,7 @@ namespace FakeBlade.Core
         private void ApplyPlayerColor()
         {
             if (!_hasScheme) _scheme = BladeColors.Derive(playerColor);
-            if (_paint == null) _paint = new BladePaint(transform);
+            if (_paint == null) _paint = new BladePaint(transform, canFade: true);
             _paint.Apply(_scheme);
         }
 
@@ -356,10 +356,15 @@ namespace FakeBlade.Core
             _blade.OnModelRebuilt(); // el material de los efectos sobre la peonza, en las piezas nuevas
         }
 
-        /// <summary>El núcleo brilla con el color de su poder según la carga de la esfera.</summary>
+        /// <summary>
+        /// El núcleo brilla con el color de su poder según la carga de la esfera. Y la transparencia de la peonza (Fantasma,
+        /// 2026-10-27: la dueña y el clon mientras dura).
+        /// </summary>
         private void LateUpdate()
         {
-            if (_paint == null || !_paint.HasCore) return;
+            if (_paint == null) return;
+            _paint.SetAlpha(_blade.BodyAlpha);
+            if (!_paint.HasCore) return;
             SpecialAbilitySystem special = _blade.Special;
             _paint.SetCoreGlow(special.Color, BladePaint.CoreGlow(special.Energy, special.IsReady, special.IsActive, Time.time));
         }

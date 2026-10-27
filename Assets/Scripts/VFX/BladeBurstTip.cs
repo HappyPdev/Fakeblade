@@ -168,7 +168,7 @@ namespace FakeBlade.Core
         /// </summary>
         private Vector3 TargetDirection(Vector3 tip, float tipOffset)
         {
-            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            SpecialAbility ability = _blade.FxSpecial != null ? _blade.FxSpecial.Ability : null;
             if (ability == null || !ability.TryGetTargetPoint(out Vector3 target, out _)) return MotionDirection();
             target.y += tipOffset;
             Vector3 toTarget = target - tip;

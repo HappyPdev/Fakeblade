@@ -112,8 +112,11 @@ namespace FakeBlade.Core
         /// <summary>Efecto sobre la peonza de su especial (aunque ya no esté activo: se apaga con un fundido), o null.</summary>
         private SpecialOverlayStyle SpecialStyle()
         {
-            if (VfxSystem.Library == null || _blade.Special == null) return null;
-            SpecialVfxStyle effects = VfxSystem.Library.GetSpecialEffects(_blade.Special.Type);
+            // En el clon de Fantasma, el poder de su dueña (2026-10-27)
+            SpecialAbilitySystem special = _blade.FxSpecial;
+            if (VfxSystem.Library == null || special == null) return null;
+            SpecialVfxStyle effects = VfxSystem.Library.GetSpecialEffects(special.Type);
+            if (effects != null && _blade.IsGhost && !effects.cloneEffects) return null;
             return effects != null ? effects.overlay : null;
         }
 
@@ -173,8 +176,7 @@ namespace FakeBlade.Core
             Color fxColor = Color.clear;
             Texture2D fxTexture = null;
             SpecialOverlayStyle special = SpecialStyle();
-            bool specialOn = special != null && special.enabled && _blade.Special.IsActive && !_blade.Special.IsWindingUp &&
-                             !_blade.IsDestroyed;
+            bool specialOn = special != null && special.enabled && _blade.FxSpecialOn;
             Pulses(_specialPulse, special, specialOn, dt, center, ref rim, ref rimColor, ref flash, ref flashColor,
                 ref fx, ref fxSheet, ref fxColor, ref fxTexture);
 
@@ -279,7 +281,7 @@ namespace FakeBlade.Core
             state.Age += dt;
             float k = 1f - Mathf.Clamp01(state.Age / style.pulseDecay);
             k *= k;
-            Color baseColor = style.powerColor ? _blade.Special.Color : style.color;
+            Color baseColor = style.powerColor ? _blade.FxSpecial.Color : style.color;
             Color color = Color.Lerp(baseColor, style.hotColor, state.Heat * k);
             float pulseRim = (style.baseRim + Mathf.Lerp(style.pulseRim.x, style.pulseRim.y, state.Strength) * k) * state.Fade;
             if (pulseRim > rim)

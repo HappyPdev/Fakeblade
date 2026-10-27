@@ -943,6 +943,12 @@ namespace FakeBlade.Core
             if (_isDestroyed || !_simulationActive || IsGhost) return false; // el clon de Fantasma no usa especial
             // Con el poder activo, la pulsación es para él (Onda de choque: siguiente onda)
             if (_special.IsActive) return _special.TryPressActive();
+            // Con lo que deja el poder todavía puesto, primero es para él (Fantasma: cambiar de sitio con el clon, 2026-10-28)
+            if (_special.TryPressLingering())
+            {
+                CameraShake.Shake(0.08f, 0.06f);
+                return true;
+            }
             // Efecto común (RPM y cargas) + efecto propio del poder: SpecialAbilitySystem
             if (!_special.TryActivate()) return false;
 
@@ -1381,6 +1387,55 @@ namespace FakeBlade.Core
 
         public void ResetGhostHits() => GhostHits = 0;
         public void RegisterGhostHit() => GhostHits++;
+
+        /// <summary>
+        /// Poder cuyos efectos lleva la peonza (K8): el suyo o, en el clon de Fantasma, el de su dueña (2026-10-27: el clon lleva
+        /// los efectos de mientras dura el poder).
+        /// </summary>
+        public SpecialAbilitySystem FxSpecial => IsGhost ? GhostOwner.Special : _special;
+
+        /// <summary>
+        /// Los efectos del poder siguen (con su carga): activo o, si su entrada de la biblioteca lo pide (While Lingering), mientras
+        /// dura lo que deja (el clon de Fantasma). En el clon, todo el rato que está fuera.
+        /// </summary>
+        public bool FxSpecialActive
+        {
+            get
+            {
+                if (_isDestroyed) return false;
+                if (IsGhost || _special.IsActive) return true;
+                if (!_special.IsLingering) return false;
+                VfxLibrary lib = VfxSystem.Library;
+                SpecialVfxStyle style = lib != null ? lib.GetSpecialEffects(_special.Type) : null;
+                return style != null && style.whileLingering;
+            }
+        }
+
+        /// <summary>Efectos del poder encendidos: FxSpecialActive y fuera de la carga de juego (el clon no tiene carga).</summary>
+        public bool FxSpecialOn => FxSpecialActive && (IsGhost || !_special.IsWindingUp);
+
+        /// <summary>Opacidad de la peonza (1 = opaca; Fantasma, 2026-10-27). La pinta PlayerController con BladePaint.</summary>
+        public float BodyAlpha { get; private set; } = 1f;
+        private float _bodyAlpha = 1f;
+        private float _fadeFlickerWait, _fadeFlickerLeft;
+        /// <summary>Segundos desde que se encendieron los efectos del poder (cúpulas After Windup).</summary>
+        private float _fxOnTime;
+
+        /// <summary>
+        /// El clon de Fantasma vuelve a salir: aparece desde invisible, sus cúpulas vuelven a crecer y sus efectos empiezan de
+        /// cero. Al volver a activar su objeto, Unity arranca solas las auras de paquetes que lleva escondidas (Play On Awake:
+        /// salía con el Aura Burn y el Aura Smoke, como quemado; 2026-10-27), así que se paran aquí, como al reaparecer.
+        /// </summary>
+        public void RestartGhostVisuals()
+        {
+            _bodyAlpha = 0f;
+            BodyAlpha = 0f;
+            _fxOnTime = 0f;
+            _specialFx?.Clear();
+            _arcs?.Hide();
+            _dome?.Hide();
+            _baseDome?.Hide();
+        }
         #endregion
 
         /// <summary>¿Puede quitarle RPM a esa peonza? (no es aliada, o el fuego amigo está activo)</summary>
@@ -1553,40 +1608,115 @@ namespace FakeBlade.Core
                 _burstRibbon?.Tick(dt, _particles.TipOffset);
                 VfxLibrary lib = VfxSystem.Library;
                 _burstTip?.Tick(dt, _particles.TipOffset, lib != null ? lib.burstTip : null, IsBursting);
-                SpecialVfxStyle specialVfx = lib != null ? lib.GetSpecialEffectsOrGeneric(_special.Type) : null;
+                // El poder cuyos efectos lleva: el suyo o, en el clon de Fantasma, el de su dueña (2026-10-27)
+                SpecialAbilitySystem fx = FxSpecial;
+                SpecialVfxStyle specialVfx = FxStyle(lib);
+                bool fxActive = FxSpecialActive;
                 // La punta del especial; la de la Embestida, solo mientras embiste (cuenco delante, 2026-10-20), y la del
                 // Salto, mientras vuela
-                // Carga solo de los efectos más larga que la de juego (Defensa, 2026-10-23): hasta entonces siguen los de la carga
+                // Carga solo de los efectos más larga que la de juego (Defensa, 2026-10-23): hasta entonces siguen los de la carga.
+                // El clon no tiene carga: sale ya encendido
                 float visualWindup = specialVfx != null ? specialVfx.visualWindupTime : 0f;
-                bool visualCharge = visualWindup > 0f && _special.IsActive && _special.ActiveTime < visualWindup;
+                bool visualCharge = !IsGhost && visualWindup > 0f && _special.IsActive && _special.ActiveTime < visualWindup;
                 // Rastro de agua (2026-10-26): la carga visual solo para las cúpulas; lo demás, con la de juego
-                bool windingUp = _special.IsWindingUp || (visualCharge && !specialVfx.visualWindupDomesOnly);
-                bool effectsOn = _special.IsActive && !windingUp && !_isDestroyed;
-                bool rushing = effectsOn && _special.Ability != null && _special.Ability.IsRushing;
+                bool gameWindup = !IsGhost && _special.IsWindingUp;
+                bool windingUp = gameWindup || (visualCharge && !specialVfx.visualWindupDomesOnly);
+                bool effectsOn = fxActive && !windingUp;
+                bool rushing = effectsOn && fx.Ability != null && fx.Ability.IsRushing;
                 bool tipOn = effectsOn;
                 if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing) tipOn = rushing;
                 _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, tipOn);
                 SpiralTrailStyle spiral = specialVfx?.spiralTrail;
                 _spiralTrail?.Tick(dt, _particles.TipOffset, spiral, spiral != null && spiral.onlyWhileRushing ? rushing : effectsOn,
-                    _special.Color);
+                    fx.Color);
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
-                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, windingUp);
-                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, effectsOn, _special.IsActive && windingUp && !_isDestroyed);
+                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, fxActive, windingUp);
+                _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, effectsOn, fxActive && windingUp);
                 // Cúpula: mientras carga (Onda de choque), mientras atrae (Tornado: embudo y cúpula) o mientras dura (Defensa;
                 // y cualquiera con Dome While Active)
                 float domeCharge = _special.ChargeVisualProgress;
                 // Todo el rato que dura el poder (Dome While Active, 2026-10-27): crece en la carga y se queda entera
-                if (domeCharge < 0f && _special.IsActive && specialVfx != null && specialVfx.domeWhileActive)
-                    domeCharge = _special.IsWindingUp ? _special.WindupProgress : 1f;
+                if (domeCharge < 0f && fxActive && specialVfx != null && specialVfx.domeWhileActive)
+                    domeCharge = gameWindup ? _special.WindupProgress : 1f;
                 if (visualCharge && domeCharge >= 0f) domeCharge = _special.ActiveTime / visualWindup;
-                _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, domeCharge >= 0f && !_isDestroyed, domeCharge);
-                _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, domeCharge >= 0f && !_isDestroyed, domeCharge);
+                _fxOnTime = effectsOn ? _fxOnTime + dt : 0f;
+                float windupCharge = visualCharge ? _special.ActiveTime / visualWindup : _special.WindupProgress;
+                float dome = DomeProgress(specialVfx?.dome, domeCharge, gameWindup || visualCharge, windupCharge, effectsOn);
+                float baseDome = DomeProgress(specialVfx?.baseDome, domeCharge, gameWindup || visualCharge, windupCharge, effectsOn);
+                _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, dome >= 0f && !_isDestroyed, dome);
+                _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, baseDome >= 0f && !_isDestroyed, baseDome);
                 _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,
                     _special.Color);
+                UpdateBodyFade(specialVfx?.bodyFade, effectsOn, dt);
             }
             _overlay?.Tick(dt);
+        }
+
+        /// <summary>
+        /// Carga que pinta una cúpula según cuándo sale (0-1; -1 = no sale). Normal: la del poder (normal). Windup Only: solo en
+        /// la carga del principio (windup, con su carga windupCharge), y revienta al encenderse. After Windup: solo mientras
+        /// duran los efectos, creciendo en Grow Time (Fantasma, 2026-10-27).
+        /// </summary>
+        private float DomeProgress(ChargeDomeStyle style, float normal, bool windup, float windupCharge, bool effectsOn)
+        {
+            if (style == null) return -1f;
+            switch (style.timing)
+            {
+                case DomeTiming.WindupOnly: return windup ? windupCharge : -1f;
+                case DomeTiming.AfterWindup: return effectsOn ? Mathf.Clamp01(_fxOnTime / style.growTime) : -1f;
+                default: return normal;
+            }
+        }
+
+        /// <summary>
+        /// Transparencia de la peonza (Fantasma, 2026-10-27): la dueña se queda medio transparente mientras duran los efectos y
+        /// recupera la opacidad poco a poco al acabar; el clon aparece desde invisible y se queda más transparente. Los dos
+        /// parpadean de vez en cuando. La aplica PlayerController con BladePaint.
+        /// </summary>
+        private void UpdateBodyFade(BladeFadeStyle fade, bool effectsOn, float dt)
+        {
+            if (fade == null || !fade.enabled)
+            {
+                _bodyAlpha = 1f;
+                BodyAlpha = 1f;
+                return;
+            }
+            float target = IsGhost ? fade.cloneAlpha : effectsOn ? fade.alpha : 1f;
+            // Cada paso, en su tiempo: que la dueña tarde Recover Time en volver, sea cual sea su opacidad
+            float speed = IsGhost ? fade.cloneAlpha / fade.cloneAppearTime
+                : (1f - fade.alpha) / (target < _bodyAlpha ? fade.fadeTime : fade.recoverTime);
+            _bodyAlpha = Mathf.MoveTowards(_bodyAlpha, target, Mathf.Max(0.01f, speed) * dt);
+
+            float shown = _bodyAlpha;
+            if (_bodyAlpha < 0.999f && fade.flickerInterval.y > 0f)
+            {
+                if (_fadeFlickerLeft > 0f)
+                {
+                    _fadeFlickerLeft -= dt;
+                    shown *= fade.flickerAlpha;
+                }
+                else
+                {
+                    _fadeFlickerWait -= dt;
+                    if (_fadeFlickerWait <= 0f)
+                    {
+                        _fadeFlickerWait = UnityEngine.Random.Range(fade.flickerInterval.x, fade.flickerInterval.y);
+                        _fadeFlickerLeft = fade.flickerTime;
+                    }
+                }
+            }
+            BodyAlpha = shown;
+        }
+
+        /// <summary>Efectos del poder que lleva (FxSpecial); en el clon, solo si la entrada del Fantasma los pide (Clone Effects).</summary>
+        private SpecialVfxStyle FxStyle(VfxLibrary lib)
+        {
+            if (lib == null) return null;
+            if (!IsGhost) return lib.GetSpecialEffectsOrGeneric(_special.Type);
+            SpecialVfxStyle style = lib.GetSpecialEffects(FxSpecial.Type);
+            return style != null && style.cloneEffects ? style : null;
         }
 
         /// <summary>El modelo se ha vuelto a montar (piezas nuevas): los efectos sobre la peonza ponen su material en él.</summary>
@@ -1682,6 +1812,12 @@ namespace FakeBlade.Core
             _rb.rotation = Quaternion.identity;
             _rb.linearVelocity = Vector3.zero;
             _rb.angularVelocity = Vector3.zero;
+        }
+
+        /// <summary>Pone la velocidad tras un SetPosition (Fantasma: cada una sigue con la suya al cambiar de sitio con el clon).</summary>
+        public void SetVelocity(Vector3 velocity)
+        {
+            if (_rb != null) _rb.linearVelocity = velocity;
         }
 
         public void SetInvulnerable(float seconds)

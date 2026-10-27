@@ -115,6 +115,12 @@ namespace FakeBlade.Core
         /// <summary>Especial pulsado con el poder activo: se lo pasa al poder (Onda de choque, F1). No durante la carga común.</summary>
         public bool TryPressActive() => IsOn && _ability.OnPressedWhileActive();
 
+        /// <summary>
+        /// Especial pulsado con el poder ya terminado pero con lo que deja todavía puesto: se lo pasa al poder (Fantasma: cambiar
+        /// de sitio con el clon, 2026-10-28). Si no lo usa, la pulsación sirve para activarlo otra vez.
+        /// </summary>
+        public bool TryPressLingering() => !_isActive && _ability != null && _ability.IsLingering && _ability.OnPressedWhileLingering();
+
         /// <summary>Distancia al rival a la que conviene usarlo (0 = cualquiera). Para la IA.</summary>
         public float UseRange => _ability != null ? _ability.UseRange : 0f;
 
@@ -264,8 +270,8 @@ namespace FakeBlade.Core
         public float AccelerationMultiplier => IsOn ? _ability.AccelerationMultiplier : 1f;
         /// <summary>Nivel mínimo con el que cuentan los ataques.</summary>
         public int MinAttackLevel => IsOn ? _ability.MinAttackLevel : 0;
-        /// <summary>Velocidad de recarga de las cargas de ataque.</summary>
-        public float AttackRechargeMultiplier => IsOn ? _ability.AttackRechargeMultiplier : 1f;
+        /// <summary>Velocidad de recarga de las cargas de ataque. También con el efecto todavía puesto (Fantasma: mientras el clon está fuera).</summary>
+        public float AttackRechargeMultiplier => IsOn || IsLingering ? _ability.AttackRechargeMultiplier : 1f;
         /// <summary>El agua del suelo no la moja (Hielo activo).</summary>
         public bool ImmuneToWet => IsOn && _ability.ImmuneToWet;
         public float DashCooldownMultiplier => IsOn ? _ability.DashCooldownMultiplier : 1f;

@@ -511,6 +511,56 @@ namespace FakeBlade.Core
         public bool ribbonPowerColor = true;
         [Tooltip("Lo que dura cada punto de esa cinta mientras dura el poder (s; 0 = lo normal): menos = rastro más corto")]
         [Min(0f)] public float ribbonTime = 0.15f;
+        [Header("Lo que deja el poder (Fantasma, 2026-10-27)")]
+        [Tooltip("Los efectos siguen mientras dura lo que deja el poder, aunque ya no esté activo (Fantasma: mientras el clon " +
+                 "está fuera). Al acabar, End Burst")]
+        public bool whileLingering;
+        [Tooltip("El clon de Fantasma lleva también los efectos de mientras dura (punta, borde, remolino, partículas, cúpulas y " +
+                 "rastro) y los de cada choque")]
+        public bool cloneEffects = true;
+        [Tooltip("Al encenderse, de la peonza hacia donde aparece el clon (la bocanada que se desdobla): Directional Speed las " +
+                 "lleva hacia él. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> cloneSplit = new List<SpiralParticleStyle>();
+        [Tooltip("Donde aparece el clon. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> cloneAppear = new List<SpiralParticleStyle>();
+        [Tooltip("Cuando se rompe el clon (al tercer golpe): con Inherit Velocity, el humo sigue la inercia que llevaba. Usa " +
+                 "Count, no Rate")]
+        public List<SpiralParticleStyle> cloneVanish = new List<SpiralParticleStyle>();
+        [Tooltip("Al cambiar de sitio con el clon (Especial con el clon fuera; 2026-10-28): una explosión en los dos sitios. Usa " +
+                 "Count, no Rate")]
+        public List<SpiralParticleStyle> swapBurst = new List<SpiralParticleStyle>();
+        [Tooltip("Transparencia de la peonza mientras duran los efectos (y del clon mientras está fuera)")]
+        public BladeFadeStyle bodyFade = new BladeFadeStyle();
+    }
+
+    /// <summary>
+    /// Transparencia de la peonza (Fantasma, 2026-10-27; decidido con el usuario: con alfa, no con tramado). Mientras duran
+    /// los efectos del poder, la dueña se queda medio transparente y el clon más; los dos parpadean de vez en cuando. Al
+    /// acabar, la dueña recupera la opacidad poco a poco. Lo aplica BladePaint con copias transparentes de los materiales de
+    /// las piezas, preparadas al montar el modelo (sin asignaciones en combate). Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class BladeFadeStyle
+    {
+        [Tooltip("Apagado: la peonza no se vuelve transparente, sin perder los valores de abajo")]
+        public bool enabled;
+        [Tooltip("Opacidad de la dueña mientras duran los efectos (1 = opaca; 0,75 = un 25% transparente)")]
+        [Range(0f, 1f)] public float alpha = 0.75f;
+        [Tooltip("Opacidad del clon mientras está fuera")]
+        [Range(0f, 1f)] public float cloneAlpha = 0.5f;
+        [Tooltip("Lo que tarda la dueña en quedarse transparente al encenderse (s)")]
+        [Min(0.01f)] public float fadeTime = 0.2f;
+        [Tooltip("Lo que tarda la dueña en volver a ser opaca al acabar (s): poco a poco, tras End Burst")]
+        [Min(0.01f)] public float recoverTime = 1.2f;
+        [Tooltip("Lo que tarda el clon en aparecer desde invisible (s): a juego con lo que tarda Clone Split en llegar")]
+        [Min(0.01f)] public float cloneAppearTime = 0.25f;
+        [Header("Parpadeo")]
+        [Tooltip("Tiempo entre parpadeos (s), al azar entre x e y (0 = no parpadea)")]
+        public Vector2 flickerInterval = new Vector2(0.8f, 2f);
+        [Tooltip("Opacidad durante el parpadeo, en partes de la de arriba (0,4 = se queda en un 40% de ella)")]
+        [Range(0f, 1f)] public float flickerAlpha = 0.4f;
+        [Tooltip("Lo que dura cada parpadeo (s)")]
+        [Min(0.01f)] public float flickerTime = 0.06f;
     }
 
     /// <summary>
@@ -548,6 +598,14 @@ namespace FakeBlade.Core
         [Tooltip("Cuánto toma el color del poder cada color (0 = el suyo; 1 = multiplicado por el del poder): x en las líneas 1 y " +
                  "3, y en las 2 y 4")]
         public Vector2 powerTint = new Vector2(0f, 1f);
+    }
+
+    /// <summary>Cuándo sale una cúpula de los especiales (ChargeDomeStyle.timing).</summary>
+    public enum DomeTiming
+    {
+        Normal = 0,
+        WindupOnly = 1,
+        AfterWindup = 2
     }
 
     /// <summary>
@@ -629,6 +687,12 @@ namespace FakeBlade.Core
         [Tooltip("Parte de la carga en la que aún no se ve (0 = sale al empezarla; 0,6 = aparece en el último 40% y crece en él). " +
                  "Rastro de agua: los cilindros salen después de la salpicadura (2026-10-26)")]
         [Range(0f, 0.95f)] public float appearFrom;
+        [Tooltip("Cuándo sale (Fantasma, 2026-10-27). Normal: como diga el poder (y Dome While Active). Windup Only: solo en la " +
+                 "carga del principio, y revienta al encenderse (la burbuja de humo). After Windup: solo después de la carga, " +
+                 "mientras duran los efectos (el embudo mientras el clon está fuera)")]
+        public DomeTiming timing = DomeTiming.Normal;
+        [Tooltip("Con After Windup: lo que tarda en crecer (s)")]
+        [Min(0.01f)] public float growTime = 0.3f;
 
         [Header("Embudo y picos de arriba (Tornado)")]
         [Tooltip("Radio al empezar, en partes del final (0 = crece desde nada, como en Onda de choque)")]
@@ -942,6 +1006,9 @@ namespace FakeBlade.Core
         public Vector2 directionalSpeed = Vector2.zero;
         [Tooltip("Gira en el sentido de las agujas del reloj, visto desde arriba")]
         public bool clockwise = true;
+        [Tooltip("Parte de la velocidad de la peonza que se llevan (0 = ninguna; 1 = toda; negativo = hacia atrás). Fantasma: " +
+                 "el humo del clon al romperse sigue la inercia que llevaba (2026-10-27)")]
+        public float inheritVelocity;
         [Tooltip("Tamaño (m), entre x e y")]
         public Vector2 size = new Vector2(0.2f, 0.35f);
         [Tooltip("Duración (s), entre x e y (0 = la del emisor o el sprite)")]

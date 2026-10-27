@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace FakeBlade.Core
 {
@@ -10,6 +11,7 @@ namespace FakeBlade.Core
     /// - el resto ("Ring", "Blade", "Disco", "Anilla" o sin nombre reconocible) → disco.
     /// El núcleo además brilla (emisión) con el color de su poder: ver <see cref="SetCoreGlow"/>.
     /// Usa MaterialPropertyBlock, así que los materiales se comparten entre peonzas.
+    /// Con canFade, la peonza puede volverse transparente (Fantasma, 2026-10-27; ver <see cref="SetAlpha"/>).
     /// </summary>
     public sealed class BladePaint
     {
@@ -21,12 +23,22 @@ namespace FakeBlade.Core
 
         // Copia con emisión de cada material de núcleo que no la tenía (una por material, compartida)
         private static readonly Dictionary<Material, Material> s_glowMaterials = new Dictionary<Material, Material>();
+        // Copia transparente de cada material de las piezas (una por material, compartida) y el camino de vuelta
+        private static readonly Dictionary<Material, Material> s_fadeOf = new Dictionary<Material, Material>();
+        private static readonly Dictionary<Material, Material> s_opaqueOf = new Dictionary<Material, Material>();
+        // Lista de trabajo para cambiar los materiales sin crear arrays
+        private static readonly List<Material> s_materials = new List<Material>();
 
         private readonly List<Renderer>[] _slots = new List<Renderer>[SlotCount];
         private readonly MaterialPropertyBlock _block = new MaterialPropertyBlock();
         private Color _glow = new Color(-1f, 0f, 0f);
+        private readonly Color[] _colors = new Color[SlotCount];
+        private bool _hasColors;
+        private readonly bool _canFade;
+        private float _alpha = 1f;
+        private bool _faded;
 
-        public BladePaint(Transform root)
+        public BladePaint(Transform root, bool canFade = false)
         {
             for (int i = 0; i < SlotCount; i++) _slots[i] = new List<Renderer>();
             if (root == null) return;
@@ -41,7 +53,9 @@ namespace FakeBlade.Core
                 ComponentSlot slot = SlotOf(r.transform, root);
                 _slots[(int)slot].Add(r);
                 if (slot == ComponentSlot.Core) EnsureEmission(r);
+                if (canFade) PrepareFade(r);
             }
+            _canFade = canFade;
         }
 
         /// <summary>¿El modelo tiene núcleo propio? (si no, el brillo del poder no se ve)</summary>
@@ -49,9 +63,17 @@ namespace FakeBlade.Core
 
         public void Apply(BladeColorScheme scheme)
         {
+            for (int s = 0; s < SlotCount; s++) _colors[s] = scheme.Get((ComponentSlot)s);
+            _hasColors = true;
+            ApplyColors();
+        }
+
+        private void ApplyColors()
+        {
             for (int s = 0; s < SlotCount; s++)
             {
-                Color color = scheme.Get((ComponentSlot)s);
+                Color color = _colors[s];
+                color.a *= _alpha;
                 List<Renderer> renderers = _slots[s];
                 for (int i = 0; i < renderers.Count; i++)
                 {
@@ -62,6 +84,81 @@ namespace FakeBlade.Core
                     r.SetPropertyBlock(_block);
                 }
             }
+        }
+
+        /// <summary>
+        /// Opacidad de la peonza (1 = opaca). Por debajo de 1 cambia los materiales de las piezas por sus copias transparentes
+        /// (sin sombra) y la transparencia va en el alfa del color; a 1, vuelve a los opacos. Solo con canFade. Sin asignaciones:
+        /// las copias se crean al montar el modelo.
+        /// </summary>
+        public void SetAlpha(float alpha)
+        {
+            if (!_canFade || !_hasColors) return;
+            alpha = Mathf.Clamp01(alpha);
+            bool faded = alpha < 0.999f;
+            if (faded == _faded && Mathf.Abs(alpha - _alpha) < 0.002f) return;
+            _alpha = alpha;
+            if (faded != _faded) SwapMaterials(faded);
+            ApplyColors();
+        }
+
+        private void SwapMaterials(bool faded)
+        {
+            _faded = faded;
+            Dictionary<Material, Material> map = faded ? s_fadeOf : s_opaqueOf;
+            for (int s = 0; s < SlotCount; s++)
+            {
+                List<Renderer> renderers = _slots[s];
+                for (int i = 0; i < renderers.Count; i++)
+                {
+                    Renderer r = renderers[i];
+                    if (r == null) continue;
+                    r.GetSharedMaterials(s_materials);
+                    for (int m = 0; m < s_materials.Count; m++)
+                        if (s_materials[m] != null && map.TryGetValue(s_materials[m], out Material swap)) s_materials[m] = swap;
+                    r.SetSharedMaterials(s_materials);
+                    r.shadowCastingMode = faded ? ShadowCastingMode.Off : ShadowCastingMode.On;
+                }
+            }
+            s_materials.Clear();
+        }
+
+        /// <summary>Crea (una vez por material) la copia transparente de cada material del renderer.</summary>
+        private static void PrepareFade(Renderer r)
+        {
+            Material[] materials = r.sharedMaterials;
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material m = materials[i];
+                if (m == null || BladeOverlay.IsOverlay(m) || s_opaqueOf.ContainsKey(m)) continue;
+                if (s_fadeOf.TryGetValue(m, out Material fade) && fade != null) continue;
+                fade = MakeTransparent(m);
+                s_fadeOf[m] = fade;
+                s_opaqueOf[fade] = m;
+            }
+        }
+
+        /// <summary>
+        /// Copia transparente de un material URP Lit (como si se cambiara Surface Type a Transparent en el Inspector). Sigue
+        /// escribiendo la profundidad: la peonza se ve como un solo cuerpo de humo, sin las piezas de dentro.
+        /// </summary>
+        private static Material MakeTransparent(Material source)
+        {
+            var m = new Material(source) { name = source.name + " (Fade)" };
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_Blend", 0f);
+            m.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
+            m.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_ZWrite", 1f);
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.DisableKeyword("_ALPHATEST_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.renderQueue = (int)RenderQueue.Transparent;
+            m.SetShaderPassEnabled("ShadowCaster", false);
+            return m;
         }
 
         /// <summary>Brillo del núcleo: color del poder × intensidad (0 = apagado; más de 1 da bloom).</summary>

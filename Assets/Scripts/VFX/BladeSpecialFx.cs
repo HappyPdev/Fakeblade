@@ -108,6 +108,11 @@ namespace FakeBlade.Core
         private static bool s_healing = true;
         /// <summary>Velocidad de la peonza en el suelo (m/s) para Rate Per Speed y Speed Per Speed de los remolinos.</summary>
         private static float s_speed;
+        /// <summary>
+        /// Velocidad de la peonza de lo que se emite ahora, para Inherit Velocity de las partículas en espiral (el humo del clon
+        /// de Fantasma al romperse); se fija antes de cada tanda, como s_power, y vuelve a cero.
+        /// </summary>
+        private static Vector3 s_inherit;
         // Spin Boost (2026-10-26): curaba en el frame anterior (para la ráfaga al cortarse)
         private bool _wasHealing;
 
@@ -134,15 +139,17 @@ namespace FakeBlade.Core
             var tip = new Vector3(pos.x, pos.y + tipOffset, pos.z);
             bool visible = lib != null && VfxSystem.IsOnScreen(tip);
 
-            // Color del poder para las partículas con Power Tint (la plantilla común se tiñe con él)
-            s_power = _blade.Special != null ? _blade.Special.Color : Color.white;
+            // Color del poder para las partículas con Power Tint (la plantilla común se tiñe con él). En el clon de Fantasma, el
+            // poder de su dueña (2026-10-27)
+            SpecialAbilitySystem fx = _blade.FxSpecial;
+            s_power = fx != null ? fx.Color : Color.white;
             bool active = specialActive && special != null;
             bool effectsOn = active && !windingUp;
             Vector3 motion = MotionDirection();
             Vector3 velocity = _blade.Velocity;
             s_speed = Mathf.Sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
             // Curación del poder (Spin Boost, 2026-10-26): las cruces solo mientras cura y, si un golpe la corta, su ráfaga
-            bool healing = effectsOn && _blade.Special.IsHealing;
+            bool healing = effectsOn && fx.IsHealing;
             if (_wasHealing && !healing && effectsOn && visible && !_blade.IsDestroyed) Burst(special.healCutBurst, tip, motion);
             _wasHealing = healing;
             s_healing = healing;
@@ -154,13 +161,15 @@ namespace FakeBlade.Core
             // lo termina en ese momento: los efectos no llegan a encenderse)
             bool released = effectsOn && !_effectsWereOn;
             if (!released && _wasWindingUp && !windingUp && !specialActive && !_blade.IsDestroyed) released = true;
+            // El clon de Fantasma no se enciende: aparece (Clone Appear, desde GhostAbility)
+            if (_blade.IsGhost) released = false;
             if (released && visible && special != null) Burst(special.activationBurst, tip, motion);
             // Al terminar el poder (Rebote: la burbuja se rompe), salvo si la peonza ha caído
             if (_wasSpecialActive && !specialActive && !_blade.IsDestroyed && visible && special != null)
                 Burst(special.endBurst, tip, motion);
             _wasSpecialActive = specialActive;
             // Marca donde va a caer (Salto, 2026-10-21): dura hasta que llega (un círculo que se cierra acaba al caer)
-            SpecialAbility ability = _blade.Special != null ? _blade.Special.Ability : null;
+            SpecialAbility ability = fx != null ? fx.Ability : null;
             if (released && special != null && special.targetMark.Count > 0 && ability != null &&
                 ability.TryGetTargetPoint(out Vector3 target, out float timeLeft))
             {
@@ -544,10 +553,12 @@ namespace FakeBlade.Core
         {
             VfxLibrary lib = VfxSystem.Library;
             if (lib == null || blade == null || blade.IsDestroyed || !VfxSystem.IsOnScreen(groundPoint)) return;
-            SpecialAbilitySystem special = blade.Special;
-            if (special != null && special.IsActive && !special.IsWindingUp)
+            // Con los efectos encendidos: también mientras dura lo que deja el poder (While Lingering) y en el clon de Fantasma
+            SpecialAbilitySystem special = blade.FxSpecial;
+            if (special != null && blade.FxSpecialOn)
             {
-                SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(special.Type);
+                SpecialVfxStyle style = blade.IsGhost ? lib.GetSpecialEffects(special.Type) : lib.GetSpecialEffectsOrGeneric(special.Type);
+                if (style != null && blade.IsGhost && !style.cloneEffects) style = null;
                 if (style != null && style.impact != null && style.impact.Count > 0)
                 {
                     s_power = special.Color;
@@ -577,6 +588,70 @@ namespace FakeBlade.Core
             SpecialVfxStyle style = lib.GetSpecialEffectsOrGeneric(special.Type);
             if (style == null || style.hitTrail == null || style.hitTrail.Count == 0 || style.hitTrailTime <= 0f) return;
             target.StartSpecialHitTrail(style, special.Color);
+        }
+
+        /// <summary>
+        /// Fantasma (2026-10-27): el clon aparece. La bocanada que se desdobla sale de la dueña hacia donde aparece el clon
+        /// (Clone Split, con Directional Speed hacia él; el clon sale con ella, de dentro de su dueña) y su nube donde aparece
+        /// (Clone Appear). point: donde aparece, a ras de suelo como la peonza. Devuelve false si el poder no tiene efectos
+        /// propios (GhostAbility pone entonces su humo de antes).
+        /// </summary>
+        public static bool PlayCloneAppear(FakeBladeController owner, Vector3 point)
+        {
+            SpecialVfxStyle style = CloneStyle(owner);
+            if (style == null) return false;
+            s_power = owner.Special.Color;
+            Vector3 from = owner.TipPosition;
+            Vector3 to = new Vector3(point.x, from.y, point.z);
+            Vector3 toward = to - from;
+            toward.y = 0f;
+            toward = toward.sqrMagnitude > 0.0001f ? toward.normalized : owner.Facing;
+            if (VfxSystem.IsOnScreen(from)) Burst(style.cloneSplit, from, toward, 0f, float.MaxValue, toward);
+            if (VfxSystem.IsOnScreen(to)) Burst(style.cloneAppear, to, toward);
+            return true;
+        }
+
+        /// <summary>
+        /// Fantasma (2026-10-27): el clon se rompe (al tercer golpe) y se deshace en humo que sigue la inercia que llevaba (Clone
+        /// Vanish, con Inherit Velocity). Devuelve false si el poder no tiene efectos propios.
+        /// </summary>
+        public static bool PlayCloneVanish(FakeBladeController owner, FakeBladeController clone)
+        {
+            SpecialVfxStyle style = CloneStyle(owner);
+            if (style == null || clone == null) return false;
+            s_power = owner.Special.Color;
+            Vector3 velocity = clone.Velocity;
+            velocity.y = 0f;
+            s_inherit = velocity;
+            Vector3 motion = velocity.sqrMagnitude > 0.25f ? velocity.normalized : Vector3.zero;
+            Vector3 tip = clone.TipPosition;
+            if (VfxSystem.IsOnScreen(tip)) Burst(style.cloneVanish, tip, motion);
+            s_inherit = Vector3.zero;
+            return true;
+        }
+
+        /// <summary>
+        /// Fantasma (2026-10-28): la dueña cambia de sitio con el clon. Una explosión de humo en los dos sitios (Swap Burst).
+        /// from y to: donde estaban la dueña y el clon. Devuelve false si el poder no tiene efectos propios.
+        /// </summary>
+        public static bool PlayCloneSwap(FakeBladeController owner, Vector3 from, Vector3 to)
+        {
+            SpecialVfxStyle style = CloneStyle(owner);
+            if (style == null) return false;
+            s_power = owner.Special.Color;
+            float tipY = owner.TipPosition.y - owner.Position.y;
+            var a = new Vector3(from.x, from.y + tipY, from.z);
+            var b = new Vector3(to.x, to.y + tipY, to.z);
+            if (VfxSystem.IsOnScreen(a)) Burst(style.swapBurst, a);
+            if (VfxSystem.IsOnScreen(b)) Burst(style.swapBurst, b);
+            return true;
+        }
+
+        /// <summary>Efectos propios del poder de la dueña del clon (los del Fantasma), o null.</summary>
+        private static SpecialVfxStyle CloneStyle(FakeBladeController owner)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            return lib == null || owner == null || owner.Special == null ? null : lib.GetSpecialEffects(owner.Special.Type);
         }
 
         /// <summary>Empieza (o renueva) la estela de un golpe en esta peonza, con los efectos del poder de quien la golpeó.</summary>
@@ -636,6 +711,7 @@ namespace FakeBlade.Core
                                Vector3.up * (Random.Range(style.upSpeed.x, style.upSpeed.y) * speedScale);
             if (style.directionalSpeed.y > 0f)
                 velocity += (push.sqrMagnitude > 0.0001f ? push : direction) * Random.Range(style.directionalSpeed.x, style.directionalSpeed.y);
+            if (style.inheritVelocity != 0f) velocity += s_inherit * style.inheritVelocity;
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
             color.a = style.alpha;
             float size = Mathf.Min(Random.Range(style.size.x, style.size.y), maxSize);

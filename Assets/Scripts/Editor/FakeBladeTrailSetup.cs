@@ -232,7 +232,7 @@ namespace FakeBlade.Core.Editor
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
                    SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
                    SetupDefense(library) + "; " + SetupWaterTrail(library) + "; " + SetupWet(library) + "; " +
-                   SetupSpinBoost(library) + "; " + SetupGenericSpecial(library);
+                   SetupSpinBoost(library) + "; " + SetupGhost(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -2293,6 +2293,423 @@ namespace FakeBlade.Core.Editor
                 size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.4f, 0.5f), color = HealCutGrey, color2 = Color.white
             }
         };
+
+        // Fantasma (2026-10-27, decidido con el usuario): colores muy claros y pálidos, fríos (el lila de su asset)
+        private static readonly Color GhostLilac = new Color(0.8f, 0.85f, 1f);
+        private static readonly Color GhostPale = new Color(0.93f, 0.95f, 1f);
+        private static readonly Color GhostViolet = new Color(0.74f, 0.7f, 1f);
+        private static readonly Color GhostIce = new Color(0.82f, 0.96f, 1f);
+        /// <summary>Cuencos del Fantasma: la luna gris de Pixel Holy Spell Effect Pack 3 (hoja 01, fila 4; 11 × 1 con 9 dibujos).</summary>
+        private const string GhostCupMaterialPath = "Assets/VFX/Materials/VFX_HolyTipCup_4_LunaGris.mat";
+
+        /// <summary>
+        /// Fantasma (K8, 2026-10-27; planteamiento del usuario, «como el Spin Boost, simple»). Carga (0,3 s): una burbuja de humo
+        /// (esfera que parpadea y hace glitch, con humo que se arremolina y se aprieta dentro). Al encenderse, la burbuja revienta
+        /// (humo hacia fuera y un anillo en el suelo) y una bocanada sale de la peonza hacia donde aparece el clon, que aparece
+        /// desde invisible. Mientras el clon está fuera (While Lingering), la dueña y el clon llevan una espiral de destellos y
+        /// humo, un embudo corto con máscara, cuencos con la luna gris y un rastro de humo bajo, y se vuelven transparentes (la
+        /// dueña un poco, el clon más, con algún parpadeo). Al chocar, una explosión pequeña de humo y destellos que salen hacia
+        /// el golpe y se apagan enseguida. Cuando rompen el clon, su humo sigue la inercia que llevaba; la dueña suelta humo
+        /// hacia arriba y recupera la opacidad poco a poco. Solo añade la entrada si falta y rellena lo vacío.
+        /// </summary>
+        private static string SetupGhost(VfxLibrary library)
+        {
+            SpecialVfxStyle ghost = library.GetSpecialEffects(SpecialAbilityType.Ghost);
+            bool added = ghost == null;
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+            if (added)
+            {
+                ghost = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.Ghost, replaceAura = true, windupSustain = 0f, whileLingering = true, cloneEffects = true
+                };
+                ghost.overlay = new SpecialOverlayStyle
+                {
+                    color = GhostLilac, hotColor = Color.white, baseRim = 0.25f, pulseRim = new Vector2(0.4f, 0.9f),
+                    pulseFlash = new Vector2(0f, 0.05f), pulseInterval = new Vector2(0.25f, 0.6f), pulseDecay = 0.3f
+                };
+                ghost.scorch = new ScorchStyle { sprite = "" };
+                GhostTip(ghost.tip, library.burstTip);
+                // La máscara de ruido del mini tornado del Spin Boost (la que eligió el usuario), si está
+                SpecialVfxStyle spin = library.GetSpecialEffects(SpecialAbilityType.SpinBoost);
+                Texture2D noise = spin != null && spin.dome != null ? spin.dome.maskTexture : null;
+                ghost.dome = GhostBubble(noise);
+                ghost.baseDome = GhostFunnel(spin != null && spin.dome != null && spin.dome.material != null ? spin.dome : null, noise);
+                ghost.bodyFade = new BladeFadeStyle { enabled = true };
+                library.specialEffects.Add(ghost);
+            }
+            if (ghost.dome.material == null) ghost.dome.material = domeMaterial;
+            if (ghost.baseDome.material == null) ghost.baseDome.material = domeMaterial;
+
+            ghost.windup ??= new List<SpiralParticleStyle>();
+            if (ghost.windup.Count == 0) ghost.windup.AddRange(GhostWindup());
+            ghost.activationBurst ??= new List<SpiralParticleStyle>();
+            if (ghost.activationBurst.Count == 0) ghost.activationBurst.AddRange(GhostBurst());
+            ghost.cloneSplit ??= new List<SpiralParticleStyle>();
+            if (ghost.cloneSplit.Count == 0) ghost.cloneSplit.AddRange(GhostSplit());
+            ghost.cloneAppear ??= new List<SpiralParticleStyle>();
+            if (ghost.cloneAppear.Count == 0) ghost.cloneAppear.AddRange(GhostAppear());
+            ghost.swirl ??= new List<SpiralParticleStyle>();
+            if (ghost.swirl.Count == 0) ghost.swirl.AddRange(GhostSwirl());
+            ghost.particles ??= new List<SpecialParticleStyle>();
+            if (ghost.particles.Count == 0) ghost.particles.AddRange(GhostLowSmoke());
+            ghost.impact ??= new List<SpiralParticleStyle>();
+            if (ghost.impact.Count == 0) ghost.impact.AddRange(GhostImpact());
+            ghost.endBurst ??= new List<SpiralParticleStyle>();
+            if (ghost.endBurst.Count == 0) ghost.endBurst.AddRange(GhostEnd());
+            ghost.cloneVanish ??= new List<SpiralParticleStyle>();
+            if (ghost.cloneVanish.Count == 0) ghost.cloneVanish.AddRange(GhostVanish());
+            ghost.swapBurst ??= new List<SpiralParticleStyle>();
+            if (ghost.swapBurst.Count == 0) ghost.swapBurst.AddRange(GhostSwap());
+            return "Fantasma" + (added ? " (nuevo)" : "") + (ghost.dome.material == null ? " (falta el shader de la cúpula)" : "");
+        }
+
+        /// <summary>
+        /// Cuencos de la punta, hacia arriba, girando a distinta velocidad y en sentidos contrarios: la luna gris de BDragon en
+        /// blanco, lila, violeta y hielo pálidos (o, si falta, la hoja del acelerón).
+        /// </summary>
+        private static void GhostTip(BurstTipStyle tip, BurstTipStyle accel)
+        {
+            var moon = AssetDatabase.LoadAssetAtPath<Material>(GhostCupMaterialPath);
+            tip.mesh = accel != null ? accel.mesh : null;
+            tip.material = moon != null ? moon : accel != null ? accel.material : null;
+            tip.tilesX = moon != null ? 11 : accel != null ? accel.tilesX : 3;
+            tip.tilesY = moon != null ? 1 : accel != null ? accel.tilesY : 3;
+            tip.firstFrame = 0;
+            tip.frames = moon != null ? 9 : accel != null ? accel.frames : 9;
+            tip.cycle = 0.7f;
+            tip.size = 1.8f;
+            tip.scale = new Vector2(1f, 0.6f);
+            tip.height = 0.03f;
+            tip.alpha = 0.75f;
+            tip.lighten = 0f;
+            tip.fade = new Vector2(0.1f, 0.2f);
+            tip.pointForward = false;
+            tip.onlyWhileRushing = false;
+            tip.particleSprite = "";
+            tip.ground = new TipGroundSprite();
+            tip.groundLayers.Clear();
+            tip.cups.Clear();
+            tip.cups.Add(new BurstTipCup { angle = 0f, spinSpeed = 240f, scale = new Vector2(0.6f, 1.4f), playerColor = false, color = new Color(1f, 1f, 1f, 0.85f) });
+            tip.cups.Add(new BurstTipCup { angle = 90f, spinSpeed = -180f, scale = new Vector2(0.85f, 1f), playerColor = false, color = GhostLilac });
+            tip.cups.Add(new BurstTipCup { angle = 180f, spinSpeed = 140f, scale = new Vector2(1.1f, 0.7f), playerColor = false, color = new Color(GhostViolet.r, GhostViolet.g, GhostViolet.b, 0.7f) });
+            tip.cups.Add(new BurstTipCup { angle = 270f, spinSpeed = -320f, scale = new Vector2(0.45f, 1.9f), playerColor = false, color = new Color(GhostIce.r, GhostIce.g, GhostIce.b, 0.8f) });
+        }
+
+        /// <summary>
+        /// La burbuja de la carga (Windup Only): esfera lila pálida que crece desde pequeña, con huecos de ruido, parpadeo, glitch
+        /// y un temblor al final; al encenderse se infla y revienta con un destello.
+        /// </summary>
+        private static ChargeDomeStyle GhostBubble(Texture2D noise)
+        {
+            ChargeDomeStyle d = BounceBubble();
+            d.timing = DomeTiming.WindupOnly;
+            d.radius = 0.95f;
+            d.startRadius = 0.25f;
+            d.growEase = 2f;
+            d.bodyColor = new Color(GhostPale.r, GhostPale.g, GhostPale.b, 0.24f);
+            d.rimColor = new Color(GhostLilac.r, GhostLilac.g, GhostLilac.b, 0.9f);
+            d.outlineColor = new Color(0.55f, 0.55f, 0.65f, 0.8f);
+            d.swirlColor = new Color(1f, 1f, 1f, 0.7f);
+            d.swirlColor2 = new Color(GhostViolet.r, GhostViolet.g, GhostViolet.b, 0.5f);
+            d.linesSpeed = 1.1f;
+            d.shakeFrom = 0.6f;
+            d.shakeScale = 0.06f;
+            d.shakeRate = 20f;
+            d.popTime = 0.25f;
+            d.popScale = 1.6f;
+            d.popFlash = 0.7f;
+            d.maskTexture = noise;
+            d.maskAmount = noise != null ? 0.18f : 0f;
+            d.maskTiling = new Vector2(2f, 1f);
+            d.maskScroll = new Vector2(0.15f, 0.6f);
+            d.maskEdge = 0.03f;
+            d.maskEdgeColor = new Color(GhostPale.r, GhostPale.g, GhostPale.b, 0.9f);
+            d.wobble = 0.04f;
+            d.wobbleSpeed = 6f;
+            d.flickerRate = 3f;
+            d.flickerAlpha = 0.4f;
+            d.flickerTime = 0.04f;
+            d.glitchRate = 2f;
+            d.glitchBands = 8;
+            d.glitchOffset = 0.05f;
+            d.glitchTime = 0.06f;
+            return d;
+        }
+
+        /// <summary>
+        /// Embudo corto mientras el clon está fuera (After Windup): el mini tornado del Spin Boost tal como lo dejó el usuario
+        /// (máscara de ruido que sube), más bajo y en lila pálido, que se queda en embudo; sin él, uno nuevo con la misma idea.
+        /// </summary>
+        private static ChargeDomeStyle GhostFunnel(ChargeDomeStyle spinDome, Texture2D noise)
+        {
+            ChargeDomeStyle d = spinDome != null ? CloneDome(spinDome) : DefenseCrown();
+            d.timing = DomeTiming.AfterWindup;
+            d.growTime = 0.35f;
+            d.sphere = false;
+            d.radius = 0.85f;
+            d.heightScale = 0.55f;
+            d.startRadius = 0.4f;
+            d.appearFrom = 0f;
+            d.funnelPhase = 1f;
+            d.funnelMorph = 0.2f;
+            d.funnelShape = new Vector3(0.55f, 1.35f, 1.1f);
+            d.topCut = 0.12f;
+            d.shakeFrom = 1f;
+            d.shakeScale = 0f;
+            d.popTime = 0.3f;
+            d.popScale = 1.3f;
+            d.popFall = 0f;
+            d.bodyColor = new Color(GhostLilac.r, GhostLilac.g, GhostLilac.b, 0.3f);
+            d.rimColor = new Color(GhostPale.r, GhostPale.g, GhostPale.b, 0.9f);
+            d.outlineColor = new Color(1f, 1f, 1f, 0.7f);
+            d.swirlColor = new Color(1f, 1f, 1f, 0.7f);
+            d.swirlColor2 = new Color(GhostViolet.r, GhostViolet.g, GhostViolet.b, 0.5f);
+            d.maskEdgeColor = new Color(GhostIce.r, GhostIce.g, GhostIce.b, 0.9f);
+            if (spinDome == null)
+            {
+                d.maskTexture = noise;
+                d.maskAmount = noise != null ? 0.45f : 0.25f;
+                d.maskTiling = Vector2.one;
+                d.maskScroll = new Vector2(0.8f, 2.5f);
+                d.topErode = 0.3f;
+                d.topErodeFrom = 0.4f;
+                d.wobble = 0.03f;
+            }
+            d.flickerEnabled = true;
+            d.flickerRate = 0.6f;
+            d.flickerAlpha = 0.4f;
+            d.flickerTime = 0.05f;
+            d.glitchEnabled = true;
+            d.glitchRate = 0.4f;
+            d.glitchOffset = 0.04f;
+            return d;
+        }
+
+        /// <summary>Carga: humo que se arremolina y se aprieta hacia la peonza, dentro de la burbuja, y un círculo que se cierra.</summary>
+        private static SpiralParticleStyle[] GhostWindup() => WindupOnly(new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Humo que se aprieta", sprite = "VahoFantasma", rate = 32f, radius = new Vector2(0.7f, 0.95f),
+                height = new Vector2(0.05f, 0.8f), tangentialSpeed = new Vector2(2f, 3.5f), outwardSpeed = new Vector2(-2.2f, -1.4f),
+                upSpeed = new Vector2(0f, 0.3f), size = new Vector2(0.35f, 0.55f), lifetime = new Vector2(0.3f, 0.4f),
+                color = GhostPale, color2 = GhostLilac, alpha = 0.8f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos que giran", emitter = VfxType.Sparkle, rate = 25f, radius = new Vector2(0.6f, 0.85f),
+                height = new Vector2(0.1f, 0.8f), tangentialSpeed = new Vector2(3f, 4.5f), outwardSpeed = new Vector2(-1.5f, -0.8f),
+                upSpeed = new Vector2(-0.2f, 0.3f), size = new Vector2(0.08f, 0.12f), lifetime = new Vector2(0.25f, 0.35f),
+                color = Color.white, color2 = GhostIce
+            },
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact04Cierra", 3f, 0.04f, 0.3f, GhostLilac, 0.85f, rate: 7f)
+        });
+
+        /// <summary>Al encenderse, la burbuja revienta: humo hacia fuera, un anillo que se abre en el suelo y destellos.</summary>
+        private static SpiralParticleStyle[] GhostBurst()
+        {
+            SpiralParticleStyle smoke = OutwardSmokeBurst("Humo de la burbuja", "VahoFantasma", GhostPale, GhostLilac);
+            smoke.count = 14;
+            smoke.size = new Vector2(0.5f, 0.8f);
+            smoke.outwardSpeed = new Vector2(2.5f, 4.5f);
+            smoke.upSpeed = new Vector2(0.3f, 1f);
+            smoke.alpha = 0.85f;
+            return new[]
+            {
+                ShockCircle("Anillo", "CircleImpact02Suelo", 4f, 0.03f, 0.35f, GhostLilac, 0.85f),
+                smoke,
+                new SpiralParticleStyle
+                {
+                    name = "Destellos", emitter = VfxType.Sparkle, count = 18, radius = new Vector2(0.4f, 0.7f),
+                    height = new Vector2(0.1f, 0.7f), tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(2.5f, 4.5f),
+                    upSpeed = new Vector2(0.5f, 2f), size = new Vector2(0.1f, 0.16f), lifetime = new Vector2(0.3f, 0.45f),
+                    color = Color.white, color2 = GhostLilac
+                }
+            };
+        }
+
+        /// <summary>
+        /// La bocanada que se desdobla: humo y destellos que salen de la peonza hacia donde aparece el clon (1,6 m a un lado;
+        /// Directional Speed los lleva hasta él en unas dos décimas).
+        /// </summary>
+        private static SpiralParticleStyle[] GhostSplit() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Bocanada hacia el clon", sprite = "VahoFantasma", count = 10, radius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.1f, 0.45f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0f, 0.4f),
+                upSpeed = new Vector2(0f, 0.3f), directionalSpeed = new Vector2(6f, 8.5f), size = new Vector2(0.35f, 0.55f),
+                lifetime = new Vector2(0.25f, 0.35f), color = GhostPale, color2 = GhostLilac, alpha = 0.85f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos hacia el clon", emitter = VfxType.Sparkle, count = 10, radius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0f, 0.5f),
+                upSpeed = new Vector2(-0.2f, 0.4f), directionalSpeed = new Vector2(6.5f, 9f), size = new Vector2(0.08f, 0.13f),
+                lifetime = new Vector2(0.2f, 0.28f), color = Color.white, color2 = GhostIce
+            }
+        };
+
+        /// <summary>Donde aparece el clon: una nube de humo que se abre y algunos destellos.</summary>
+        private static SpiralParticleStyle[] GhostAppear()
+        {
+            SpiralParticleStyle smoke = OutwardSmokeBurst("Nube del clon", "VahoFantasma", GhostPale, GhostLilac);
+            smoke.count = 10;
+            smoke.radius = new Vector2(0.2f, 0.4f);
+            smoke.size = new Vector2(0.45f, 0.7f);
+            smoke.outwardSpeed = new Vector2(1.5f, 3f);
+            smoke.lifetime = new Vector2(0.6f, 0.85f);
+            smoke.alpha = 0.8f;
+            return new[]
+            {
+                smoke,
+                new SpiralParticleStyle
+                {
+                    name = "Destellos del clon", emitter = VfxType.Sparkle, count = 10, radius = new Vector2(0.2f, 0.4f),
+                    height = new Vector2(0.1f, 0.6f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(1.5f, 3f),
+                    upSpeed = new Vector2(0.5f, 1.5f), size = new Vector2(0.08f, 0.13f), lifetime = new Vector2(0.3f, 0.4f),
+                    color = Color.white, color2 = GhostLilac
+                }
+            };
+        }
+
+        /// <summary>Mientras el clon está fuera (la dueña y el clon): espiral de destellos y de humo que sube, más rápida al correr.</summary>
+        private static SpiralParticleStyle[] GhostSwirl() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Espiral de destellos", emitter = VfxType.Sparkle, rate = 30f, ratePerSpeed = 2f, speedPerSpeed = 0.05f,
+                radius = new Vector2(0.45f, 0.6f), height = new Vector2(0f, 0.15f), tangentialSpeed = new Vector2(2.5f, 3.5f),
+                outwardSpeed = new Vector2(-0.3f, -0.1f), upSpeed = new Vector2(0.7f, 1.1f), size = new Vector2(0.07f, 0.11f),
+                lifetime = new Vector2(0.45f, 0.6f), color = Color.white, color2 = GhostLilac
+            },
+            new SpiralParticleStyle
+            {
+                name = "Espiral de humo", sprite = "VahoFantasma", rate = 12f, ratePerSpeed = 1f, speedPerSpeed = 0.05f,
+                radius = new Vector2(0.4f, 0.6f), height = new Vector2(0f, 0.2f), tangentialSpeed = new Vector2(1.5f, 2.5f),
+                outwardSpeed = new Vector2(0f, 0.2f), upSpeed = new Vector2(0.4f, 0.8f), size = new Vector2(0.3f, 0.45f),
+                lifetime = new Vector2(0.6f, 0.8f), color = GhostPale, color2 = GhostViolet, alpha = 0.5f
+            }
+        };
+
+        /// <summary>Rastro de humo bajo: bocanadas a ras de suelo que se quedan atrás y se deshacen despacio, más al correr.</summary>
+        private static SpecialParticleStyle[] GhostLowSmoke() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Rastro de humo bajo", sprite = "VahoSuelo", rate = 5f, ratePerSpeed = 2.5f, spawnRadius = new Vector2(0.15f, 0.45f),
+                height = new Vector2(0f, 0.06f), coneAngle = 90f, speed = new Vector2(0.05f, 0.25f), inheritVelocity = -0.1f,
+                size = new Vector2(0.45f, 0.75f), lifetime = new Vector2(0.9f, 1.3f), color = GhostPale, color2 = GhostLilac,
+                alpha = 0.45f
+            }
+        };
+
+        /// <summary>
+        /// Al chocar (pedido del usuario): una explosión pequeña de humo y destellos que salen hacia el golpe, brillan al salir y
+        /// se apagan enseguida.
+        /// </summary>
+        private static SpiralParticleStyle[] GhostImpact()
+        {
+            SpiralParticleStyle smoke = OutwardSmokeBurst("Humo del golpe", "Vaho", GhostPale, GhostLilac);
+            smoke.count = 6;
+            smoke.radius = new Vector2(0f, 0.15f);
+            smoke.height = new Vector2(0.1f, 0.35f);
+            smoke.outwardSpeed = new Vector2(1f, 2.2f);
+            smoke.size = new Vector2(0.3f, 0.5f);
+            smoke.lifetime = new Vector2(0.45f, 0.65f);
+            smoke.alpha = 0.8f;
+            return new[]
+            {
+                smoke,
+                new SpiralParticleStyle
+                {
+                    name = "Destellos hacia el golpe", emitter = VfxType.Sparkle, count = 12, radius = new Vector2(0f, 0.1f),
+                    height = new Vector2(0.1f, 0.4f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0.3f, 1.2f),
+                    upSpeed = new Vector2(0.3f, 1.5f), directionalSpeed = new Vector2(4f, 7f), size = new Vector2(0.1f, 0.16f),
+                    lifetime = new Vector2(0.15f, 0.28f), color = Color.white, color2 = GhostIce
+                }
+            };
+        }
+
+        /// <summary>
+        /// Al romperse el clon, en la dueña (End Burst): humo que sube, destellos y líneas hacia arriba; después recupera la
+        /// opacidad poco a poco (Body Fade → Recover Time).
+        /// </summary>
+        private static SpiralParticleStyle[] GhostEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Humo que sube", sprite = "VahoFantasma", count = 10, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = new Vector2(0.5f, 1.2f), outwardSpeed = new Vector2(0.2f, 0.5f), upSpeed = new Vector2(2f, 3f),
+                size = new Vector2(0.45f, 0.7f), lifetime = new Vector2(0.8f, 1.1f), color = GhostPale, color2 = GhostLilac, alpha = 0.75f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos que suben", emitter = VfxType.Sparkle, count = 14, radius = new Vector2(0.2f, 0.45f),
+                height = new Vector2(0.1f, 0.4f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(0.3f, 0.8f),
+                upSpeed = new Vector2(2.5f, 4f), size = new Vector2(0.08f, 0.13f), lifetime = new Vector2(0.35f, 0.5f),
+                color = Color.white, color2 = GhostIce
+            },
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", count = 14, radius = new Vector2(0.3f, 0.5f), height = new Vector2(0f, 0.3f),
+                tangentialSpeed = new Vector2(1.5f, 2.5f), outwardSpeed = new Vector2(0.2f, 0.6f), upSpeed = new Vector2(2.5f, 3.5f),
+                size = new Vector2(0.03f, 0.045f), lifetime = new Vector2(0.2f, 0.3f), color = Color.white, color2 = GhostLilac
+            }
+        };
+
+        /// <summary>
+        /// El clon se rompe (al tercer golpe): se deshace en humo y destellos que siguen la inercia que llevaba al recibir el golpe
+        /// (Inherit Velocity) y se frenan.
+        /// </summary>
+        private static SpiralParticleStyle[] GhostVanish() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Humo del clon", sprite = "Vaho", count = 14, radius = new Vector2(0f, 0.35f), height = new Vector2(0.1f, 0.5f),
+                tangentialSpeed = new Vector2(0.3f, 1f), outwardSpeed = new Vector2(0.5f, 1.5f), upSpeed = new Vector2(0.2f, 0.8f),
+                inheritVelocity = 0.8f, size = new Vector2(0.5f, 0.8f), lifetime = new Vector2(0.8f, 1.2f), color = GhostPale,
+                color2 = GhostLilac, alpha = 0.85f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Destellos del clon", emitter = VfxType.Sparkle, count = 12, radius = new Vector2(0f, 0.3f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(0.8f, 2f),
+                upSpeed = new Vector2(0.5f, 1.5f), inheritVelocity = 1f, size = new Vector2(0.08f, 0.13f),
+                lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = GhostIce
+            }
+        };
+
+        /// <summary>
+        /// Al cambiar de sitio con el clon (pedido del usuario, 2026-10-28), en los dos sitios: una explosión de vaho hacia fuera,
+        /// un anillo en el suelo y destellos.
+        /// </summary>
+        private static SpiralParticleStyle[] GhostSwap()
+        {
+            SpiralParticleStyle smoke = OutwardSmokeBurst("Humo del cambio", "VahoFantasma", GhostPale, GhostLilac);
+            smoke.count = 14;
+            smoke.radius = new Vector2(0.1f, 0.35f);
+            smoke.height = new Vector2(0.1f, 0.6f);
+            smoke.outwardSpeed = new Vector2(2f, 4f);
+            smoke.upSpeed = new Vector2(0.3f, 1.2f);
+            smoke.size = new Vector2(0.5f, 0.8f);
+            smoke.lifetime = new Vector2(0.6f, 0.9f);
+            smoke.alpha = 0.85f;
+            return new[]
+            {
+                smoke,
+                ShockCircle("Anillo del cambio", "CircleImpact02Suelo", 3f, 0.03f, 0.3f, GhostLilac, 0.85f),
+                new SpiralParticleStyle
+                {
+                    name = "Destellos del cambio", emitter = VfxType.Sparkle, count = 14, radius = new Vector2(0.2f, 0.4f),
+                    height = new Vector2(0.1f, 0.6f), tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(2f, 3.5f),
+                    upSpeed = new Vector2(0.5f, 2f), size = new Vector2(0.09f, 0.14f), lifetime = new Vector2(0.3f, 0.45f),
+                    color = Color.white, color2 = GhostIce
+                }
+            };
+        }
 
         // Rastro de agua (2026-10-26, decidido con el usuario): azul y cian con espuma blanca
         private static readonly Color WaterBlue = new Color(0.25f, 0.6f, 1f);

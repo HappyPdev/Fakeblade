@@ -114,6 +114,10 @@ namespace FakeBlade.Core.Editor
             // tumbada a ras de suelo, que gira y se frena como por la inercia de la peonza y se queda posada unos instantes
             new DefaultSprite { Id = "Vaho", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.6f, Order = 0, Upright = true, DepthTested = true, FadeIn = 0.25f, FadeOut = 0.6f, Gravity = 0.03f, Drag = 0.3f, Spin = 25f, Max = 256 },
             new DefaultSprite { Id = "VahoSuelo", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 2f, Order = -1, Upright = true, DepthTested = true, Flat = true, FadeIn = 0.2f, FadeOut = 0.6f, Drag = 0.45f, Spin = 40f, Max = 256 },
+            // Humo del Fantasma (2026-10-27, elegido por el usuario: el vaho gusta más que HumoViento, que se deshace a trozos con
+            // su disolución): el mismo vaho de pie, sin gravedad y con poco arrastre (la bocanada tiene que llegar hasta el clon),
+            // que crece al salir y se desvanece
+            new DefaultSprite { Id = "VahoFantasma", GeneratedMist = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.2f, Order = 0, Upright = true, DepthTested = true, FadeIn = 0.2f, FadeOut = 0.6f, GrowIn = 0.3f, Drag = 0.05f, Spin = 30f, Max = 512 },
             // Ceniza (Rayos, 2026-10-18): el pentágono de Impact09 en pixel art (blanco para teñirlo), girado al azar, que sube un
             // poco, cae despacio y se encoge hasta desaparecer
             new DefaultSprite { Id = "Ceniza", CutShard = true, TilesX = 1, TilesY = 1, Frames = 1, Life = 1.6f, Order = 0, DepthTested = true, ShrinkOut = 0.7f, Gravity = 0.12f, Drag = 0.5f, Max = 512 },

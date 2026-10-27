@@ -3935,6 +3935,67 @@ MonoBehaviour:
     groundSplashSize: 0.3
     groundSplashChance: 1
     prefab: {fileID: 814330792365098430, guid: 63ae984f122dcad45993c4685aa14719, type: 3}
+  - id: VahoFantasma
+    texture: {fileID: 2800000, guid: 75441233fbfeabd4db5c4b7dbb83f6dd, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 1.2
+    randomRotation: 0
+    order: 0
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0.05
+    fadeOut: 0.6
+    fadeIn: 0.2
+    shrinkOut: 0
+    growIn: 0.3
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 30
+    maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 7214992934676552528, guid: 03fffe0fb27501040a8122f375aab382, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -4391,6 +4452,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
@@ -4417,6 +4479,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.08, y: 0.12}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
@@ -4443,6 +4506,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.343752, b: 0.10196078, a: 1}
@@ -4469,6 +4533,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2, y: 2}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.35, a: 1}
@@ -4495,6 +4560,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.18, y: 0.28}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
@@ -4521,6 +4587,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 0.85, b: 0.35, a: 1}
@@ -4548,6 +4615,7 @@ MonoBehaviour:
       upSpeed: {x: 0.6, y: 1.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.22, y: 0.36}
       lifetime: {x: 0.22, y: 0.35}
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
@@ -4574,6 +4642,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.08, y: 0.14}
       lifetime: {x: 0.25, y: 0.45}
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
@@ -4600,6 +4669,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
@@ -4626,6 +4696,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4, y: 4}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.35, a: 1}
@@ -4652,6 +4723,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.35, a: 1}
@@ -4678,6 +4750,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.25, y: 0.4}
       lifetime: {x: 1.4, y: 1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -4704,6 +4777,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -4735,6 +4809,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 0.8}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.28, y: 0.4}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
@@ -4761,6 +4836,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.5, y: 0.9}
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
@@ -4787,6 +4863,7 @@ MonoBehaviour:
       upSpeed: {x: 0.8, y: 1.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 1.2, y: 2}
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
@@ -4865,6 +4942,8 @@ MonoBehaviour:
       popFlash: 0.483
       popFall: 0.152
       appearFrom: 0.471
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0.7
       funnelMorph: 0.699
@@ -4939,6 +5018,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5055,6 +5136,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 6
     replaceAura: 1
     tip:
@@ -5224,6 +5321,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.14, y: 0.24}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
@@ -5250,6 +5348,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -5276,6 +5375,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 3}
       lifetime: {x: 0.3, y: 0.3}
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
@@ -5302,6 +5402,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2, y: 2}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5328,6 +5429,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.14, y: 0.22}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
@@ -5354,6 +5456,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.02, y: 0.04}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5381,6 +5484,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.08, y: 0.14}
       lifetime: {x: 0.25, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5407,6 +5511,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 0.8}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.18, y: 0.3}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5433,6 +5538,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1, y: 1.5}
       lifetime: {x: 1, y: 1.6}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -5459,6 +5565,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
@@ -5485,6 +5592,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3.5, y: 3.5}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5511,6 +5619,7 @@ MonoBehaviour:
       upSpeed: {x: 0.4, y: 0.8}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 0.4, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5537,6 +5646,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.35, y: 0.5}
       lifetime: {x: 0.4, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5563,6 +5673,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.2}
       lifetime: {x: 0.9, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5593,6 +5704,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1, y: 1.6}
       lifetime: {x: 1.5, y: 2.2}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -5620,6 +5732,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.09, y: 0.16}
       lifetime: {x: 0.35, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5646,6 +5759,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.2, y: 0.32}
       lifetime: {x: 0.25, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -5672,6 +5786,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.8, y: 1.2}
       lifetime: {x: 0.8, y: 1.3}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -5750,6 +5865,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5824,6 +5941,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -5940,6 +6059,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 4
     replaceAura: 1
     tip:
@@ -6059,6 +6194,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.25, a: 1}
@@ -6085,6 +6221,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6111,6 +6248,7 @@ MonoBehaviour:
       upSpeed: {x: 0.8, y: 1.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.16}
       lifetime: {x: 0.8, y: 2}
       color: {r: 0.21509439, g: 0.20900682, b: 0.20900682, a: 1}
@@ -6138,6 +6276,7 @@ MonoBehaviour:
       upSpeed: {x: 0.6, y: 1.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.22, y: 0.36}
       lifetime: {x: 0.22, y: 0.35}
       color: {r: 1, g: 0.85, b: 0.25, a: 1}
@@ -6164,6 +6303,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.25, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6190,6 +6330,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.22}
       lifetime: {x: 1.2, y: 2}
       color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
@@ -6221,6 +6362,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.25, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6248,6 +6390,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.11}
       lifetime: {x: 0.25, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6274,6 +6417,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.22}
       lifetime: {x: 1.2, y: 2}
       color: {r: 0.08, g: 0.08, b: 0.08, a: 1}
@@ -6351,6 +6495,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -6425,6 +6571,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -6497,6 +6645,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 2
     replaceAura: 1
     tip:
@@ -6629,6 +6793,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6655,6 +6820,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3.6, y: 3.6}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
@@ -6681,6 +6847,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6707,6 +6874,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.25, y: 0.45}
       lifetime: {x: 0.35, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6733,6 +6901,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6760,6 +6929,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 10.5, y: 10.5}
       lifetime: {x: 0.45, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6786,6 +6956,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 8, y: 8}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
@@ -6812,6 +6983,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5.5, y: 5.5}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6838,6 +7010,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 7, y: 7}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
@@ -6864,6 +7037,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 0.7}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.3, y: 1}
       lifetime: {x: 0.4, y: 1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6890,6 +7064,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.3, y: 1}
       lifetime: {x: 1, y: 1.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6916,6 +7091,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -6947,6 +7123,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4, y: 5}
       lifetime: {x: 2, y: 2}
       color: {r: 0.13962269, g: 0.13962269, b: 0.13962269, a: 1}
@@ -6977,6 +7154,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.25, y: 0.45}
       lifetime: {x: 0.35, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7003,6 +7181,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7030,6 +7209,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.4}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7108,6 +7288,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -7182,6 +7364,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -7264,6 +7448,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.7}
       lifetime: {x: 0.45, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7290,6 +7475,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7340,6 +7526,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.3, y: 0.5}
       lifetime: {x: 0.3, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7366,6 +7553,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7380,6 +7568,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 11
     replaceAura: 1
     tip:
@@ -7500,6 +7704,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 10, y: 10}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7526,6 +7731,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
@@ -7552,6 +7758,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 7, y: 7}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.85, g: 1, b: 0.95, a: 1}
@@ -7578,6 +7785,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7604,6 +7812,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.75}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7631,6 +7840,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.5, y: 0.8}
       lifetime: {x: 0.7, y: 0.9}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7661,6 +7871,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.01, y: 0.1}
       lifetime: {x: 0.3, y: 0.6}
       color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
@@ -7687,6 +7898,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 6, y: 6}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7713,6 +7925,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.75}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7740,6 +7953,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7818,6 +8032,8 @@ MonoBehaviour:
       popFlash: 0.6
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.703
       funnelPhase: 0.651
       funnelMorph: 0.386
@@ -7892,6 +8108,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -7973,6 +8191,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 12, y: 12}
       lifetime: {x: 0.45, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -7999,6 +8218,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 9, y: 9}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.4, g: 0.85, b: 0.63, a: 1}
@@ -8025,6 +8245,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 6.5, y: 6.5}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8051,6 +8272,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8077,6 +8299,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.6}
       lifetime: {x: 0.6, y: 1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8103,6 +8326,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.2, y: 0.4}
       lifetime: {x: 1, y: 1.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8130,6 +8354,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.5, y: 0.8}
       lifetime: {x: 0.6, y: 0.8}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8156,6 +8381,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8206,6 +8432,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.5, y: 0.9}
       lifetime: {x: 0.6, y: 0.8}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8232,6 +8459,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.25, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8246,6 +8474,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 14
     replaceAura: 1
     tip:
@@ -8375,6 +8619,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8401,6 +8646,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8427,6 +8673,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8453,6 +8700,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8479,6 +8727,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.025, y: 0.04}
       lifetime: {x: 0.12, y: 0.18}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8505,6 +8754,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8532,6 +8782,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8558,6 +8809,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8584,6 +8836,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8610,6 +8863,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.2, y: 0.6}
       lifetime: {x: 0.4, y: 0.9}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8636,6 +8890,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.2, y: 2.8}
       lifetime: {x: 1.4, y: 1.4}
       color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
@@ -8662,6 +8917,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -8745,6 +9001,8 @@ MonoBehaviour:
       popFlash: 0.083
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.93
       funnelPhase: 1
       funnelMorph: 1
@@ -8819,6 +9077,8 @@ MonoBehaviour:
       popFlash: 0.074
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.85
       funnelPhase: 1
       funnelMorph: 0.2
@@ -8967,6 +9227,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.8, y: 2.8}
       lifetime: {x: 0.25, y: 0.25}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -8993,6 +9254,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.6, y: 2.2}
       lifetime: {x: 0.3, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9021,6 +9283,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.35, y: 0.6}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9047,6 +9310,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -9073,6 +9337,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9147,6 +9412,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.35, y: 0.6}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9173,6 +9439,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -9231,6 +9498,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 12
     replaceAura: 0
     tip:
@@ -9356,6 +9639,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9382,6 +9666,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9408,6 +9693,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9434,6 +9720,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9460,6 +9747,7 @@ MonoBehaviour:
       upSpeed: {x: -6.5, y: -4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.6, y: 3.4}
       lifetime: {x: 0.3, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9486,6 +9774,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.5, y: 1.9}
       lifetime: {x: 0.15, y: 0.2}
       color: {r: 1, g: 0.35, b: 0.45, a: 1}
@@ -9513,6 +9802,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9539,6 +9829,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9565,6 +9856,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9591,6 +9883,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9617,6 +9910,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.9}
       lifetime: {x: 0.7, y: 0.9}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9643,6 +9937,7 @@ MonoBehaviour:
       upSpeed: {x: 7, y: 9}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.22, y: 0.28}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9669,6 +9964,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -9695,6 +9991,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -9778,6 +10075,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -9852,6 +10151,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -10019,6 +10320,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 8.25, y: 8.25}
       lifetime: {x: 0, y: 0}
       color: {r: 1, g: 0.35, b: 0.45, a: 1}
@@ -10045,6 +10347,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.4, y: 1.4}
       lifetime: {x: 0, y: 0}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10073,6 +10376,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 9, y: 9}
       lifetime: {x: 0.5, y: 0.5}
       color: {r: 1, g: 0.35, b: 0.45, a: 1}
@@ -10099,6 +10403,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 9.75, y: 9.75}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10133,6 +10438,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 4.5}
       lifetime: {x: 1.4, y: 1.4}
       color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
@@ -10159,6 +10465,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.8, y: 1.2}
       lifetime: {x: 0.9, y: 1.2}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10185,6 +10492,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.9, y: 1.3}
       lifetime: {x: 1, y: 1.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10211,6 +10519,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.6, y: 2.6}
       lifetime: {x: 0, y: 0}
       color: {r: 1, g: 0.82, b: 0.86, a: 1}
@@ -10237,6 +10546,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10263,6 +10573,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -10289,6 +10600,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1, y: 1.4}
       lifetime: {x: 0.3, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10316,6 +10628,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10342,6 +10655,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -10368,6 +10682,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1, y: 1.4}
       lifetime: {x: 0.3, y: 0.35}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10440,6 +10755,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 0.72, g: 0.72, b: 0.68, a: 1}
@@ -10466,6 +10782,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.35, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10480,6 +10797,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 9
     replaceAura: 1
     tip:
@@ -10644,6 +10977,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 8, y: 8}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10670,6 +11004,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 6, y: 6}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10696,6 +11031,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10722,6 +11058,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.3}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10748,6 +11085,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.03, y: 0.05}
       lifetime: {x: 0.15, y: 0.22}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10774,6 +11112,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10801,6 +11140,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10827,6 +11167,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.2}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10853,6 +11194,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 10, y: 10}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10879,6 +11221,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.3}
       lifetime: {x: 0.8, y: 0.48}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10909,6 +11252,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.8, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -10935,6 +11279,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.15, y: 0.25}
       lifetime: {x: 0.35, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11014,6 +11359,8 @@ MonoBehaviour:
       popFlash: 0.4
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.15
       funnelPhase: 0
       funnelMorph: 0.2
@@ -11088,6 +11435,8 @@ MonoBehaviour:
       popFlash: 1
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.493
       funnelPhase: 0.441
       funnelMorph: 0.667
@@ -11168,6 +11517,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.2}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 1, g: 0.85, b: 0.94, a: 1}
@@ -11194,6 +11544,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.3}
       lifetime: {x: 0.8, y: 0.62}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11220,6 +11571,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.42}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11246,6 +11598,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 7, y: 7}
       lifetime: {x: 0.6, y: 0.6}
       color: {r: 1, g: 0.45, b: 0.75, a: 1}
@@ -11274,6 +11627,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 4}
       lifetime: {x: 0.3, y: 0.35}
       color: {r: 0.9622642, g: 0.753471, b: 0.9480458, a: 1}
@@ -11300,6 +11654,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.6, y: 1.6}
       lifetime: {x: 0, y: 0}
       color: {r: 1, g: 0.85, b: 0.94, a: 1}
@@ -11326,6 +11681,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.08}
       lifetime: {x: 0.3, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11354,6 +11710,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.35, y: 0.55}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11414,6 +11771,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 3
     replaceAura: 1
     tip:
@@ -11524,6 +11897,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4, y: 4}
       lifetime: {x: 0.6, y: 0.6}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
@@ -11550,6 +11924,7 @@ MonoBehaviour:
       upSpeed: {x: 7, y: 6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.03, y: 0.05}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11576,6 +11951,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.09, y: 0.08}
       lifetime: {x: 0.45, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11602,6 +11978,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.5, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11629,6 +12006,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
@@ -11655,6 +12033,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11681,6 +12060,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.3, y: 0.4}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11707,6 +12087,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.4, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11737,6 +12118,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.9}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11763,6 +12145,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 0.3, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11789,6 +12172,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.07}
       lifetime: {x: 0.4, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11815,6 +12199,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 4.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.05}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11841,6 +12226,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.3, y: 0.4}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
@@ -11870,6 +12256,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.09}
       lifetime: {x: 0.3, y: 0.45}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11896,6 +12283,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.1, y: 1.4}
       lifetime: {x: 0.25, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -11972,6 +12360,8 @@ MonoBehaviour:
       popFlash: 0.5
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
@@ -12046,6 +12436,8 @@ MonoBehaviour:
       popFlash: 0.6
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0.383
       funnelPhase: 1
       funnelMorph: 0.2
@@ -12126,6 +12518,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.08}
       lifetime: {x: 0.3, y: 0.6}
       color: {r: 0.51886785, g: 0.73851526, b: 1, a: 1}
@@ -12152,6 +12545,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 0
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.3}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12178,6 +12572,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.1}
       lifetime: {x: 0.5, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12204,6 +12599,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 6, y: 6}
       lifetime: {x: 0.8, y: 0.8}
       color: {r: 0.82, g: 0.9, b: 1, a: 1}
@@ -12222,6 +12618,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 13
     replaceAura: 0
     tip:
@@ -12386,6 +12798,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3.5, y: 3.5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12412,6 +12825,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.6, y: 2.6}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.5, g: 0.95, b: 1, a: 1}
@@ -12438,6 +12852,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 1.2, y: 1.6}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12464,6 +12879,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.6}
       lifetime: {x: 0.4, y: 0.55}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12490,6 +12906,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.35, y: 0.55}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12517,6 +12934,7 @@ MonoBehaviour:
       upSpeed: {x: 4, y: 6.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 1.3, y: 1.7}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12543,6 +12961,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 1, y: 1.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12569,6 +12988,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4, y: 4}
       lifetime: {x: 0.45, y: 0.45}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12595,6 +13015,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 2.6, y: 2.6}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 0.5, g: 0.95, b: 1, a: 1}
@@ -12621,6 +13042,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12651,6 +13073,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 0.9}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12677,6 +13100,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.07}
       lifetime: {x: 1, y: 1.3}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12704,6 +13128,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 6}
       directionalSpeed: {x: 1.5, y: 3.5}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.08, y: 0.12}
       lifetime: {x: 1.5, y: 1.9}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12730,6 +13155,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 3}
       directionalSpeed: {x: 2, y: 4}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 1, y: 1.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12756,6 +13182,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 0.8}
       directionalSpeed: {x: 0.5, y: 1}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.6}
       lifetime: {x: 0.6, y: 0.9}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -12782,6 +13209,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.6, y: 1.6}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -12860,6 +13288,8 @@ MonoBehaviour:
       popFlash: 0.15
       popFall: 1
       appearFrom: 0.6
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
@@ -12934,6 +13364,8 @@ MonoBehaviour:
       popFlash: 0.15
       popFall: 1
       appearFrom: 0.6
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
@@ -13014,6 +13446,7 @@ MonoBehaviour:
       upSpeed: {x: -0.5, y: 0.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 1.2, y: 1.5}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -13040,6 +13473,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4, y: 4}
       lifetime: {x: 6, y: 6}
       color: {r: 0.25, g: 0.6, b: 1, a: 1}
@@ -13066,6 +13500,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.7, y: 1}
       lifetime: {x: 1, y: 1.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13092,6 +13527,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4.5, y: 4.5}
       lifetime: {x: 1.5, y: 1.5}
       color: {r: 0.85, g: 0.97, b: 1, a: 1}
@@ -13154,6 +13590,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   - type: 1
     replaceAura: 1
     tip:
@@ -13162,22 +13614,22 @@ MonoBehaviour:
       tilesX: 6
       tilesY: 2
       firstFrame: 0
-      frames: 7
+      frames: 12
       cycle: 0.5
       size: 1.5
-      scale: {x: 1.4, y: 0.32}
+      scale: {x: 1.13, y: 0.32}
       height: 0.03
       alpha: 0.9
       lighten: 0.026
       fade: {x: 0, y: 0}
       cups:
       - angle: 0
-        spinSpeed: 320
-        scale: {x: 0.6, y: 2.33}
+        spinSpeed: 640
+        scale: {x: 0.9, y: 2.33}
         playerColor: 0
         color: {r: 1, g: 1, b: 1, a: 0.9019608}
-      - angle: 120
-        spinSpeed: -260
+      - angle: 60
+        spinSpeed: 360
         scale: {x: 1.3, y: 0.8}
         playerColor: 0
         color: {r: 0.5571734, g: 0.6981132, b: 0.6135493, a: 0.9137255}
@@ -13301,6 +13753,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 4.5, y: 4.5}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13327,6 +13780,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 8, y: 8}
       lifetime: {x: 0.3, y: 0.3}
       color: {r: 0.8, g: 1, b: 0.88, a: 1}
@@ -13353,6 +13807,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13380,6 +13835,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 7, y: 7}
       lifetime: {x: 0.5, y: 0.5}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13406,6 +13862,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 3.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.02, y: 0.05}
       lifetime: {x: 0.8, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13432,6 +13889,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.18}
       lifetime: {x: 0.5, y: 0.7}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13458,6 +13916,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.1}
       lifetime: {x: 1.02, y: 0.6}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13484,6 +13943,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.7}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13514,6 +13974,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 2.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.025, y: 0.01}
       lifetime: {x: 0.9, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13540,6 +14001,7 @@ MonoBehaviour:
       upSpeed: {x: 1.2, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.7, y: 0.35}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13566,6 +14028,7 @@ MonoBehaviour:
       upSpeed: {x: 0.8, y: 1.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.15}
       lifetime: {x: 0.7, y: 0.9}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13593,6 +14056,7 @@ MonoBehaviour:
       upSpeed: {x: 3, y: 6}
       directionalSpeed: {x: 1.5, y: 3.5}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.08, y: 0.12}
       lifetime: {x: 1.5, y: 1.9}
       color: {r: 0.8, g: 1, b: 0.88, a: 1}
@@ -13619,6 +14083,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 3}
       directionalSpeed: {x: 2, y: 4}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 1, y: 1.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13645,6 +14110,7 @@ MonoBehaviour:
       upSpeed: {x: -2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.06}
       lifetime: {x: 0.14, y: 0.2}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13671,6 +14137,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 1.6, y: 1.6}
       lifetime: {x: 0.35, y: 0.35}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13749,6 +14216,8 @@ MonoBehaviour:
       popFlash: 0.483
       popFall: 0.152
       appearFrom: 0.471
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0.735
       funnelMorph: 0.483
@@ -13823,6 +14292,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -13866,7 +14337,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
-    domeWhileActive: 0
+    domeWhileActive: 1
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -13903,6 +14374,7 @@ MonoBehaviour:
       upSpeed: {x: 2.5, y: 3.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.035, y: 0.05}
       lifetime: {x: 0.2, y: 0.3}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -13929,6 +14401,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 2.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.15}
       lifetime: {x: 0.7, y: 0.9}
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
@@ -13955,6 +14428,7 @@ MonoBehaviour:
       upSpeed: {x: 0.8, y: 1.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.6}
       lifetime: {x: 0.8, y: 1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14033,6 +14507,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.16}
       lifetime: {x: 0.7, y: 0.8}
       color: {r: 0.62, g: 0.62, b: 0.62, a: 1}
@@ -14059,6 +14534,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.05, y: 0.08}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 0.62, g: 0.62, b: 0.62, a: 1}
@@ -14069,6 +14545,982 @@ MonoBehaviour:
     burstRibbon: 1
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
+  - type: 7
+    replaceAura: 1
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 6f86cb2daf63a0d489a1f08984d1a72d, type: 2}
+      tilesX: 1
+      tilesY: 1
+      firstFrame: 0
+      frames: 9
+      cycle: 0.7
+      size: 1.8
+      scale: {x: 1, y: 0.6}
+      height: 0.03
+      alpha: 0.657
+      lighten: 0.148
+      fade: {x: 0.1, y: 0.2}
+      cups:
+      - angle: 0
+        spinSpeed: -444
+        scale: {x: 1.03, y: 0.4}
+        playerColor: 0
+        color: {r: 0.66710687, g: 0.56796724, b: 0.90943396, a: 1}
+      - angle: 0
+        spinSpeed: 444
+        scale: {x: 0.98, y: 0.6}
+        playerColor: 0
+        color: {r: 0.66710687, g: 0.56796724, b: 0.90943396, a: 1}
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.8, g: 0.85, b: 1, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.25
+      baseFlash: 0
+      pulseRim: {x: 0.4, y: 0.9}
+      pulseFlash: {x: 0, y: 0.05}
+      pulseInterval: {x: 0.25, y: 0.6}
+      pulseDecay: 0.3
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Rastro de humo bajo
+      emitter: 19
+      sprite: VahoSuelo
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 5
+      ratePerSpeed: 2.5
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.15, y: 0.45}
+      height: {x: 0, y: 0.06}
+      coneAngle: 90
+      speed: {x: 0.05, y: 0.25}
+      inheritVelocity: -0.1
+      size: {x: 0.45, y: 0.75}
+      lifetime: {x: 0.9, y: 1.3}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.45
+      powerTint: 0
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: Humo que se aprieta
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 32
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 5, y: 3}
+      height: {x: 0.05, y: 0.2}
+      tangentialSpeed: {x: 2, y: 3.5}
+      outwardSpeed: {x: -4, y: -7}
+      upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.35, y: 0.55}
+      lifetime: {x: 0.3, y: 0.7}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Destellos que giran
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 25
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 3, y: 2}
+      height: {x: 1.5, y: 0.8}
+      tangentialSpeed: {x: 3, y: 4.5}
+      outwardSpeed: {x: -4, y: -2}
+      upSpeed: {x: -0.2, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.4, y: 0.12}
+      lifetime: {x: 0.7, y: 1.2}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.82, g: 0.96, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 7
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.04, y: 0.04}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 7, y: 7}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.8, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0
+    activationBurst:
+    - name: Anillo
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 8, y: 8}
+      lifetime: {x: 0.45, y: 0.45}
+      color: {r: 0.8, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo de la burbuja
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.2, y: 0.3}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 2.5, y: 4.5}
+      upSpeed: {x: 0.3, y: 0.4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.2, y: 0.6}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.5, y: 2}
+      height: {x: 0.1, y: 0.7}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 2.5, y: 4.5}
+      upSpeed: {x: 0.5, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.1, y: 0.4}
+      lifetime: {x: 0.6, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    visualWindupTime: 0
+    visualWindupDomesOnly: 0
+    swirl:
+    - name: Espiral de destellos
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 30
+      ratePerSpeed: 2
+      speedPerSpeed: 0.05
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.45, y: 0.6}
+      height: {x: 0, y: 0.15}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: -0.3, y: -0.1}
+      upSpeed: {x: 0.7, y: 1.1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.07, y: 0.2}
+      lifetime: {x: 0.45, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Espiral de humo
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 12
+      ratePerSpeed: 1
+      speedPerSpeed: 0.05
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 1.5, y: 2.5}
+      outwardSpeed: {x: 0, y: 0.2}
+      upSpeed: {x: 0.4, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.3, y: 0.45}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.74, g: 0.7, b: 1, a: 1}
+      alpha: 0.5
+      windupOnly: 0
+      powerTint: 0
+    impact:
+    - name: Humo del golpe
+      emitter: 15
+      sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 9
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.1, y: 0.35}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 1, y: 2.2}
+      upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 10
+      size: {x: 1.2, y: 0.5}
+      lifetime: {x: 0.45, y: 0.9}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos hacia el golpe
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0, y: 0.1}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 1, y: 3}
+      outwardSpeed: {x: 0.3, y: 1.2}
+      upSpeed: {x: 0.3, y: 1.5}
+      directionalSpeed: {x: 4, y: 7}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.3, y: 0.16}
+      lifetime: {x: 0.7, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.7134876, g: 0.6749804, b: 0.7660377, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    strongImpact: []
+    guardHit: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1.3
+      heightScale: 0.7
+      height: -0.5
+      growEase: 2
+      bodyColor: {r: 0.93, g: 0.95, b: 1, a: 0.24}
+      rimColor: {r: 0.8, g: 0.85, b: 1, a: 0.9}
+      outlineColor: {r: 0.55, g: 0.55, b: 0.65, a: 0.8}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.7}
+      swirlColor2: {r: 0.74, g: 0.7, b: 1, a: 0.5}
+      rimWidth: 0.16
+      outlineWidth: 0.04
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 1}
+      linesSpeed: 1.1
+      linesTwist: 0.3
+      axisTilt: 35
+      axisPrecess: 0.25
+      swirlLines: 0
+      swirlTwist: 0
+      swirlSpeed: 0
+      swirlWidth: 0
+      shakeFrom: 0.6
+      shakeScale: 0.06
+      shakeRate: 20
+      popTime: 0.25
+      popScale: 1.6
+      popFlash: 0.7
+      popFall: 0
+      appearFrom: 0
+      timing: 1
+      growTime: 0.3
+      startRadius: 0.25
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+      sphere: 1
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.92, b: 0.97, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: 830ebc02c18ce0a45a520166a99bc7dd, type: 3}
+      maskAmount: 0.18
+      maskTiling: {x: 1.97, y: 1}
+      maskScroll: {x: 2, y: 3}
+      maskEdge: 0.03
+      maskEdgeColor: {r: 0.93, g: 0.95, b: 1, a: 0.9}
+      topErodeEnabled: 0
+      topErode: 0
+      topErodeFrom: 0.99
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 6
+      flickerEnabled: 1
+      flickerRate: 3
+      flickerAlpha: 0.4
+      flickerTime: 0.04
+      glitchEnabled: 1
+      glitchRate: 2
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.06
+    baseDome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 0.85
+      heightScale: 0.55
+      height: 0
+      growEase: 2
+      bodyColor: {r: 0.8, g: 0.85, b: 1, a: 0.3}
+      rimColor: {r: 0.93, g: 0.95, b: 1, a: 0.9}
+      outlineColor: {r: 1, g: 1, b: 1, a: 0.7}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.7}
+      swirlColor2: {r: 0.74, g: 0.7, b: 1, a: 0.5}
+      rimWidth: 0.37
+      outlineWidth: 0.261
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 2}
+      linesSpeed: 1.2
+      linesTwist: 0.15
+      axisTilt: 0
+      axisPrecess: 0.8
+      swirlLines: 5
+      swirlTwist: 0.6
+      swirlSpeed: 1.5
+      swirlWidth: 0.18
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.3
+      popScale: 1.3
+      popFlash: 0.483
+      popFall: 0
+      appearFrom: 0
+      timing: 2
+      growTime: 0.35
+      startRadius: 0.4
+      funnelPhase: 1
+      funnelMorph: 0.2
+      funnelShape: {x: 0.55, y: 1.35, z: 1.1}
+      topCut: 0.12
+      topSpikes: 11
+      topSpikesSpeed: 0.96
+      insideAlpha: 1
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: b3662b4bd0b8870459e87e5423e87cdd, type: 3}
+      maskAmount: 0.491
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 1.05, y: 3.19}
+      maskEdge: 0.023
+      maskEdgeColor: {r: 0.82, g: 0.96, b: 1, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0.3
+      topErodeFrom: 0.409
+      holePulseEnabled: 0
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0.033
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 1
+      flickerRate: 0.6
+      flickerAlpha: 0.4
+      flickerTime: 0.05
+      glitchEnabled: 1
+      glitchRate: 0.4
+      glitchBands: 8
+      glitchOffset: 0.04
+      glitchTime: 0.08
+    domeWhileActive: 0
+    rush: []
+    spiralTrail:
+      material: {fileID: 0}
+      onlyWhileRushing: 1
+      strands: 2
+      radius: 0.55
+      turnsPerSecond: 3
+      height: 0.3
+      width: 0.09
+      tailWidth: 0.3
+      time: 0.35
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      tailAlpha: 0
+      powerTint: {x: 0, y: 1}
+    targetMark: []
+    endBurst:
+    - name: Humo que sube
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0.5, y: 1.2}
+      outwardSpeed: {x: 0.2, y: 0.5}
+      upSpeed: {x: 2, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.45, y: 0.7}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.75
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos que suben
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.2, y: 0.45}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 0.3, y: 0.8}
+      upSpeed: {x: 2.5, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.13}
+      lifetime: {x: 0.35, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.82, g: 0.96, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que suben"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 1.5, y: 2.5}
+      outwardSpeed: {x: 0.2, y: 0.6}
+      upSpeed: {x: 2.5, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.045}
+      lifetime: {x: 0.2, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail: []
+    hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
+    whileLingering: 1
+    cloneEffects: 1
+    cloneSplit:
+    - name: Bocanada hacia el clon
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.1, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.4}
+      upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 6, y: 8.5}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.35, y: 0.55}
+      lifetime: {x: 0.25, y: 0.35}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos hacia el clon
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.5}
+      upSpeed: {x: -0.2, y: 0.4}
+      directionalSpeed: {x: 6.5, y: 9}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.13}
+      lifetime: {x: 0.2, y: 0.28}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.82, g: 0.96, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    cloneAppear:
+    - name: Nube del clon
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.45, y: 0.7}
+      lifetime: {x: 0.6, y: 0.85}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos del clon
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.13}
+      lifetime: {x: 0.3, y: 0.4}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    cloneVanish:
+    - name: Humo del clon
+      emitter: 15
+      sprite: Vaho
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0, y: 0.35}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0.3, y: 1}
+      outwardSpeed: {x: 0.5, y: 1.5}
+      upSpeed: {x: 0.2, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0.8
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.8, y: 1.2}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos del clon
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0, y: 0.3}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 0.8, y: 2}
+      upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 1
+      size: {x: 0.08, y: 0.13}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.82, g: 0.96, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    swapBurst:
+    - name: Humo del cambio
+      emitter: 15
+      sprite: VahoFantasma
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.1, y: 0.35}
+      height: {x: 0.1, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: 0.3, y: 1.2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 0.93, g: 0.95, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Anillo del cambio
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3, y: 3}
+      lifetime: {x: 0.3, y: 0.3}
+      color: {r: 0.8, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 0
+      powerTint: 0
+    - name: Destellos del cambio
+      emitter: 20
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 2, y: 3.5}
+      upSpeed: {x: 0.5, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.09, y: 0.14}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.82, g: 0.96, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    bodyFade:
+      enabled: 1
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   genericSpecialEffects:
     type: 0
     replaceAura: 0
@@ -14180,6 +15632,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14206,6 +15659,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 3, y: 3}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14232,6 +15686,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.06, y: 0.09}
       lifetime: {x: 0.25, y: 0.32}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14258,6 +15713,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.4, y: 0.65}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14285,6 +15741,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 5, y: 5}
       lifetime: {x: 0.4, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14311,6 +15768,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.18, y: 0.26}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14337,6 +15795,7 @@ MonoBehaviour:
       upSpeed: {x: 0, y: 0.3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.45, y: 0.7}
       lifetime: {x: 0.4, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14363,6 +15822,7 @@ MonoBehaviour:
       upSpeed: {x: 0.2, y: 0.6}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.6, y: 1}
       lifetime: {x: 0.8, y: 1.1}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -14446,6 +15906,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -14520,6 +15982,8 @@ MonoBehaviour:
       popFlash: 0.8
       popFall: 0
       appearFrom: 0
+      timing: 0
+      growTime: 0.3
       startRadius: 0
       funnelPhase: 0
       funnelMorph: 0.2
@@ -14636,6 +16100,22 @@ MonoBehaviour:
     burstRibbon: 0
     ribbonPowerColor: 1
     ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
   useGenericSpecialEffects: 0
   burn:
     enabled: 1
@@ -14799,6 +16279,7 @@ MonoBehaviour:
       upSpeed: {x: 1.5, y: 3}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.12, y: 0.2}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 1, g: 0.85, b: 0.3, a: 1}
@@ -14825,6 +16306,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 3.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.1}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
@@ -14871,6 +16353,7 @@ MonoBehaviour:
       upSpeed: {x: 2, y: 4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 0.4, y: 0.7}
       color: {r: 1, g: 0.95, b: 0.6, a: 1}
@@ -14897,6 +16380,7 @@ MonoBehaviour:
       upSpeed: {x: 0.6, y: 1.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 1, y: 1.6}
       color: {r: 0.25, g: 0.23, b: 0.22, a: 1}
@@ -15036,6 +16520,7 @@ MonoBehaviour:
       upSpeed: {x: 0.1, y: 0.4}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.1, y: 0.18}
       lifetime: {x: 0.4, y: 0.7}
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
@@ -15064,6 +16549,7 @@ MonoBehaviour:
       upSpeed: {x: 0.5, y: 1.2}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.07, y: 0.12}
       lifetime: {x: 0.3, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -15090,6 +16576,7 @@ MonoBehaviour:
       upSpeed: {x: 0.3, y: 1}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.16, y: 0.26}
       lifetime: {x: 0.25, y: 0.4}
       color: {r: 1, g: 1, b: 1, a: 1}
@@ -15231,6 +16718,7 @@ MonoBehaviour:
       upSpeed: {x: 1, y: 2.5}
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
+      inheritVelocity: 0
       size: {x: 0.04, y: 0.07}
       lifetime: {x: 0.25, y: 0.5}
       color: {r: 1, g: 1, b: 1, a: 1}

@@ -28,6 +28,9 @@ namespace FakeBlade.Core.Editor
 
         private enum Convert { None, White, LumaToAlpha }
 
+        /// <summary>Cruz blanca de Status and Auras FREE (Matthew Guz; fuera del repo): las de la curación del Spin Boost.</summary>
+        private const string CrossTexturePath = "Assets/ThirdParty/VFX/Status and Auras FREE/Textures/3-Cross.png";
+
         private struct DefaultSprite
         {
             public string Id, Texture;
@@ -60,6 +63,8 @@ namespace FakeBlade.Core.Editor
             public bool SmokeColors;
             /// <summary>Dibujada por el usuario en la carpeta de impactos (Grieta00-03): se usa tal cual, importada como pixel art.</summary>
             public string UserDrawn;
+            /// <summary>Ruta completa de una textura de otro paquete, tal cual (la cruz de Status and Auras FREE, fuera del repo).</summary>
+            public string AssetPath;
             /// <summary>Cada partícula, un dibujo de la hoja al azar, sin animar.</summary>
             public bool RandomFrame;
             public float FadeIn, FadeOut, Gravity, Drag, Spin, ShrinkOut, GrowIn, Stretch;
@@ -167,7 +172,13 @@ namespace FakeBlade.Core.Editor
             // pixel, que cae con bastante gravedad, se estira al ir deprisa y, al tocar el suelo, desaparece con un plic (la
             // salpicadura pixel de Wallcoeur, LiquidPixel); y la mancha de agua de los charcos, tumbada en el suelo
             new DefaultSprite { Id = "Gota", Generated = "Gota", TilesX = 1, TilesY = 1, Frames = 1, Life = 1.4f, Order = 1, Upright = true, DepthTested = true, FadeOut = 0.15f, Gravity = 1.6f, Stretch = 0.02f, Max = 1024, GroundSplash = "Plic", GroundSplashSize = 0.3f },
+            // Brillos sobre los charcos (2026-10-26): la misma gota, quieta (sin gravedad ni plic), que aparece y se apaga
+            new DefaultSprite { Id = "GotaBrillo", Generated = "Gota", TilesX = 1, TilesY = 1, Frames = 1, Life = 0.6f, Order = 1, Upright = true, DepthTested = true, FadeIn = 0.3f, FadeOut = 0.5f, Max = 1024 },
             new DefaultSprite { Id = "Plic", Texture = "LiquidPixel", TilesX = 3, TilesY = 3, Frames = 9, Life = 0.3f, Order = 1, Upright = true, DepthTested = true, Max = 512 },
+            // Spin Boost (K8, 2026-10-26): la cruz de Status and Auras FREE (blanca, para teñirla; elegida por el usuario). Una
+            // que sube y aparece y se apaga (curación) y otra que cae con gravedad, girando (al cortarse la curación)
+            new DefaultSprite { Id = "Cruz", AssetPath = CrossTexturePath, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, Upright = true, DepthTested = true, FadeIn = 0.15f, FadeOut = 0.4f, Max = 512 },
+            new DefaultSprite { Id = "CruzCae", AssetPath = CrossTexturePath, TilesX = 1, TilesY = 1, Frames = 1, Life = 0.8f, Order = 1, DepthTested = true, FadeOut = 0.4f, ShrinkOut = 0.5f, Gravity = 1.2f, Spin = 360f, Max = 128 },
             new DefaultSprite { Id = "Charco", Generated = "Charco", TilesX = 1, TilesY = 1, Frames = 1, Life = 3f, Order = -1, DepthTested = true, Flat = true, FadeIn = 0.1f, FadeOut = 0.4f, Max = 400 },
         };
 
@@ -300,6 +311,7 @@ namespace FakeBlade.Core.Editor
         #region Texturas
         private static Texture2D GetTexture(DefaultSprite d)
         {
+            if (!string.IsNullOrEmpty(d.AssetPath)) return AssetDatabase.LoadAssetAtPath<Texture2D>(d.AssetPath);
             if (!string.IsNullOrEmpty(d.CodeManu)) return FakeBladeTrailSetup.CodeManuSheet(d.CodeManu);
             if (d.GeneratedScorch) return ScorchTexture();
             if (d.GeneratedMist) return MistTexture();

@@ -460,6 +460,11 @@ namespace FakeBlade.Core
         [Tooltip("Otra cúpula a la vez, por delante de la primera (Embestida: cilindro bajo en la base con una Zbam). Sin " +
                  "material = no sale")]
         public ChargeDomeStyle baseDome = new ChargeDomeStyle();
+        [Tooltip("Las cúpulas salen todo el tiempo que dura el poder (2026-10-27; Fuego, Spin Boost...): crecen en la carga del " +
+                 "principio y se quedan hasta que termina, cuando el poder no las está usando para lo suyo. Apagado, solo salen en " +
+                 "su momento (la carga de Onda de choque, el Salto o cada embestida; mientras atrae el Tornado). Con Onda de choque " +
+                 "o Embestida, mejor apagado: entre cargas se quedaría entera")]
+        public bool domeWhileActive;
         [Header("Arrancada (Embestida, mientras embiste; Salto, mientras vuela)")]
         [Tooltip("Partículas solo mientras arranca (Embestida: media luna de aire delante, trozos de suelo y Zbam detrás). Con " +
                  "Align To Motion y Forward Offset se colocan y giran según la marcha")]
@@ -490,6 +495,22 @@ namespace FakeBlade.Core
         public List<SpecialParticleStyle> hitTrail = new List<SpecialParticleStyle>();
         [Tooltip("Segundos que deja la estela tras cada golpe")]
         [Min(0f)] public float hitTrailTime = 0.4f;
+        [Header("Sobre los charcos (Rastro de agua, 2026-10-26)")]
+        [Tooltip("Partículas sobre cada charco mientras siga mojado, aunque el poder ya haya terminado. Rate y los chasquidos " +
+                 "son por charco: los grandes (el del final) emiten más, según su área (hasta 8 veces), y por todo el charco " +
+                 "(Spawn Radius crece con él); más tenues al secarse. Si hay alguna, sustituyen a los destellos cuadrados de antes")]
+        public List<SpecialParticleStyle> puddles = new List<SpecialParticleStyle>();
+        [Header("Curación (Spin Boost, 2026-10-26)")]
+        [Tooltip("Cuando un golpe corta la curación del poder mientras dura (las partículas con Only While Healing dejan de " +
+                 "salir): cruces grises que se rompen y caen. Usa Count, no Rate")]
+        public List<SpiralParticleStyle> healCutBurst = new List<SpiralParticleStyle>();
+        [Header("Cinta del acelerón (Spin Boost, 2026-10-26)")]
+        [Tooltip("La cinta del acelerón de ataques y dash (Ribbon Trail → Acelerón) sale todo el tiempo que dura el poder")]
+        public bool burstRibbon;
+        [Tooltip("Mientras dura el poder, esa cinta con el color del poder en vez del del jugador")]
+        public bool ribbonPowerColor = true;
+        [Tooltip("Lo que dura cada punto de esa cinta mientras dura el poder (s; 0 = lo normal): menos = rastro más corto")]
+        [Min(0f)] public float ribbonTime = 0.15f;
     }
 
     /// <summary>
@@ -896,6 +917,14 @@ namespace FakeBlade.Core
         public float forwardOffset;
         [Tooltip("Remolino: partículas por segundo mientras dura la carga")]
         [Min(0f)] public float rate = 100f;
+        [Tooltip("Remolino: partículas por segundo de más por cada m/s de la peonza (0 = igual parada que corriendo). Spin " +
+                 "Boost: el tornado se espesa al correr (2026-10-26)")]
+        [Min(0f)] public float ratePerSpeed;
+        [Tooltip("Velocidad de giro y de subida de más por cada m/s de la peonza (0,08 = +8% por m/s). Spin Boost: el tornado " +
+                 "gira y sube más deprisa al correr")]
+        [Min(0f)] public float speedPerSpeed;
+        [Tooltip("Solo mientras el poder cura (Spin Boost: las cruces dejan de salir cuando un golpe corta la curación)")]
+        public bool onlyWhileHealing;
         [Tooltip("Explosión al encenderse o choque: partículas de golpe (repartidas alrededor)")]
         [Min(0)] public int count = 40;
         [Tooltip("Distancia al centro a la que salen (m), al azar entre x e y")]
@@ -957,6 +986,8 @@ namespace FakeBlade.Core
         [Tooltip("Partículas por segundo de más por cada m/s de la peonza (0 = igual parada que corriendo). Rastro de agua: " +
                  "salpica más cuanto más deprisa va (2026-10-26)")]
         [Min(0f)] public float ratePerSpeed;
+        [Tooltip("Solo mientras el poder cura (Spin Boost: las cruces dejan de salir cuando un golpe corta la curación)")]
+        public bool onlyWhileHealing;
         [Tooltip("Tiempo entre chasquidos (s), al azar entre x e y (0 = sin chasquidos)")]
         public Vector2 burstInterval = Vector2.zero;
         [Tooltip("Partículas de cada chasquido, al azar entre x e y")]

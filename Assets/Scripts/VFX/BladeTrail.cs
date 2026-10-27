@@ -9,7 +9,8 @@ namespace FakeBlade.Core
     /// - Cuanto más rápido va la peonza, más larga es la cinta, más ancha, más opaca y (con pixel art) más rápida la
     ///   animación.
     /// - Acelerón (burst = true): una segunda cinta igual, más ancha (burstWidthScale), que solo sale durante el acelerón
-    ///   de ataques y dash y se suma a la normal.
+    ///   de ataques y dash y se suma a la normal; también mientras dura un poder con Burst Ribbon (Spin Boost), corta y
+    ///   del color del poder.
     /// - Los valores se leen cada frame de la biblioteca: se pueden ajustar en Play desde el Inspector.
     ///
     /// Clase C# pura que posee FakeBladeController. El objeto y su material se crean una vez, la primera vez que se
@@ -65,8 +66,17 @@ namespace FakeBlade.Core
             float speed = Mathf.Sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
             float t = Mathf.InverseLerp(style.speedRange.x, style.speedRange.y, speed);
 
+            // La del acelerón, también mientras dura un poder que la pide (Spin Boost, 2026-10-26: corta y de su color)
+            SpecialVfxStyle power = null;
+            SpecialAbilitySystem special = _blade.Special;
+            if (_burst && special != null && special.IsActive && !special.IsInCommonWindup)
+            {
+                power = lib.GetSpecialEffects(special.Type);
+                if (power != null && !power.burstRibbon) power = null;
+            }
+
             bool emit = ShowRibbon && !_blade.IsDestroyed && (_burst
-                ? _blade.IsBursting
+                ? _blade.IsBursting || power != null
                 : speed >= style.speedRange.x * (_trail.emitting ? StopSpeedFraction : 1f));
             _trail.emitting = emit;
 
@@ -74,7 +84,7 @@ namespace FakeBlade.Core
             Vector3 pos = _blade.Position;
             _transform.position = new Vector3(pos.x, pos.y + tipOffset + style.height, pos.z);
             _trail.alignment = style.flat ? LineAlignment.TransformZ : LineAlignment.View;
-            _trail.time = Mathf.Lerp(style.time.x, style.time.y, t);
+            _trail.time = power != null && power.ribbonTime > 0f ? power.ribbonTime : Mathf.Lerp(style.time.x, style.time.y, t);
             _trail.widthMultiplier = Mathf.Lerp(style.width.x, style.width.y, t) * (_burst ? style.burstWidthScale : 1f);
             if (style.tailWidth != _tailWidth)
             {
@@ -83,7 +93,7 @@ namespace FakeBlade.Core
                 _trail.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, _tailWidth);
             }
 
-            Color color = _blade.OwnerColor;
+            Color color = power != null && power.ribbonPowerColor ? special.Color : _blade.OwnerColor;
             if (style.lighten > 0f) color = Color.Lerp(color, Color.white, style.lighten);
             color.a = Mathf.Lerp(style.alpha.x, style.alpha.y, t) * (_burst ? style.burstAlphaScale : 1f);
             _trail.startColor = color;

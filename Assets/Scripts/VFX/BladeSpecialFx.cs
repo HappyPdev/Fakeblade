@@ -101,6 +101,15 @@ namespace FakeBlade.Core
 
         /// <summary>Color del poder de lo que se emite ahora (Power Tint de cada partícula); se fija antes de cada tanda.</summary>
         private static Color s_power = Color.white;
+        /// <summary>
+        /// El poder de lo que se emite ahora sigue curando (las de Only While Healing salen); se fija antes de cada tanda,
+        /// como s_power.
+        /// </summary>
+        private static bool s_healing = true;
+        /// <summary>Velocidad de la peonza en el suelo (m/s) para Rate Per Speed y Speed Per Speed de los remolinos.</summary>
+        private static float s_speed;
+        // Spin Boost (2026-10-26): curaba en el frame anterior (para la ráfaga al cortarse)
+        private bool _wasHealing;
 
         public BladeSpecialFx(FakeBladeController blade)
         {
@@ -130,6 +139,13 @@ namespace FakeBlade.Core
             bool active = specialActive && special != null;
             bool effectsOn = active && !windingUp;
             Vector3 motion = MotionDirection();
+            Vector3 velocity = _blade.Velocity;
+            s_speed = Mathf.Sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+            // Curación del poder (Spin Boost, 2026-10-26): las cruces solo mientras cura y, si un golpe la corta, su ráfaga
+            bool healing = effectsOn && _blade.Special.IsHealing;
+            if (_wasHealing && !healing && effectsOn && visible && !_blade.IsDestroyed) Burst(special.healCutBurst, tip, motion);
+            _wasHealing = healing;
+            s_healing = healing;
             // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
             float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
             // Las de solo la carga (windupOnly): la primera nada más empezar cada carga y ninguna después
@@ -165,6 +181,7 @@ namespace FakeBlade.Core
             UpdateAuras(special != null ? special.auras : null, _specialAuras, effectsOn, tipOffset, dt);
 
             s_power = Color.white;
+            s_healing = true;
             StatusVfxStyle status = StatusStyle(_blade);
             Emit(status != null && visible ? status.particles : null, _statusAcc, _statusBurst, tip, dt, motion);
             EmitSpirals(status != null && visible ? status.swirl : null, _statusSwirlAcc, 1f, tip, dt, motion);
@@ -245,6 +262,7 @@ namespace FakeBlade.Core
             _effectsWereOn = false;
             _wasWindingUp = false;
             _wasSpecialActive = false;
+            _wasHealing = false;
             _specialScorch.Reset();
             _wetScorch.Reset();
             for (int i = 0; i < MaxAuras; i++)
@@ -391,11 +409,18 @@ namespace FakeBlade.Core
                     acc[i] = 0f;
                     continue;
                 }
+                if (style.onlyWhileHealing && !s_healing)
+                {
+                    acc[i] = 0f;
+                    continue;
+                }
                 if (style.windupOnly && windupStarted) acc[i] = Mathf.Max(acc[i], 1f);
-                acc[i] += dt * style.rate * mul;
+                // Más y más deprisa cuanto más corre (Spin Boost: el tornado del acelerón)
+                acc[i] += dt * (style.rate + style.ratePerSpeed * s_speed) * mul;
                 int n = Mathf.Min((int)acc[i], MaxParticlesPerFrame);
                 acc[i] -= (int)acc[i];
-                for (int k = 0; k < n; k++) EmitSpiral(style, tip, Random.value * Mathf.PI * 2f, direction);
+                float boost = 1f + style.speedPerSpeed * s_speed;
+                for (int k = 0; k < n; k++) EmitSpiral(style, tip, Random.value * Mathf.PI * 2f, direction, speedScale: boost);
             }
         }
 
@@ -595,19 +620,20 @@ namespace FakeBlade.Core
         /// <summary>
         /// Una partícula del anillo en el ángulo dado: gira alrededor de la peonza, sale (o entra) y sube. direction: la marcha
         /// o el golpe (Forward Offset y Align To Direction; cero = ninguna). untilTime: ver Burst. push: hacia dónde va la
-        /// velocidad de más (Directional Speed; cero = direction): en los choques, hacia el lado del choque.
+        /// velocidad de más (Directional Speed; cero = direction): en los choques, hacia el lado del choque. speedScale:
+        /// multiplica las velocidades de giro y de subida (Speed Per Speed de los remolinos).
         /// </summary>
         private static void EmitSpiral(SpiralParticleStyle style, Vector3 tip, float angle, Vector3 direction, float untilTime = 0f,
-            float maxSize = float.MaxValue, Vector3 push = default)
+            float maxSize = float.MaxValue, Vector3 push = default, float speedScale = 1f)
         {
             var outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
             // Tangente vista desde arriba: en el sentido de las agujas del reloj, (z, -x)
             Vector3 tangent = style.clockwise ? new Vector3(outward.z, 0f, -outward.x) : new Vector3(-outward.z, 0f, outward.x);
             Vector3 position = tip + outward * Random.Range(style.radius.x, style.radius.y) +
                                Vector3.up * Random.Range(style.height.x, style.height.y) + direction * style.forwardOffset;
-            Vector3 velocity = tangent * Random.Range(style.tangentialSpeed.x, style.tangentialSpeed.y) +
+            Vector3 velocity = tangent * (Random.Range(style.tangentialSpeed.x, style.tangentialSpeed.y) * speedScale) +
                                outward * Random.Range(style.outwardSpeed.x, style.outwardSpeed.y) +
-                               Vector3.up * Random.Range(style.upSpeed.x, style.upSpeed.y);
+                               Vector3.up * (Random.Range(style.upSpeed.x, style.upSpeed.y) * speedScale);
             if (style.directionalSpeed.y > 0f)
                 velocity += (push.sqrMagnitude > 0.0001f ? push : direction) * Random.Range(style.directionalSpeed.x, style.directionalSpeed.y);
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
@@ -634,7 +660,7 @@ namespace FakeBlade.Core
             for (int i = 0; i < MaxStyles; i++)
             {
                 SpecialParticleStyle style = i < count ? styles[i] : null;
-                if (style == null)
+                if (style == null || (style.onlyWhileHealing && !s_healing))
                 {
                     acc[i] = burst[i] = 0f;
                     continue;
@@ -660,12 +686,54 @@ namespace FakeBlade.Core
                     }
                 }
                 n = Mathf.Min(n, MaxParticlesPerFrame);
-                for (int k = 0; k < n; k++) EmitOne(style, tip, motion);
+                for (int k = 0; k < n; k++) EmitOne(style, tip, motion, _blade.Velocity);
             }
         }
 
-        /// <summary>motion: hacia dónde va la peonza (Forward Offset y Align To Motion).</summary>
-        private void EmitOne(SpecialParticleStyle style, Vector3 tip, Vector3 motion)
+        /// <summary>
+        /// Partículas sobre los charcos del Rastro de agua (VfxLibrary → WaterTrail → Puddles, 2026-10-26), mientras sigan
+        /// mojados aunque el poder ya haya terminado. Rate y los chasquidos son por charco: los grandes (el del final) emiten
+        /// más, según su área (hasta 8 veces), y por todo el charco (Spawn Radius crece con él); más tenues al secarse.
+        /// groundY: altura de la punta. Las llama BladeParticles.
+        /// </summary>
+        public static void EmitOnPuddles(List<SpecialParticleStyle> styles, WaterTrailAbility water, float groundY, Color power, float dt)
+        {
+            int count = Mathf.Min(styles.Count, MaxStyles);
+            float mul = SettingsService.ParticleMultiplier;
+            float baseRadius = Mathf.Max(0.1f, water.PuddleRadius);
+            s_power = power;
+            for (int index = 0; index < water.PuddleCapacity; index++)
+            {
+                if (!water.IsPuddleAlive(index)) continue;
+                Vector3 center = water.PuddlePosition(index);
+                center.y = groundY;
+                float spread = water.PuddleRadiusAt(index) / baseRadius;
+                float area = Mathf.Min(spread * spread, 8f);
+                float fade = 0.4f + 0.6f * water.PuddleLife(index);
+                for (int i = 0; i < count; i++)
+                {
+                    SpecialParticleStyle style = styles[i];
+                    if (style == null) continue;
+                    // Ritmo por charco, sin acumulados (serían 160 por partícula): al azar, con la media que toca
+                    float expected = style.rate * mul * dt * area;
+                    int n = (int)expected;
+                    if (Random.value < expected - n) n++;
+                    float meanInterval = (style.burstInterval.x + style.burstInterval.y) * 0.5f;
+                    if (meanInterval > 0f && Random.value < dt * area / meanInterval)
+                        n += Mathf.RoundToInt(Random.Range(style.burstCount.x, style.burstCount.y) * mul);
+                    n = Mathf.Min(n, MaxParticlesPerFrame);
+                    for (int k = 0; k < n; k++) EmitOne(style, center, Vector3.forward, Vector3.zero, spread, fade);
+                }
+            }
+            s_power = Color.white;
+        }
+
+        /// <summary>
+        /// motion: hacia dónde va la peonza (Forward Offset y Align To Motion); velocity: la de la peonza (Inherit Velocity).
+        /// spread: escala de Spawn Radius (charcos grandes); alphaScale: multiplica la transparencia (charcos que se secan).
+        /// </summary>
+        private static void EmitOne(SpecialParticleStyle style, Vector3 tip, Vector3 motion, Vector3 velocity, float spread = 1f,
+            float alphaScale = 1f)
         {
             // Dirección al azar dentro del cono (desde la vertical); salen repartidas alrededor de la punta
             float tilt = Random.Range(0f, style.coneAngle) * Mathf.Deg2Rad;
@@ -673,13 +741,12 @@ namespace FakeBlade.Core
             float sin = Mathf.Sin(tilt);
             var direction = new Vector3(sin * Mathf.Cos(turn), Mathf.Cos(tilt), sin * Mathf.Sin(turn));
             var around = new Vector3(Mathf.Cos(turn), 0f, Mathf.Sin(turn));
-            Vector3 position = tip + around * Random.Range(style.spawnRadius.x, style.spawnRadius.y) +
+            Vector3 position = tip + around * (Random.Range(style.spawnRadius.x, style.spawnRadius.y) * spread) +
                                Vector3.up * Random.Range(style.height.x, style.height.y) +
                                motion * Random.Range(style.forwardOffset.x, style.forwardOffset.y);
-            Vector3 velocity = _blade.Velocity;
             Vector3 inherited = new Vector3(velocity.x, 0f, velocity.z) * style.inheritVelocity;
             Color color = Tinted(Color.Lerp(style.color, style.color2, Random.value), style.powerTint);
-            color.a = style.alpha;
+            color.a = style.alpha * alphaScale;
             Vector3 v = direction * Random.Range(style.speed.x, style.speed.y) + inherited;
             float size = Random.Range(style.size.x, style.size.y);
             float lifetime = Random.Range(style.lifetime.x, style.lifetime.y);

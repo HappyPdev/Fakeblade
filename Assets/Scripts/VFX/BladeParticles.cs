@@ -466,17 +466,21 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// Rastro de agua: destellos de agua a ras de suelo sobre los trozos que siguen mojados (más tenues al secarse)
-        /// y alguna onda pequeña. Sin instanciar: se emite sobre la lista de trozos del poder.
+        /// y alguna onda pequeña. Sin instanciar: se emite sobre la lista de trozos del poder. Si la biblioteca tiene
+        /// partículas para los charcos (WaterTrail → Puddles, 2026-10-26), salen esas en vez de los destellos.
         /// </summary>
         private void AuraWater(Vector3 tip, WaterTrailAbility water, Color color, float mul, float dt)
         {
             if (water == null) return;
             float groundY = tip.y + 0.03f;
             int capacity = water.PuddleCapacity;
+            SpecialVfxStyle effects = VfxSystem.Library.GetSpecialEffects(SpecialAbilityType.WaterTrail);
+            bool ownDrops = effects != null && effects.puddles != null && effects.puddles.Count > 0;
+            if (ownDrops) BladeSpecialFx.EmitOnPuddles(effects.puddles, water, tip.y, color, dt);
 
             // Cada trozo mojado emite lo suyo (unas 18 gotas/s y alguna onda), más tenue al secarse; los más grandes (el charco
             // del final, 2026-10-26), más, repartidas por todo el charco
-            float dropChance = 18f * mul * dt;
+            float dropChance = ownDrops ? 0f : 18f * mul * dt;
             float rippleChance = 0.8f * mul * dt;
             float baseRadius = Mathf.Max(0.1f, water.PuddleRadius);
             for (int index = 0; index < capacity; index++)

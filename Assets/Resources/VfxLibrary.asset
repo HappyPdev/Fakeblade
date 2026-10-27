@@ -3752,6 +3752,189 @@ MonoBehaviour:
     groundSplashSize: 0.3
     groundSplashChance: 1
     prefab: {fileID: 3323835022798864601, guid: eac529b053c39f54f9832da2ac13eded, type: 3}
+  - id: GotaBrillo
+    texture: {fileID: 2800000, guid: e722a1930bec1894b9fae61c3ba5d433, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 0.6
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0.5
+    fadeIn: 0.3
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 1024
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 7679459447661314998, guid: 7ae5224c8fd261844a91a66d8c92f567, type: 3}
+  - id: Cruz
+    texture: {fileID: 2800000, guid: 4244043856e8a6549a4161abf057d6e2, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 0.8
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0.4
+    fadeIn: 0.15
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 512
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 8984371737579554713, guid: aa9030844887bf845a751c1b9337e831, type: 3}
+  - id: CruzCae
+    texture: {fileID: 2800000, guid: 4244043856e8a6549a4161abf057d6e2, type: 3}
+    tilesX: 1
+    tilesY: 1
+    firstFrame: 0
+    frames: 1
+    life: 0.8
+    randomRotation: 1
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 1.2
+    drag: 0
+    fadeOut: 0.4
+    fadeIn: 0
+    shrinkOut: 0.5
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 0
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 360
+    maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 814330792365098430, guid: 63ae984f122dcad45993c4685aa14719, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -4129,6 +4312,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 10
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -4150,6 +4334,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 8
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.7}
@@ -4195,6 +4380,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 160
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.8, y: 1.2}
       height: {x: 0, y: 0.15}
@@ -4218,6 +4406,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 70
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1}
       height: {x: 0, y: 0.2}
@@ -4241,6 +4432,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -4264,6 +4458,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -4287,6 +4484,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 120
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.3}
@@ -4310,6 +4510,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 125
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 50
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.05, y: 0.6}
@@ -4334,6 +4537,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 50
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.05, y: 0.3}
@@ -4357,6 +4563,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 35
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.05, y: 0.3}
@@ -4380,6 +4589,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -4403,6 +4615,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.15, y: 0.15}
@@ -4426,6 +4641,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 100
       radius: {x: 0.2, y: 0.5}
       height: {x: 0.05, y: 0.5}
@@ -4449,6 +4667,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 4, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -4472,6 +4693,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -4500,6 +4724,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 18
       radius: {x: 0.15, y: 0.25}
       height: {x: 0.05, y: 0.15}
@@ -4523,6 +4750,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 24
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.1, y: 0.3}
@@ -4546,6 +4776,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 16
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.2, y: 0.4}
@@ -4602,44 +4835,44 @@ MonoBehaviour:
       clashCount: 3
       clashDuration: 0.25
     dome:
-      material: {fileID: 0}
-      radius: 1.2
-      heightScale: 0.85
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1
+      heightScale: 1
       height: 0
       growEase: 2
-      bodyColor: {r: 1, g: 0.97, b: 0.9, a: 0.18}
-      rimColor: {r: 1, g: 0.55, b: 0.15, a: 0.95}
-      outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.9}
-      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      bodyColor: {r: 0.96981126, g: 0.24073087, b: 0, a: 0.78431374}
+      rimColor: {r: 0.89433956, g: 0.31870216, b: 0.12655737, a: 0.8901961}
+      outlineColor: {r: 1, g: 0.86703414, b: 0.20943397, a: 0.6862745}
+      swirlColor: {r: 0.9622642, g: 0.38375023, b: 0, a: 0.45490196}
       swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
-      rimWidth: 0.3
-      outlineWidth: 0.08
+      rimWidth: 0.383
+      outlineWidth: 0.261
       linesTexture: {fileID: 0}
       linesTiling: {x: 3, y: 2}
-      linesSpeed: 1.2
-      linesTwist: 0.15
-      axisTilt: 25
+      linesSpeed: 6
+      linesTwist: 25
+      axisTilt: 16.7
       axisPrecess: 0.8
       swirlLines: 5
       swirlTwist: 0.6
       swirlSpeed: 1.5
       swirlWidth: 0.18
-      shakeFrom: 0.6
-      shakeScale: 0.08
-      shakeRate: 22
-      popTime: 0.16
-      popScale: 1.7
-      popFlash: 0.8
-      popFall: 0
-      appearFrom: 0
+      shakeFrom: 0.061
+      shakeScale: 0.09
+      shakeRate: 0
+      popTime: 0.3
+      popScale: 1.3
+      popFlash: 0.483
+      popFall: 0.152
+      appearFrom: 0.471
       startRadius: 0
-      funnelPhase: 0
-      funnelMorph: 0.2
-      funnelShape: {x: 0.25, y: 1, z: 2.5}
-      topCut: 0
-      topSpikes: 10
-      topSpikesSpeed: 0.5
-      insideAlpha: 0
+      funnelPhase: 0.7
+      funnelMorph: 0.699
+      funnelShape: {x: 0.25, y: 2.08, z: -0.02}
+      topCut: 0.086
+      topSpikes: 11
+      topSpikesSpeed: 0.96
+      insideAlpha: 1
       sphere: 0
       hitTexture: {fileID: 0}
       hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
@@ -4649,28 +4882,28 @@ MonoBehaviour:
       hitFlash: 0.5
       hitBump: 0.12
       maskEnabled: 1
-      maskTexture: {fileID: 0}
-      maskAmount: 0
-      maskTiling: {x: 4, y: 2}
-      maskScroll: {x: 0.1, y: 0.4}
-      maskEdge: 0.05
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      maskTexture: {fileID: 2800000, guid: b3662b4bd0b8870459e87e5423e87cdd, type: 3}
+      maskAmount: 0.491
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 1.05, y: 3.19}
+      maskEdge: 0.023
+      maskEdgeColor: {r: 0.9254902, g: 0.39137816, b: 0.22745098, a: 0.9}
       topErodeEnabled: 1
-      topErode: 0
-      topErodeFrom: 0.5
-      holePulseEnabled: 1
+      topErode: 0.3
+      topErodeFrom: 0.409
+      holePulseEnabled: 0
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
       wobbleEnabled: 1
-      wobble: 0
+      wobble: 0.033
       wobbleWaves: {x: 5, y: 2}
       wobbleSpeed: 4
-      flickerEnabled: 1
+      flickerEnabled: 0
       flickerRate: 0
       flickerAlpha: 0.3
       flickerTime: 0.05
-      glitchEnabled: 1
+      glitchEnabled: 0
       glitchRate: 0
       glitchBands: 8
       glitchOffset: 0.05
@@ -4749,6 +4982,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 1
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -4779,6 +5013,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 70
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -4800,6 +5035,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -4814,6 +5050,11 @@ MonoBehaviour:
       alpha: 1
       powerTint: 0
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 6
     replaceAura: 1
     tip:
@@ -4913,6 +5154,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0.3, y: 0.9}
       burstCount: {x: 2, y: 4}
       spawnRadius: {x: 0.3, y: 0.8}
@@ -4934,6 +5176,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 7
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -4970,6 +5213,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 120
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.8, y: 1.2}
       height: {x: 0, y: 0.3}
@@ -4993,6 +5239,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 30
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.9, y: 1.3}
       height: {x: 0, y: 0.2}
@@ -5016,6 +5265,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -5039,6 +5291,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -5062,6 +5317,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 90
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.4}
@@ -5085,6 +5343,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.05, y: 0.6}
@@ -5109,6 +5370,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.1, y: 0.3}
@@ -5132,6 +5396,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 24
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.4}
@@ -5155,6 +5422,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.02, y: 0.05}
@@ -5178,6 +5448,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -5201,6 +5474,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.45, y: 0.45}
@@ -5224,6 +5500,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 35
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -5247,6 +5526,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 2.4, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -5270,6 +5552,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -5297,6 +5582,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.4, y: 0.8}
       height: {x: 0.02, y: 0.05}
@@ -5321,6 +5609,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 22
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.15}
@@ -5344,6 +5635,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.1, y: 0.4}
@@ -5367,6 +5661,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.1, y: 0.3}
       height: {x: 0.1, y: 0.3}
@@ -5570,6 +5867,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -5600,6 +5898,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 50
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -5621,6 +5920,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 15
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.3}
@@ -5635,6 +5935,11 @@ MonoBehaviour:
       alpha: 0.5
       powerTint: 0
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 4
     replaceAura: 1
     tip:
@@ -5743,6 +6048,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 160
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.8, y: 1.2}
       height: {x: 0, y: 0.15}
@@ -5766,6 +6074,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 70
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1}
       height: {x: 0, y: 0.2}
@@ -5789,6 +6100,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 30
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.5, y: 1}
       height: {x: 0.1, y: 0.4}
@@ -5813,6 +6127,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 50
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.05, y: 0.3}
@@ -5836,6 +6153,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 35
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.05, y: 0.3}
@@ -5859,6 +6179,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 20
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.1, y: 0.4}
@@ -5887,6 +6210,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.2}
@@ -5911,6 +6237,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 36
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.2}
@@ -5934,6 +6263,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 16
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.1, y: 0.4}
@@ -6136,6 +6468,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -6159,6 +6492,11 @@ MonoBehaviour:
     launchedWallHit: []
     hitTrail: []
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 2
     replaceAura: 1
     tip:
@@ -6243,6 +6581,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 14
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.4}
@@ -6279,6 +6618,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 4
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -6302,6 +6644,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 3
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.45, y: 0.45}
@@ -6325,6 +6670,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2.2, y: 3}
       height: {x: 0.05, y: 0.6}
@@ -6348,6 +6696,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.3}
@@ -6371,6 +6722,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.2, y: 1.8}
       height: {x: 0, y: 0.2}
@@ -6395,6 +6749,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -6418,6 +6775,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.25, y: 0.25}
@@ -6441,6 +6801,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.6, y: 0.6}
@@ -6464,6 +6827,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.12, y: 0.12}
@@ -6487,6 +6853,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 24
       radius: {x: 0.5, y: 0.8}
       height: {x: 0.45, y: 0.75}
@@ -6510,6 +6879,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 20
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.4, y: 0.55}
@@ -6533,6 +6905,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.25}
@@ -6561,6 +6936,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 3
       radius: {x: 0, y: 0}
       height: {x: 0.02, y: 0.02}
@@ -6588,6 +6966,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 10
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.3}
@@ -6611,6 +6992,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.2, y: 1.8}
       height: {x: 0, y: 0.2}
@@ -6635,6 +7019,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 4
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.15, y: 0.25}
@@ -6838,6 +7225,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -6865,6 +7253,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.25}
@@ -6888,6 +7279,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.25}
@@ -6912,6 +7306,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -6934,6 +7329,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0, y: 0.12}
       height: {x: 0.05, y: 0.25}
@@ -6957,6 +7355,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 50
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.25}
@@ -6974,23 +7375,38 @@ MonoBehaviour:
       powerTint: 0
     hitTrail: []
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 11
     replaceAura: 1
     tip:
-      mesh: {fileID: 0}
-      material: {fileID: 0}
-      tilesX: 3
-      tilesY: 3
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 58fc696e81aefe749a68c0c019e8adc8, type: 2}
+      tilesX: 1
+      tilesY: 1
       firstFrame: 0
       frames: 9
-      cycle: 0.25
-      size: 2
-      scale: {x: 1, y: 1}
+      cycle: 1
+      size: 1.7
+      scale: {x: -1.5, y: 1}
       height: 0.03
       alpha: 0.9
       lighten: 0
       fade: {x: 0.04, y: 0.12}
-      cups: []
+      cups:
+      - angle: 0
+        spinSpeed: 600
+        scale: {x: 0.7, y: 0.8}
+        playerColor: 0
+        color: {r: 0.4226913, g: 0.96981126, b: 0.5161021, a: 1}
+      - angle: 180
+        spinSpeed: 700
+        scale: {x: 1.06, y: 0.4}
+        playerColor: 0
+        color: {r: 0.3830188, g: 1, b: 0.41283312, a: 1}
       pointForward: 0
       forwardOffset: 0.5
       onlyWhileRushing: 0
@@ -7073,6 +7489,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 10
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -7096,6 +7515,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.45, y: 0.45}
@@ -7119,6 +7541,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.15, y: 0.15}
@@ -7142,6 +7567,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 60
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2.5, y: 3.5}
       height: {x: 0.05, y: 0.6}
@@ -7165,6 +7593,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.4}
@@ -7189,6 +7620,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.3, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -7216,6 +7650,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 180
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 60
       radius: {x: 1, y: 5}
       height: {x: 0.1, y: 0.3}
@@ -7239,6 +7676,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 2
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -7262,6 +7702,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 18
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 4.5}
       height: {x: 0, y: 0.4}
@@ -7286,6 +7729,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1}
       height: {x: 0.05, y: 0.5}
@@ -7397,7 +7843,7 @@ MonoBehaviour:
       maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.02745098}
       topErodeEnabled: 1
       topErode: 0.717
-      topErodeFrom: 0.9
+      topErodeFrom: 0.745
       holePulseEnabled: 0
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
@@ -7489,6 +7935,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -7515,6 +7962,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -7538,6 +7988,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.25, y: 0.25}
@@ -7561,6 +8014,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.5, y: 0.5}
@@ -7584,6 +8040,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1}
       height: {x: 0.05, y: 0.5}
@@ -7607,6 +8066,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 15
       radius: {x: 0.8, y: 1}
       height: {x: 0.1, y: 0.3}
@@ -7630,6 +8092,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.2, y: 0.6}
       height: {x: 0.1, y: 0.2}
@@ -7654,6 +8119,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.3, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -7677,6 +8145,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.6, y: 1}
       height: {x: 0.05, y: 0.5}
@@ -7701,6 +8172,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -7723,6 +8195,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.3, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -7746,6 +8221,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.6, y: 1}
       height: {x: 0.05, y: 0.5}
@@ -7763,6 +8241,11 @@ MonoBehaviour:
       powerTint: 0
     hitTrail: []
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 14
     replaceAura: 1
     tip:
@@ -7881,6 +8364,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -7904,6 +8390,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -7927,6 +8416,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.05, y: 0.6}
@@ -7950,6 +8442,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 45
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.6, y: 2.2}
       height: {x: 0, y: 0.4}
@@ -7973,6 +8468,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 70
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1.2}
       height: {x: 0, y: 0.2}
@@ -7996,6 +8494,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.4, y: 2}
       height: {x: 0, y: 0.3}
@@ -8020,6 +8521,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -8043,6 +8547,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 15
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -8066,6 +8573,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 2.2, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -8089,6 +8599,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 9
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.2, y: 0.3}
@@ -8112,6 +8625,9 @@ MonoBehaviour:
       alignToDirection: 1
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.02, y: 0.02}
@@ -8135,6 +8651,9 @@ MonoBehaviour:
       alignToDirection: 1
       forwardOffset: -0.4
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -8343,6 +8862,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush:
     - name: Trozos de suelo
       emitter: 19
@@ -8352,6 +8872,7 @@ MonoBehaviour:
       forwardOffset: {x: -0.5, y: -0.2}
       rate: 35
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -8373,6 +8894,7 @@ MonoBehaviour:
       forwardOffset: {x: -0.7, y: -0.5}
       rate: 79
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 1, y: 1}
       spawnRadius: {x: 0.15, y: 0.3}
@@ -8394,6 +8916,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 90
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -8433,6 +8956,9 @@ MonoBehaviour:
       alignToDirection: 1
       forwardOffset: 0.3
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.3, y: 0.3}
@@ -8456,6 +8982,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0.1}
       height: {x: 0.3, y: 0.5}
@@ -8481,6 +9010,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 5
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.2, y: 0.5}
@@ -8504,6 +9036,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -8527,6 +9062,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 16
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.25}
@@ -8551,6 +9089,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8572,6 +9111,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8596,6 +9136,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 4
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.2, y: 0.5}
@@ -8619,6 +9162,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -8643,6 +9189,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8664,6 +9211,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -8678,6 +9226,11 @@ MonoBehaviour:
       alpha: 1
       powerTint: 1
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 12
     replaceAura: 0
     tip:
@@ -8792,6 +9345,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -8815,6 +9371,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -8838,6 +9397,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.05, y: 0.6}
@@ -8861,6 +9423,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 25
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.6, y: 2.2}
       height: {x: 0, y: 0.4}
@@ -8884,6 +9449,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0, y: 0}
       height: {x: 1.3, y: 2}
@@ -8907,6 +9475,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -8931,6 +9502,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -8954,6 +9528,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -8977,6 +9554,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 2.2, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -9000,6 +9580,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -9023,6 +9606,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.05, y: 0.2}
@@ -9046,6 +9632,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 3
       radius: {x: 0, y: 0.15}
       height: {x: 0.1, y: 0.3}
@@ -9069,6 +9658,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 18
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.3}
@@ -9092,6 +9684,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -9300,6 +9895,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush:
     - name: "Semic\xEDrculos que se abren"
       emitter: 19
@@ -9309,6 +9905,7 @@ MonoBehaviour:
       forwardOffset: {x: -0.3, y: -0.1}
       rate: 9
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0, y: 0.2}
@@ -9330,6 +9927,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 35
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -9351,6 +9949,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 10
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.3}
@@ -9372,6 +9971,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 12
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -9408,6 +10008,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -9431,6 +10034,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -9456,6 +10062,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.04, y: 0.04}
@@ -9479,6 +10088,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.06, y: 0.06}
@@ -9510,6 +10122,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.02, y: 0.02}
@@ -9533,6 +10148,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 22
       radius: {x: 0.4, y: 0.8}
       height: {x: 0.1, y: 0.4}
@@ -9556,6 +10174,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.05, y: 0.2}
@@ -9579,6 +10200,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -9602,6 +10226,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.3}
@@ -9625,6 +10252,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 18
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -9648,6 +10278,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 4
       radius: {x: 0.8, y: 1.2}
       height: {x: 0.3, y: 0.6}
@@ -9672,6 +10305,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.3}
@@ -9695,6 +10331,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -9718,6 +10357,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0.8, y: 1.2}
       height: {x: 0.3, y: 0.6}
@@ -9742,6 +10384,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -9763,6 +10406,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -9785,6 +10429,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.2}
@@ -9808,6 +10455,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.05, y: 0.3}
@@ -9825,6 +10475,11 @@ MonoBehaviour:
       powerTint: 0
     hitTrail: []
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 9
     replaceAura: 1
     tip:
@@ -9919,6 +10574,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 10
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0.15, y: 0.6}
       burstCount: {x: 3, y: 7}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -9940,6 +10596,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 15
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 1, y: 2}
       burstCount: {x: 8, y: 12}
       spawnRadius: {x: 0.4, y: 0.6}
@@ -9976,6 +10633,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -9999,6 +10659,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -10022,6 +10685,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 4, y: 4}
       height: {x: 0.05, y: 0.6}
@@ -10045,6 +10711,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 25
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 5, y: 5}
       height: {x: 0, y: 0.4}
@@ -10068,6 +10737,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 60
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.7, y: 1.2}
       height: {x: 0, y: 0.2}
@@ -10091,6 +10763,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 4, y: 1.9}
       height: {x: 0, y: 0.8}
@@ -10115,6 +10790,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -10138,6 +10816,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 2.2, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -10161,6 +10842,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -10184,6 +10868,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 1, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -10211,6 +10898,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 80
       radius: {x: 1, y: 1}
       height: {x: 0, y: 0.2}
@@ -10220,7 +10910,7 @@ MonoBehaviour:
       directionalSpeed: {x: 0, y: 0}
       clockwise: 1
       size: {x: 0.05, y: 0.08}
-      lifetime: {x: 0.3, y: 0.45}
+      lifetime: {x: 0.8, y: 0.7}
       color: {r: 1, g: 1, b: 1, a: 1}
       color2: {r: 1, g: 0.390566, b: 0.9417087, a: 1}
       alpha: 0.916
@@ -10234,6 +10924,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 10
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 2, y: 2.8}
       height: {x: 0, y: 0.3}
@@ -10296,7 +10989,7 @@ MonoBehaviour:
       heightScale: 0.8
       height: -0.7
       growEase: 2.5
-      bodyColor: {r: 1, g: 0.6, b: 0.85, a: 0.16}
+      bodyColor: {r: 1, g: 0.6, b: 0.85, a: 0.44705883}
       rimColor: {r: 1, g: 0.45, b: 0.75, a: 0.9}
       outlineColor: {r: 0.47, g: 0.47, b: 0.47, a: 0.8}
       swirlColor: {r: 1, g: 0.6245283, b: 0.9864618, a: 0.8}
@@ -10338,15 +11031,15 @@ MonoBehaviour:
       hitFlash: 0.5
       hitBump: 0.12
       maskEnabled: 1
-      maskTexture: {fileID: 0}
-      maskAmount: 0
-      maskTiling: {x: 4, y: 2}
-      maskScroll: {x: 0.1, y: 0.4}
+      maskTexture: {fileID: 2800000, guid: ea5f8ccef664e8542b7219fb063bdbf8, type: 3}
+      maskAmount: 0.335
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 0.33, y: 0.95}
       maskEdge: 0.05
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      maskEdgeColor: {r: 0.8490566, g: 0.3380206, b: 0.6852411, a: 1}
       topErodeEnabled: 1
-      topErode: 0
-      topErodeFrom: 0.5
+      topErode: 1
+      topErodeFrom: 0.77
       holePulseEnabled: 1
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
@@ -10438,6 +11131,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -10463,6 +11157,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 26
       radius: {x: 0.8, y: 1.8}
       height: {x: 0.2, y: 1.7}
@@ -10486,6 +11183,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 6
       radius: {x: 1.2, y: 1.5}
       height: {x: 0.2, y: 0.3}
@@ -10509,6 +11209,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 15
       radius: {x: 1, y: 1}
       height: {x: 0.05, y: 0.5}
@@ -10532,6 +11235,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.1, y: 0.05}
@@ -10557,6 +11263,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0.15}
       height: {x: 0.2, y: 0.45}
@@ -10580,6 +11289,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.35, y: 0.35}
@@ -10603,6 +11315,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 35
       radius: {x: 0.1, y: 0.3}
       height: {x: 0.1, y: 0.4}
@@ -10628,6 +11343,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 3
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.2, y: 0.5}
@@ -10654,6 +11372,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -10675,6 +11394,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -10689,6 +11409,11 @@ MonoBehaviour:
       alpha: 1
       powerTint: 0
     hitTrailTime: 0.45
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 3
     replaceAura: 1
     tip:
@@ -10788,6 +11513,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -10811,6 +11539,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 70
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 1.1}
       height: {x: 0, y: 0.2}
@@ -10834,6 +11565,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 0.9}
       height: {x: 0, y: 0.4}
@@ -10857,6 +11591,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 45
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1, y: 1.2}
       height: {x: 0, y: 0.3}
@@ -10881,6 +11618,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -10904,6 +11644,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -10927,6 +11670,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -10950,6 +11696,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 20
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.1, y: 0.5}
@@ -10977,6 +11726,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 14
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 0.9}
       height: {x: 0.02, y: 0.05}
@@ -11000,6 +11752,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 0.9}
       height: {x: 0.03, y: 0.08}
@@ -11023,6 +11778,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 0.9}
       height: {x: 0.05, y: 0.3}
@@ -11046,6 +11804,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 25
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.2, y: 0.85}
       height: {x: 0, y: 0.3}
@@ -11069,6 +11830,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 5
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.05, y: 0.05}
@@ -11095,6 +11859,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 0.05, y: 0.2}
       height: {x: 0.1, y: 0.4}
@@ -11118,6 +11885,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.25, y: 0.25}
@@ -11319,6 +12089,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.1
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -11344,6 +12115,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 18
       radius: {x: 1.2, y: 0.9}
       height: {x: 0.2, y: 1}
@@ -11367,6 +12141,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 1.2, y: 0.8}
       height: {x: 0.2, y: 0.7}
@@ -11390,6 +12167,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 18
       radius: {x: 0.9, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -11413,6 +12193,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.05, y: 0.05}
@@ -11434,33 +12217,38 @@ MonoBehaviour:
     launchedWallHit: []
     hitTrail: []
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   - type: 13
     replaceAura: 0
     tip:
       mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
-      material: {fileID: 2100000, guid: 3dacf7558eb39c44990dc773a3c06cc6, type: 2}
-      tilesX: 3
-      tilesY: 3
+      material: {fileID: 2100000, guid: 70036c73e5ad6e7439f05959bf3ed08e, type: 2}
+      tilesX: 11
+      tilesY: 1
       firstFrame: 0
-      frames: 9
-      cycle: 5
-      size: 2
-      scale: {x: 1.5, y: 1}
-      height: 0.03
+      frames: 11
+      cycle: 0.5
+      size: 1
+      scale: {x: 1.6, y: 1}
+      height: 0.05
       alpha: 0.9
       lighten: 0.026
       fade: {x: 0.04, y: 0.12}
       cups:
       - angle: 0
-        spinSpeed: 90
-        scale: {x: 1.2, y: 1}
+        spinSpeed: 360
+        scale: {x: 1.2, y: 1.5}
         playerColor: 0
-        color: {r: 0.34901962, g: 0.69803923, b: 1, a: 0}
-      - angle: 0
-        spinSpeed: 25
+        color: {r: 1, g: 1, b: 1, a: 1}
+      - angle: 180
+        spinSpeed: 400
         scale: {x: 1.6, y: 1}
         playerColor: 0
-        color: {r: 0.34901962, g: 0.69803923, b: 1, a: 0}
+        color: {r: 1, g: 1, b: 1, a: 1}
       pointForward: 0
       forwardOffset: 0.5
       onlyWhileRushing: 0
@@ -11528,6 +12316,7 @@ MonoBehaviour:
       forwardOffset: {x: -0.3, y: 0}
       rate: 3
       ratePerSpeed: 10
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.6}
@@ -11549,6 +12338,7 @@ MonoBehaviour:
       forwardOffset: {x: -0.5, y: -0.2}
       rate: 0
       ratePerSpeed: 1.2
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -11585,6 +12375,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 5
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -11608,6 +12401,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 4
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.05, y: 0.05}
@@ -11631,6 +12427,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 70
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.2, y: 0.5}
       height: {x: 0.1, y: 0.4}
@@ -11654,6 +12453,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 22
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.2, y: 1.6}
       height: {x: 0.05, y: 0.4}
@@ -11677,6 +12479,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.1, y: 0.5}
@@ -11701,6 +12506,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.3, y: 0.5}
       height: {x: 0.1, y: 0.3}
@@ -11724,6 +12532,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.2, y: 0.4}
       height: {x: 0.1, y: 0.3}
@@ -11747,6 +12558,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -11770,6 +12584,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.04, y: 0.04}
@@ -11793,6 +12610,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -11820,6 +12640,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.6, y: 0.9}
       height: {x: 0.02, y: 0.05}
@@ -11843,6 +12666,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 40
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.1, y: 0.9}
       height: {x: 0.2, y: 0.8}
@@ -11867,6 +12693,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0, y: 0.2}
       height: {x: 0.2, y: 0.4}
@@ -11890,6 +12719,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 25
       radius: {x: 0, y: 0.15}
       height: {x: 0.15, y: 0.3}
@@ -11913,6 +12745,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 6
       radius: {x: 0, y: 0.2}
       height: {x: 0.2, y: 0.4}
@@ -11936,6 +12771,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -12025,7 +12863,7 @@ MonoBehaviour:
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
-      funnelShape: {x: 1.07, y: 1.28, z: 1.01}
+      funnelShape: {x: 0.56, y: 1.28, z: 1.01}
       topCut: 0.052
       topSpikes: 19
       topSpikesSpeed: 1.13
@@ -12039,21 +12877,21 @@ MonoBehaviour:
       hitFlash: 0.5
       hitBump: 0.08
       maskEnabled: 1
-      maskTexture: {fileID: 2800000, guid: fa493497f38a73645a7cde63d042728a, type: 3}
-      maskAmount: 0.4
-      maskTiling: {x: 1, y: 0.2}
-      maskScroll: {x: 1, y: 0.56}
-      maskEdge: 0.263
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.95}
+      maskTexture: {fileID: 2800000, guid: 021b6be54d98cc94589bd7cbd9d01d17, type: 3}
+      maskAmount: 0.083
+      maskTiling: {x: 1, y: 0.5}
+      maskScroll: {x: 1, y: 2}
+      maskEdge: 0.18
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.34117648}
       topErodeEnabled: 1
-      topErode: 0.157
-      topErodeFrom: 0.301
+      topErode: 0.374
+      topErodeFrom: 0.215
       holePulseEnabled: 1
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
       wobbleEnabled: 1
-      wobble: 0.091
+      wobble: 0.026
       wobbleWaves: {x: 6, y: 2}
       wobbleSpeed: 5
       flickerEnabled: 0
@@ -12067,27 +12905,27 @@ MonoBehaviour:
       glitchTime: 9999
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
-      radius: 1.15
-      heightScale: 0.48
+      radius: 0.92
+      heightScale: 0.32
       height: 0
-      growEase: 2
-      bodyColor: {r: 0.35, g: 0.7, b: 1, a: 0.57254905}
+      growEase: 1.5
+      bodyColor: {r: 0.35, g: 0.7, b: 1, a: 0.6313726}
       rimColor: {r: 0.5, g: 0.95, b: 1, a: 0.9}
       outlineColor: {r: 0.15, g: 0.3, b: 0.6, a: 0.75}
       swirlColor: {r: 1, g: 1, b: 1, a: 0.7}
       swirlColor2: {r: 0.5, g: 0.95, b: 1, a: 0.5}
-      rimWidth: 0.222
-      outlineWidth: 0.1
-      linesTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
-      linesTiling: {x: 8, y: 1}
-      linesSpeed: 0.45
-      linesTwist: 0.11
-      axisTilt: 0
-      axisPrecess: 0
-      swirlLines: 9.22
-      swirlTwist: 1.69
-      swirlSpeed: 2.88
-      swirlWidth: 0.04
+      rimWidth: 0.404
+      outlineWidth: 0.204
+      linesTexture: {fileID: 2800000, guid: 2e2b57d1a1eb34a49928fb7f02680e71, type: 3}
+      linesTiling: {x: 1, y: 1.5}
+      linesSpeed: 2.39
+      linesTwist: 0
+      axisTilt: 4.9
+      axisPrecess: 1
+      swirlLines: 6
+      swirlTwist: 1.37
+      swirlSpeed: 5
+      swirlWidth: 0.06
       shakeFrom: 1
       shakeScale: 0
       shakeRate: 0
@@ -12096,49 +12934,50 @@ MonoBehaviour:
       popFlash: 0.15
       popFall: 1
       appearFrom: 0.6
-      startRadius: 0.383
-      funnelPhase: 1
-      funnelMorph: 0.2
-      funnelShape: {x: 0.95, y: 1.2, z: 1.2}
-      topCut: 0
-      topSpikes: 2
-      topSpikesSpeed: -0.4
-      insideAlpha: 0.25
+      startRadius: 0
+      funnelPhase: 0.752
+      funnelMorph: 1
+      funnelShape: {x: 0.77, y: 1.28, z: 1.01}
+      topCut: 0.052
+      topSpikes: 19
+      topSpikesSpeed: 1.13
+      insideAlpha: 0.948
       sphere: 0
-      hitTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
-      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitTexture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
+      hitColor: {r: 0.9, g: 0.95, b: 1, a: 1}
       hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
-      hitScale: {x: 0.15, y: 1.1}
-      hitDuration: 0.35
+      hitScale: {x: 0.15, y: 0.9}
+      hitDuration: 0.3
       hitFlash: 0.5
-      hitBump: 0.12
-      maskEnabled: 0
-      maskTexture: {fileID: 2800000, guid: bbb1fdb1b8a35364b8f6cee88dc04009, type: 3}
-      maskAmount: 0.35
+      hitBump: 0.08
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: 021b6be54d98cc94589bd7cbd9d01d17, type: 3}
+      maskAmount: 0.083
       maskTiling: {x: 1, y: 0.5}
-      maskScroll: {x: 2, y: 0.2}
-      maskEdge: 0.3
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.95}
+      maskScroll: {x: 1, y: 2}
+      maskEdge: 0.18
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.34117648}
       topErodeEnabled: 1
-      topErode: 0.291
-      topErodeFrom: 0.43
-      holePulseEnabled: 0
+      topErode: 0.374
+      topErodeFrom: 0.215
+      holePulseEnabled: 1
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
       wobbleEnabled: 1
-      wobble: 0.083
+      wobble: 0.026
       wobbleWaves: {x: 6, y: 2}
       wobbleSpeed: 5
       flickerEnabled: 0
       flickerRate: 0
-      flickerAlpha: 0.35
-      flickerTime: 0.05
+      flickerAlpha: 0
+      flickerTime: 0.01
       glitchEnabled: 0
       glitchRate: 0
-      glitchBands: 8
-      glitchOffset: 0.05
-      glitchTime: 0.1
+      glitchBands: 1
+      glitchOffset: 0.04
+      glitchTime: 9999
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -12164,6 +13003,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 50
       radius: {x: 0.5, y: 0.9}
       height: {x: 0.3, y: 1.2}
@@ -12187,6 +13029,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.012, y: 0.012}
@@ -12210,6 +13055,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 8
       radius: {x: 0.5, y: 0.9}
       height: {x: 0.02, y: 0.05}
@@ -12233,6 +13081,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 2
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -12254,6 +13105,970 @@ MonoBehaviour:
     launchedWallHit: []
     hitTrail: []
     hitTrailTime: 0.4
+    puddles:
+    - name: Brillos
+      emitter: 19
+      sprite: GotaBrillo
+      rotation: {x: 0, y: 0}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 14
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0, y: 0.5}
+      height: {x: 0.02, y: 0.06}
+      coneAngle: 0
+      speed: {x: 0, y: 0.1}
+      inheritVelocity: 0
+      size: {x: 0.04, y: 0.07}
+      lifetime: {x: 0.4, y: 0.7}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.85, g: 0.97, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    - name: Gotitas que saltan
+      emitter: 19
+      sprite: Gota
+      rotation: {x: 0, y: 0}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 1.2
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0, y: 0.5}
+      height: {x: 0.02, y: 0.05}
+      coneAngle: 25
+      speed: {x: 1.2, y: 2}
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.05}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 0.85, g: 0.97, b: 1, a: 1}
+      color2: {r: 0.5, g: 0.95, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
+  - type: 1
+    replaceAura: 1
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: 97fa67fa2f9f9a947b771fe2601ca106, type: 2}
+      tilesX: 6
+      tilesY: 2
+      firstFrame: 0
+      frames: 7
+      cycle: 0.5
+      size: 1.5
+      scale: {x: 1.4, y: 0.32}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0.026
+      fade: {x: 0, y: 0}
+      cups:
+      - angle: 0
+        spinSpeed: 320
+        scale: {x: 0.6, y: 2.33}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 0.9019608}
+      - angle: 120
+        spinSpeed: -260
+        scale: {x: 1.3, y: 0.8}
+        playerColor: 0
+        color: {r: 0.5571734, g: 0.6981132, b: 0.6135493, a: 0.9137255}
+      - angle: 240
+        spinSpeed: 217.8
+        scale: {x: 0.9, y: 1.74}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 0.8}
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.2
+      baseFlash: 0.174
+      pulseRim: {x: 1.52, y: 1.1}
+      pulseFlash: {x: 0, y: 0.06}
+      pulseInterval: {x: 0.2, y: 0.4}
+      pulseDecay: 0.25
+      texture: {fileID: 0}
+      tilesX: 1
+      tilesY: 1
+      firstFrame: 0
+      frames: 12
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: "Rayas del aceler\xF3n"
+      emitter: 2
+      sprite: 
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 0
+      ratePerSpeed: 12
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.45}
+      height: {x: 0.05, y: 0.4}
+      coneAngle: 90
+      speed: {x: 0.2, y: 0.5}
+      inheritVelocity: -0.3
+      size: {x: 0, y: 0}
+      lifetime: {x: 0, y: 0}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 9
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 4.5, y: 4.5}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 0
+    - name: "C\xEDrculo fino que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 7
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 8, y: 8}
+      lifetime: {x: 0.3, y: 0.3}
+      color: {r: 0.8, g: 1, b: 0.88, a: 1}
+      color2: {r: 0.8, g: 1, b: 0.88, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0
+    - name: "L\xEDneas que se tragan"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 35
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 2, y: 3}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.09}
+      lifetime: {x: 0.25, y: 0.32}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    activationBurst:
+    - name: Onda
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 7, y: 7}
+      lifetime: {x: 0.5, y: 0.5}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 0.823
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas hacia fuera y arriba"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 26
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.4}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 2.5, y: 4}
+      upSpeed: {x: 2, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.02, y: 0.05}
+      lifetime: {x: 0.8, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Cruces
+      emitter: 15
+      sprite: Cruz
+      spriteVariants: []
+      rotation: {x: 0, y: 0}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: 2, y: 3.5}
+      upSpeed: {x: 2.5, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.12, y: 0.18}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 16
+      radius: {x: 0.9, y: 0.4}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 3, y: 6}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 3, y: 5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 1.02, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo despedido
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.4, y: 0.7}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 1, b: 0.88, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    visualWindupTime: 0
+    visualWindupDomesOnly: 0
+    swirl:
+    - name: "Tornado de l\xEDneas"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 70
+      ratePerSpeed: 8
+      speedPerSpeed: 0.08
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.9, y: 0.5}
+      height: {x: 0, y: 0.15}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: -0.6, y: -0.3}
+      upSpeed: {x: 1.5, y: 2.2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.025, y: 0.01}
+      lifetime: {x: 0.9, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Tornado de puntos
+      emitter: 9
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 50
+      ratePerSpeed: 5
+      speedPerSpeed: 0.08
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.8, y: 0.45}
+      height: {x: 0, y: 0.1}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: -0.5, y: -0.2}
+      upSpeed: {x: 1.2, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.06, y: 0.09}
+      lifetime: {x: 0.7, y: 0.35}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 0.8, g: 1, b: 0.88, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Cruces de curaci\xF3n"
+      emitter: 15
+      sprite: Cruz
+      spriteVariants: []
+      rotation: {x: 0, y: 0}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 1
+      count: 40
+      radius: {x: 0.25, y: 0.55}
+      height: {x: 0.2, y: 0.6}
+      tangentialSpeed: {x: 0.8, y: 1.5}
+      outwardSpeed: {x: 0.1, y: 0.3}
+      upSpeed: {x: 0.8, y: 1.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.1, y: 0.15}
+      lifetime: {x: 0.7, y: 0.9}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    impact:
+    - name: Gotas grandes
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 20
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.2, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 3, y: 6}
+      directionalSpeed: {x: 1.5, y: 3.5}
+      clockwise: 1
+      size: {x: 0.08, y: 0.12}
+      lifetime: {x: 1.5, y: 1.9}
+      color: {r: 0.8, g: 1, b: 0.88, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Gotas r\xE1pidas"
+      emitter: 15
+      sprite: Gota
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 4, y: 7}
+      upSpeed: {x: 1, y: 3}
+      directionalSpeed: {x: 2, y: 4}
+      clockwise: 1
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 1, y: 1.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas en todas direcciones"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 24
+      radius: {x: 0.1, y: 0.3}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3.5, y: 5.5}
+      upSpeed: {x: -2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 0.14, y: 0.2}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo"
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 1.6, y: 1.6}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    strongImpact: []
+    guardHit: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1
+      heightScale: 1
+      height: 0
+      growEase: 2
+      bodyColor: {r: 0.8650876, g: 1, b: 0.7150943, a: 0.47843137}
+      rimColor: {r: 0.56785, g: 0.93962264, b: 0.40244213, a: 0.95}
+      outlineColor: {r: 1, g: 1, b: 1, a: 0.9}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
+      rimWidth: 0.37
+      outlineWidth: 0.261
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 2}
+      linesSpeed: 1.2
+      linesTwist: 0.15
+      axisTilt: 0
+      axisPrecess: 0.8
+      swirlLines: 5
+      swirlTwist: 0.6
+      swirlSpeed: 1.5
+      swirlWidth: 0.18
+      shakeFrom: 0.061
+      shakeScale: 0.09
+      shakeRate: 0
+      popTime: 0.3
+      popScale: 1.3
+      popFlash: 0.483
+      popFall: 0.152
+      appearFrom: 0.471
+      startRadius: 0
+      funnelPhase: 0.735
+      funnelMorph: 0.483
+      funnelShape: {x: 0.17, y: 3.22, z: 0.59}
+      topCut: 0.086
+      topSpikes: 11
+      topSpikesSpeed: 0.96
+      insideAlpha: 1
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: b3662b4bd0b8870459e87e5423e87cdd, type: 3}
+      maskAmount: 0.491
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 1.05, y: 3.19}
+      maskEdge: 0.023
+      maskEdgeColor: {r: 0.22851546, g: 0.9245283, b: 0.3997144, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0.3
+      topErodeFrom: 0.409
+      holePulseEnabled: 0
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0.033
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 0
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchEnabled: 0
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+    baseDome:
+      material: {fileID: 0}
+      radius: 1.2
+      heightScale: 0.85
+      height: 0
+      growEase: 2
+      bodyColor: {r: 1, g: 0.97, b: 0.9, a: 0.18}
+      rimColor: {r: 1, g: 0.55, b: 0.15, a: 0.95}
+      outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.9}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
+      rimWidth: 0.3
+      outlineWidth: 0.08
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 2}
+      linesSpeed: 1.2
+      linesTwist: 0.15
+      axisTilt: 25
+      axisPrecess: 0.8
+      swirlLines: 5
+      swirlTwist: 0.6
+      swirlSpeed: 1.5
+      swirlWidth: 0.18
+      shakeFrom: 0.6
+      shakeScale: 0.08
+      shakeRate: 22
+      popTime: 0.16
+      popScale: 1.7
+      popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 1
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchEnabled: 1
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+    domeWhileActive: 0
+    rush: []
+    spiralTrail:
+      material: {fileID: 0}
+      onlyWhileRushing: 1
+      strands: 2
+      radius: 0.55
+      turnsPerSecond: 3
+      height: 0.3
+      width: 0.09
+      tailWidth: 0.3
+      time: 0.35
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      tailAlpha: 0
+      powerTint: {x: 0, y: 1}
+    targetMark: []
+    endBurst:
+    - name: "L\xEDneas que suben"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 24
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: 0.3, y: 0.8}
+      upSpeed: {x: 2.5, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.035, y: 0.05}
+      lifetime: {x: 0.2, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.3, g: 1, b: 0.6, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Cruces que suben
+      emitter: 15
+      sprite: Cruz
+      spriteVariants: []
+      rotation: {x: 0, y: 0}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0.2, y: 0.45}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: 0.2, y: 0.6}
+      upSpeed: {x: 1.5, y: 2.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.1, y: 0.15}
+      lifetime: {x: 0.7, y: 0.9}
+      color: {r: 0.3, g: 1, b: 0.6, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 0.5, y: 1}
+      upSpeed: {x: 0.8, y: 1.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.8, y: 1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 1, b: 0.88, a: 1}
+      alpha: 0.7
+      windupOnly: 0
+      powerTint: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail:
+    - name: Humo de la golpeada
+      emitter: 19
+      sprite: NubeComic
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 25
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0, y: 0.2}
+      coneAngle: 70
+      speed: {x: 0.3, y: 0.8}
+      inheritVelocity: -0.1
+      size: {x: 0.3, y: 0.5}
+      lifetime: {x: 0.35, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.85
+      powerTint: 0.4
+    - name: Chispas de la golpeada
+      emitter: 19
+      sprite: Chispa
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 30
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.05, y: 0.3}
+      coneAngle: 70
+      speed: {x: 1, y: 2.5}
+      inheritVelocity: -0.1
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      powerTint: 1
+    hitTrailTime: 0.4
+    puddles: []
+    healCutBurst:
+    - name: Cruces que caen
+      emitter: 15
+      sprite: CruzCae
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.4, y: 0.7}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 1, y: 2.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.12, y: 0.16}
+      lifetime: {x: 0.7, y: 0.8}
+      color: {r: 0.62, g: 0.62, b: 0.62, a: 1}
+      color2: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas grises
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 0.62, g: 0.62, b: 0.62, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    burstRibbon: 1
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   genericSpecialEffects:
     type: 0
     replaceAura: 0
@@ -12354,6 +14169,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -12377,6 +14195,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 6
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.4, y: 0.4}
@@ -12400,6 +14221,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.3, y: 1.8}
       height: {x: 0.05, y: 0.6}
@@ -12423,6 +14247,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 25
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 1.6, y: 2.2}
       height: {x: 0, y: 0.4}
@@ -12447,6 +14274,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 1
       radius: {x: 0, y: 0}
       height: {x: 0.03, y: 0.03}
@@ -12470,6 +14300,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 30
       radius: {x: 0.4, y: 0.7}
       height: {x: 0.05, y: 0.5}
@@ -12493,6 +14326,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 12
       radius: {x: 2.2, y: 2.8}
       height: {x: 0.1, y: 0.5}
@@ -12516,6 +14352,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 14
       radius: {x: 0.4, y: 0.6}
       height: {x: 0.3, y: 0.6}
@@ -12724,6 +14563,7 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+    domeWhileActive: 0
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -12754,6 +14594,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 25
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -12775,6 +14616,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 30
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.4}
@@ -12789,6 +14631,11 @@ MonoBehaviour:
       alpha: 1
       powerTint: 1
     hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
   useGenericSpecialEffects: 0
   burn:
     enabled: 1
@@ -12874,6 +14721,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 4
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0.3, y: 0.8}
       burstCount: {x: 2, y: 4}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -12895,6 +14743,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 6
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.6}
@@ -12916,6 +14765,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 6
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.1, y: 0.4}
@@ -12938,6 +14788,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 35
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.45, y: 0.7}
       height: {x: 0, y: 0.15}
@@ -12961,6 +14814,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 15
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.35, y: 0.6}
       height: {x: 0, y: 0.2}
@@ -13004,6 +14860,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.1, y: 0.25}
@@ -13027,6 +14886,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 6
       radius: {x: 0.2, y: 0.3}
       height: {x: 0.2, y: 0.35}
@@ -13140,6 +15002,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 5
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.2, y: 0.5}
@@ -13162,6 +15025,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 40
       radius: {x: 0.4, y: 0.6}
       height: {x: 0, y: 0.3}
@@ -13187,6 +15053,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.15}
@@ -13210,6 +15079,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 5
       radius: {x: 0.2, y: 0.3}
       height: {x: 0.1, y: 0.3}
@@ -13323,6 +15195,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 20
       ratePerSpeed: 0
+      onlyWhileHealing: 0
       burstInterval: {x: 0.05, y: 0.15}
       burstCount: {x: 2, y: 5}
       spawnRadius: {x: 0.3, y: 0.6}
@@ -13347,6 +15220,9 @@ MonoBehaviour:
       alignToDirection: 0
       forwardOffset: 0
       rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
       count: 10
       radius: {x: 0.1, y: 0.2}
       height: {x: 0.05, y: 0.2}
@@ -13460,6 +15336,7 @@ MonoBehaviour:
       forwardOffset: {x: 0, y: 0}
       rate: 16
       ratePerSpeed: 2
+      onlyWhileHealing: 0
       burstInterval: {x: 0, y: 0}
       burstCount: {x: 3, y: 6}
       spawnRadius: {x: 0.3, y: 0.5}

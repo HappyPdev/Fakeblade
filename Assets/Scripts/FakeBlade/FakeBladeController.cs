@@ -1574,8 +1574,12 @@ namespace FakeBlade.Core
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
                 _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, _special.IsActive && !_isDestroyed, windingUp);
                 _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, effectsOn, _special.IsActive && windingUp && !_isDestroyed);
-                // Cúpula: mientras carga (Onda de choque) o mientras atrae (Tornado: embudo y cúpula)
+                // Cúpula: mientras carga (Onda de choque), mientras atrae (Tornado: embudo y cúpula) o mientras dura (Defensa;
+                // y cualquiera con Dome While Active)
                 float domeCharge = _special.ChargeVisualProgress;
+                // Todo el rato que dura el poder (Dome While Active, 2026-10-27): crece en la carga y se queda entera
+                if (domeCharge < 0f && _special.IsActive && specialVfx != null && specialVfx.domeWhileActive)
+                    domeCharge = _special.IsWindingUp ? _special.WindupProgress : 1f;
                 if (visualCharge && domeCharge >= 0f) domeCharge = _special.ActiveTime / visualWindup;
                 _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, domeCharge >= 0f && !_isDestroyed, domeCharge);
                 _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, domeCharge >= 0f && !_isDestroyed, domeCharge);

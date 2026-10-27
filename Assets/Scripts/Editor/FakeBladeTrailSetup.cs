@@ -232,7 +232,7 @@ namespace FakeBlade.Core.Editor
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
                    SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
                    SetupDefense(library) + "; " + SetupWaterTrail(library) + "; " + SetupWet(library) + "; " +
-                   SetupGenericSpecial(library);
+                   SetupSpinBoost(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -2045,6 +2045,255 @@ namespace FakeBlade.Core.Editor
             ShockCircle("Círculo", "CircleImpact04Anillo", 3.4f, 0.05f, 0.4f, DefensePale, 0.9f)
         };
 
+        // Spin Boost: el verde de su asset y uno pastel
+        private static readonly Color SpinGreen = new Color(0.3f, 1f, 0.6f);
+        private static readonly Color SpinPale = new Color(0.8f, 1f, 0.88f);
+        private static readonly Color HealCutGrey = new Color(0.62f, 0.62f, 0.62f);
+        /// <summary>
+        /// Cuencos del Spin Boost: la fila verde de la hoja 01 de Pixel Holy Spell Effect Pack 3 (BDragon1727), cortada en una tira
+        /// en Assets/VFX/Textures/BDragon (HolyPack3_2_Verde). Las demás filas tienen su material VFX_HolyTipCup_N para probarlas.
+        /// </summary>
+        private const string SpinBoostCupMaterialPath = "Assets/VFX/Materials/VFX_GreenBoostTipCup.mat";
+
+        /// <summary>
+        /// Spin Boost (K8, 2026-10-26; planteamiento del usuario, «acelerón + curación»). Carga (0,3 s): círculos en el suelo que
+        /// se cierran y líneas que se tragan; al encenderse, un círculo que se abre (cierra la carga) y una explosión pequeña
+        /// hacia fuera y hacia arriba. Mientras dura: un tornado pequeño de líneas y puntos pegado a la peonza (sin cúpula), que
+        /// se espesa y gira más deprisa al correr; cruces que suben solo mientras cura (al cortarse la curación, cruces grises
+        /// que caen); cuencos verdes y blancos en la punta; rayas que se quedan atrás al correr; la cinta del acelerón, corta y
+        /// verde; y el borde verde. Al chocar, las gotas del Rastro de agua en verde (caen con su plic) y líneas en todas
+        /// direcciones. Al terminar, el tornado se deshace hacia arriba. Solo añade la entrada si falta y rellena lo vacío.
+        /// </summary>
+        private static string SetupSpinBoost(VfxLibrary library)
+        {
+            SpecialVfxStyle spin = library.GetSpecialEffects(SpecialAbilityType.SpinBoost);
+            bool added = spin == null;
+            if (added)
+            {
+                spin = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.SpinBoost, replaceAura = true, windupSustain = 0f,
+                    burstRibbon = true, ribbonPowerColor = true, ribbonTime = 0.15f
+                };
+                spin.overlay = new SpecialOverlayStyle
+                {
+                    color = SpinGreen, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.5f, 1.1f),
+                    pulseFlash = new Vector2(0f, 0.06f), pulseInterval = new Vector2(0.2f, 0.4f), pulseDecay = 0.25f
+                };
+                spin.scorch = new ScorchStyle { sprite = "" };
+                SpinBoostTip(spin.tip, library.burstTip);
+                library.specialEffects.Add(spin);
+            }
+
+            spin.windup ??= new List<SpiralParticleStyle>();
+            if (spin.windup.Count == 0) spin.windup.AddRange(SpinBoostWindup());
+            spin.activationBurst ??= new List<SpiralParticleStyle>();
+            if (spin.activationBurst.Count == 0) spin.activationBurst.AddRange(SpinBoostBurst());
+            spin.swirl ??= new List<SpiralParticleStyle>();
+            if (spin.swirl.Count == 0) spin.swirl.AddRange(SpinBoostTornado());
+            spin.particles ??= new List<SpecialParticleStyle>();
+            if (spin.particles.Count == 0) spin.particles.AddRange(SpinBoostStreaks());
+            spin.impact ??= new List<SpiralParticleStyle>();
+            if (spin.impact.Count == 0) spin.impact.AddRange(SpinBoostImpact());
+            spin.endBurst ??= new List<SpiralParticleStyle>();
+            if (spin.endBurst.Count == 0) spin.endBurst.AddRange(SpinBoostEnd());
+            spin.healCutBurst ??= new List<SpiralParticleStyle>();
+            if (spin.healCutBurst.Count == 0) spin.healCutBurst.AddRange(SpinBoostHealCut());
+            spin.hitTrail ??= new List<SpecialParticleStyle>();
+            if (spin.hitTrail.Count == 0) spin.hitTrail.AddRange(GenericHitTrail());
+            return "Spin Boost" + (added ? " (nuevo)" : "");
+        }
+
+        /// <summary>
+        /// Cuencos de la punta, hacia arriba y pegados a la punta todo el tiempo que dura, girando a distinta velocidad para dar
+        /// fondo al tornado. Con la fila verde de Pixel Holy Spell Effect Pack 3 de BDragon (2026-10-26, elegida por el usuario:
+        /// VFX_GreenBoostTipCup, tira de 11 × 1 con 7 dibujos) o, si falta, la hoja del acelerón. El dibujo ya es verde: los
+        /// cuencos van en blanco y verde pálido para no saturarlo.
+        /// </summary>
+        private static void SpinBoostTip(BurstTipStyle tip, BurstTipStyle accel)
+        {
+            var green = AssetDatabase.LoadAssetAtPath<Material>(SpinBoostCupMaterialPath);
+            tip.mesh = accel != null ? accel.mesh : null;
+            tip.material = green != null ? green : accel != null ? accel.material : null;
+            tip.tilesX = green != null ? 11 : accel != null ? accel.tilesX : 3;
+            tip.tilesY = green != null ? 1 : accel != null ? accel.tilesY : 3;
+            tip.firstFrame = green != null ? 0 : accel != null ? accel.firstFrame : 0;
+            tip.frames = green != null ? 7 : accel != null ? accel.frames : 9;
+            tip.cycle = green != null ? 0.5f : 0.3f;
+            tip.size = 2f;
+            tip.scale = new Vector2(1f, 0.8f);
+            tip.height = 0.03f;
+            tip.alpha = 0.9f;
+            tip.lighten = 0f;
+            tip.fade = new Vector2(0.06f, 0.15f);
+            tip.pointForward = false;
+            tip.onlyWhileRushing = false;
+            tip.particleSprite = "";
+            tip.ground = new TipGroundSprite();
+            tip.groundLayers.Clear();
+            tip.cups.Clear();
+            tip.cups.Add(new BurstTipCup { angle = 0f, spinSpeed = 320f, scale = new Vector2(0.6f, 0.7f), playerColor = false, color = Color.white });
+            tip.cups.Add(new BurstTipCup { angle = 120f, spinSpeed = -260f, scale = new Vector2(0.8f, 1f), playerColor = false, color = green != null ? SpinPale : SpinGreen });
+            tip.cups.Add(new BurstTipCup { angle = 240f, spinSpeed = 200f, scale = new Vector2(1f, 1.3f), playerColor = false, color = new Color(1f, 1f, 1f, 0.8f) });
+        }
+
+        /// <summary>Carga: círculos en el suelo que se cierran (uno grueso y otro fino) y algunas líneas que se tragan.</summary>
+        private static SpiralParticleStyle[] SpinBoostWindup() => WindupOnly(new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 4.5f, 0.03f, 0.35f, SpinGreen, 0.9f, rate: 9f),
+            ShockCircle("Círculo fino que se cierra (suelo)", "CircleImpact04Cierra", 3.2f, 0.05f, 0.3f, SpinPale, 0.85f, rate: 7f),
+            InwardLines("Líneas que se tragan", 35f, Color.white, SpinGreen)
+        });
+
+        /// <summary>
+        /// Al encenderse: un círculo que se abre en el suelo (cierra la carga) y una explosión pequeña hacia fuera y hacia
+        /// arriba de líneas, cruces, chispas y algo de humo.
+        /// </summary>
+        private static SpiralParticleStyle[] SpinBoostBurst()
+        {
+            SpiralParticleStyle smoke = OutwardSmokeBurst("Humo despedido", "HumoViento", Color.white, SpinPale);
+            smoke.count = 8;
+            smoke.size = new Vector2(0.4f, 0.7f);
+            smoke.upSpeed = new Vector2(1f, 2f);
+            return new[]
+            {
+                ShockCircle("Onda", "CircleImpact02Suelo", 4.5f, 0.03f, 0.35f, SpinGreen, 0.9f),
+                new SpiralParticleStyle
+                {
+                    name = "Líneas hacia fuera y arriba", sprite = "Linea", count = 26, radius = new Vector2(0.3f, 0.5f),
+                    height = new Vector2(0.05f, 0.4f), tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(2.5f, 4f),
+                    upSpeed = new Vector2(2f, 3.5f), size = new Vector2(0.035f, 0.05f), lifetime = new Vector2(0.15f, 0.22f),
+                    color = Color.white, color2 = SpinGreen
+                },
+                new SpiralParticleStyle
+                {
+                    name = "Cruces", sprite = "Cruz", count = 10, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.2f, 0.5f),
+                    tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(2f, 3.5f), upSpeed = new Vector2(2.5f, 4f),
+                    rotation = Vector2.zero, size = new Vector2(0.12f, 0.18f), lifetime = new Vector2(0.5f, 0.7f),
+                    color = SpinGreen, color2 = Color.white
+                },
+                new SpiralParticleStyle
+                {
+                    name = "Chispas", sprite = "Chispa", count = 16, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.1f, 0.3f),
+                    tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 6f), upSpeed = new Vector2(3f, 5f),
+                    size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.4f, 0.6f), color = Color.white, color2 = SpinGreen
+                },
+                smoke
+            };
+        }
+
+        /// <summary>
+        /// Mientras dura: el tornado pequeño (líneas y puntos que giran y suben pegados a la peonza, abriéndose un poco hacia
+        /// arriba), más espeso y más rápido al correr (Rate Per Speed y Speed Per Speed), y las cruces que suben solo mientras
+        /// cura (Only While Healing).
+        /// </summary>
+        private static SpiralParticleStyle[] SpinBoostTornado() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Tornado de líneas", sprite = "Linea", rate = 70f, ratePerSpeed = 8f, speedPerSpeed = 0.08f,
+                radius = new Vector2(0.35f, 0.5f), height = new Vector2(0f, 0.15f), tangentialSpeed = new Vector2(2.5f, 3.5f),
+                outwardSpeed = new Vector2(-0.6f, -0.3f), upSpeed = new Vector2(1.5f, 2.2f), size = new Vector2(0.025f, 0.04f),
+                lifetime = new Vector2(0.22f, 0.3f), color = Color.white, color2 = SpinGreen
+            },
+            new SpiralParticleStyle
+            {
+                name = "Tornado de puntos", emitter = VfxType.AuraSpinBoost, rate = 50f, ratePerSpeed = 5f, speedPerSpeed = 0.08f,
+                radius = new Vector2(0.3f, 0.45f), height = new Vector2(0f, 0.1f), tangentialSpeed = new Vector2(2.5f, 3.5f),
+                outwardSpeed = new Vector2(-0.5f, -0.2f), upSpeed = new Vector2(1.2f, 2f), size = new Vector2(0.06f, 0.09f),
+                lifetime = new Vector2(0.25f, 0.35f), color = SpinGreen, color2 = SpinPale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Cruces de curación", sprite = "Cruz", onlyWhileHealing = true, rate = 12f, radius = new Vector2(0.25f, 0.55f),
+                height = new Vector2(0.2f, 0.6f), tangentialSpeed = new Vector2(0.8f, 1.5f), outwardSpeed = new Vector2(0.1f, 0.3f),
+                upSpeed = new Vector2(0.8f, 1.3f), rotation = Vector2.zero, size = new Vector2(0.1f, 0.15f),
+                lifetime = new Vector2(0.7f, 0.9f), color = SpinGreen, color2 = Color.white
+            }
+        };
+
+        /// <summary>Al correr: rayas que se quedan atrás (el acelerón), más cuanto más deprisa va.</summary>
+        private static SpecialParticleStyle[] SpinBoostStreaks() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Rayas del acelerón", emitter = VfxType.Dash, rate = 0f, ratePerSpeed = 12f, spawnRadius = new Vector2(0.2f, 0.45f),
+                height = new Vector2(0.05f, 0.4f), coneAngle = 90f, speed = new Vector2(0.2f, 0.5f), inheritVelocity = -0.3f,
+                size = Vector2.zero, lifetime = Vector2.zero, color = SpinGreen, color2 = Color.white
+            }
+        };
+
+        /// <summary>
+        /// Al chocar (pedido del usuario): las gotas del Rastro de agua en verde, que caen hasta el suelo con su plic, más hacia
+        /// el golpe; líneas en todas direcciones y un círculo en el suelo.
+        /// </summary>
+        private static SpiralParticleStyle[] SpinBoostImpact() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Gotas grandes", sprite = "Gota", count = 20, radius = new Vector2(0f, 0.2f), height = new Vector2(0.2f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(3f, 6f),
+                directionalSpeed = new Vector2(1.5f, 3.5f), size = new Vector2(0.08f, 0.12f), lifetime = new Vector2(1.5f, 1.9f),
+                color = SpinPale, color2 = SpinGreen
+            },
+            new SpiralParticleStyle
+            {
+                name = "Gotas rápidas", sprite = "Gota", count = 18, radius = new Vector2(0f, 0.15f), height = new Vector2(0.15f, 0.3f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(4f, 7f), upSpeed = new Vector2(1f, 3f),
+                directionalSpeed = new Vector2(2f, 4f), size = new Vector2(0.04f, 0.06f), lifetime = new Vector2(1f, 1.3f),
+                color = Color.white, color2 = SpinGreen
+            },
+            new SpiralParticleStyle
+            {
+                name = "Líneas en todas direcciones", sprite = "Linea", count = 24, radius = new Vector2(0.1f, 0.3f),
+                height = new Vector2(0.1f, 0.4f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3.5f, 5.5f),
+                upSpeed = new Vector2(-2f, 4f), size = new Vector2(0.04f, 0.06f), lifetime = new Vector2(0.14f, 0.2f),
+                color = Color.white, color2 = SpinGreen
+            },
+            ShockCircle("Círculo", "CircleImpact02Suelo", 1.6f, 0.03f, 0.35f, SpinGreen, 0.9f)
+        };
+
+        /// <summary>Al terminar: el tornado se deshace hacia arriba (líneas y cruces que suben y algo de humo) y se apaga.</summary>
+        private static SpiralParticleStyle[] SpinBoostEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", count = 24, radius = new Vector2(0.3f, 0.5f), height = new Vector2(0f, 0.3f),
+                tangentialSpeed = new Vector2(2f, 3f), outwardSpeed = new Vector2(0.3f, 0.8f), upSpeed = new Vector2(2.5f, 3.5f),
+                size = new Vector2(0.035f, 0.05f), lifetime = new Vector2(0.2f, 0.3f), color = Color.white, color2 = SpinGreen
+            },
+            new SpiralParticleStyle
+            {
+                name = "Cruces que suben", sprite = "Cruz", count = 6, radius = new Vector2(0.2f, 0.45f), height = new Vector2(0.2f, 0.5f),
+                tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(0.2f, 0.6f), upSpeed = new Vector2(1.5f, 2.5f),
+                rotation = Vector2.zero, size = new Vector2(0.1f, 0.15f), lifetime = new Vector2(0.7f, 0.9f),
+                color = SpinGreen, color2 = Color.white
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo", sprite = "HumoViento", count = 6, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.2f, 0.5f),
+                tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(0.5f, 1f), upSpeed = new Vector2(0.8f, 1.5f),
+                size = new Vector2(0.4f, 0.6f), lifetime = new Vector2(0.8f, 1f), color = Color.white, color2 = SpinPale, alpha = 0.7f
+            }
+        };
+
+        /// <summary>Al cortar un golpe la curación (pedido del usuario): cruces grises que se rompen y caen girando, y chispas grises.</summary>
+        private static SpiralParticleStyle[] SpinBoostHealCut() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Cruces que caen", sprite = "CruzCae", count = 6, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.4f, 0.7f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2f), upSpeed = new Vector2(1f, 2.5f),
+                size = new Vector2(0.12f, 0.16f), lifetime = new Vector2(0.7f, 0.8f), color = HealCutGrey, color2 = new Color(0.4f, 0.4f, 0.4f)
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas grises", sprite = "Chispa", count = 8, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.3f, 0.6f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(1f, 2f),
+                size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.4f, 0.5f), color = HealCutGrey, color2 = Color.white
+            }
+        };
+
         // Rastro de agua (2026-10-26, decidido con el usuario): azul y cian con espuma blanca
         private static readonly Color WaterBlue = new Color(0.25f, 0.6f, 1f);
         private static readonly Color WaterCyan = new Color(0.5f, 0.95f, 1f);
@@ -2057,8 +2306,9 @@ namespace FakeBlade.Core.Editor
         /// y vaho), y después suben los dos cilindros de agua con franjas onduladas que suben sin parar. Mientras dura: salpica
         /// más cuanto más deprisa va, deja manchas de agua donde están los charcos y gotas y vaho alrededor. Al chocar, muchas
         /// gotas que caen con gravedad hasta el suelo (plic), más hacia el golpe, vaho y gotas rápidas. Al terminar, los
-        /// cilindros caen en seco al suelo y queda el charco grande (su mancha, en End Burst). Las gotas y brillos de antes sobre
-        /// los charcos se quedan (Replace Aura apagado). Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// cilindros caen en seco al suelo y queda el charco grande (su mancha, en End Burst). Sobre los charcos, brillos y alguna
+        /// gotita que salta (Puddles; las ondas de antes se quedan, con Replace Aura apagado). Solo añade la entrada si falta y
+        /// rellena lo que esté vacío.
         /// </summary>
         private static string SetupWaterTrail(VfxLibrary library)
         {
@@ -2112,6 +2362,8 @@ namespace FakeBlade.Core.Editor
             if (water.impact.Count == 0) water.impact.AddRange(WaterImpact());
             water.endBurst ??= new List<SpiralParticleStyle>();
             if (water.endBurst.Count == 0) water.endBurst.AddRange(WaterEnd());
+            water.puddles ??= new List<SpecialParticleStyle>();
+            if (water.puddles.Count == 0) water.puddles.AddRange(WaterPuddleDrops());
             return "Rastro de agua" + (added ? " (nuevo)" : "") + (water.dome.material == null ? " (falta el shader de la cúpula)" : "");
         }
 
@@ -2280,6 +2532,29 @@ namespace FakeBlade.Core.Editor
                 color = Color.white, color2 = WaterPale, alpha = 0.8f
             },
             ShockCircle("Círculo", "CircleImpact02Suelo", 1.6f, 0.03f, 0.35f, WaterPale, 0.9f)
+        };
+
+        /// <summary>
+        /// Sobre los charcos (2026-10-26, decidido con el usuario): brillos quietos y pequeños con el dibujo de la gota
+        /// (GotaBrillo: sin gravedad ni plic, aparecen y se apagan) y, de vez en cuando, una gotita que salta y cae con su plic
+        /// (Gota). Rate por charco; sustituyen a los destellos cuadrados de 0,2 m de antes.
+        /// </summary>
+        private static SpecialParticleStyle[] WaterPuddleDrops() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Brillos", sprite = "GotaBrillo", rate = 14f, spawnRadius = new Vector2(0f, 0.5f),
+                height = new Vector2(0.02f, 0.06f), coneAngle = 0f, speed = new Vector2(0f, 0.1f), inheritVelocity = 0f,
+                size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(0.4f, 0.7f), rotation = Vector2.zero,
+                color = Color.white, color2 = WaterPale
+            },
+            new SpecialParticleStyle
+            {
+                name = "Gotitas que saltan", sprite = "Gota", rate = 1.2f, spawnRadius = new Vector2(0f, 0.5f),
+                height = new Vector2(0.02f, 0.05f), coneAngle = 25f, speed = new Vector2(1.2f, 2f), inheritVelocity = 0f,
+                size = new Vector2(0.03f, 0.05f), lifetime = new Vector2(0.6f, 0.9f), rotation = Vector2.zero,
+                color = WaterPale, color2 = WaterCyan
+            }
         };
 
         /// <summary>

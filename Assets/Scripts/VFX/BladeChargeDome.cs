@@ -20,6 +20,10 @@ namespace FakeBlade.Core
     /// zigzag) que suben en la carga y se quedan como aura mientras dura; la Zbam, al embestirla.
     /// Rastro de agua (2026-10-26, boceto del usuario): los mismos dos embudos, como cilindros de agua con franjas que suben;
     /// salen al final de la carga, después de la salpicadura (appearFrom), y al terminar caen al suelo (popFall).
+    /// Pinchos (2026-10-28, idea del usuario): media cúpula que sube desde el suelo con conos pegados por la base que giran con
+    /// ella (spikes) y una textura que gira y sube; al chocar (golpee o la golpeen) se aplasta y rebota como gelatina (Kick, un
+    /// muelle amortiguado). Para aplastarla en cualquier dirección, la cúpula y los conos cuelgan de un pivote que se gira
+    /// hacia el golpe y se escala (ellos se giran al revés: quedan derechos y aplastados).
     /// </summary>
     public sealed class BladeChargeDome
     {
@@ -41,6 +45,7 @@ namespace FakeBlade.Core
         private static readonly int AlphaId = Shader.PropertyToID("_Alpha");
         private static readonly int LinesTexId = Shader.PropertyToID("_LinesTex");
         private static readonly int LinesId = Shader.PropertyToID("_Lines");
+        private static readonly int LinesRiseId = Shader.PropertyToID("_LinesRise");
         private static readonly int AxisId = Shader.PropertyToID("_Axis");
         private static readonly int AxisT1Id = Shader.PropertyToID("_AxisT1");
         private static readonly int AxisT2Id = Shader.PropertyToID("_AxisT2");
@@ -64,8 +69,16 @@ namespace FakeBlade.Core
         private static Mesh _meshInside;
         private static Mesh _meshSphere;
         private static readonly int InsideAlphaId = Shader.PropertyToID("_InsideAlpha");
+        // Conos macizos (shader FakeBlade/SpikeCone)
+        private static readonly int SpikeBaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int SpikeTipColorId = Shader.PropertyToID("_TipColor");
+        private static readonly int SpikeShadeColorId = Shader.PropertyToID("_ShadeColor");
+        private static readonly int SpikeOutlineColorId = Shader.PropertyToID("_OutlineColor");
+        private static readonly int SpikeTipFromId = Shader.PropertyToID("_TipFrom");
 
         private readonly FakeBladeController _blade;
+        // Pivote del aplastamiento (Pinchos): la cúpula y los conos cuelgan de él
+        private Transform _pivot;
         private Transform _transform;
         private MeshRenderer _renderer;
         private MeshFilter _filter;
@@ -98,6 +111,25 @@ namespace FakeBlade.Core
         private float _flicker;
         private float _glitch;
         private float _glitchSeed;
+        // Textura que sube (Pinchos)
+        private float _linesRise;
+        // Conos (Pinchos): su objeto, su malla (propia: se rehace solo si cambia el reparto), su giro y cuánto han salido
+        private Transform _spikesTransform;
+        private MeshRenderer _spikesRenderer;
+        private MeshFilter _spikesFilter;
+        private Mesh _spikesMesh;
+        private int _spikesKey;
+        private MaterialPropertyBlock _spikesBlock;
+        private bool _spikesVisible;
+        private float _spikesSpin;
+        private float _spikesGrow;
+        private float _lastSpikesGrow;
+        // Rebote al chocar (Pinchos): el estilo del último frame (para Kick), el muelle (1 = el aplastamiento más fuerte) y
+        // hacia dónde se aparta (en horizontal, contrario al golpe)
+        private ChargeDomeStyle _style;
+        private float _springX;
+        private float _springV;
+        private Vector3 _springDir = Vector3.forward;
 
         private readonly string _name;
         private readonly int _sortingOrder;
@@ -125,6 +157,7 @@ namespace FakeBlade.Core
                 return;
             }
             if (!_built) Build();
+            _style = style;
             if (_renderer.sharedMaterial != style.material) _renderer.sharedMaterial = style.material;
             // Con interior (insideAlpha), la malla con las caras de dentro; burbuja (Rebote), la esfera entera
             Mesh mesh = style.sphere ? SphereMesh() : DomeMesh(style.insideAlpha > 0f);
@@ -150,6 +183,7 @@ namespace FakeBlade.Core
             _time += dt;
             _phase = Mathf.Repeat(_phase + style.swirlSpeed * dt, 1f);
             _linesPhase = Mathf.Repeat(_linesPhase + style.linesSpeed * dt, 1f);
+            _linesRise = Mathf.Repeat(_linesRise + style.linesRise * dt, 64f);
             _precess = Mathf.Repeat(_precess + style.axisPrecess * dt, 1f);
             _topPhase = Mathf.Repeat(_topPhase + style.topSpikesSpeed * dt, 1f);
 
@@ -163,11 +197,16 @@ namespace FakeBlade.Core
                     if (p < style.appearFrom)
                     {
                         _lastRadius = 0f;
+                        _lastSpikesGrow = 0f;
                         SetVisible(false);
                         return;
                     }
                     p = (p - style.appearFrom) / (1f - style.appearFrom);
                 }
+                // Conos: salen de dentro en lo que queda de formación desde Grow From
+                float growFrom = style.spikes != null ? style.spikes.growFrom : 0f;
+                _spikesGrow = Mathf.SmoothStep(0f, 1f, (p - growFrom) / Mathf.Max(0.01f, 1f - growFrom));
+                _lastSpikesGrow = _spikesGrow;
                 radius = style.radius * Mathf.Lerp(style.startRadius, 1f, 1f - Mathf.Pow(1f - p, style.growEase));
                 // Tornado: al principio, embudo que sube desde el suelo; después se ensancha y baja hasta ser la cúpula
                 funnel = 0f;
@@ -200,6 +239,8 @@ namespace FakeBlade.Core
                 rise = _lastRise * (1f - style.popFall * t * t);
                 alpha = 1f - t;
                 flash = style.popFlash * (1f - t);
+                // Los conos se meten mientras revienta
+                _spikesGrow = _lastSpikesGrow * (1f - ease);
             }
 
             // Zbam del golpe (Rebote): se hincha un poco y destella
@@ -226,10 +267,27 @@ namespace FakeBlade.Core
 
             float rootScale = Mathf.Max(0.001f, _blade.transform.lossyScale.x);
             float height = radius * style.heightScale * rise;
+            // Rebote al chocar (Pinchos): el pivote se gira hacia donde se aparta, se mueve y se aplasta en esa dirección (de lado
+            // se ensancha la mitad y sube un poco); la cúpula y los conos, girados al revés, quedan derechos y aplastados
+            StepSpring(style, dt);
+            Quaternion turn = Quaternion.identity;
+            Vector3 pivotPos = tip;
+            Vector3 squash = Vector3.one;
+            if (_springX != 0f)
+            {
+                float s = _springX * style.springSquash;
+                turn = Quaternion.LookRotation(_springDir);
+                pivotPos += _springDir * (_springX * style.springOffset);
+                squash = new Vector3(1f + s * 0.5f, 1f + s * 0.25f, Mathf.Max(0.2f, 1f - s));
+            }
+            _pivot.SetPositionAndRotation(pivotPos, turn);
+            _pivot.localScale = squash / rootScale;
+            Quaternion upright = Quaternion.Inverse(turn);
             // La burbuja, con la base en la punta (la malla va de -1 a 1)
-            _transform.position = style.sphere ? tip + Vector3.up * height : tip;
-            _transform.rotation = Quaternion.identity;
-            _transform.localScale = new Vector3(radius, height, radius) / rootScale;
+            Vector3 center = style.sphere ? Vector3.up * height : Vector3.zero;
+            _transform.localPosition = center;
+            _transform.localRotation = upright;
+            _transform.localScale = new Vector3(radius, height, radius);
 
             _block.SetColor(BodyColorId, style.bodyColor);
             _block.SetColor(RimColorId, style.rimColor);
@@ -253,6 +311,98 @@ namespace FakeBlade.Core
             SetInstability(style, dt, alpha);
             _renderer.SetPropertyBlock(_block);
             SetVisible(true);
+            TickSpikes(style, dt, radius, alpha, flash, center, upright);
+        }
+
+        /// <summary>
+        /// Choque con la cúpula puesta (Pinchos, 2026-10-28): si su estilo lo pide (Spring Enabled), se aparta del golpe y se
+        /// aplasta de golpe, y vuelve rebotando. point: dónde ha sido, en el mundo; speed: la de las dos, una hacia la otra (m/s).
+        /// </summary>
+        public void Kick(Vector3 point, float speed)
+        {
+            ChargeDomeStyle style = _style;
+            if (!_visible || style == null || !style.springEnabled || _pivot == null || speed < style.springSpeed.x) return;
+            float full = Mathf.Max(style.springSpeed.x + 0.01f, style.springSpeed.y);
+            float strength = Mathf.Lerp(style.springMinStrength, 1f, Mathf.InverseLerp(style.springSpeed.x, full, speed));
+            Vector3 away = _pivot.position - point;
+            away.y = 0f;
+            if (away.sqrMagnitude < 0.0001f) away = _springDir;
+            away.Normalize();
+            // Si ya rebotaba, sigue desde lo que le queda en la nueva dirección; el empujón sale deprisa (llega a lo más en un
+            // cuarto de rebote)
+            _springX *= Mathf.Max(0f, Vector3.Dot(_springDir, away));
+            _springDir = away;
+            _springV = strength * Mathf.PI * 2f * style.springFrequency * 1.25f;
+        }
+
+        /// <summary>Muelle amortiguado del rebote: 0 = en su sitio; se para solo al quedarse quieto.</summary>
+        private void StepSpring(ChargeDomeStyle style, float dt)
+        {
+            if (!style.springEnabled)
+            {
+                _springX = _springV = 0f;
+                return;
+            }
+            if (_springX == 0f && _springV == 0f) return;
+            float w = Mathf.PI * 2f * style.springFrequency;
+            float step = Mathf.Min(dt, 0.05f);
+            _springV += (-w * w * _springX - 2f * style.springDamping * w * _springV) * step;
+            _springX = Mathf.Clamp(_springX + _springV * step, -1.5f, 1.5f);
+            if (Mathf.Abs(_springX) < 0.001f && Mathf.Abs(_springV) < 0.01f) _springX = _springV = 0f;
+        }
+
+        /// <summary>
+        /// Conos de la cúpula (Pinchos): salen de dentro hacia fuera según _spikesGrow (empiezan con la punta justo dentro de la
+        /// cúpula), giran y se aplastan con ella. Macizos (FakeBlade/SpikeCone, con su color) o con el material de la cúpula
+        /// (los valores de la cúpula, sin embudo, corte, huecos ni Zbam, que los deformarían o recortarían).
+        /// </summary>
+        private void TickSpikes(ChargeDomeStyle style, float dt, float radius, float alpha, float flash, Vector3 center,
+            Quaternion upright)
+        {
+            DomeSpikesStyle spikes = style.spikes;
+            bool domeLook = spikes != null && spikes.look == DomeSpikesLook.DomeMaterial;
+            Material material = spikes == null ? null : domeLook ? style.material : spikes.material;
+            if (spikes == null || !spikes.enabled || material == null || _spikesGrow <= 0.001f ||
+                spikes.counts.x + spikes.counts.y <= 0)
+            {
+                SetSpikesVisible(false);
+                return;
+            }
+            if (_spikesTransform == null) BuildSpikes();
+            Mesh mesh = SpikesMesh(spikes, style.heightScale, !domeLook);
+            if (_spikesFilter.sharedMesh != mesh) _spikesFilter.sharedMesh = mesh;
+            if (_spikesRenderer.sharedMaterial != material) _spikesRenderer.sharedMaterial = material;
+
+            _spikesSpin = Mathf.Repeat(_spikesSpin + spikes.spin * dt, 1f);
+            float scale = radius * Mathf.Lerp(1f / (1f + spikes.length), 1f, _spikesGrow);
+            _spikesTransform.localPosition = center;
+            _spikesTransform.localRotation = upright * Quaternion.Euler(0f, _spikesSpin * 360f, 0f);
+            _spikesTransform.localScale = new Vector3(scale, scale, scale);
+
+            if (domeLook)
+            {
+                _block.SetFloat(FunnelId, 0f);
+                _block.SetVector(TopCutId, Vector4.zero);
+                _block.SetVector(HitId, Vector4.zero);
+                _block.SetVector(MaskId, new Vector4(-1f, 1f, 1f, 0f));
+                _block.SetVector(WobbleId, Vector4.zero);
+                _block.SetVector(GlitchId, new Vector4(1f, 0f, 0f, 0f));
+                _block.SetFloat(InsideAlphaId, 1f);
+                _spikesRenderer.SetPropertyBlock(_block);
+            }
+            else
+            {
+                _spikesBlock ??= new MaterialPropertyBlock();
+                _spikesBlock.SetColor(SpikeBaseColorId, spikes.color);
+                _spikesBlock.SetColor(SpikeTipColorId, spikes.tipColor);
+                _spikesBlock.SetColor(SpikeShadeColorId, spikes.shadeColor);
+                _spikesBlock.SetColor(SpikeOutlineColorId, spikes.outlineColor);
+                _spikesBlock.SetFloat(SpikeTipFromId, spikes.tipFrom);
+                _spikesBlock.SetFloat(FlashId, flash);
+                _spikesBlock.SetFloat(AlphaId, alpha);
+                _spikesRenderer.SetPropertyBlock(_spikesBlock);
+            }
+            SetSpikesVisible(true);
         }
 
         /// <summary>
@@ -361,6 +511,7 @@ namespace FakeBlade.Core
             if (hasTexture) _block.SetTexture(LinesTexId, style.linesTexture);
             _block.SetVector(LinesId, new Vector4(style.linesTiling.x, style.linesTiling.y, _linesPhase,
                 hasTexture ? style.linesTwist : -1f));
+            _block.SetFloat(LinesRiseId, _linesRise);
 
             float tilt = style.axisTilt * Mathf.Deg2Rad;
             float turn = _precess * Mathf.PI * 2f;
@@ -380,23 +531,35 @@ namespace FakeBlade.Core
             _hit = 0f;
             _hitPending = false;
             _wasWindingUp = false;
+            _springX = _springV = 0f;
+            _spikesGrow = _lastSpikesGrow = 0f;
             SetVisible(false);
         }
 
         private void SetVisible(bool visible)
         {
+            if (!visible) SetSpikesVisible(false);
             if (_visible == visible) return;
             _visible = visible;
             if (_renderer != null) _renderer.enabled = visible;
+        }
+
+        private void SetSpikesVisible(bool visible)
+        {
+            if (_spikesVisible == visible) return;
+            _spikesVisible = visible;
+            if (_spikesRenderer != null) _spikesRenderer.enabled = visible;
         }
 
         private void Build()
         {
             _built = true;
             _block = new MaterialPropertyBlock();
+            _pivot = new GameObject(_name + "Pivot").transform;
+            _pivot.SetParent(_blade.transform, false);
             var go = new GameObject(_name);
             _transform = go.transform;
-            _transform.SetParent(_blade.transform, false);
+            _transform.SetParent(_pivot, false);
             _filter = go.AddComponent<MeshFilter>();
             _filter.sharedMesh = DomeMesh(false);
             _renderer = go.AddComponent<MeshRenderer>();
@@ -410,6 +573,116 @@ namespace FakeBlade.Core
             // recorte al salir de la pantalla
             _renderer.localBounds = new Bounds(new Vector3(0f, 1.5f, 0f), new Vector3(4f, 5.2f, 4f));
             ScreenPixelation.MoveToVfxLayer(go); // nítida sobre la escena pixelada (O2)
+        }
+
+        /// <summary>El objeto de los conos (Pinchos), junto a la cúpula: se crea la primera vez que salen.</summary>
+        private void BuildSpikes()
+        {
+            var go = new GameObject(_name + "Spikes");
+            _spikesTransform = go.transform;
+            _spikesTransform.SetParent(_pivot, false);
+            _spikesFilter = go.AddComponent<MeshFilter>();
+            _spikesRenderer = go.AddComponent<MeshRenderer>();
+            _spikesRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _spikesRenderer.receiveShadows = false;
+            _spikesRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+            _spikesRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            _spikesRenderer.enabled = false;
+            _spikesRenderer.sortingOrder = _sortingOrder;
+            _spikesVisible = false;
+            ScreenPixelation.MoveToVfxLayer(go);
+        }
+
+        /// <summary>
+        /// Malla de los conos para este reparto (se rehace solo si cambia: al ajustarlos en el Inspector). solid: con el casco del
+        /// contorno.
+        /// </summary>
+        private Mesh SpikesMesh(DomeSpikesStyle spikes, float heightScale, bool solid)
+        {
+            float outline = solid ? spikes.outlineWidth : 0f;
+            int key = System.HashCode.Combine(spikes.counts, spikes.elevations, spikes.length, spikes.width, spikes.sides, outline,
+                heightScale);
+            if (_spikesMesh != null && key == _spikesKey) return _spikesMesh;
+            _spikesKey = key;
+            _spikesMesh ??= new Mesh { name = "DomeSpikes" };
+            BuildSpikesMesh(_spikesMesh, spikes, heightScale, outline);
+            return _spikesMesh;
+        }
+
+        /// <summary>
+        /// Conos sobre la media cúpula de radio 1 y alto heightScale (la base de cada uno, un poco hundida en ella, para que no
+        /// quede hueco en la curva), apuntando hacia fuera de la superficie. Caras planas (normal por cara: sombreado de cómic);
+        /// uv.y = 0 en la base y 1 en la punta. Con contorno, primero una copia inflada con las caras al revés (uv2.y = 1).
+        /// </summary>
+        private static void BuildSpikesMesh(Mesh mesh, DomeSpikesStyle spikes, float heightScale, float outline)
+        {
+            int lower = Mathf.Max(0, spikes.counts.x);
+            int upper = Mathf.Max(0, spikes.counts.y);
+            int sides = Mathf.Clamp(spikes.sides, 3, 12);
+            int copies = outline > 0f ? 2 : 1;
+            int count = (lower + upper) * sides * 3 * copies;
+            var vertices = new Vector3[count];
+            var normals = new Vector3[count];
+            var uvs = new Vector2[count];
+            var uvs2 = new Vector2[count];
+            var triangles = new int[count];
+            float hs = Mathf.Max(0.05f, heightScale);
+            int v = 0;
+            for (int copy = 0; copy < copies; copy++)
+            {
+                bool hull = copies == 2 && copy == 0;
+                float grow = hull ? outline : 0f;
+                for (int c = 0; c < lower + upper; c++)
+                {
+                    bool top = c >= lower;
+                    int row = top ? upper : lower;
+                    // La fila de arriba, intercalada con la de abajo (media separación de la de abajo)
+                    float turn = (top ? c - lower : c) / (float)row * Mathf.PI * 2f + (top ? Mathf.PI / Mathf.Max(1, lower) : 0f);
+                    float elevation = (top ? spikes.elevations.y : spikes.elevations.x) * Mathf.Deg2Rad;
+                    float flat = Mathf.Cos(elevation);
+                    var basePoint = new Vector3(flat * Mathf.Cos(turn), Mathf.Sin(elevation) * hs, flat * Mathf.Sin(turn));
+                    Vector3 axis = new Vector3(flat * Mathf.Cos(turn), Mathf.Sin(elevation) / hs, flat * Mathf.Sin(turn)).normalized;
+                    Vector3 t1 = Vector3.Cross(Vector3.up, axis);
+                    if (t1.sqrMagnitude < 0.0001f) t1 = Vector3.right;
+                    t1.Normalize();
+                    Vector3 t2 = Vector3.Cross(axis, t1);
+                    Vector3 center = basePoint - axis * (spikes.width * 0.5f);
+                    Vector3 apex = basePoint + axis * (spikes.length + grow * 2f);
+                    float width = spikes.width + grow;
+                    for (int k = 0; k < sides; k++)
+                    {
+                        float a0 = k / (float)sides * Mathf.PI * 2f;
+                        float a1 = (k + 1) / (float)sides * Mathf.PI * 2f;
+                        Vector3 d0 = t1 * Mathf.Cos(a0) + t2 * Mathf.Sin(a0);
+                        Vector3 d1 = t1 * Mathf.Cos(a1) + t2 * Mathf.Sin(a1);
+                        Vector3 p0 = center + d0 * width;
+                        Vector3 p1 = center + d1 * width;
+                        // Cara hacia fuera (en Unity, la de delante es la de normal Cross(b - a, c - a)); el casco, al revés
+                        Vector3 normal = Vector3.Cross(p1 - p0, apex - p0).normalized;
+                        bool outward = Vector3.Dot(normal, d0 + d1) > 0f;
+                        if (!outward) normal = -normal;
+                        bool swap = outward == hull;
+                        vertices[v] = swap ? p1 : p0;
+                        vertices[v + 1] = swap ? p0 : p1;
+                        vertices[v + 2] = apex;
+                        for (int i = 0; i < 3; i++)
+                        {
+                            normals[v + i] = normal;
+                            uvs[v + i] = new Vector2((k + 0.5f) / sides, i == 2 ? 1f : 0f);
+                            uvs2[v + i] = new Vector2(0f, hull ? 1f : 0f);
+                            triangles[v + i] = v + i;
+                        }
+                        v += 3;
+                    }
+                }
+            }
+            mesh.Clear();
+            mesh.vertices = vertices;
+            mesh.normals = normals;
+            mesh.uv = uvs;
+            mesh.uv2 = uvs2;
+            mesh.triangles = triangles;
+            mesh.RecalculateBounds();
         }
 
         /// <summary>

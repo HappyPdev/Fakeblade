@@ -123,6 +123,10 @@ namespace FakeBlade.Core
                     // Defensa: Zbam en su aura y chispas al embestirla, aunque no pierda RPM (2026-10-23)
                     BladeSpecialFx.PlayGuardHit(r.A, r.B, r.ApproachB, point);
                     BladeSpecialFx.PlayGuardHit(r.B, r.A, r.ApproachA, point);
+                    // Pinchos: su cúpula se aplasta y rebota, golpee ella o la golpeen (2026-10-28)
+                    float clashSpeed = Mathf.Max(0f, r.ApproachA) + Mathf.Max(0f, r.ApproachB);
+                    r.A.KickChargeDome(point, clashSpeed);
+                    r.B.KickChargeDome(point, clashSpeed);
                     float damage = Mathf.Max(r.DamageToA, r.DamageToB);
                     if (damage < _library.impactMinDamage) return;
                     // Cargado si quien hace más daño venía con un ataque cargado

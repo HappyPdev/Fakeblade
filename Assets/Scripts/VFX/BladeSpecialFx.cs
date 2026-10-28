@@ -562,11 +562,12 @@ namespace FakeBlade.Core
                 if (style != null && style.impact != null && style.impact.Count > 0)
                 {
                     s_power = special.Color;
-                    // Hacia el lado del choque, para las que tienen Directional Speed (Rastro de agua: más gotas hacia el golpe)
+                    // Hacia el lado del choque, para las que tienen Directional Speed (Rastro de agua: más gotas hacia el golpe); y
+                    // hacia la otra peonza para Forward Offset y Align To Direction (Pinchos, 2026-10-28: chorros y Zbam en el rival)
                     Vector3 toward = groundPoint - blade.Position;
                     toward.y = 0f;
                     toward = toward.sqrMagnitude > 0.0001f ? toward.normalized : Vector3.zero;
-                    Burst(style.impact, groundPoint, default, 0f, float.MaxValue, toward);
+                    Burst(style.impact, groundPoint, toward, 0f, float.MaxValue, toward);
                     return;
                 }
             }

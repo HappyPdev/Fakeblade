@@ -293,6 +293,15 @@ namespace FakeBlade.Core
         public void StartSpecialHitTrail(SpecialVfxStyle style, Color power) => _specialFx?.StartHitTrail(style, power);
         /// <summary>Golpe en la cúpula del especial (Rebote, 2026-10-21): una Zbam que se abre desde point.</summary>
         public void PulseChargeDome(Vector3 point) => _dome?.Pulse(point);
+        /// <summary>
+        /// Choque con las cúpulas del especial puestas (Pinchos, 2026-10-28): las que tienen Spring Enabled se aplastan hacia el
+        /// lado contrario a point y vuelven rebotando. speed: la de las dos peonzas, una hacia la otra (m/s).
+        /// </summary>
+        public void KickChargeDome(Vector3 point, float speed)
+        {
+            _dome?.Kick(point, speed);
+            _baseDome?.Kick(point, speed);
+        }
 
         /// <summary>Punta a ras de suelo (de donde salen los efectos de los especiales).</summary>
         public Vector3 TipPosition

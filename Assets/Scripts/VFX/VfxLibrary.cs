@@ -654,6 +654,8 @@ namespace FakeBlade.Core
         public float linesSpeed = 1.2f;
         [Tooltip("Cuánto se enrosca la textura de abajo arriba (vueltas)")]
         public float linesTwist = 0.15f;
+        [Tooltip("Repeticiones por segundo que sube la textura (Pinchos, 2026-10-28; negativo = baja; 0 = solo gira)")]
+        public float linesRise;
         [Header("Eje del giro")]
         [Tooltip("Inclinación del eje alrededor del que giran las líneas (grados; 0 = vertical, por el centro)")]
         [Range(0f, 80f)] public float axisTilt = 25f;
@@ -797,6 +799,80 @@ namespace FakeBlade.Core
         [Range(0f, 0.5f)] public float glitchOffset = 0.05f;
         [Tooltip("Lo que dura cada glitch (s)")]
         [Min(0.01f)] public float glitchTime = 0.08f;
+
+        [Header("Conos (Pinchos, 2026-10-28)")]
+        [Tooltip("Conos pegados a la cúpula por la base, que giran con ella y salen de dentro al formarse")]
+        public DomeSpikesStyle spikes = new DomeSpikesStyle();
+
+        [Header("Rebote al chocar (Pinchos, 2026-10-28)")]
+        [Tooltip("Al chocar (golpee ella o la golpeen), la cúpula se aplasta en la dirección del golpe, se aparta y vuelve a su " +
+                 "sitio con rebotes que se amortiguan, como gelatina (un muelle). Los conos, con ella. Apagado = quieta")]
+        public bool springEnabled;
+        [Tooltip("Velocidad del choque (la de las dos, una hacia la otra, m/s) desde la que rebota (x) y con la que rebota del " +
+                 "todo (y)")]
+        public Vector2 springSpeed = new Vector2(1f, 10f);
+        [Tooltip("Fuerza del rebote más flojo, en partes del más fuerte")]
+        [Range(0f, 1f)] public float springMinStrength = 0.35f;
+        [Tooltip("Cuánto se aplasta con el golpe más fuerte (0,3 = un 30% en la dirección del golpe; de lado se ensancha la mitad " +
+                 "de eso)")]
+        [Range(0f, 0.8f)] public float springSquash = 0.3f;
+        [Tooltip("Cuánto se aparta del golpe con el más fuerte (m)")]
+        [Min(0f)] public float springOffset = 0.12f;
+        [Tooltip("Rebotes por segundo")]
+        [Min(0.5f)] public float springFrequency = 4.5f;
+        [Tooltip("Amortiguación (poca = rebota muchas veces; 1 = vuelve sin pasarse)")]
+        [Range(0.02f, 1f)] public float springDamping = 0.22f;
+    }
+
+    /// <summary>Aspecto de los conos de una cúpula (DomeSpikesStyle.look).</summary>
+    public enum DomeSpikesLook
+    {
+        Solid = 0,
+        DomeMaterial = 1
+    }
+
+    /// <summary>
+    /// Conos de una cúpula (Pinchos, K8, 2026-10-28; idea del usuario): pinchos con la base pegada a la cúpula, en dos filas
+    /// (la de arriba, intercalada), que giran con ella. Al formarse la cúpula salen de dentro hacia fuera; al terminar, se
+    /// meten y se desvanecen con ella. Dos aspectos para elegir (pedido del usuario): macizos con sombreado plano y contorno
+    /// (shader FakeBlade/SpikeCone) o transparentes con el material de la cúpula. Los pinta BladeChargeDome. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class DomeSpikesStyle
+    {
+        [Tooltip("Apagado = sin conos")]
+        public bool enabled;
+        [Tooltip("Solid: macizos, con sombreado plano, la punta más clara y contorno (Material, abajo). Dome Material: " +
+                 "transparentes, con el material y los colores de la cúpula")]
+        public DomeSpikesLook look = DomeSpikesLook.Solid;
+        [Tooltip("Material de los macizos (shader FakeBlade/SpikeCone: VFX_SpikeCone, lo crea Setup Rastros)")]
+        public Material material;
+        [Header("Reparto")]
+        [Tooltip("Conos de la fila de abajo (x) y de la de arriba (y), intercalados")]
+        public Vector2Int counts = new Vector2Int(8, 4);
+        [Tooltip("Altura de cada fila en la cúpula, en grados desde el suelo: abajo (x) y arriba (y)")]
+        public Vector2 elevations = new Vector2(22f, 58f);
+        [Tooltip("Largo de cada cono, en partes del radio de la cúpula")]
+        [Range(0.05f, 1.5f)] public float length = 0.45f;
+        [Tooltip("Radio de la base de cada cono, en partes del radio de la cúpula")]
+        [Range(0.02f, 0.5f)] public float width = 0.14f;
+        [Tooltip("Caras de cada cono (pocas = más facetado)")]
+        [Range(3, 12)] public int sides = 6;
+        [Tooltip("Vueltas por segundo alrededor (negativo = hacia el otro lado)")]
+        public float spin = 0.35f;
+        [Tooltip("Parte de la formación de la cúpula desde la que empiezan a salir (0,6 = en el último 40%)")]
+        [Range(0f, 0.95f)] public float growFrom = 0.6f;
+        [Header("Colores (Solid)")]
+        public Color color = new Color(0.8f, 0.4f, 1f, 1f);
+        [Tooltip("Color de la punta")]
+        public Color tipColor = new Color(0.95f, 0.88f, 1f, 1f);
+        [Tooltip("Color de las caras en sombra")]
+        public Color shadeColor = new Color(0.42f, 0.18f, 0.62f, 1f);
+        public Color outlineColor = new Color(0.05f, 0.05f, 0.05f, 1f);
+        [Tooltip("Parte del largo desde la que va el color de la punta (1 = sin punta)")]
+        [Range(0f, 1f)] public float tipFrom = 0.7f;
+        [Tooltip("Grosor del contorno, en partes del radio de la cúpula (0 = sin contorno)")]
+        [Range(0f, 0.1f)] public float outlineWidth = 0.025f;
     }
 
     /// <summary>

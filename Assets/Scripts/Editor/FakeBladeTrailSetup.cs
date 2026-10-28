@@ -64,6 +64,8 @@ namespace FakeBlade.Core.Editor
         // Onda de choque: cúpula de la carga (shader propio) y marca del aviso de usos (2026-10-18)
         private const string ChargeDomeMaterialPath = "Assets/VFX/Materials/VFX_ChargeDome.mat";
         private const string ChargeDomeShaderName = "FakeBlade/ChargeDome";
+        private const string SpikeConeMaterialPath = "Assets/VFX/Materials/VFX_SpikeCone.mat";
+        private const string SpikeConeShaderName = "FakeBlade/SpikeCone";
         private const string UseMarkMaterialPath = "Assets/VFX/Materials/VFX_UseMark.mat";
         // Status and Auras FREE (Matthew Guz, Asset Store: fuera del repo, en ThirdParty). Sus materiales son del render
         // antiguo: los pasa a URP ConvertBuiltInParticles
@@ -232,7 +234,8 @@ namespace FakeBlade.Core.Editor
                    SetupIce(library, shader) + "; " + SetupLightning(library) + "; " + SetupShockWave(library, shader) + "; " +
                    SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
                    SetupDefense(library) + "; " + SetupWaterTrail(library) + "; " + SetupWet(library) + "; " +
-                   SetupSpinBoost(library) + "; " + SetupGhost(library) + "; " + SetupGenericSpecial(library);
+                   SetupSpinBoost(library) + "; " + SetupGhost(library) + "; " + SetupSpikes(library) + "; " +
+                   SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -2043,6 +2046,402 @@ namespace FakeBlade.Core.Editor
             },
             OutwardLines("Líneas que salen", 18, Color.white, DefenseBlue),
             ShockCircle("Círculo", "CircleImpact04Anillo", 3.4f, 0.05f, 0.4f, DefensePale, 0.9f)
+        };
+
+        // Pinchos: el morado de su asset, uno pastel y uno oscuro
+        private static readonly Color SpikesPurple = new Color(0.8f, 0.4f, 1f);
+        private static readonly Color SpikesPale = new Color(0.93f, 0.85f, 1f);
+        private static readonly Color SpikesDark = new Color(0.42f, 0.18f, 0.62f);
+        private static readonly Color SpikesBlack = new Color(0.07f, 0.03f, 0.1f);
+
+        /// <summary>
+        /// Pinchos (K8, 2026-10-28; idea del usuario, sin boceto, Spike Core). Carga (0,5 s de efectos con 0,3 de juego): la
+        /// cúpula sube desde el suelo como un cilindro que se redondea, con partículas, trozos y líneas que suben del suelo, humo
+        /// que se traga y círculos que se cierran; al final de la formación, los conos salen de dentro. Mientras dura: media
+        /// cúpula morada con conos en dos filas (8 y 4) que giran con ella, líneas que giran y suben y huecos que suben. Al
+        /// chocar (golpee o la golpeen), se aplasta y rebota como gelatina; al golpearla, además, la Zbam en la cúpula y chispas
+        /// (guardHit). Al encenderse, onda, líneas, chispas y humo; al terminar, la cúpula revienta en trozos, humo y líneas.
+        /// Quita su aura de antes (las seis puntas). Solo añade la entrada si falta y rellena lo que esté vacío.
+        /// </summary>
+        private static string SetupSpikes(VfxLibrary library)
+        {
+            SpecialVfxStyle spikes = library.GetSpecialEffects(SpecialAbilityType.Spikes);
+            bool added = spikes == null;
+            if (added)
+            {
+                spikes = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.Spikes, replaceAura = true, windupSustain = 0f, visualWindupTime = 0.5f,
+                    domeWhileActive = true
+                };
+                spikes.tip.cups.Clear();
+                spikes.tip.particleSprite = "";
+                spikes.tip.ground = new TipGroundSprite();
+                spikes.overlay = new SpecialOverlayStyle
+                {
+                    color = SpikesPurple, hotColor = Color.white, baseRim = 0.2f, pulseRim = new Vector2(0.4f, 0.9f),
+                    pulseFlash = new Vector2(0f, 0.04f), pulseInterval = new Vector2(0.25f, 0.5f), pulseDecay = 0.3f
+                };
+                spikes.dome = SpikesDome();
+                spikes.baseDome = new ChargeDomeStyle();
+                library.specialEffects.Add(spikes);
+            }
+
+            spikes.dome ??= SpikesDome();
+            spikes.dome.spikes ??= SpikesCones();
+            Shader domeShader = Shader.Find(ChargeDomeShaderName);
+            Material domeMaterial = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+            if (spikes.dome.material == null) spikes.dome.material = domeMaterial;
+            Shader coneShader = Shader.Find(SpikeConeShaderName);
+            if (spikes.dome.spikes.material == null && coneShader != null)
+                spikes.dome.spikes.material = GetMaterial(SpikeConeMaterialPath, coneShader);
+            if (spikes.dome.linesTexture == null) spikes.dome.linesTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(SpeedLinesTexturePath);
+            // La Zbam de la peonza golpeada (la misma textura que BladeOverlay), como en la Defensa
+            if (spikes.dome.hitTexture == null)
+                spikes.dome.hitTexture = library.bladeOverlay.ringTexture != null
+                    ? library.bladeOverlay.ringTexture
+                    : AssetDatabase.LoadAssetAtPath<Texture2D>(WallcoeurFolder + "03_Texture/Zbam.png");
+
+            spikes.windup ??= new List<SpiralParticleStyle>();
+            if (spikes.windup.Count == 0) spikes.windup.AddRange(WindupOnly(SpikesWindup()));
+            spikes.activationBurst ??= new List<SpiralParticleStyle>();
+            if (spikes.activationBurst.Count == 0) spikes.activationBurst.AddRange(SpikesBurst());
+            spikes.guardHit ??= new List<SpiralParticleStyle>();
+            if (spikes.guardHit.Count == 0) spikes.guardHit.AddRange(SpikesGuardHit());
+            spikes.endBurst ??= new List<SpiralParticleStyle>();
+            if (spikes.endBurst.Count == 0) spikes.endBurst.AddRange(SpikesEnd());
+
+            // Más capas en morado y negro (2026-10-28, pedido del usuario): la corona de la base, humo y partículas en todas las
+            // fases y, al chocar, chorros hacia la otra peonza (que se vea que sale peor parada). Se añaden si faltan, por nombre
+            if (spikes.baseDome == null || spikes.baseDome.material == null)
+            {
+                spikes.baseDome = SpikesCrown();
+                spikes.baseDome.material = domeMaterial;
+                spikes.baseDome.linesTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(RamZbamTexturePath);
+            }
+            spikes.swirl ??= new List<SpiralParticleStyle>();
+            spikes.impact ??= new List<SpiralParticleStyle>();
+            spikes.particles ??= new List<SpecialParticleStyle>();
+            spikes.hitTrail ??= new List<SpecialParticleStyle>();
+            AddMissing(spikes.windup, WindupOnly(SpikesWindupDark()), s => s.name);
+            AddMissing(spikes.activationBurst, SpikesBurstDark(), s => s.name);
+            AddMissing(spikes.swirl, SpikesSwirl(), s => s.name);
+            AddMissing(spikes.impact, SpikesImpact(), s => s.name);
+            AddMissing(spikes.impact, SpikesImpactTowardRival(), s => s.name);
+            AddMissing(spikes.guardHit, SpikesGuardHitDark(), s => s.name);
+            AddMissing(spikes.endBurst, SpikesEndDark(), s => s.name);
+            AddMissing(spikes.particles, SpikesParticles(), s => s.name);
+            if (AddMissing(spikes.hitTrail, SpikesHitTrail(), s => s.name) > 0) spikes.hitTrailTime = 0.4f;
+            return "Pinchos" + (added ? " (nuevo)" : "") + (spikes.dome.material == null ? " (falta el shader de la cúpula)" : "") +
+                   (spikes.dome.spikes.material == null ? " (falta el shader de los conos)" : "");
+        }
+
+        /// <summary>
+        /// Media cúpula morada: sube desde el suelo como un cilindro (el embudo de Tornado, recto) y se redondea; líneas de
+        /// velocidad que giran y suben, enroscadas, líneas finas dibujadas y huecos de ruido que suben. Rebota al chocar.
+        /// </summary>
+        private static ChargeDomeStyle SpikesDome() => new ChargeDomeStyle
+        {
+            radius = 1.05f, heightScale = 0.8f, height = 0f, growEase = 1.5f, startRadius = 0.6f,
+            funnelPhase = 0.4f, funnelMorph = 0.3f, funnelShape = new Vector3(0.85f, 1f, 1f), insideAlpha = 0f,
+            bodyColor = new Color(SpikesPurple.r, SpikesPurple.g, SpikesPurple.b, 0.16f),
+            rimColor = new Color(SpikesPurple.r, SpikesPurple.g, SpikesPurple.b, 0.9f),
+            outlineColor = new Color(0.3f, 0.3f, 0.3f, 0.8f), swirlColor = new Color(1f, 1f, 1f, 0.75f),
+            swirlColor2 = new Color(SpikesDark.r, SpikesDark.g, SpikesDark.b, 0.4f), rimWidth = 0.18f, outlineWidth = 0.05f,
+            linesTiling = new Vector2(4f, 2f), linesSpeed = 0.35f, linesTwist = 0.3f, linesRise = 0.6f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 6f, swirlTwist = 0.4f, swirlSpeed = 0.35f, swirlWidth = 0.04f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.3f, popScale = 1.25f, popFlash = 0.6f,
+            hitColor = new Color(SpikesPale.r, SpikesPale.g, SpikesPale.b, 1f), hitShadowColor = new Color(0.3f, 0.3f, 0.3f, 0.6f),
+            hitScale = new Vector2(0.15f, 0.9f), hitDuration = 0.3f, hitFlash = 0.4f, hitBump = 0f,
+            maskAmount = 0.18f, maskTiling = new Vector2(6f, 2f), maskScroll = new Vector2(0.12f, 0.45f), maskEdge = 0.05f,
+            maskEdgeColor = new Color(SpikesPale.r, SpikesPale.g, SpikesPale.b, 0.9f),
+            spikes = SpikesCones(),
+            springEnabled = true, springSpeed = new Vector2(1f, 10f), springMinStrength = 0.35f, springSquash = 0.3f,
+            springOffset = 0.12f, springFrequency = 4.5f, springDamping = 0.22f
+        };
+
+        /// <summary>Conos macizos en dos filas (8 abajo y 4 arriba, intercalados) que giran despacio con la cúpula.</summary>
+        private static DomeSpikesStyle SpikesCones() => new DomeSpikesStyle
+        {
+            enabled = true, look = DomeSpikesLook.Solid, counts = new Vector2Int(8, 4), elevations = new Vector2(22f, 58f),
+            length = 0.45f, width = 0.14f, sides = 6, spin = 0.35f, growFrom = 0.6f,
+            color = SpikesPurple, tipColor = SpikesPale, shadeColor = SpikesDark, outlineColor = new Color(0.05f, 0.05f, 0.05f, 1f),
+            tipFrom = 0.7f, outlineWidth = 0.025f
+        };
+
+        /// <summary>
+        /// La carga: la cúpula se forma desde el suelo; partículas, trozos y líneas que suben del suelo hacia ella, humo que se
+        /// traga y círculos que se cierran.
+        /// </summary>
+        private static SpiralParticleStyle[] SpikesWindup() => new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact04Cierra", 3.2f, 0.04f, 0.35f, SpikesPale, 0.85f, rate: 7f),
+            new SpiralParticleStyle
+            {
+                name = "Partículas que suben del suelo", sprite = "Chispa", rate = 50f, radius = new Vector2(0.7f, 1.1f),
+                height = new Vector2(0f, 0.1f), tangentialSpeed = new Vector2(0.5f, 1f), outwardSpeed = new Vector2(-1.5f, -0.8f),
+                upSpeed = new Vector2(2.5f, 4f), size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.3f, 0.45f),
+                color = Color.white, color2 = SpikesPurple
+            },
+            new SpiralParticleStyle
+            {
+                name = "Trozos de suelo que suben", sprite = "Trozo", rate = 18f, radius = new Vector2(0.6f, 1f),
+                height = new Vector2(0f, 0.05f), tangentialSpeed = new Vector2(0f, 0.5f), outwardSpeed = new Vector2(-0.5f, 0f),
+                upSpeed = new Vector2(2f, 3.5f), size = new Vector2(0.08f, 0.14f), lifetime = new Vector2(0.4f, 0.55f),
+                color = SpikesDark, color2 = SpikesPurple
+            },
+            new SpiralParticleStyle
+            {
+                name = "Líneas que suben", sprite = "Linea", rate = 60f, radius = new Vector2(0.8f, 1.1f), height = new Vector2(0f, 0.2f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(-0.3f, 0f), upSpeed = new Vector2(4f, 6f),
+                size = new Vector2(0.03f, 0.05f), lifetime = new Vector2(0.15f, 0.22f), color = Color.white, color2 = SpikesPurple
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo que se traga", sprite = "HumoTraga", rate = 14f, radius = new Vector2(1.4f, 1.9f), height = new Vector2(0f, 0.3f),
+                tangentialSpeed = new Vector2(1.5f, 3f), outwardSpeed = new Vector2(-4f, -3f), upSpeed = new Vector2(0f, 0.3f),
+                size = new Vector2(0.4f, 0.6f), lifetime = new Vector2(0.4f, 0.5f), color = Color.white, color2 = SpikesPale, alpha = 0.8f
+            }
+        };
+
+        /// <summary>Al encenderse (los conos ya fuera), todo hacia fuera: dos ondas, líneas, chispas y humo.</summary>
+        private static SpiralParticleStyle[] SpikesBurst() => new[]
+        {
+            ShockCircle("Onda", "CircleImpact04Anillo", 4.5f, 0.03f, 0.4f, SpikesPale, 0.9f, count: 2),
+            OutwardLines("Líneas que salen", 24, Color.white, SpikesPurple),
+            new SpiralParticleStyle
+            {
+                name = "Chispas que saltan", sprite = "Chispa", count = 18, radius = new Vector2(0.5f, 0.8f), height = new Vector2(0.1f, 0.6f),
+                tangentialSpeed = new Vector2(0.5f, 1.5f), outwardSpeed = new Vector2(3f, 5f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.05f, 0.08f), lifetime = new Vector2(0.4f, 0.55f), color = Color.white, color2 = SpikesPurple
+            },
+            OutwardSmokeBurst("Humo despedido", "HumoViento", Color.white, SpikesPale)
+        };
+
+        /// <summary>Al golpearla: chispas que saltan y un círculo pequeño en el choque (la Zbam sale en la cúpula).</summary>
+        private static SpiralParticleStyle[] SpikesGuardHit() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Chispas que saltan", sprite = "Chispa", count = 12, radius = new Vector2(0.05f, 0.2f), height = new Vector2(0.1f, 0.4f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 6f), upSpeed = new Vector2(1.5f, 3f),
+                size = new Vector2(0.05f, 0.09f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = SpikesPurple
+            },
+            new SpiralParticleStyle
+            {
+                name = "Círculo", sprite = "CircleImpact04", count = 1, radius = Vector2.zero, height = new Vector2(0.25f, 0.25f),
+                tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, size = new Vector2(1.1f, 1.4f),
+                lifetime = new Vector2(0.25f, 0.3f), color = Color.white, color2 = SpikesPale, alpha = 0.9f
+            }
+        };
+
+        /// <summary>Al terminar: la cúpula revienta en trozos morados, humo y líneas que salen, y un círculo que se abre.</summary>
+        private static SpiralParticleStyle[] SpikesEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Trozos de la cúpula", sprite = "Trozo", count = 18, radius = new Vector2(0.7f, 1f), height = new Vector2(0.2f, 0.9f),
+                tangentialSpeed = new Vector2(0f, 0.5f), outwardSpeed = new Vector2(1.5f, 3f), upSpeed = new Vector2(1f, 3f),
+                size = new Vector2(0.1f, 0.2f), lifetime = new Vector2(0.6f, 0.9f), color = SpikesPurple, color2 = SpikesPale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Humo", sprite = "HumoViento", count = 10, radius = new Vector2(0.6f, 0.9f), height = new Vector2(0.2f, 0.9f),
+                tangentialSpeed = new Vector2(0.2f, 0.6f), outwardSpeed = new Vector2(1f, 2.5f), upSpeed = new Vector2(0.3f, 1f),
+                size = new Vector2(0.6f, 0.9f), lifetime = new Vector2(0.8f, 1.1f), color = Color.white, color2 = SpikesPale
+            },
+            OutwardLines("Líneas que salen", 18, Color.white, SpikesPurple),
+            ShockCircle("Círculo", "CircleImpact04Anillo", 3.4f, 0.05f, 0.4f, SpikesPale, 0.9f)
+        };
+
+        /// <summary>
+        /// Corona de la base (2026-10-28, para dar profundidad): baja, ancha y oscura, con picos arriba que giran al revés que
+        /// la cúpula, la Zbam del usuario en morado y huecos. Rebota con la grande, un poco más lenta: el golpe se ve en dos capas.
+        /// </summary>
+        private static ChargeDomeStyle SpikesCrown() => new ChargeDomeStyle
+        {
+            radius = 1.4f, heightScale = 0.3f, height = 0f, growEase = 2f, startRadius = 0.7f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(0.9f, 1.1f, 1.3f),
+            topCut = 0.5f, topSpikes = 16, topSpikesSpeed = -0.35f, insideAlpha = 0.35f,
+            bodyColor = new Color(0.2f, 0.07f, 0.3f, 0.35f), rimColor = new Color(SpikesPurple.r, SpikesPurple.g, SpikesPurple.b, 0.9f),
+            outlineColor = new Color(SpikesBlack.r, SpikesBlack.g, SpikesBlack.b, 0.95f),
+            swirlColor = new Color(SpikesPurple.r, SpikesPurple.g, SpikesPurple.b, 0.75f),
+            swirlColor2 = new Color(SpikesBlack.r, SpikesBlack.g, SpikesBlack.b, 0.6f), rimWidth = 0.15f, outlineWidth = 0.06f,
+            linesTiling = new Vector2(6f, 2f), linesSpeed = -0.3f, linesTwist = 0f, linesRise = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 12f, swirlTwist = 0f, swirlSpeed = -0.25f, swirlWidth = 0.04f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.25f, popScale = 1.4f, popFlash = 0.5f,
+            maskAmount = 0.15f, maskTiling = new Vector2(8f, 1f), maskScroll = new Vector2(-0.1f, 0.3f), maskEdge = 0.05f,
+            maskEdgeColor = new Color(SpikesPurple.r, SpikesPurple.g, SpikesPurple.b, 0.9f), topErode = 0.3f, topErodeFrom = 0.5f,
+            wobble = 0.03f,
+            springEnabled = true, springSpeed = new Vector2(1f, 10f), springMinStrength = 0.35f, springSquash = 0.25f,
+            springOffset = 0.08f, springFrequency = 3.6f, springDamping = 0.25f
+        };
+
+        /// <summary>Un remolino o explosión de partículas con todos sus valores (las capas en morado y negro de Pinchos).</summary>
+        private static SpiralParticleStyle Spiral(string name, string sprite, float rate, int count, Vector2 radius, Vector2 height,
+            Vector2 tangential, Vector2 outward, Vector2 up, Vector2 size, Vector2 lifetime, Color color, Color color2, float alpha = 1f) =>
+            new SpiralParticleStyle
+            {
+                name = name, sprite = sprite, rate = rate, count = count, radius = radius, height = height, tangentialSpeed = tangential,
+                outwardSpeed = outward, upSpeed = up, size = size, lifetime = lifetime, color = color, color2 = color2, alpha = alpha
+            };
+
+        /// <summary>Carga, más oscura: humo negro y vaho morado que se tragan, una espiral de líneas y un círculo alto que se cierra.</summary>
+        private static SpiralParticleStyle[] SpikesWindupDark() => new[]
+        {
+            Spiral("Humo negro que se traga", "HumoTraga", 18f, 0, new Vector2(1.5f, 2.1f), new Vector2(0f, 0.35f),
+                new Vector2(1.5f, 3f), new Vector2(-4.5f, -3.5f), new Vector2(0f, 0.3f), new Vector2(0.45f, 0.7f),
+                new Vector2(0.4f, 0.5f), SpikesBlack, SpikesDark, 0.85f),
+            Spiral("Vaho morado que se traga", "VahoSuelo", 10f, 0, new Vector2(1.2f, 1.6f), new Vector2(0.02f, 0.05f),
+                new Vector2(2f, 3f), new Vector2(-2.5f, -1.8f), Vector2.zero, new Vector2(0.6f, 0.9f), new Vector2(0.45f, 0.55f),
+                SpikesDark, SpikesBlack, 0.8f),
+            Spiral("Espiral de líneas que se traga", "Linea", 45f, 0, new Vector2(1.2f, 1.6f), new Vector2(0.05f, 0.5f),
+                new Vector2(4f, 6f), new Vector2(-3f, -2f), new Vector2(0f, 0.5f), new Vector2(0.03f, 0.05f), new Vector2(0.2f, 0.3f),
+                SpikesPurple, SpikesBlack),
+            Spiral("Círculo oscuro que se cierra (alto)", "CircleImpact04Cierra", 5f, 1, Vector2.zero, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(2.4f, 2.4f), new Vector2(0.35f, 0.35f), SpikesDark, SpikesDark, 0.8f)
+        };
+
+        /// <summary>Encendido, más oscuro: humo negro, nubes moradas que suben, trozos negros, Zbam que suben y una onda oscura.</summary>
+        private static SpiralParticleStyle[] SpikesBurstDark() => new[]
+        {
+            Spiral("Humo negro despedido", "HumoViento", 0f, 14, new Vector2(0.5f, 0.8f), new Vector2(0.2f, 0.6f), new Vector2(0.5f, 1.5f),
+                new Vector2(3f, 5.5f), new Vector2(0.2f, 0.6f), new Vector2(0.6f, 1f), new Vector2(0.8f, 1.1f), SpikesBlack, SpikesDark, 0.9f),
+            Spiral("Nubes moradas que suben", "NubeComic", 0f, 8, new Vector2(0.6f, 0.9f), new Vector2(0.3f, 0.7f), new Vector2(0.5f, 1f),
+                new Vector2(1f, 2f), new Vector2(1f, 2f), new Vector2(0.5f, 0.8f), new Vector2(0.6f, 0.8f), SpikesPurple, SpikesPale, 0.9f),
+            Spiral("Trozos negros", "Trozo", 0f, 16, new Vector2(0.6f, 0.9f), new Vector2(0.1f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(2.5f, 4.5f), new Vector2(2f, 3.5f), new Vector2(0.08f, 0.16f), new Vector2(0.6f, 0.9f), SpikesBlack, SpikesDark),
+            Spiral("Zbam que suben", "ZbamSube", 0f, 4, new Vector2(0.8f, 1f), new Vector2(0.3f, 0.6f), Vector2.zero, new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0.7f, 0.9f), new Vector2(0.35f, 0.45f), SpikesPurple, SpikesBlack),
+            Spiral("Onda oscura", "CircleImpact04Anillo", 0f, 1, Vector2.zero, new Vector2(0.05f, 0.05f), Vector2.zero, Vector2.zero,
+                Vector2.zero, new Vector2(3.4f, 3.4f), new Vector2(0.45f, 0.45f), SpikesDark, SpikesDark, 0.8f)
+        };
+
+        /// <summary>
+        /// Mientras dura: humo negro a ras de suelo que gira, humo morado que sube, chispas que saltan de los pinchos, líneas que
+        /// suben y un círculo oscuro que se abre de vez en cuando.
+        /// </summary>
+        private static SpiralParticleStyle[] SpikesSwirl() => new[]
+        {
+            Spiral("Humo bajo que gira", "VahoSuelo", 8f, 0, new Vector2(0.9f, 1.3f), new Vector2(0.02f, 0.05f), new Vector2(1.5f, 2.5f),
+                new Vector2(0.3f, 0.8f), Vector2.zero, new Vector2(0.6f, 0.9f), new Vector2(0.9f, 1.2f), SpikesBlack, SpikesDark, 0.7f),
+            Spiral("Humo morado que sube", "HumoViento", 5f, 0, new Vector2(0.7f, 1f), new Vector2(0.2f, 0.6f), new Vector2(0.5f, 1f),
+                new Vector2(0.2f, 0.5f), new Vector2(0.4f, 0.8f), new Vector2(0.3f, 0.5f), new Vector2(0.7f, 1f), SpikesDark, SpikesBlack, 0.6f),
+            Spiral("Chispas de los pinchos", "Chispa", 10f, 0, new Vector2(1f, 1.3f), new Vector2(0.2f, 0.5f), new Vector2(1f, 2f),
+                new Vector2(1f, 2f), new Vector2(1f, 2f), new Vector2(0.04f, 0.06f), new Vector2(0.35f, 0.5f), Color.white, SpikesPurple),
+            Spiral("Líneas que suben", "Linea", 18f, 0, new Vector2(0.9f, 1.2f), new Vector2(0f, 0.2f), new Vector2(0.3f, 0.8f),
+                new Vector2(0.1f, 0.3f), new Vector2(3f, 4f), new Vector2(0.03f, 0.05f), new Vector2(0.15f, 0.22f), SpikesPurple, SpikesBlack),
+            Spiral("Círculo que se abre (suelo)", "CircleImpact04Anillo", 1.2f, 1, Vector2.zero, new Vector2(0.03f, 0.03f), Vector2.zero,
+                Vector2.zero, Vector2.zero, new Vector2(3.2f, 3.2f), new Vector2(0.45f, 0.45f), SpikesDark, SpikesDark, 0.6f)
+        };
+
+        /// <summary>En cada choque con daño (golpee o la golpeen): Zbam, humo negro, trozos y chispas, más hacia el lado del choque.</summary>
+        private static SpiralParticleStyle[] SpikesImpact()
+        {
+            var styles = new[]
+            {
+                Spiral("Zbam", "ZbamSube", 0f, 2, new Vector2(0f, 0.1f), new Vector2(0.2f, 0.4f), Vector2.zero, Vector2.zero,
+                    new Vector2(0.3f, 0.6f), new Vector2(0.8f, 1.1f), new Vector2(0.3f, 0.4f), SpikesPurple, SpikesBlack),
+                Spiral("Humo negro", "HumoViento", 0f, 8, new Vector2(0.05f, 0.2f), new Vector2(0.1f, 0.4f), new Vector2(0f, 0.5f),
+                    new Vector2(2f, 4f), new Vector2(0.3f, 1f), new Vector2(0.4f, 0.6f), new Vector2(0.6f, 0.8f), SpikesBlack, SpikesDark, 0.9f),
+                Spiral("Trozos", "Trozo", 0f, 10, new Vector2(0.05f, 0.2f), new Vector2(0.1f, 0.4f), Vector2.zero, new Vector2(3f, 5f),
+                    new Vector2(2f, 3f), new Vector2(0.07f, 0.13f), new Vector2(0.5f, 0.7f), SpikesBlack, SpikesPurple),
+                Spiral("Chispas moradas", "Chispa", 0f, 14, new Vector2(0.05f, 0.2f), new Vector2(0.1f, 0.4f), Vector2.zero,
+                    new Vector2(3f, 6f), new Vector2(1.5f, 3f), new Vector2(0.05f, 0.08f), new Vector2(0.3f, 0.45f), Color.white, SpikesPurple)
+            };
+            foreach (SpiralParticleStyle style in styles) style.directionalSpeed = new Vector2(1f, 3f);
+            return styles;
+        }
+
+        /// <summary>
+        /// Al chocar, hacia la otra peonza (2026-10-28, pedido del usuario: que se vea que sale peor parada del golpe): chorros de
+        /// líneas, chispas, trozos y humo negro que salen disparados hacia ella (poca velocidad hacia fuera y mucha hacia el
+        /// rival: Directional Speed), un tajo curvo girado hacia ella y una Zbam encima de ella (Forward Offset).
+        /// </summary>
+        private static SpiralParticleStyle[] SpikesImpactTowardRival()
+        {
+            SpiralParticleStyle Jet(string name, string sprite, int count, Vector2 up, Vector2 toward, Vector2 size, Vector2 lifetime,
+                Color color, Color color2, float alpha = 1f)
+            {
+                SpiralParticleStyle s = Spiral(name, sprite, 0f, count, new Vector2(0f, 0.15f), new Vector2(0.15f, 0.45f), Vector2.zero,
+                    new Vector2(0f, 0.6f), up, size, lifetime, color, color2, alpha);
+                s.directionalSpeed = toward;
+                return s;
+            }
+            return new[]
+            {
+                Jet("Chorro de líneas hacia el rival", "Linea", 18, new Vector2(0f, 0.6f), new Vector2(8f, 12f), new Vector2(0.06f, 0.1f),
+                    new Vector2(0.18f, 0.26f), Color.white, SpikesPurple),
+                Jet("Chorro de chispas hacia el rival", "Chispa", 20, new Vector2(1f, 2.5f), new Vector2(5f, 9f), new Vector2(0.05f, 0.08f),
+                    new Vector2(0.35f, 0.5f), Color.white, SpikesPurple),
+                Jet("Trozos hacia el rival", "Trozo", 12, new Vector2(1.5f, 3f), new Vector2(4f, 7f), new Vector2(0.08f, 0.14f),
+                    new Vector2(0.5f, 0.7f), SpikesBlack, SpikesPurple),
+                Jet("Humo negro hacia el rival", "HumoViento", 8, new Vector2(0.2f, 0.6f), new Vector2(3f, 5f), new Vector2(0.45f, 0.7f),
+                    new Vector2(0.6f, 0.8f), SpikesBlack, SpikesDark, 0.9f),
+                new SpiralParticleStyle
+                {
+                    name = "Tajo hacia el rival", sprite = "MediaLuna", count = 1, radius = Vector2.zero, height = new Vector2(0.3f, 0.3f),
+                    tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = Vector2.zero, forwardOffset = 0.25f,
+                    alignToDirection = true, rotation = new Vector2(CrescentForward, CrescentForward), size = new Vector2(1.8f, 1.8f),
+                    lifetime = new Vector2(0.22f, 0.22f), color = SpikesPale, color2 = SpikesPurple, alpha = 0.95f
+                },
+                new SpiralParticleStyle
+                {
+                    name = "Zbam en el rival", sprite = "ZbamSube", count = 1, radius = Vector2.zero, height = new Vector2(0.35f, 0.35f),
+                    tangentialSpeed = Vector2.zero, outwardSpeed = Vector2.zero, upSpeed = new Vector2(0.3f, 0.3f), forwardOffset = 0.6f,
+                    size = new Vector2(1.2f, 1.4f), lifetime = new Vector2(0.35f, 0.35f), color = SpikesPurple, color2 = SpikesBlack
+                }
+            };
+        }
+
+        /// <summary>Al golpearla, más oscuro: humo negro y trozos de la cúpula.</summary>
+        private static SpiralParticleStyle[] SpikesGuardHitDark() => new[]
+        {
+            Spiral("Humo negro", "HumoViento", 0f, 6, new Vector2(0.05f, 0.2f), new Vector2(0.1f, 0.4f), new Vector2(0f, 0.5f),
+                new Vector2(1.5f, 3f), new Vector2(0.3f, 0.8f), new Vector2(0.4f, 0.6f), new Vector2(0.6f, 0.8f), SpikesBlack, SpikesDark, 0.9f),
+            Spiral("Trozos de la cúpula", "Trozo", 0f, 8, new Vector2(0.1f, 0.3f), new Vector2(0.2f, 0.6f), Vector2.zero,
+                new Vector2(2f, 4f), new Vector2(2f, 3f), new Vector2(0.07f, 0.13f), new Vector2(0.5f, 0.7f), SpikesPurple, SpikesBlack)
+        };
+
+        /// <summary>Al terminar, más oscuro: humo negro, vaho bajo que sale, Zbam que suben y una onda oscura.</summary>
+        private static SpiralParticleStyle[] SpikesEndDark() => new[]
+        {
+            Spiral("Humo negro", "HumoViento", 0f, 14, new Vector2(0.6f, 1f), new Vector2(0.1f, 0.8f), new Vector2(0.3f, 0.8f),
+                new Vector2(1.5f, 3f), new Vector2(0.3f, 1f), new Vector2(0.6f, 1f), new Vector2(0.9f, 1.2f), SpikesBlack, SpikesDark, 0.9f),
+            Spiral("Vaho bajo que sale", "VahoSuelo", 0f, 8, new Vector2(0.8f, 1.2f), new Vector2(0.02f, 0.05f), new Vector2(1f, 2f),
+                new Vector2(2f, 3f), Vector2.zero, new Vector2(0.7f, 1f), new Vector2(0.8f, 1f), SpikesDark, SpikesBlack, 0.8f),
+            Spiral("Zbam que suben", "ZbamSube", 0f, 3, new Vector2(0.8f, 1f), new Vector2(0.3f, 0.6f), Vector2.zero, new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0.7f, 0.9f), new Vector2(0.35f, 0.45f), SpikesPurple, SpikesBlack),
+            Spiral("Onda oscura", "CircleImpact04Anillo", 0f, 1, Vector2.zero, new Vector2(0.05f, 0.05f), Vector2.zero, Vector2.zero,
+                Vector2.zero, new Vector2(3.6f, 3.6f), new Vector2(0.45f, 0.45f), SpikesDark, SpikesDark, 0.8f)
+        };
+
+        /// <summary>Mientras dura: un rastro de humo negro a ras de suelo, más espeso al moverse.</summary>
+        private static SpecialParticleStyle[] SpikesParticles() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Rastro de humo negro", sprite = "VahoSuelo", rate = 6f, ratePerSpeed = 1.5f, spawnRadius = new Vector2(0.4f, 0.8f),
+                height = new Vector2(0.02f, 0.05f), coneAngle = 30f, speed = new Vector2(0.1f, 0.4f), inheritVelocity = -0.15f,
+                size = new Vector2(0.5f, 0.8f), lifetime = new Vector2(0.7f, 1f), color = SpikesBlack, color2 = SpikesDark, alpha = 0.6f
+            }
+        };
+
+        /// <summary>Estela de la peonza que golpea: humo negro y chispas moradas mientras sale despedida.</summary>
+        private static SpecialParticleStyle[] SpikesHitTrail() => new[]
+        {
+            new SpecialParticleStyle
+            {
+                name = "Humo negro de la golpeada", sprite = "HumoViento", rate = 25f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.1f, 0.4f), coneAngle = 60f, speed = new Vector2(0.3f, 0.8f), inheritVelocity = -0.1f,
+                size = new Vector2(0.3f, 0.5f), lifetime = new Vector2(0.5f, 0.7f), color = SpikesBlack, color2 = SpikesDark, alpha = 0.85f
+            },
+            new SpecialParticleStyle
+            {
+                name = "Chispas moradas de la golpeada", sprite = "Chispa", rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
+                height = new Vector2(0.1f, 0.4f), coneAngle = 60f, speed = new Vector2(1f, 2.5f), inheritVelocity = -0.1f,
+                size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = SpikesPurple
+            }
         };
 
         // Spin Boost: el verde de su asset y uno pastel

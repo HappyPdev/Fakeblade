@@ -32,6 +32,7 @@ Shader "FakeBlade/ChargeDome"
         _Alpha ("Transparencia", Range(0, 1)) = 1
         [NoScaleOffset] _LinesTex ("Textura de líneas", 2D) = "white" {}
         _Lines ("Líneas: repeticiones (xy), giro (z), enroscado (w; < 0 = sin textura)", Vector) = (3, 2, 0, -1)
+        _LinesRise ("Líneas: cuánto han subido (repeticiones)", Float) = 0
         _Axis ("Eje", Vector) = (0, 1, 0, 0)
         _AxisT1 ("Eje: perpendicular 1", Vector) = (1, 0, 0, 0)
         _AxisT2 ("Eje: perpendicular 2", Vector) = (0, 0, 1, 0)
@@ -93,6 +94,7 @@ Shader "FakeBlade/ChargeDome"
                 float _Flash;
                 float _Alpha;
                 float4 _Lines;
+                float _LinesRise;
                 float4 _Axis;
                 float4 _AxisT1;
                 float4 _AxisT2;
@@ -270,11 +272,11 @@ Shader "FakeBlade/ChargeDome"
                 color = Over(color, _SwirlColor2, swirl2 * top);
                 color = Over(color, _SwirlColor, swirl * top);
 
-                // Textura que se desliza alrededor (repeticiones enteras alrededor: sin costura)
+                // Textura que se desliza alrededor (repeticiones enteras alrededor: sin costura) y sube (Pinchos, 2026-10-28)
                 if (_Lines.w >= 0.0)
                 {
                     float repeat = max(1.0, floor(_Lines.x + 0.5));
-                    float2 uv = float2((turn + _Lines.z + along * _Lines.w) * repeat, along * _Lines.y);
+                    float2 uv = float2((turn + _Lines.z + along * _Lines.w) * repeat, along * _Lines.y - _LinesRise);
                     // frac: se repite aunque la textura esté en Clamp (las Zbam del pack)
                     half mask = SAMPLE_TEXTURE2D_LOD(_LinesTex, sampler_LinesTex, frac(uv), 0).a;
                     color = Over(color, _SwirlColor, mask * top);

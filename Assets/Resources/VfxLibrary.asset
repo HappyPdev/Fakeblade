@@ -4928,6 +4928,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 6
       linesTwist: 25
+      linesRise: 0
       axisTilt: 16.7
       axisPrecess: 0.8
       swirlLines: 5
@@ -4987,6 +4988,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -5004,6 +5029,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -5063,6 +5089,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 1
     rush: []
     spiralTrail:
@@ -5851,6 +5901,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -5910,6 +5961,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -5927,6 +6002,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -5986,6 +6062,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -6481,6 +6581,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -6540,6 +6641,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -6557,6 +6682,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -6616,6 +6742,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -7274,6 +7424,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 1}
       linesSpeed: 3
       linesTwist: 0.5
+      linesRise: 0
       axisTilt: 20
       axisPrecess: 0.8
       swirlLines: 3
@@ -7333,6 +7484,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -7350,6 +7525,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -7409,6 +7585,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -8018,6 +8218,7 @@ MonoBehaviour:
       linesTiling: {x: 4, y: 2}
       linesSpeed: 3
       linesTwist: 0.3
+      linesRise: 0
       axisTilt: 12
       axisPrecess: 1.2
       swirlLines: 4
@@ -8077,6 +8278,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -8094,6 +8319,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -8153,6 +8379,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -8987,6 +9237,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 0.8
       linesTwist: 0
+      linesRise: 0
       axisTilt: 19.9
       axisPrecess: 0
       swirlLines: 6
@@ -9046,6 +9297,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 1.25
@@ -9063,6 +9338,7 @@ MonoBehaviour:
       linesTiling: {x: 6, y: 2}
       linesSpeed: -1.2
       linesTwist: 0
+      linesRise: 0
       axisTilt: 0
       axisPrecess: 0
       swirlLines: 0
@@ -9122,6 +9398,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush:
     - name: Trozos de suelo
@@ -10061,6 +10361,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -10120,6 +10421,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -10137,6 +10462,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -10196,6 +10522,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush:
     - name: "Semic\xEDrculos que se abren"
@@ -11345,6 +11695,7 @@ MonoBehaviour:
       linesTiling: {x: 4, y: 1}
       linesSpeed: 2.4
       linesTwist: 0.1
+      linesRise: 0
       axisTilt: 15
       axisPrecess: 0.25
       swirlLines: 4
@@ -11404,6 +11755,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 1
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.078
+      springSquash: 0.299
+      springOffset: 0.21
+      springFrequency: 4.5
+      springDamping: 0.02
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 1.3
@@ -11421,6 +11796,7 @@ MonoBehaviour:
       linesTiling: {x: 2, y: 1}
       linesSpeed: -2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 0
       axisPrecess: 0.8
       swirlLines: 5
@@ -11480,6 +11856,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -12335,7 +12735,7 @@ MonoBehaviour:
       heightScale: 1
       height: 0
       growEase: 1.5
-      bodyColor: {r: 0.55, g: 0.7, b: 1, a: 0.75686276}
+      bodyColor: {r: 0.55, g: 0.7, b: 1, a: 0.8980392}
       rimColor: {r: 0.45, g: 0.6, b: 1, a: 0.85}
       outlineColor: {r: 0.47, g: 0.47, b: 0.47, a: 0.8}
       swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
@@ -12346,6 +12746,7 @@ MonoBehaviour:
       linesTiling: {x: 1, y: 1.5}
       linesSpeed: 2.39
       linesTwist: 0
+      linesRise: 0
       axisTilt: 4.9
       axisPrecess: 1
       swirlLines: 6
@@ -12365,9 +12766,9 @@ MonoBehaviour:
       startRadius: 0
       funnelPhase: 0.752
       funnelMorph: 1
-      funnelShape: {x: 1.07, y: 1.28, z: 1.01}
-      topCut: 0.133
-      topSpikes: 19
+      funnelShape: {x: 0.75, y: 1, z: 1.15}
+      topCut: 0.159
+      topSpikes: 5
       topSpikesSpeed: 1.13
       insideAlpha: 0.617
       sphere: 0
@@ -12376,35 +12777,59 @@ MonoBehaviour:
       hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
       hitScale: {x: 0.15, y: 0.9}
       hitDuration: 0.3
-      hitFlash: 0.5
+      hitFlash: 0
       hitBump: 0.08
       maskEnabled: 1
-      maskTexture: {fileID: 2800000, guid: aee727f4833685e4b989448e47b815ef, type: 3}
-      maskAmount: 0.174
-      maskTiling: {x: 4, y: 4}
-      maskScroll: {x: 1.53, y: 2}
-      maskEdge: 0.03
-      maskEdgeColor: {r: 0.85, g: 0.92, b: 1, a: 0.9}
+      maskTexture: {fileID: 2800000, guid: 042f92def4d5a0b4e870078817cbf4cc, type: 3}
+      maskAmount: 0.13
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 0.6, y: 0.8}
+      maskEdge: 0.187
+      maskEdgeColor: {r: 0.9622642, g: 0.9622642, b: 0.9622642, a: 0.9}
       topErodeEnabled: 1
-      topErode: 1
-      topErodeFrom: 0.654
-      holePulseEnabled: 1
+      topErode: 0.678
+      topErodeFrom: 0.413
+      holePulseEnabled: 0
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
       wobbleEnabled: 1
-      wobble: 0
+      wobble: 0.005
       wobbleWaves: {x: 5, y: 2}
       wobbleSpeed: 5
-      flickerEnabled: 1
+      flickerEnabled: 0
       flickerRate: 0.8
       flickerAlpha: 0
       flickerTime: 0.01
-      glitchEnabled: 1
+      glitchEnabled: 0
       glitchRate: 0
       glitchBands: 1
       glitchOffset: 0.04
       glitchTime: 9999
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 1
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 1.15
@@ -12422,6 +12847,7 @@ MonoBehaviour:
       linesTiling: {x: 8, y: 1}
       linesSpeed: 0.45
       linesTwist: 0.11
+      linesRise: 0
       axisTilt: 0
       axisPrecess: 0
       swirlLines: 9.22
@@ -12441,7 +12867,7 @@ MonoBehaviour:
       startRadius: 0.383
       funnelPhase: 1
       funnelMorph: 0.2
-      funnelShape: {x: 0.95, y: 1.2, z: 1.2}
+      funnelShape: {x: 0.65, y: 1.21, z: 0.85}
       topCut: 0
       topSpikes: 2
       topSpikesSpeed: -0.4
@@ -12481,6 +12907,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.1
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -13274,6 +13724,7 @@ MonoBehaviour:
       linesTiling: {x: 1, y: 1.5}
       linesSpeed: 2.39
       linesTwist: 0
+      linesRise: 0
       axisTilt: 4.9
       axisPrecess: 1
       swirlLines: 6
@@ -13333,6 +13784,30 @@ MonoBehaviour:
       glitchBands: 1
       glitchOffset: 0.04
       glitchTime: 9999
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 0.92
@@ -13350,6 +13825,7 @@ MonoBehaviour:
       linesTiling: {x: 1, y: 1.5}
       linesSpeed: 2.39
       linesTwist: 0
+      linesRise: 0
       axisTilt: 4.9
       axisPrecess: 1
       swirlLines: 6
@@ -13409,6 +13885,30 @@ MonoBehaviour:
       glitchBands: 1
       glitchOffset: 0.04
       glitchTime: 9999
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -14202,6 +14702,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 0
       axisPrecess: 0.8
       swirlLines: 5
@@ -14261,6 +14762,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -14278,6 +14803,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -14337,6 +14863,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 1
     rush: []
     spiralTrail:
@@ -15017,6 +15567,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 1}
       linesSpeed: 1.1
       linesTwist: 0.3
+      linesRise: 0
       axisTilt: 35
       axisPrecess: 0.25
       swirlLines: 0
@@ -15076,6 +15627,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.06
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
       radius: 0.85
@@ -15093,6 +15668,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 0
       axisPrecess: 0.8
       swirlLines: 5
@@ -15152,6 +15728,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.04
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:
@@ -15513,6 +16113,1676 @@ MonoBehaviour:
       powerTint: 0
     bodyFade:
       enabled: 1
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
+  - type: 8
+    replaceAura: 1
+    tip:
+      mesh: {fileID: -462981019419857548, guid: 4bd5745d4d52f4d43963d14c70e159f4, type: 3}
+      material: {fileID: 2100000, guid: a4eb0a635ebc9a145bb914b785826efe, type: 2}
+      tilesX: 11
+      tilesY: 1
+      firstFrame: 0
+      frames: 11
+      cycle: 0.5
+      size: 2
+      scale: {x: 1, y: 0.5}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups:
+      - angle: 0
+        spinSpeed: 360
+        scale: {x: 1, y: 0.16}
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.2
+      baseFlash: 0
+      pulseRim: {x: 0.4, y: 0.9}
+      pulseFlash: {x: 0, y: 0.04}
+      pulseInterval: {x: 0.25, y: 0.5}
+      pulseDecay: 0.3
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+    particles:
+    - name: Rastro de humo negro
+      emitter: 19
+      sprite: VahoSuelo
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 6
+      ratePerSpeed: 1.5
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.1, y: 0.3}
+      height: {x: 0.02, y: 0.05}
+      coneAngle: 15
+      speed: {x: 0.1, y: 0.2}
+      inheritVelocity: -0.15
+      size: {x: 1, y: 1.2}
+      lifetime: {x: 0.4, y: 0.7}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.6
+      powerTint: 0
+    scorch:
+      sprite: 
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.4
+      idleInterval: 0.5
+      size: {x: 1, y: 1.5}
+      lifetime: 4
+      color: {r: 0.06, g: 0.04, b: 0.03, a: 1}
+      alpha: 0.45
+      height: 0.01
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 7
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.04, y: 0.04}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 7, y: 7}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 0.93, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0
+    - name: "Part\xEDculas que suben del suelo"
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 50
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 1, y: 3}
+      height: {x: 0, y: 0.1}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: -1.5, y: -0.8}
+      upSpeed: {x: 2.5, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.7, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: Trozos de suelo que suben
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 18
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 1, y: 3}
+      height: {x: 0.04, y: 0.05}
+      tangentialSpeed: {x: 3, y: 8}
+      outwardSpeed: {x: -2, y: -4}
+      upSpeed: {x: 2, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.4, y: 0.55}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: "L\xEDneas que suben"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 60
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 1, y: 2}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 4, y: 5}
+      outwardSpeed: {x: -0.3, y: 0}
+      upSpeed: {x: 1, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.05}
+      lifetime: {x: 0.3, y: 0.22}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: Humo que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 14
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 1.4, y: 1.9}
+      height: {x: 0, y: 0.3}
+      tangentialSpeed: {x: 1.5, y: 3}
+      outwardSpeed: {x: -4, y: -3}
+      upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.4, y: 0.2}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: Humo negro que se traga
+      emitter: 15
+      sprite: HumoTraga
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 18
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 0
+      radius: {x: 1.5, y: 2.1}
+      height: {x: 0, y: 0.35}
+      tangentialSpeed: {x: 1.5, y: 3}
+      outwardSpeed: {x: -4.5, y: -3.5}
+      upSpeed: {x: 0, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.45, y: 0.2}
+      lifetime: {x: 0.4, y: 0.5}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.85
+      windupOnly: 1
+      powerTint: 0
+    - name: Vaho morado que se traga
+      emitter: 15
+      sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 10
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 33
+      radius: {x: 1.2, y: 1.6}
+      height: {x: 0.09, y: 0.05}
+      tangentialSpeed: {x: 2, y: 3}
+      outwardSpeed: {x: -2.5, y: -1.8}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.6, y: 3}
+      lifetime: {x: 0.45, y: 0.7}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    - name: "Espiral de l\xEDneas que se traga"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 45
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 55
+      radius: {x: 1.2, y: 1.6}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 4, y: 6}
+      outwardSpeed: {x: -3, y: -2}
+      upSpeed: {x: 0, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.05}
+      lifetime: {x: 0.2, y: 0.3}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    - name: "C\xEDrculo oscuro que se cierra (alto)"
+      emitter: 15
+      sprite: CircleImpact04Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 5
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.5, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 11, y: 11}
+      lifetime: {x: 0.7, y: 0.7}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.8
+      windupOnly: 1
+      powerTint: 0
+    activationBurst:
+    - name: Onda
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 7, y: 7}
+      lifetime: {x: 0.8, y: 0.8}
+      color: {r: 0.27976054, g: 0.23421144, b: 0.3207547, a: 1}
+      color2: {r: 0.3205197, g: 0.2196297, b: 0.4113207, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que salen"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0.4, y: 0.7}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 6, y: 9}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.01}
+      lifetime: {x: 0.4, y: 0.6}
+      color: {r: 0.24107085, g: 0.18422921, b: 0.2603773, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas que saltan
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.5, y: 0.8}
+      height: {x: 0.1, y: 0.6}
+      tangentialSpeed: {x: 3, y: 6}
+      outwardSpeed: {x: 4, y: 3}
+      upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.1, y: 0.05}
+      lifetime: {x: 0.9, y: 1.2}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo despedido
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.4, y: 0.6}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.2, y: 0.12}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo negro despedido
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.5, y: 0.8}
+      height: {x: 0.2, y: 0.6}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 3, y: 2}
+      upSpeed: {x: 0.2, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.6, y: 0.2}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Nubes moradas que suben
+      emitter: 15
+      sprite: NubeComic
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.6, y: 0.9}
+      height: {x: 0.3, y: 0.7}
+      tangentialSpeed: {x: 0.5, y: 1}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.5, y: 0.8}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Trozos negros
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 16
+      radius: {x: 0.6, y: 0.9}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0.5}
+      outwardSpeed: {x: 2.5, y: 4.5}
+      upSpeed: {x: 2, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.16}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda oscura
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 2
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 8.5, y: 8.5}
+      lifetime: {x: 0.55, y: 0.55}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Zbam que suben
+      emitter: 15
+      sprite: ZbamSube
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 4
+      radius: {x: 0.8, y: 1}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0.5, y: 1}
+      upSpeed: {x: 0.5, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.7, y: 0.9}
+      lifetime: {x: 0.35, y: 0.45}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    visualWindupTime: 0.5
+    visualWindupDomesOnly: 0
+    swirl:
+    - name: Humo bajo que gira
+      emitter: 15
+      sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 8
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0.9, y: 0.5}
+      height: {x: 0.09, y: 0.05}
+      tangentialSpeed: {x: 3, y: 2.5}
+      outwardSpeed: {x: 3, y: 2}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 1, y: 0.6}
+      lifetime: {x: 0.9, y: 0.5}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.7
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo morado que sube
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 5
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 3
+      radius: {x: 0.2, y: 1}
+      height: {x: 0.2, y: 0.6}
+      tangentialSpeed: {x: 3, y: 1}
+      outwardSpeed: {x: 0.2, y: 0.5}
+      upSpeed: {x: 0.4, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.3, y: 0.1}
+      lifetime: {x: 0.7, y: 1}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 0.6
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas de los pinchos
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 20
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 1, y: 0.4}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 1, y: 2}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.04, y: 0.06}
+      lifetime: {x: 4, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que suben"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 18
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 3
+      radius: {x: 0.9, y: 1}
+      height: {x: 0, y: 0.2}
+      tangentialSpeed: {x: 0.3, y: 0.8}
+      outwardSpeed: {x: 3, y: 4}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.05}
+      lifetime: {x: 0.3, y: 0.22}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo que se abre (suelo)"
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 1.2
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3.2, y: 3.2}
+      lifetime: {x: 0.45, y: 0.45}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.6
+      windupOnly: 0
+      powerTint: 0
+    impact:
+    - name: Zbam
+      emitter: 15
+      sprite: ZbamSube
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 2
+      radius: {x: 0, y: 0.1}
+      height: {x: 0.2, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0.3, y: 0.6}
+      directionalSpeed: {x: 1, y: 3}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.8, y: 1.1}
+      lifetime: {x: 0.3, y: 0.4}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo negro
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.05, y: 0.2}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0.5}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 1, y: 3}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Trozos
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.05, y: 0.2}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 2, y: 3}
+      directionalSpeed: {x: 1, y: 3}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.07, y: 0.13}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas moradas
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.05, y: 0.2}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 1, y: 3}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Chorro de l\xEDneas hacia el rival"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.6}
+      upSpeed: {x: 0, y: 0.6}
+      directionalSpeed: {x: 8, y: 12}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 0.18, y: 0.26}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chorro de chispas hacia el rival
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 20
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.6}
+      upSpeed: {x: 1, y: 2.5}
+      directionalSpeed: {x: 5, y: 9}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.35, y: 0.5}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Trozos hacia el rival
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.6}
+      upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 4, y: 7}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo negro hacia el rival
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.15, y: 0.45}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0.6}
+      upSpeed: {x: 0.2, y: 0.6}
+      directionalSpeed: {x: 3, y: 5}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.45, y: 0.7}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Tajo hacia el rival
+      emitter: 15
+      sprite: MediaLuna
+      spriteVariants: []
+      rotation: {x: -45, y: -45}
+      alignToDirection: 1
+      forwardOffset: 0.25
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.3, y: 0.3}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 1.8, y: 1.8}
+      lifetime: {x: 0.22, y: 0.22}
+      color: {r: 0.93, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 0.95
+      windupOnly: 0
+      powerTint: 0
+    - name: Zbam en el rival
+      emitter: 15
+      sprite: ZbamSube
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0.6
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.35, y: 0.35}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0.3, y: 0.3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 1.2, y: 1.4}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    strongImpact: []
+    guardHit:
+    - name: Chispas que saltan
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0.05, y: 0.2}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 1.5, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.09}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo"
+      emitter: 15
+      sprite: CircleImpact04
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.25, y: 0.25}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 1.1, y: 1.4}
+      lifetime: {x: 0.25, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo negro
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0.05, y: 0.2}
+      height: {x: 0.1, y: 0.4}
+      tangentialSpeed: {x: 0, y: 0.5}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.3, y: 0.8}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.4, y: 0.6}
+      lifetime: {x: 0.6, y: 0.8}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: "Trozos de la c\xFApula"
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.1, y: 0.3}
+      height: {x: 0.2, y: 0.6}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: 2, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.07, y: 0.13}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 0.9
+      heightScale: 1
+      height: 0
+      growEase: 1.5
+      bodyColor: {r: 0.8, g: 0.4, b: 1, a: 0.16}
+      rimColor: {r: 0.8, g: 0.4, b: 1, a: 0.9}
+      outlineColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.8}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.75}
+      swirlColor2: {r: 0.42, g: 0.18, b: 0.62, a: 0.4}
+      rimWidth: 0.478
+      outlineWidth: 0.204
+      linesTexture: {fileID: 2800000, guid: 2e2b57d1a1eb34a49928fb7f02680e71, type: 3}
+      linesTiling: {x: 4, y: 2}
+      linesSpeed: 0.35
+      linesTwist: 2.49
+      linesRise: 1.11
+      axisTilt: 5.2
+      axisPrecess: 0.2
+      swirlLines: 6.68
+      swirlTwist: 2
+      swirlSpeed: 2.77
+      swirlWidth: 0.026
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.3
+      popScale: 1.25
+      popFlash: 0.6
+      popFall: 0
+      appearFrom: 0
+      timing: 0
+      growTime: 0.3
+      startRadius: 0.6
+      funnelPhase: 0.4
+      funnelMorph: 0.3
+      funnelShape: {x: 0.85, y: 1, z: 1}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+      sphere: 0
+      hitTexture: {fileID: 2800000, guid: d8114aa64873a17409a3c860da4451bd, type: 3}
+      hitColor: {r: 0.93, g: 0.85, b: 1, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 0.9}
+      hitDuration: 0.3
+      hitFlash: 0.4
+      hitBump: 0
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: 993accaf19f375f4fa91d9808c5dbaae, type: 3}
+      maskAmount: 0.05
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 0.12, y: 1.58}
+      maskEdge: 0.034
+      maskEdgeColor: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 0.9}
+      topErodeEnabled: 0
+      topErode: 0.078
+      topErodeFrom: 0.512
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 1
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchEnabled: 1
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+      spikes:
+        enabled: 1
+        look: 0
+        material: {fileID: 2100000, guid: 93597710fbec66943a76e518e903f1bb, type: 2}
+        counts: {x: 6, y: 3}
+        elevations: {x: 22, y: 58}
+        length: 0.264
+        width: 0.149
+        sides: 8
+        spin: -1
+        growFrom: 0
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.86415094, g: 0.86415094, b: 0.86415094, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.487
+        outlineWidth: 0.0187
+      springEnabled: 1
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.074
+      springSquash: 0.696
+      springOffset: 0.3
+      springFrequency: 3
+      springDamping: 0.246
+    baseDome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 0.91
+      heightScale: 0.3
+      height: 0
+      growEase: 2
+      bodyColor: {r: 0.2, g: 0.07, b: 0.3, a: 0.35}
+      rimColor: {r: 0.8, g: 0.4, b: 1, a: 0.9}
+      outlineColor: {r: 0.07, g: 0.03, b: 0.1, a: 0.95}
+      swirlColor: {r: 0.8, g: 0.4, b: 1, a: 0.75}
+      swirlColor2: {r: 0.07, g: 0.03, b: 0.1, a: 0.6}
+      rimWidth: 0.2
+      outlineWidth: 0.06
+      linesTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
+      linesTiling: {x: 2, y: 1}
+      linesSpeed: 5
+      linesTwist: 0
+      linesRise: 0
+      axisTilt: 0
+      axisPrecess: 0
+      swirlLines: 0
+      swirlTwist: 3.56
+      swirlSpeed: -0.25
+      swirlWidth: 0.04
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.25
+      popScale: 1.4
+      popFlash: 0.5
+      popFall: 0
+      appearFrom: 0
+      timing: 0
+      growTime: 0.3
+      startRadius: 0.7
+      funnelPhase: 1
+      funnelMorph: 0.2
+      funnelShape: {x: 0.95, y: 1.28, z: 0.11}
+      topCut: 0.037
+      topSpikes: 16
+      topSpikesSpeed: -0.8
+      insideAlpha: 0.935
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: 5846e6857b9aa7940a687a3ac02376ee, type: 3}
+      maskAmount: 0
+      maskTiling: {x: 2, y: 0.4}
+      maskScroll: {x: 0.5, y: 1.58}
+      maskEdge: 0.3
+      maskEdgeColor: {r: 0.8, g: 0.4, b: 1, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0.504
+      topErodeFrom: 0.547
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0.03
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 1
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchEnabled: 1
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 1
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.25
+      springOffset: 0.08
+      springFrequency: 3.6
+      springDamping: 0.25
+    domeWhileActive: 1
+    rush: []
+    spiralTrail:
+      material: {fileID: 0}
+      onlyWhileRushing: 1
+      strands: 2
+      radius: 0.55
+      turnsPerSecond: 3
+      height: 0.3
+      width: 0.09
+      tailWidth: 0.3
+      time: 0.35
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      tailAlpha: 0
+      powerTint: {x: 0, y: 1}
+    targetMark: []
+    endBurst:
+    - name: "Trozos de la c\xFApula"
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.7, y: 1}
+      height: {x: 0.2, y: 0.9}
+      tangentialSpeed: {x: 0, y: 0.5}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 1, y: 3}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.1, y: 0.2}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 10
+      radius: {x: 0.6, y: 0.9}
+      height: {x: 0.2, y: 0.9}
+      tangentialSpeed: {x: 0.2, y: 0.6}
+      outwardSpeed: {x: 1, y: 2.5}
+      upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.6, y: 0.9}
+      lifetime: {x: 0.8, y: 1.1}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas que salen"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.4, y: 0.7}
+      height: {x: 0.05, y: 0.5}
+      tangentialSpeed: {x: 0.5, y: 1.5}
+      outwardSpeed: {x: 6, y: 9}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.07, y: 0.1}
+      lifetime: {x: 0.18, y: 0.26}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "C\xEDrculo"
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3.4, y: 3.4}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 0.93, g: 0.85, b: 1, a: 1}
+      color2: {r: 0.93, g: 0.85, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Humo negro
+      emitter: 15
+      sprite: HumoViento
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 14
+      radius: {x: 0.6, y: 1}
+      height: {x: 0.1, y: 0.8}
+      tangentialSpeed: {x: 0.3, y: 0.8}
+      outwardSpeed: {x: 1.5, y: 3}
+      upSpeed: {x: 0.3, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.9, y: 1.2}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Vaho bajo que sale
+      emitter: 15
+      sprite: VahoSuelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 8
+      radius: {x: 0.8, y: 1.2}
+      height: {x: 0.02, y: 0.05}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 2, y: 3}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.7, y: 1}
+      lifetime: {x: 0.8, y: 1}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    - name: Zbam que suben
+      emitter: 15
+      sprite: ZbamSube
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 3
+      radius: {x: 0.8, y: 1}
+      height: {x: 0.3, y: 0.6}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0.5, y: 1}
+      upSpeed: {x: 0.5, y: 1}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.7, y: 0.9}
+      lifetime: {x: 0.35, y: 0.45}
+      color: {r: 0.8, g: 0.4, b: 1, a: 1}
+      color2: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda oscura
+      emitter: 15
+      sprite: CircleImpact04Anillo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3.6, y: 3.6}
+      lifetime: {x: 0.45, y: 0.45}
+      color: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.8
+      windupOnly: 0
+      powerTint: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail:
+    - name: Humo negro de la golpeada
+      emitter: 19
+      sprite: HumoViento
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 25
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      coneAngle: 60
+      speed: {x: 0.3, y: 0.8}
+      inheritVelocity: -0.1
+      size: {x: 0.3, y: 0.5}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 0.07, g: 0.03, b: 0.1, a: 1}
+      color2: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+      alpha: 0.85
+      powerTint: 0
+    - name: Chispas moradas de la golpeada
+      emitter: 19
+      sprite: Chispa
+      rotation: {x: 0, y: 360}
+      alignToMotion: 0
+      forwardOffset: {x: 0, y: 0}
+      rate: 30
+      ratePerSpeed: 0
+      onlyWhileHealing: 0
+      burstInterval: {x: 0, y: 0}
+      burstCount: {x: 3, y: 6}
+      spawnRadius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.4}
+      coneAngle: 60
+      speed: {x: 1, y: 2.5}
+      inheritVelocity: -0.1
+      size: {x: 0.04, y: 0.07}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 0.8, g: 0.4, b: 1, a: 1}
+      alpha: 1
+      powerTint: 0
+    hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
+    whileLingering: 0
+    cloneEffects: 0
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
       alpha: 0.75
       cloneAlpha: 0.5
       fadeTime: 0.2
@@ -15892,6 +18162,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -15951,6 +18222,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     baseDome:
       material: {fileID: 0}
       radius: 1.2
@@ -15968,6 +18263,7 @@ MonoBehaviour:
       linesTiling: {x: 3, y: 2}
       linesSpeed: 1.2
       linesTwist: 0.15
+      linesRise: 0
       axisTilt: 25
       axisPrecess: 0.8
       swirlLines: 5
@@ -16027,6 +18323,30 @@ MonoBehaviour:
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
     domeWhileActive: 0
     rush: []
     spiralTrail:

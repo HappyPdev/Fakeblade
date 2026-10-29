@@ -358,8 +358,9 @@ namespace FakeBlade.Core
 
     /// <summary>
     /// Efecto sobre la peonza mientras su especial está activo (K8/K9, 2026-10-17): impulsos del borde brillante que
-    /// suben de golpe y se apagan, a ritmo irregular (como el parpadeo de una llama), y un sprite animado proyectado
-    /// desde arriba sobre la peonza. Lo aplica BladeOverlay.
+    /// suben de golpe y se apagan, a ritmo irregular (como el parpadeo de una llama), un sprite animado proyectado
+    /// desde arriba sobre la peonza y una onda que sube por ella y se cierra en el núcleo (al encenderse y en bucle,
+    /// 2026-10-29). Lo aplica BladeOverlay.
     /// </summary>
     [Serializable]
     public class SpecialOverlayStyle
@@ -399,6 +400,33 @@ namespace FakeBlade.Core
         public float textureSpin = 120f;
         [Tooltip("Teñido del sprite (blanco = los colores del dibujo); su alfa es la transparencia")]
         public Color textureColor = Color.white;
+        [Header("Onda que sube por la peonza (2026-10-29)")]
+        [Tooltip("Una onda al encenderse el poder: sube por la peonza de abajo arriba y se cierra en el núcleo. Solo en los " +
+                 "especiales (no en la quemada ni en la congelada)")]
+        public bool waveOnActivate = true;
+        [Tooltip("Más ondas, una cada Wave Interval, mientras duran los efectos del poder")]
+        public bool waveLoop = true;
+        [Tooltip("Tiempo entre ondas en bucle (s, desde que empieza la anterior)")]
+        [Min(0.1f)] public float waveInterval = 1.6f;
+        [Tooltip("Lo que tarda cada onda en ir de abajo al núcleo (s)")]
+        [Min(0.05f)] public float waveDuration = 0.45f;
+        [Tooltip("Ancho de la banda, en partes del recorrido (de abajo, por el lateral y por arriba, hasta el núcleo)")]
+        [Range(0.02f, 0.6f)] public float waveWidth = 0.12f;
+        [Tooltip("Estela más tenue detrás de la banda, en partes del recorrido (0 = sin estela)")]
+        [Range(0f, 1f)] public float waveTrail = 0.25f;
+        [Tooltip("Transparencia de la estela respecto a la banda")]
+        [Range(0f, 1f)] public float waveTrailAlpha = 0.35f;
+        [Tooltip("Con el color del poder (su asset). Si no, Wave Color")]
+        public bool wavePowerColor = true;
+        public Color waveColor = Color.white;
+        [Tooltip("Aclarado hacia blanco (0 = el color tal cual)")]
+        [Range(0f, 1f)] public float waveLighten = 0.3f;
+        [Tooltip("Transparencia de la onda al encenderse")]
+        [Range(0f, 1f)] public float waveAlpha = 1f;
+        [Tooltip("Transparencia de las ondas en bucle")]
+        [Range(0f, 1f)] public float waveLoopAlpha = 0.6f;
+        [Tooltip("Destello de toda la peonza al cerrarse en el núcleo (0-1; 0 = ninguno)")]
+        [Range(0f, 1f)] public float waveEndFlash = 0.3f;
     }
 
     /// <summary>
@@ -531,6 +559,109 @@ namespace FakeBlade.Core
         public List<SpiralParticleStyle> swapBurst = new List<SpiralParticleStyle>();
         [Tooltip("Transparencia de la peonza mientras duran los efectos (y del clon mientras está fuera)")]
         public BladeFadeStyle bodyFade = new BladeFadeStyle();
+        [Header("Fuerte al encenderse y suave después (Escudo, 2026-10-29)")]
+        [Tooltip("Segundos desde que se encienden los efectos con toda su fuerza (0 = siempre con toda): después bajan a Soft " +
+                 "Level. Sirve sobre todo con While Lingering (Escudo: los escudos se quedan hasta romperse)")]
+        [Min(0f)] public float softAfter;
+        [Tooltip("Fuerza de los efectos después de Soft After: ritmo del remolino y de las partículas, y cuencos de la punta " +
+                 "(1 = igual que al principio)")]
+        [Range(0f, 1f)] public float softLevel = 1f;
+        [Tooltip("Lo que tardan en bajar a Soft Level (s)")]
+        [Min(0.01f)] public float softFade = 0.6f;
+        [Header("Escudos (Escudo, 2026-10-29)")]
+        [Tooltip("Cada escudo, un panal de hexágonos dorados que gira con él y se hace añicos al romperse. Sin material = no salen " +
+                 "(quedan los arcos de píxeles de antes)")]
+        public ShieldHexStyle shieldHex = new ShieldHexStyle();
+        [Tooltip("Al romperse un escudo: explosión en el escudo hacia fuera del choque (Directional Speed la lleva hacia la que " +
+                 "chocó). Usa Count, no Rate")]
+        public List<SpiralParticleStyle> shieldBreak = new List<SpiralParticleStyle>();
+    }
+
+    /// <summary>
+    /// Escudos del Escudo (K8, 2026-10-29; elegido por el usuario: panal de hexágonos). Cada escudo, una franja curva de
+    /// hexágonos translúcidos en su ángulo real (el mismo con el que se decide si para el choque): crecen al aparecer, brillan
+    /// a ratos y, al romperse, salen despedidos hacia fuera del choque. Shader FakeBlade/ShieldHex (material VFX_ShieldHex, lo
+    /// crea Setup Rastros). Lo pinta BladeShieldHex; los puntos de las puntas, BladeParticles. Se lee en vivo.
+    /// </summary>
+    [Serializable]
+    public class ShieldHexStyle
+    {
+        [Tooltip("Material (shader FakeBlade/ShieldHex: VFX_ShieldHex, lo crea Setup Rastros). Vacío = no salen")]
+        public Material material;
+        [Header("Panal")]
+        [Tooltip("Filas de hexágonos de cada escudo")]
+        [Range(1, 6)] public int rows = 3;
+        [Tooltip("Radio de cada hexágono (m, del centro a una punta)")]
+        [Range(0.03f, 0.3f)] public float hexSize = 0.09f;
+        [Tooltip("Hueco entre hexágonos, en partes de su radio")]
+        [Range(0f, 0.6f)] public float gap = 0.12f;
+        [Tooltip("Altura de la fila de abajo sobre la punta (m)")]
+        public float height = 0.02f;
+        [Tooltip("Distancia al centro, en partes del radio del poder (solo el aspecto: si para el choque se decide por el ángulo)")]
+        [Range(0.5f, 1.8f)] public float radiusScale = 1f;
+        [Tooltip("Inclinación (grados desde la vertical): positiva, hacia fuera; negativa, hacia dentro (sobre la peonza). Con la " +
+                 "cámara alta, un escudo derecho se ve casi de canto")]
+        [Range(-80f, 80f)] public float lean;
+        [Header("Colores (dorado y blanco)")]
+        [Tooltip("Relleno; su alfa es la transparencia")]
+        public Color fillColor = new Color(1f, 0.78f, 0.2f, 0.35f);
+        [Tooltip("Borde de cada hexágono")]
+        public Color edgeColor = new Color(1f, 0.97f, 0.85f, 1f);
+        [Tooltip("Línea fina por fuera del borde (contraste de cómic; alfa 0 = sin ella)")]
+        public Color outlineColor = new Color(0.25f, 0.15f, 0f, 0.9f);
+        [Tooltip("Desde qué distancia al centro del hexágono va el borde (0-1; 1 = sin borde)")]
+        [Range(0f, 1f)] public float edgeFrom = 0.72f;
+        [Tooltip("Desde qué distancia al centro va el contorno (0-1; 1 = sin contorno)")]
+        [Range(0f, 1f)] public float outlineFrom = 0.92f;
+        [Range(0f, 1f)] public float alpha = 1f;
+        [Header("Brillo")]
+        [Tooltip("Fuerza del destello de cada hexágono (0 = no brillan)")]
+        [Range(0f, 1f)] public float twinkle = 0.6f;
+        [Tooltip("Destellos por segundo de cada hexágono (cada uno a su hora)")]
+        [Min(0f)] public float twinkleSpeed = 0.8f;
+        [Header("Al aparecer")]
+        [Tooltip("Lo que tardan en crecer los hexágonos de un escudo nuevo (s), con un destello blanco")]
+        [Min(0.01f)] public float appearTime = 0.25f;
+        [Header("Al romperse (añicos)")]
+        [Tooltip("Lo que duran los añicos (s)")]
+        [Min(0.05f)] public float shatterTime = 0.6f;
+        [Tooltip("Velocidad de los hexágonos hacia fuera del escudo (m/s)")]
+        public float outwardSpeed = 2.5f;
+        [Tooltip("Velocidad hacia fuera del choque (m/s): hacia la peonza que lo ha roto")]
+        public float directionalSpeed = 4f;
+        [Tooltip("Velocidad hacia arriba (m/s)")]
+        public float upSpeed = 2f;
+        [Tooltip("Gravedad de los añicos (m/s²)")]
+        [Min(0f)] public float gravity = 9f;
+        [Tooltip("Giro de cada hexágono sobre sí mismo (rad/s, como mucho)")]
+        public float spin = 12f;
+        [Header("Puntos de las puntas")]
+        [Tooltip("Puntos por segundo en los bordes de cada escudo, que dejan un rastro al girar (0 = ninguno)")]
+        [Min(0f)] public float edgeRate = 40f;
+        [Tooltip("Tamaño de cada punto")]
+        [Min(0f)] public float edgeSize = 0.2f;
+        [Tooltip("Lo que dura cada punto (s): más = rastro más largo (antes de los hexágonos, 0,08)")]
+        [Min(0.01f)] public float edgeLifetime = 0.15f;
+        [Tooltip("Los arcos de píxeles de antes, además de los hexágonos")]
+        public bool arcPixels;
+        [Header("Partículas sueltas (se quedan atrás, 2026-10-29)")]
+        [Tooltip("Partículas por segundo de cada escudo, repartidas por todo él: salen con algo de su giro y se quedan atrás, " +
+                 "como una estela (0 = ninguna)")]
+        [Min(0f)] public float trailRate = 25f;
+        [Tooltip("Cuánto del giro del escudo llevan al salir (0 = se quedan quietas donde salen; 1 = van con él, en línea recta)")]
+        [Range(0f, 1f)] public float trailFollow = 0.4f;
+        [Tooltip("Velocidad hacia arriba (m/s)")]
+        public float trailRise = 0.4f;
+        [Tooltip("Tamaño, al azar entre x e y")]
+        public Vector2 trailSize = new Vector2(0.05f, 0.09f);
+        [Tooltip("Lo que duran (s), al azar entre x e y")]
+        public Vector2 trailLifetime = new Vector2(0.3f, 0.5f);
+        [Tooltip("Colores (cada una, al azar entre los dos)")]
+        public Color trailColor = new Color(1f, 0.78f, 0.2f, 1f);
+        public Color trailColor2 = new Color(1f, 0.95f, 0.75f, 1f);
+
+        /// <summary>Alto del panal (m), de la punta de abajo a la de arriba.</summary>
+        public float PanelHeight => (Mathf.Max(1, rows) - 1) * 1.5f * hexSize + 2f * hexSize;
     }
 
     /// <summary>

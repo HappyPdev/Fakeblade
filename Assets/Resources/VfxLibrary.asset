@@ -4364,6 +4364,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 0.9}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Chispas
       emitter: 19
@@ -5202,6 +5215,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 6
     replaceAura: 1
     tip:
@@ -5292,6 +5343,19 @@ MonoBehaviour:
       textureScale: 0.4
       textureSpin: 200
       textureColor: {r: 0.54901963, g: 0.9019608, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Cristales
       emitter: 20
@@ -5986,47 +6050,47 @@ MonoBehaviour:
       springFrequency: 4.5
       springDamping: 0.22
     baseDome:
-      material: {fileID: 0}
-      radius: 1.2
-      heightScale: 0.85
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1
+      heightScale: 1
       height: 0
       growEase: 2
-      bodyColor: {r: 1, g: 0.97, b: 0.9, a: 0.18}
-      rimColor: {r: 1, g: 0.55, b: 0.15, a: 0.95}
-      outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.9}
-      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      bodyColor: {r: 0.9547169, g: 0.94522154, b: 0.94210744, a: 0.78431374}
+      rimColor: {r: 0.381723, g: 0.85951215, b: 0.97735846, a: 0.8901961}
+      outlineColor: {r: 0.20784312, g: 0.6049403, b: 1, a: 0.6862745}
+      swirlColor: {r: 0, g: 0.6589316, b: 0.9607843, a: 0.45490196}
       swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
-      rimWidth: 0.3
-      outlineWidth: 0.08
+      rimWidth: 0.383
+      outlineWidth: 0.261
       linesTexture: {fileID: 0}
       linesTiling: {x: 3, y: 2}
-      linesSpeed: 1.2
-      linesTwist: 0.15
+      linesSpeed: 6
+      linesTwist: 25
       linesRise: 0
-      axisTilt: 25
+      axisTilt: 16.7
       axisPrecess: 0.8
       swirlLines: 5
       swirlTwist: 0.6
       swirlSpeed: 1.5
       swirlWidth: 0.18
-      shakeFrom: 0.6
-      shakeScale: 0.08
-      shakeRate: 22
-      popTime: 0.16
-      popScale: 1.7
-      popFlash: 0.8
-      popFall: 0
-      appearFrom: 0
+      shakeFrom: 0.061
+      shakeScale: 0.09
+      shakeRate: 0
+      popTime: 0.3
+      popScale: 1.3
+      popFlash: 0.483
+      popFall: 0.152
+      appearFrom: 0.471
       timing: 0
       growTime: 0.3
       startRadius: 0
-      funnelPhase: 0
-      funnelMorph: 0.2
-      funnelShape: {x: 0.25, y: 1, z: 2.5}
-      topCut: 0
-      topSpikes: 10
-      topSpikesSpeed: 0.5
-      insideAlpha: 0
+      funnelPhase: 0.7
+      funnelMorph: 0.699
+      funnelShape: {x: 0.25, y: 2.08, z: -0.02}
+      topCut: 0.086
+      topSpikes: 11
+      topSpikesSpeed: 0.96
+      insideAlpha: 1
       sphere: 0
       hitTexture: {fileID: 0}
       hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
@@ -6036,28 +6100,28 @@ MonoBehaviour:
       hitFlash: 0.5
       hitBump: 0.12
       maskEnabled: 1
-      maskTexture: {fileID: 0}
-      maskAmount: 0
-      maskTiling: {x: 4, y: 2}
-      maskScroll: {x: 0.1, y: 0.4}
-      maskEdge: 0.05
-      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      maskTexture: {fileID: 2800000, guid: 830ebc02c18ce0a45a520166a99bc7dd, type: 3}
+      maskAmount: 0.491
+      maskTiling: {x: 1, y: 1}
+      maskScroll: {x: 0.4, y: 1}
+      maskEdge: 0.131
+      maskEdgeColor: {r: 0.20784314, g: 0.6039216, b: 1, a: 0.9}
       topErodeEnabled: 1
-      topErode: 0
-      topErodeFrom: 0.5
-      holePulseEnabled: 1
+      topErode: 0.3
+      topErodeFrom: 0.409
+      holePulseEnabled: 0
       holePulse: 0
       holePulseInterval: {x: 0.15, y: 0.5}
       holePulseDecay: 0.2
       wobbleEnabled: 1
-      wobble: 0
+      wobble: 0.033
       wobbleWaves: {x: 5, y: 2}
       wobbleSpeed: 4
-      flickerEnabled: 1
+      flickerEnabled: 0
       flickerRate: 0
       flickerAlpha: 0.3
       flickerTime: 0.05
-      glitchEnabled: 1
+      glitchEnabled: 0
       glitchRate: 0
       glitchBands: 8
       glitchOffset: 0.05
@@ -6086,7 +6150,7 @@ MonoBehaviour:
       springOffset: 0.12
       springFrequency: 4.5
       springDamping: 0.22
-    domeWhileActive: 0
+    domeWhileActive: 1
     rush: []
     spiralTrail:
       material: {fileID: 0}
@@ -6175,23 +6239,66 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 4
     replaceAura: 1
     tip:
       mesh: {fileID: 0}
-      material: {fileID: 0}
-      tilesX: 3
-      tilesY: 3
+      material: {fileID: 2100000, guid: 2d58513f92a59874382169bccada6d4f, type: 2}
+      tilesX: 11
+      tilesY: 1
       firstFrame: 0
-      frames: 9
-      cycle: 0.25
+      frames: 12
+      cycle: 0.5
       size: 2
-      scale: {x: 1, y: 1}
+      scale: {x: 1, y: 0.5}
       height: 0.03
       alpha: 0.9
       lighten: 0
       fade: {x: 0.04, y: 0.12}
-      cups: []
+      cups:
+      - angle: 0
+        spinSpeed: 800
+        scale: {x: 0.81, y: 0.7}
+        playerColor: 0
+        color: {r: 1, g: 0.8111119, b: 0, a: 1}
       pointForward: 0
       forwardOffset: 0.5
       onlyWhileRushing: 0
@@ -6235,7 +6342,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.85, b: 0.2, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
-      baseRim: 0.25
+      baseRim: 6.29
       baseFlash: 0.061
       pulseRim: {x: 1, y: 3}
       pulseFlash: {x: 0, y: 0.2}
@@ -6250,6 +6357,19 @@ MonoBehaviour:
       textureScale: 0.5
       textureSpin: 160
       textureColor: {r: 1, g: 0.8509804, b: 0.2, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: Quemado
@@ -6267,10 +6387,10 @@ MonoBehaviour:
     auras:
     - name: Aura Lightning
       prefab: {fileID: 3501633444184293344, guid: 88b14fae91f3b5345abdc3e7a5f29793, type: 3}
-      scale: 1.2
+      scale: 0.89
       height: 0.1
       simulationSpeed: 1
-      spin: 0
+      spin: 0.37
       tint: 1
       tintColor: {r: 1, g: 0.85, b: 0.15, a: 1}
       hideSystems: Smoke
@@ -6529,34 +6649,34 @@ MonoBehaviour:
     arcs:
       enabled: 1
       material: {fileID: 2100000, guid: b9a6649977b707b449a42d16bf78c995, type: 2}
-      color: {r: 1, g: 0.75, b: 0.05, a: 1}
-      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      color: {r: 1, g: 0.8509804, b: 0.14901961, a: 1}
+      coreColor: {r: 1, g: 1, b: 1, a: 1}
       glowWidth: 0.14
-      glowAlpha: 0.6
+      glowAlpha: 1
       coreWidth: 0.045
       minWidth: 0.35
-      kinkWidth: 0.5
-      midWidth: {x: 0.5, y: 1.2}
+      kinkWidth: 0.7
+      midWidth: {x: 0.5, y: 1.55}
       endWidth: 0
-      segments: 5
-      jitter: 0.22
-      zigzag: 0.85
+      segments: 6
+      jitter: 0.2
+      zigzag: 0.181
       unevenSegments: 0.02
       refresh: {x: 0.01, y: 0.03}
-      flicker: 0.001
-      branchChance: 0.5
-      branchLength: {x: 0.25, y: 0.6}
-      sparkChance: 0
-      sparkSize: {x: 0.12, y: 0.22}
+      flicker: 0.012
+      branchChance: 0.116
+      branchLength: {x: 0.1, y: 0.6}
+      sparkChance: 0.081
+      sparkSize: {x: 0.01, y: 0.15}
       aroundCount: 5
-      windupCount: 10
-      strikeLife: {x: 0.15, y: 0.35}
+      windupCount: 6
+      strikeLife: {x: 0.09, y: 0.2}
       drag: 0.05
       maxStretch: 2.5
       coreHeight: 0.5
       aroundRadius: {x: 0.7, y: 1.7}
-      aroundHeight: {x: 0.01, y: 0.65}
-      arch: 0.7
+      aroundHeight: {x: 0.01, y: 0.1}
+      arch: 0.45
       trailCount: 2
       trailSpacing: 0.75
       trailLife: 0.85
@@ -6811,6 +6931,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 2
     replaceAura: 1
     tip:
@@ -6886,6 +7044,19 @@ MonoBehaviour:
       textureScale: 1
       textureSpin: 60
       textureColor: {r: 1, g: 0.5338221, b: 0, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Chispas a ras de suelo
       emitter: 17
@@ -7425,7 +7596,7 @@ MonoBehaviour:
       linesSpeed: 3
       linesTwist: 0.5
       linesRise: 0
-      axisTilt: 20
+      axisTilt: 6.8
       axisPrecess: 0.8
       swirlLines: 3
       swirlTwist: 1.2
@@ -7457,9 +7628,9 @@ MonoBehaviour:
       hitDuration: 0.35
       hitFlash: 0.5
       hitBump: 0.12
-      maskEnabled: 1
-      maskTexture: {fileID: 0}
-      maskAmount: 0
+      maskEnabled: 0
+      maskTexture: {fileID: 2800000, guid: c573cc5ee0a99054eb7449e5d8e0c5a6, type: 3}
+      maskAmount: 0.031
       maskTiling: {x: 4, y: 2}
       maskScroll: {x: 0.1, y: 0.4}
       maskEdge: 0.05
@@ -7475,12 +7646,12 @@ MonoBehaviour:
       wobble: 0
       wobbleWaves: {x: 5, y: 2}
       wobbleSpeed: 4
-      flickerEnabled: 1
-      flickerRate: 0
+      flickerEnabled: 0
+      flickerRate: 7.08
       flickerAlpha: 0.3
       flickerTime: 0.05
-      glitchEnabled: 1
-      glitchRate: 0
+      glitchEnabled: 0
+      glitchRate: 5.55
       glitchBands: 8
       glitchOffset: 0.05
       glitchTime: 0.08
@@ -7784,6 +7955,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 11
     replaceAura: 1
     tip:
@@ -7869,6 +8078,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: 
@@ -8740,6 +8962,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 14
     replaceAura: 1
     tip:
@@ -8830,6 +9090,19 @@ MonoBehaviour:
       textureScale: 0.8
       textureSpin: -220
       textureColor: {r: 0.59716976, g: 1, b: 0.19433957, a: 0.83137256}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: 
@@ -9814,6 +10087,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 12
     replaceAura: 0
     tip:
@@ -9904,6 +10215,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: 
@@ -11163,6 +11487,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 9
     replaceAura: 1
     tip:
@@ -11248,6 +11610,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Chispas
       emitter: 19
@@ -12187,6 +12562,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 3
     replaceAura: 1
     tip:
@@ -12262,6 +12675,19 @@ MonoBehaviour:
       textureScale: 0.7
       textureSpin: 544.8
       textureColor: {r: 0.4509804, g: 0.6, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: 
@@ -13084,6 +13510,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 13
     replaceAura: 0
     tip:
@@ -13169,6 +13633,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Salpicadura al moverse
       emitter: 19
@@ -14106,6 +14583,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 1
     replaceAura: 1
     tip:
@@ -14196,6 +14711,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: "Rayas del aceler\xF3n"
       emitter: 2
@@ -15111,6 +15639,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 7
     replaceAura: 1
     tip:
@@ -15196,6 +15762,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Rastro de humo bajo
       emitter: 19
@@ -16121,6 +16700,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   - type: 8
     replaceAura: 1
     tip:
@@ -16201,6 +16818,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Rastro de humo negro
       emitter: 19
@@ -17791,6 +18421,938 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
+  - type: 10
+    replaceAura: 1
+    tip:
+      mesh: {fileID: 0}
+      material: {fileID: 0}
+      tilesX: 3
+      tilesY: 3
+      firstFrame: 0
+      frames: 9
+      cycle: 0.25
+      size: 2
+      scale: {x: 1, y: 1}
+      height: 0.03
+      alpha: 0.9
+      lighten: 0
+      fade: {x: 0.04, y: 0.12}
+      cups: []
+      pointForward: 0
+      forwardOffset: 0.5
+      onlyWhileRushing: 0
+      aimAtTarget: 0
+      particleSprite: 
+      particleRate: 30
+      particleIdleRate: 0
+      particleIdleMinSpeed: 6
+      particleConeAngle: 25
+      particleSpeed: {x: 1.5, y: 3}
+      particleInheritVelocity: 0
+      particleSize: {x: 0.5, y: 0.9}
+      particleLifetime: {x: 0, y: 0}
+      particleRotation: {x: 0, y: 0}
+      particleSpawnRadius: 0.3
+      particleHeight: 0
+      particlePlayerColor: 1
+      particleColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+      particleLighten: 0
+      particleAlpha: 0.9
+      ground:
+        material: {fileID: 0}
+        tilesX: 8
+        tilesY: 8
+        firstFrame: 0
+        frames: 61
+        cycle: 1
+        size: 3
+        height: 0.02
+        spinSpeed: 90
+        playerColor: 0
+        color: {r: 1, g: 1, b: 1, a: 1}
+        alpha: 1
+        copies: 1
+        pulseRate: 0
+        pulseScale: 0.2
+        pulseAlpha: 0.4
+      groundLayers: []
+    overlay:
+      enabled: 1
+      powerColor: 0
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      hotColor: {r: 1, g: 1, b: 1, a: 1}
+      baseRim: 0.15
+      baseFlash: 0
+      pulseRim: {x: 0.4, y: 0.9}
+      pulseFlash: {x: 0, y: 0.05}
+      pulseInterval: {x: 0.3, y: 0.6}
+      pulseDecay: 0.3
+      texture: {fileID: 0}
+      tilesX: 8
+      tilesY: 8
+      firstFrame: 0
+      frames: 61
+      cycle: 1
+      textureScale: 2.2
+      textureSpin: 120
+      textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 0.5
+      waveDuration: 0.45
+      waveWidth: 0.041
+      waveTrail: 0.477
+      waveTrailAlpha: 0.228
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
+    particles: []
+    scorch:
+      sprite: Quemado
+      spriteVariants: []
+      onlyWhileRushing: 0
+      alignToMotion: 0
+      rotation: {x: 0, y: 360}
+      spacing: 0.2
+      idleInterval: 0.3
+      size: {x: 0.8, y: 1.1}
+      lifetime: 0.5
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 0.5
+      height: 0.012
+    auras: []
+    windup:
+    - name: "C\xEDrculo que se cierra (suelo)"
+      emitter: 15
+      sprite: CircleImpact02Cierra
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 12
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.25, y: 0.25}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 0.9
+      windupOnly: 1
+      powerTint: 0
+    - name: "L\xEDneas que se tragan"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 80
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 2, y: 1.8}
+      height: {x: 0.05, y: 0.6}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: -5, y: -4}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.06, y: 0.01}
+      lifetime: {x: 0.5, y: 0.32}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 1
+      powerTint: 0
+    activationBurst:
+    - name: Onda
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 6, y: 6}
+      lifetime: {x: 0.5, y: 0.5}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas hacia fuera y arriba"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 12
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.05, y: 0.4}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 2.5, y: 4}
+      upSpeed: {x: 2, y: 3.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.035, y: 0.05}
+      lifetime: {x: 0.55, y: 0.22}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 18
+      radius: {x: 0.2, y: 0.4}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 2, y: 4}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.06, y: 0.1}
+      lifetime: {x: 0.4, y: 0.6}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    windupSustain: 0
+    visualWindupTime: 0
+    visualWindupDomesOnly: 0
+    swirl:
+    - name: "Remolino de l\xEDneas"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 70
+      ratePerSpeed: 6
+      speedPerSpeed: 0.06
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.35, y: 0.5}
+      height: {x: 0, y: 0.15}
+      tangentialSpeed: {x: 5, y: 3.5}
+      outwardSpeed: {x: -0.6, y: -0.3}
+      upSpeed: {x: 1.5, y: 0.5}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.03, y: 0.01}
+      lifetime: {x: 0.4, y: 0.55}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "Remolino de p\xEDxeles"
+      emitter: 11
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 70
+      ratePerSpeed: 3
+      speedPerSpeed: 0.06
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0.3, y: 0.45}
+      height: {x: 0, y: 0.1}
+      tangentialSpeed: {x: 2.5, y: 3.5}
+      outwardSpeed: {x: -0.5, y: -0.2}
+      upSpeed: {x: 1.2, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.05, y: 0.08}
+      lifetime: {x: 0.8, y: 1}
+      color: {r: 0.4566037, g: 0.420893, b: 0.32651472, a: 1}
+      color2: {r: 0.93962264, g: 0.7369887, b: 0.48044848, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    impact: []
+    strongImpact: []
+    guardHit: []
+    arcs:
+      enabled: 1
+      material: {fileID: 0}
+      color: {r: 1, g: 0.75, b: 0.05, a: 1}
+      coreColor: {r: 1, g: 0.97, b: 0.6, a: 1}
+      glowWidth: 0.14
+      glowAlpha: 0.6
+      coreWidth: 0.045
+      minWidth: 0.35
+      kinkWidth: 0.25
+      midWidth: {x: 0.45, y: 1}
+      endWidth: 0.1
+      segments: 12
+      jitter: 0.22
+      zigzag: 0.85
+      unevenSegments: 0.35
+      refresh: {x: 0.02, y: 0.05}
+      flicker: 0.15
+      branchChance: 0.5
+      branchLength: {x: 0.25, y: 0.6}
+      sparkChance: 0
+      sparkSize: {x: 0.12, y: 0.22}
+      aroundCount: 6
+      windupCount: 10
+      strikeLife: {x: 0.15, y: 0.35}
+      drag: 0.05
+      maxStretch: 2.5
+      coreHeight: 0.4
+      aroundRadius: {x: 0.6, y: 1.3}
+      aroundHeight: {x: 0.15, y: 0.45}
+      arch: 0.6
+      trailCount: 5
+      trailSpacing: 0.6
+      trailLife: 0.45
+      trailMinSpeed: 3
+      trailHeight: 0.03
+      clashCount: 3
+      clashDuration: 0.25
+    dome:
+      material: {fileID: 0}
+      radius: 1.2
+      heightScale: 0.85
+      height: 0
+      growEase: 2
+      bodyColor: {r: 1, g: 0.97, b: 0.9, a: 0.18}
+      rimColor: {r: 1, g: 0.55, b: 0.15, a: 0.95}
+      outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.9}
+      swirlColor: {r: 1, g: 1, b: 1, a: 0.8}
+      swirlColor2: {r: 0.05, g: 0.05, b: 0.05, a: 0.6}
+      rimWidth: 0.3
+      outlineWidth: 0.08
+      linesTexture: {fileID: 0}
+      linesTiling: {x: 3, y: 2}
+      linesSpeed: 1.2
+      linesTwist: 0.15
+      linesRise: 0
+      axisTilt: 25
+      axisPrecess: 0.8
+      swirlLines: 5
+      swirlTwist: 0.6
+      swirlSpeed: 1.5
+      swirlWidth: 0.18
+      shakeFrom: 0.6
+      shakeScale: 0.08
+      shakeRate: 22
+      popTime: 0.16
+      popScale: 1.7
+      popFlash: 0.8
+      popFall: 0
+      appearFrom: 0
+      timing: 0
+      growTime: 0.3
+      startRadius: 0
+      funnelPhase: 0
+      funnelMorph: 0.2
+      funnelShape: {x: 0.25, y: 1, z: 2.5}
+      topCut: 0
+      topSpikes: 10
+      topSpikesSpeed: 0.5
+      insideAlpha: 0
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 0}
+      maskAmount: 0
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.1, y: 0.4}
+      maskEdge: 0.05
+      maskEdgeColor: {r: 1, g: 1, b: 1, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0
+      topErodeFrom: 0.5
+      holePulseEnabled: 1
+      holePulse: 0
+      holePulseInterval: {x: 0.15, y: 0.5}
+      holePulseDecay: 0.2
+      wobbleEnabled: 1
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 1
+      flickerRate: 0
+      flickerAlpha: 0.3
+      flickerTime: 0.05
+      glitchEnabled: 1
+      glitchRate: 0
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 0
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.3
+      springOffset: 0.12
+      springFrequency: 4.5
+      springDamping: 0.22
+    baseDome:
+      material: {fileID: 2100000, guid: 1ba1914bee031104a9a7485a6010d2dc, type: 2}
+      radius: 1.12
+      heightScale: 2.21
+      height: 0
+      growEase: 2
+      bodyColor: {r: 1, g: 0.78, b: 0.2, a: 0.18}
+      rimColor: {r: 1, g: 0.98, b: 0.88, a: 0.95}
+      outlineColor: {r: 0.85, g: 0.5, b: 0.08, a: 0.95}
+      swirlColor: {r: 1, g: 0.78, b: 0.2, a: 0.9}
+      swirlColor2: {r: 1, g: 1, b: 1, a: 0.7}
+      rimWidth: 0.15
+      outlineWidth: 0.05
+      linesTexture: {fileID: 2800000, guid: aa025fe1cd34f8348afedad3a11ca62b, type: 3}
+      linesTiling: {x: 6, y: 2}
+      linesSpeed: -0.5
+      linesTwist: 0.43
+      linesRise: 0
+      axisTilt: 0
+      axisPrecess: 0
+      swirlLines: 12.1
+      swirlTwist: 11.67
+      swirlSpeed: -4.5
+      swirlWidth: 0.034
+      shakeFrom: 1
+      shakeScale: 0
+      shakeRate: 0
+      popTime: 0.25
+      popScale: 1.4
+      popFlash: 0.5
+      popFall: 0
+      appearFrom: 0
+      timing: 0
+      growTime: 0.3
+      startRadius: 1
+      funnelPhase: 1
+      funnelMorph: 0.2
+      funnelShape: {x: 0.23, y: 1.64, z: 0.13}
+      topCut: 0.038
+      topSpikes: 12
+      topSpikesSpeed: 0.35
+      insideAlpha: 1
+      sphere: 0
+      hitTexture: {fileID: 0}
+      hitColor: {r: 1, g: 0.9, b: 0.96, a: 1}
+      hitShadowColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.6}
+      hitScale: {x: 0.15, y: 1.1}
+      hitDuration: 0.35
+      hitFlash: 0.5
+      hitBump: 0.12
+      maskEnabled: 1
+      maskTexture: {fileID: 2800000, guid: aff33eecd3a764b42a1ef5327fa0fedc, type: 3}
+      maskAmount: 0.044
+      maskTiling: {x: 4, y: 2}
+      maskScroll: {x: 0.3, y: 3}
+      maskEdge: 0.006
+      maskEdgeColor: {r: 0.9245283, g: 0.68807256, b: 0.37504447, a: 0.9}
+      topErodeEnabled: 1
+      topErode: 0.523
+      topErodeFrom: 0.366
+      holePulseEnabled: 0
+      holePulse: 0.925
+      holePulseInterval: {x: 2, y: 0.5}
+      holePulseDecay: 0.02
+      wobbleEnabled: 1
+      wobble: 0
+      wobbleWaves: {x: 5, y: 2}
+      wobbleSpeed: 4
+      flickerEnabled: 0
+      flickerRate: 4
+      flickerAlpha: 0.481
+      flickerTime: 0.05
+      glitchEnabled: 0
+      glitchRate: 5.95
+      glitchBands: 8
+      glitchOffset: 0.05
+      glitchTime: 0.08
+      spikes:
+        enabled: 0
+        look: 0
+        material: {fileID: 0}
+        counts: {x: 8, y: 4}
+        elevations: {x: 22, y: 58}
+        length: 0.45
+        width: 0.14
+        sides: 6
+        spin: 0.35
+        growFrom: 0.6
+        color: {r: 0.8, g: 0.4, b: 1, a: 1}
+        tipColor: {r: 0.95, g: 0.88, b: 1, a: 1}
+        shadeColor: {r: 0.42, g: 0.18, b: 0.62, a: 1}
+        outlineColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+        tipFrom: 0.7
+        outlineWidth: 0.025
+      springEnabled: 1
+      springSpeed: {x: 1, y: 10}
+      springMinStrength: 0.35
+      springSquash: 0.25
+      springOffset: 0.08
+      springFrequency: 3.6
+      springDamping: 0.25
+    domeWhileActive: 1
+    rush: []
+    spiralTrail:
+      material: {fileID: 0}
+      onlyWhileRushing: 1
+      strands: 2
+      radius: 0.55
+      turnsPerSecond: 3
+      height: 0.3
+      width: 0.09
+      tailWidth: 0.3
+      time: 0.35
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      tailAlpha: 0
+      powerTint: {x: 0, y: 1}
+    targetMark: []
+    endBurst:
+    - name: Anillo de chispas
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 20
+      radius: {x: 0.3, y: 0.5}
+      height: {x: 0.1, y: 0.3}
+      tangentialSpeed: {x: 1, y: 2}
+      outwardSpeed: {x: 3, y: 5}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.06, y: 0.09}
+      lifetime: {x: 0.3, y: 0.45}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    release: []
+    pushHit: []
+    launchedTrail: []
+    launchedWallHit: []
+    hitTrail: []
+    hitTrailTime: 0.4
+    puddles: []
+    healCutBurst: []
+    burstRibbon: 0
+    ribbonPowerColor: 1
+    ribbonTime: 0.15
+    whileLingering: 1
+    cloneEffects: 1
+    cloneSplit: []
+    cloneAppear: []
+    cloneVanish: []
+    swapBurst: []
+    bodyFade:
+      enabled: 0
+      alpha: 0.75
+      cloneAlpha: 0.5
+      fadeTime: 0.2
+      recoverTime: 1.2
+      cloneAppearTime: 0.25
+      flickerInterval: {x: 0.8, y: 2}
+      flickerAlpha: 0.4
+      flickerTime: 0.06
+    softAfter: 1.5
+    softLevel: 0.3
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 2100000, guid: 3fc73d512ad181747bb130f8027cb3fd, type: 2}
+      rows: 3
+      hexSize: 0.173
+      gap: 0.049
+      height: 0.2
+      radiusScale: 1.195
+      lean: -27.6
+      fillColor: {r: 1, g: 0.8, b: 0.25, a: 0.5}
+      edgeColor: {r: 1, g: 0.98, b: 0.88, a: 1}
+      outlineColor: {r: 0.85, g: 0.5, b: 0.08, a: 0.95}
+      edgeFrom: 0.7
+      outlineFrom: 0.9
+      alpha: 0.929
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.8
+      outwardSpeed: 3.5
+      directionalSpeed: 6
+      upSpeed: 3
+      gravity: 9
+      spin: 14
+      edgeRate: 15
+      edgeSize: 0.12
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 23
+      trailFollow: 1
+      trailRise: 0
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.1}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak:
+    - name: Destello
+      emitter: 15
+      sprite: Impact10
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.25, y: 0.25}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3, y: 3}
+      lifetime: {x: 0.3, y: 0.3}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda en el suelo
+      emitter: 15
+      sprite: CircleImpact02Suelo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.03, y: 0.03}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 5, y: 5}
+      lifetime: {x: 0.4, y: 0.4}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 0.95
+      windupOnly: 0
+      powerTint: 0
+    - name: Onda fina en el suelo
+      emitter: 15
+      sprite: CircleImpact04
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 0
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 1
+      radius: {x: 0, y: 0}
+      height: {x: 0.05, y: 0.05}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0, y: 0}
+      upSpeed: {x: 0, y: 0}
+      directionalSpeed: {x: 0, y: 0}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 3.5, y: 3.5}
+      lifetime: {x: 0.35, y: 0.35}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 1, b: 1, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Zbam que suben
+      emitter: 15
+      sprite: ZbamSube
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 3
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 0.5, y: 1}
+      upSpeed: {x: 1, y: 2}
+      directionalSpeed: {x: 1.5, y: 3}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 1, y: 1.5}
+      lifetime: {x: 0.35, y: 0.45}
+      color: {r: 1, g: 0.95, b: 0.75, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Nubes doradas
+      emitter: 15
+      sprite: NubeComic
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 6
+      radius: {x: 0, y: 0.3}
+      height: {x: 0.2, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 1, y: 2.5}
+      upSpeed: {x: 0.5, y: 1.5}
+      directionalSpeed: {x: 2, y: 4}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.6, y: 1}
+      lifetime: {x: 0.5, y: 0.7}
+      color: {r: 1, g: 0.95, b: 0.75, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 0.9
+      windupOnly: 0
+      powerTint: 0
+    - name: Chispas hacia fuera
+      emitter: 15
+      sprite: Chispa
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 60
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 40
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 2, y: 5}
+      upSpeed: {x: 2, y: 5}
+      directionalSpeed: {x: 9, y: 16}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.08, y: 0.14}
+      lifetime: {x: 0.45, y: 0.7}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.78, b: 0.2, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "L\xEDneas hacia fuera"
+      emitter: 15
+      sprite: Linea
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 15
+      radius: {x: 0, y: 0.15}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 5, y: 8}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: -1.5, y: 1.5}
+      directionalSpeed: {x: 12, y: 20}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.1, y: 0.05}
+      lifetime: {x: 0.2, y: 0.32}
+      color: {r: 1, g: 1, b: 1, a: 1}
+      color2: {r: 1, g: 0.95, b: 0.75, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: Trozos dorados
+      emitter: 15
+      sprite: Trozo
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 24
+      radius: {x: 0.3, y: 0.2}
+      height: {x: 0.15, y: 0.5}
+      tangentialSpeed: {x: 4, y: 1}
+      outwardSpeed: {x: 2, y: 4}
+      upSpeed: {x: -6, y: 6}
+      directionalSpeed: {x: 5, y: 8}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.1, y: 0.05}
+      lifetime: {x: 0.6, y: 0.9}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 0.85, g: 0.5, b: 0.08, a: 1}
+      alpha: 1
+      windupOnly: 0
+      powerTint: 0
+    - name: "P\xEDxeles dorados"
+      emitter: 11
+      sprite: 
+      spriteVariants: []
+      rotation: {x: 0, y: 360}
+      alignToDirection: 0
+      forwardOffset: 0
+      rate: 100
+      ratePerSpeed: 0
+      speedPerSpeed: 0
+      onlyWhileHealing: 0
+      count: 16
+      radius: {x: 0, y: 0.2}
+      height: {x: 0.1, y: 0.5}
+      tangentialSpeed: {x: 0, y: 0}
+      outwardSpeed: {x: 3, y: 6}
+      upSpeed: {x: 1, y: 4}
+      directionalSpeed: {x: 5, y: 7}
+      clockwise: 1
+      inheritVelocity: 0
+      size: {x: 0.06, y: 0.02}
+      lifetime: {x: 0.4, y: 0.6}
+      color: {r: 1, g: 0.78, b: 0.2, a: 1}
+      color2: {r: 1, g: 0.95, b: 0.75, a: 1}
+      alpha: 0.958
+      windupOnly: 0
+      powerTint: 0
   genericSpecialEffects:
     type: 0
     replaceAura: 0
@@ -17867,6 +19429,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles: []
     scorch:
       sprite: 
@@ -18436,6 +20011,44 @@ MonoBehaviour:
       flickerInterval: {x: 0.8, y: 2}
       flickerAlpha: 0.4
       flickerTime: 0.06
+    softAfter: 0
+    softLevel: 1
+    softFade: 0.6
+    shieldHex:
+      material: {fileID: 0}
+      rows: 3
+      hexSize: 0.09
+      gap: 0.12
+      height: 0.02
+      radiusScale: 1
+      lean: 0
+      fillColor: {r: 1, g: 0.78, b: 0.2, a: 0.35}
+      edgeColor: {r: 1, g: 0.97, b: 0.85, a: 1}
+      outlineColor: {r: 0.25, g: 0.15, b: 0, a: 0.9}
+      edgeFrom: 0.72
+      outlineFrom: 0.92
+      alpha: 1
+      twinkle: 0.6
+      twinkleSpeed: 0.8
+      appearTime: 0.25
+      shatterTime: 0.6
+      outwardSpeed: 2.5
+      directionalSpeed: 4
+      upSpeed: 2
+      gravity: 9
+      spin: 12
+      edgeRate: 40
+      edgeSize: 0.2
+      edgeLifetime: 0.15
+      arcPixels: 0
+      trailRate: 25
+      trailFollow: 0.4
+      trailRise: 0.4
+      trailSize: {x: 0.05, y: 0.09}
+      trailLifetime: {x: 0.3, y: 0.5}
+      trailColor: {r: 1, g: 0.78, b: 0.2, a: 1}
+      trailColor2: {r: 1, g: 0.95, b: 0.75, a: 1}
+    shieldBreak: []
   useGenericSpecialEffects: 0
   burn:
     enabled: 1
@@ -18512,6 +20125,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Chispas
       emitter: 19
@@ -18797,6 +20423,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Vaho que cae
       emitter: 19
@@ -18993,6 +20632,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Chispas que saltan
       emitter: 19
@@ -19135,6 +20787,19 @@ MonoBehaviour:
       textureScale: 2.2
       textureSpin: 120
       textureColor: {r: 1, g: 1, b: 1, a: 1}
+      waveOnActivate: 1
+      waveLoop: 1
+      waveInterval: 1.6
+      waveDuration: 0.45
+      waveWidth: 0.12
+      waveTrail: 0.25
+      waveTrailAlpha: 0.35
+      wavePowerColor: 1
+      waveColor: {r: 1, g: 1, b: 1, a: 1}
+      waveLighten: 0.3
+      waveAlpha: 1
+      waveLoopAlpha: 0.6
+      waveEndFlash: 0.3
     particles:
     - name: Gotas que salen despedidas
       emitter: 19

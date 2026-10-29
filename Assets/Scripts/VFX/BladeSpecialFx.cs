@@ -130,9 +130,10 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// tipOffset: altura de la punta respecto al pivote (BladeParticles). special: efectos del especial (o null).
-        /// specialActive: el poder está activo; windingUp: todavía en la carga del principio (sus efectos esperan).
+        /// specialActive: el poder está activo; windingUp: todavía en la carga del principio (sus efectos esperan). level:
+        /// fuerza de los efectos de mientras dura (Soft Level, 2026-10-29: el Escudo, suave cuando ya lleva un rato).
         /// </summary>
-        public void Tick(float dt, float tipOffset, SpecialVfxStyle special, bool specialActive, bool windingUp)
+        public void Tick(float dt, float tipOffset, SpecialVfxStyle special, bool specialActive, bool windingUp, float level = 1f)
         {
             VfxLibrary lib = VfxSystem.Library;
             Vector3 pos = _blade.Position;
@@ -154,7 +155,7 @@ namespace FakeBlade.Core
             _wasHealing = healing;
             s_healing = healing;
             // El remolino de la carga sigue, más flojo, mientras dura el poder (2026-10-17)
-            float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain;
+            float swirl = !active || !visible ? 0f : windingUp ? 1f : special.windupSustain * level;
             // Las de solo la carga (windupOnly): la primera nada más empezar cada carga y ninguna después
             EmitSpirals(swirl > 0f ? special.windup : null, _windupAcc, swirl, tip, dt, motion, !windingUp, windingUp && !_wasWindingUp);
             // Explosión al encenderse; también al acabar una carga que gasta el poder (la última onda de Onda de choque, que
@@ -179,8 +180,8 @@ namespace FakeBlade.Core
             }
             _effectsWereOn = effectsOn;
             _wasWindingUp = windingUp;
-            EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, 1f, tip, dt, motion);
-            Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt, motion);
+            EmitSpirals(effectsOn && visible ? special.swirl : null, _specialSwirlAcc, level, tip, dt, motion);
+            Emit(effectsOn && visible ? special.particles : null, _specialAcc, _specialBurst, tip, dt, motion, level);
             // Arrancada (Embestida mientras embiste, 2026-10-20; Salto mientras vuela): sus partículas y, si lo pide, el
             // rastro de manchas
             bool rushing = effectsOn && ability != null && ability.IsRushing;
@@ -472,6 +473,23 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
+        /// Escudo (2026-10-29): se rompe un escudo. Su explosión (shieldBreak) en el escudo, hacia fuera del choque: Directional
+        /// Speed, Forward Offset y Align To Direction van hacia la peonza que lo ha roto. point: el escudo, a la altura de la
+        /// punta; outward: hacia la que chocó, en el suelo. Devuelve false si el poder no tiene (ShieldsAbility pone entonces la
+        /// de antes).
+        /// </summary>
+        public static bool PlayShieldBreak(FakeBladeController owner, Vector3 point, Vector3 outward)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            if (lib == null || owner == null || owner.Special == null) return false;
+            SpecialVfxStyle style = lib.GetSpecialEffects(owner.Special.Type);
+            if (style == null || style.shieldBreak == null || style.shieldBreak.Count == 0) return false;
+            s_power = owner.Special.Color;
+            if (VfxSystem.IsOnScreen(point)) Burst(style.shieldBreak, point, outward, 0f, float.MaxValue, outward);
+            return true;
+        }
+
+        /// <summary>
         /// Rebote (2026-10-21, boceto del usuario): la peonza que la embiste sale despedida. Zbam en la burbuja desde el punto
         /// del choque, el círculo pushHit en el lado del rival (girado hacia donde sale despedido) y su estela (hitTrail)
         /// mientras vuela. Devuelve false si el poder no tiene efectos propios (el llamador pone entonces los comunes).
@@ -729,11 +747,15 @@ namespace FakeBlade.Core
                 VfxSystem.EmitParticle(style.emitter, position, velocity, color, size, lifetime);
         }
 
-        /// <summary>Cada partícula de la lista: su ritmo seguido más los chasquidos (varias de golpe, a intervalos al azar).</summary>
-        private void Emit(List<SpecialParticleStyle> styles, float[] acc, float[] burst, Vector3 tip, float dt, Vector3 motion)
+        /// <summary>
+        /// Cada partícula de la lista: su ritmo seguido más los chasquidos (varias de golpe, a intervalos al azar). rateScale:
+        /// multiplica los dos (Soft Level).
+        /// </summary>
+        private void Emit(List<SpecialParticleStyle> styles, float[] acc, float[] burst, Vector3 tip, float dt, Vector3 motion,
+            float rateScale = 1f)
         {
             int count = styles != null ? Mathf.Min(styles.Count, MaxStyles) : 0;
-            float mul = SettingsService.ParticleMultiplier;
+            float mul = SettingsService.ParticleMultiplier * rateScale;
             for (int i = 0; i < MaxStyles; i++)
             {
                 SpecialParticleStyle style = i < count ? styles[i] : null;

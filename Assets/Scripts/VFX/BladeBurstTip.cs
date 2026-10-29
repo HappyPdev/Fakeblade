@@ -59,7 +59,7 @@ namespace FakeBlade.Core
         /// tipOffset: altura de la punta respecto al pivote de la peonza (la mide BladeParticles). style: los valores
         /// (null = no sale nada). active: si está en marcha (el acelerón o el especial).
         /// </summary>
-        public void Tick(float dt, float tipOffset, BurstTipStyle style, bool active)
+        public void Tick(float dt, float tipOffset, BurstTipStyle style, bool active, float level = 1f)
         {
             if (style == null)
             {
@@ -80,9 +80,10 @@ namespace FakeBlade.Core
                 Hide();
                 return;
             }
+            // level: fuerza de mientras dura (Soft Level del especial, 2026-10-29; Escudo: suave cuando ya lleva un rato)
+            float target = active ? level : 0f;
             float fade = active ? style.fade.x : style.fade.y;
-            _intensity = fade <= 0f ? (active ? 1f : 0f)
-                : Mathf.MoveTowards(_intensity, active ? 1f : 0f, dt / fade);
+            _intensity = fade <= 0f ? target : Mathf.MoveTowards(_intensity, target, dt / fade);
             if (_intensity <= 0f)
             {
                 Hide();

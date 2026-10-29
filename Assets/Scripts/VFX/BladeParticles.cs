@@ -36,7 +36,7 @@ namespace FakeBlade.Core
 
         private Vector3 _lastTrailPos;
         private bool _hasTrailPos;
-        private float _sparkAcc, _smokeAcc, _gatherAcc, _flameAcc, _auraAcc, _auraAcc2;
+        private float _sparkAcc, _smokeAcc, _gatherAcc, _flameAcc, _auraAcc, _auraAcc2, _shieldTrailAcc;
         private float _auraAngle, _auraTimer;
         private int _auraIndex;
         private int _lastChargeLevel;
@@ -66,7 +66,7 @@ namespace FakeBlade.Core
         {
             _measured = false;
             _hasTrailPos = false;
-            _sparkAcc = _smokeAcc = _gatherAcc = _flameAcc = _auraAcc = _auraAcc2 = _statusAcc = 0f;
+            _sparkAcc = _smokeAcc = _gatherAcc = _flameAcc = _auraAcc = _auraAcc2 = _shieldTrailAcc = _statusAcc = 0f;
             _auraTimer = 0f;
             _lastChargeLevel = 0;
         }
@@ -263,10 +263,11 @@ namespace FakeBlade.Core
         private void UpdateAura(VfxLibrary lib, Vector3 center, Vector3 tip, float mul, float dt)
         {
             SpecialAbilitySystem special = _blade.Special;
-            // Escudo: los escudos se ven mientras sigan puestos, aunque el poder ya no esté activo (y en la carga al reactivarlo)
-            if ((!special.IsActive || special.IsInCommonWindup) && special.IsLingering && special.Type == SpecialAbilityType.Shields)
+            // Escudo: los escudos se ven mientras sigan puestos, aunque el poder ya no esté activo (y en la carga al reactivarlo).
+            // Con sus efectos propios (panal de hexágonos, 2026-10-29), los puntos de las puntas siguen saliendo
+            if (special.IsLingering && special.Type == SpecialAbilityType.Shields)
             {
-                AuraShields(center, special.Ability as ShieldsAbility, special.Color, mul, dt);
+                AuraShields(lib, center, tip, special.Ability as ShieldsAbility, special.Color, mul, dt);
                 return;
             }
             // Rastro de agua: el agua se ve hasta secarse, aunque el poder ya haya terminado
@@ -296,7 +297,7 @@ namespace FakeBlade.Core
                 case SpecialAbilityType.Ice: AuraIce(center, tip, color, mul, dt); break;
                 case SpecialAbilityType.Spikes: AuraSpikes(center, special.Data as SpikesData, color, mul, dt); break;
                 case SpecialAbilityType.Bounce: AuraBounce(center, color, mul, dt); break;
-                case SpecialAbilityType.Shields: AuraShields(center, special.Ability as ShieldsAbility, color, mul, dt); break;
+                case SpecialAbilityType.Shields: AuraShields(lib, center, tip, special.Ability as ShieldsAbility, color, mul, dt); break;
                 case SpecialAbilityType.Tornado: AuraTornado(center, tip, special.Data as TornadoData, special.Ability as TornadoAbility, color, mul, dt); break;
                 case SpecialAbilityType.Leap: AuraLeap(center, special.Ability as LeapAbility, color, mul, dt); break;
                 case SpecialAbilityType.WaterTrail: AuraWater(tip, special.Ability as WaterTrailAbility, color, mul, dt); break;
@@ -347,14 +348,23 @@ namespace FakeBlade.Core
 
         /// <summary>
         /// Escudo: un arco de píxeles por cada escudo que queda, en su ángulo real (el mismo con el que se decide si
-        /// para un choque), así que se ve exactamente por dónde se puede entrar.
+        /// para un choque), así que se ve exactamente por dónde se puede entrar. Con el panal de hexágonos (BladeShieldHex,
+        /// 2026-10-29), solo los puntos de las puntas, a lo alto del panal, que dejan un rastro al girar (y los arcos si
+        /// Arc Pixels lo pide).
         /// </summary>
-        private void AuraShields(Vector3 center, ShieldsAbility shields, Color color, float mul, float dt)
+        private void AuraShields(VfxLibrary lib, Vector3 center, Vector3 tip, ShieldsAbility shields, Color color, float mul, float dt)
         {
             if (shields == null) return;
             int count = shields.ShieldCount;
             float arc = shields.ArcRadians;
             float r = shields.Radius;
+            SpecialVfxStyle effects = lib != null ? lib.GetSpecialEffects(SpecialAbilityType.Shields) : null;
+            ShieldHexStyle hex = effects != null && effects.shieldHex != null && effects.shieldHex.material != null ? effects.shieldHex : null;
+            if (hex != null)
+            {
+                AuraShieldEdges(tip, shields, hex, color, mul, dt);
+                if (!hex.arcPixels) return;
+            }
 
             // Dos filas de píxeles por arco (una placa con algo de alto) y, en cada extremo, un destello que marca el borde
             int n = Accumulate(ref _auraAcc, 220f * count * mul, dt);
@@ -369,6 +379,7 @@ namespace FakeBlade.Core
                 VfxSystem.EmitParticle(VfxType.AuraDefense, p, Vector3.zero, color, 0.17f, 0.06f);
             }
 
+            if (hex != null) return; // los puntos de las puntas ya han salido, a lo alto del panal
             int edges = Accumulate(ref _auraAcc2, 30f * count * mul, dt);
             for (int i = 0; i < edges; i++)
             {
@@ -378,6 +389,56 @@ namespace FakeBlade.Core
                 float a = shields.CenterAngle(s) + ((_auraIndex / count) % 2 == 0 ? -0.5f : 0.5f) * arc;
                 Vector3 p = new Vector3(center.x + Mathf.Cos(a) * r, center.y + 0.08f, center.z + Mathf.Sin(a) * r);
                 VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.zero, color, 0.2f, 0.08f);
+            }
+        }
+
+        /// <summary>
+        /// Puntos en los dos bordes de cada escudo del panal, a una altura al azar dentro de él: se quedan quietos y, como el
+        /// escudo gira, dejan un rastro detrás de cada borde. Unos del color del poder y otros del borde de los hexágonos.
+        /// Y partículas sueltas por todo el escudo, con parte de su giro, que se quedan atrás (Trail Rate).
+        /// </summary>
+        private void AuraShieldEdges(Vector3 tip, ShieldsAbility shields, ShieldHexStyle hex, Color color, float mul, float dt)
+        {
+            int count = shields.ShieldCount;
+            float arc = shields.ArcRadians;
+            float r = shields.Radius * hex.radiusScale;
+            float bottom = tip.y + hex.height;
+            float panel = hex.PanelHeight;
+            // Por la pared inclinada (Lean): al subir, también se aleja
+            float lean = hex.lean * Mathf.Deg2Rad;
+            float up = Mathf.Cos(lean), outward = Mathf.Sin(lean);
+            int edges = Accumulate(ref _auraAcc2, hex.edgeRate * count * mul, dt);
+            for (int i = 0; i < edges; i++)
+            {
+                _auraIndex++;
+                int s = _auraIndex % count;
+                if (!shields.IsUp(s)) continue;
+                float a = shields.CenterAngle(s) + ((_auraIndex / count) % 2 == 0 ? -0.5f : 0.5f) * arc;
+                float along = Random.value * panel;
+                float d = r + along * outward;
+                var p = new Vector3(tip.x + Mathf.Cos(a) * d, bottom + along * up, tip.z + Mathf.Sin(a) * d);
+                Color c = (_auraIndex & 2) == 0 ? color : hex.edgeColor;
+                VfxSystem.EmitParticle(VfxType.Sparkle, p, Vector3.zero, c, hex.edgeSize, hex.edgeLifetime);
+            }
+
+            // Partículas sueltas (2026-10-29): por todo el escudo, con parte de su giro, y se quedan atrás
+            float spin = shields.TurnsPerSecond * Mathf.PI * 2f * hex.trailFollow;
+            int loose = Accumulate(ref _shieldTrailAcc, hex.trailRate * count * mul, dt);
+            for (int i = 0; i < loose; i++)
+            {
+                _auraIndex++;
+                int s = _auraIndex % count;
+                if (!shields.IsUp(s)) continue;
+                float a = shields.CenterAngle(s) + (Random.value - 0.5f) * arc;
+                float along = Random.value * panel;
+                float d = r + along * outward;
+                float cos = Mathf.Cos(a), sin = Mathf.Sin(a);
+                var p = new Vector3(tip.x + cos * d, bottom + along * up, tip.z + sin * d);
+                // El escudo gira con el ángulo creciente: su marcha va por la tangente (-sen, cos)
+                var v = new Vector3(-sin * spin * d, hex.trailRise, cos * spin * d);
+                Color c = Color.Lerp(hex.trailColor, hex.trailColor2, Random.value);
+                VfxSystem.EmitParticle(VfxType.AuraDefense, p, v, c, Random.Range(hex.trailSize.x, hex.trailSize.y),
+                    Random.Range(hex.trailLifetime.x, hex.trailLifetime.y));
             }
         }
 

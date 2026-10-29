@@ -157,6 +157,8 @@ namespace FakeBlade.Core
         // Cúpula de la carga (Onda de choque), la de la base (Embestida) y aviso de usos de los poderes con varios usos (K8)
         private BladeChargeDome _dome;
         private BladeChargeDome _baseDome;
+        // Escudos del Escudo: panal de hexágonos que se hace añicos (K8, 2026-10-29)
+        private BladeShieldHex _shieldHex;
         private BladeUsesIndicator _usesIndicator;
         // Borde brillante y destello sobre la peonza: carga, golpe recibido, parry y bloqueo
         private BladeOverlay _overlay;
@@ -354,6 +356,7 @@ namespace FakeBlade.Core
             _arcs = new BladeArcs(this);
             _dome = new BladeChargeDome(this);
             _baseDome = new BladeChargeDome(this, "ChargeDomeBase", 1);
+            _shieldHex = new BladeShieldHex(this);
             _usesIndicator = new BladeUsesIndicator(this);
             _overlay = new BladeOverlay(this);
 
@@ -826,6 +829,7 @@ namespace FakeBlade.Core
             _arcs?.Hide();
             _dome?.Hide();
             _baseDome?.Hide();
+            _shieldHex?.Hide();
             _usesIndicator?.Hide();
             _overlay?.Clear();
 
@@ -1634,14 +1638,16 @@ namespace FakeBlade.Core
                 bool rushing = effectsOn && fx.Ability != null && fx.Ability.IsRushing;
                 bool tipOn = effectsOn;
                 if (tipOn && specialVfx != null && specialVfx.tip != null && specialVfx.tip.onlyWhileRushing) tipOn = rushing;
-                _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, tipOn);
+                // Fuerte al encenderse y suave después (Soft After, 2026-10-29: el Escudo, mientras quedan escudos)
+                float fxLevel = FxLevel(specialVfx);
+                _specialTip?.Tick(dt, _particles.TipOffset, specialVfx?.tip, tipOn, fxLevel);
                 SpiralTrailStyle spiral = specialVfx?.spiralTrail;
                 _spiralTrail?.Tick(dt, _particles.TipOffset, spiral, spiral != null && spiral.onlyWhileRushing ? rushing : effectsOn,
                     fx.Color);
                 // Aro del estado (quemada o congelada; los estados van de uno en uno)
                 StatusVfxStyle statusFx = BladeSpecialFx.StatusStyle(this);
                 _burnTip?.Tick(dt, _particles.TipOffset, statusFx?.tip, statusFx != null);
-                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, fxActive, windingUp);
+                _specialFx?.Tick(dt, _particles.TipOffset, specialVfx, fxActive, windingUp, fxLevel);
                 _arcs?.Tick(dt, _particles.TipOffset, specialVfx?.arcs, effectsOn, fxActive && windingUp);
                 // Cúpula: mientras carga (Onda de choque), mientras atrae (Tornado: embudo y cúpula) o mientras dura (Defensa;
                 // y cualquiera con Dome While Active)
@@ -1656,11 +1662,26 @@ namespace FakeBlade.Core
                 float baseDome = DomeProgress(specialVfx?.baseDome, domeCharge, gameWindup || visualCharge, windupCharge, effectsOn);
                 _dome?.Tick(dt, _particles.TipOffset, specialVfx?.dome, dome >= 0f && !_isDestroyed, dome);
                 _baseDome?.Tick(dt, _particles.TipOffset, specialVfx?.baseDome, baseDome >= 0f && !_isDestroyed, baseDome);
+                // Escudos (Escudo): se ven mientras queden, aunque el poder ya no esté activo; el clon de Fantasma no los lleva
+                ShieldsAbility shields = IsGhost ? null : _special.Ability as ShieldsAbility;
+                _shieldHex?.Tick(dt, _particles.TipOffset, shields != null ? specialVfx?.shieldHex : null, shields);
                 _usesIndicator?.Tick(dt, _particles.TipOffset, lib != null ? lib.usesIndicator : null, _isDestroyed ? 0 : _special.UsesLeft,
                     _special.Color);
                 UpdateBodyFade(specialVfx?.bodyFade, effectsOn, dt);
             }
             _overlay?.Tick(dt);
+        }
+
+        /// <summary>
+        /// Fuerza de los efectos de mientras dura el poder (Soft After / Soft Level, 2026-10-29): toda durante Soft After s desde
+        /// que se encienden y después baja a Soft Level en Soft Fade s (Escudo: fuerte al activarlo y suave mientras quedan
+        /// escudos). Vuelve a toda al encenderse otra vez (_fxOnTime se pone a cero en la carga).
+        /// </summary>
+        private float FxLevel(SpecialVfxStyle style)
+        {
+            if (style == null || style.softAfter <= 0f || style.softLevel >= 1f) return 1f;
+            float t = (_fxOnTime - style.softAfter) / style.softFade;
+            return t <= 0f ? 1f : Mathf.Lerp(1f, style.softLevel, t);
         }
 
         /// <summary>
@@ -1794,6 +1815,7 @@ namespace FakeBlade.Core
             _arcs?.Hide();
             _dome?.Hide();
             _baseDome?.Hide();
+            _shieldHex?.Hide();
             _usesIndicator?.Hide();
             _overlay?.Clear();
 

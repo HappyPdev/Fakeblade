@@ -14,7 +14,8 @@ namespace FakeBlade.Core
     ///   desde el punto del choque y recorre la peonza hasta la parte de atrás.
     /// - Parry y bloqueo (en quien para): destello.
     /// - Especial activo con efectos propios (K8/K9, VfxLibrary.specialEffects[...].overlay): impulsos del borde a ritmo
-    ///   irregular, del color del poder, y un sprite animado (hoja de fotogramas) proyectado desde arriba.
+    ///   irregular, del color del poder, un sprite animado (hoja de fotogramas) proyectado desde arriba y una onda que sube
+    ///   por la peonza y se cierra en el núcleo, al encenderse y en bucle (2026-10-29).
     /// - Quemada (K8, VfxLibrary.burn): impulsos naranjas del borde (el fuego y el humo, en BladeSpecialFx). Congelada
     ///   (VfxLibrary.frozen): borde y tinte cian quietos, como escarcha.
     ///
@@ -43,6 +44,12 @@ namespace FakeBlade.Core
         private static readonly int FxId = Shader.PropertyToID("_Fx");
         private static readonly int FxSheetId = Shader.PropertyToID("_FxSheet");
         private static readonly int FxColorId = Shader.PropertyToID("_FxColor");
+        private static readonly int SweepId = Shader.PropertyToID("_Sweep");
+        private static readonly int SweepShapeId = Shader.PropertyToID("_SweepShape");
+        private static readonly int SweepColorId = Shader.PropertyToID("_SweepColor");
+        private static readonly int SweepTrailAlphaId = Shader.PropertyToID("_SweepTrailAlpha");
+        /// <summary>Lo que tarda en apagarse el destello de la onda al cerrarse en el núcleo (s).</summary>
+        private const float WaveFlashTime = 0.25f;
         /// <summary>Lo que tarda el efecto del especial en aparecer y en apagarse (s).</summary>
         private const float SpecialFade = 0.15f;
 
@@ -55,6 +62,19 @@ namespace FakeBlade.Core
         private bool _shown;
         /// <summary>Radio de la peonza en el suelo (m), medido al montar el modelo.</summary>
         private float _radius = 0.6f;
+        /// <summary>Altura de la parte de abajo respecto al pivote y alto de la peonza (m), medidos al montar el modelo (onda).</summary>
+        private float _bottom = -0.1f, _height = 0.4f;
+
+        // Onda del especial (2026-10-29): su estilo, lo que lleva (-1 = ninguna), su transparencia, la espera hasta la
+        // siguiente en bucle, si los efectos estaban encendidos y el destello al cerrarse
+        private SpecialOverlayStyle _waveStyle;
+        private float _waveTime = -1f;
+        private float _waveAlpha;
+        private float _waveWait;
+        private bool _waveWasOn;
+        private bool _waveClosed;
+        private float _waveFlash, _waveFlashTimer;
+        private Color _waveColor;
 
         // Destello en curso (el último evento manda)
         private Color _eventColor;
@@ -179,6 +199,12 @@ namespace FakeBlade.Core
             bool specialOn = special != null && special.enabled && _blade.FxSpecialOn;
             Pulses(_specialPulse, special, specialOn, dt, center, ref rim, ref rimColor, ref flash, ref flashColor,
                 ref fx, ref fxSheet, ref fxColor, ref fxTexture);
+            // Onda que sube por la peonza (al encenderse y en bucle; no depende de Enabled, que es el de los impulsos)
+            Vector4 sweep = new Vector4(0f, 0f, 0f, -1f);
+            Vector4 sweepShape = Vector4.zero;
+            Color sweepColor = Color.clear;
+            Wave(special, special != null && _blade.FxSpecialOn && !_blade.IsDestroyed, dt, center, ref sweep, ref sweepShape,
+                ref sweepColor, ref flash, ref flashColor);
 
             // Estado: impulsos naranjas del borde (quemada) o escarcha quieta (congelada). El último sigue mandando
             // mientras se apaga
@@ -225,7 +251,8 @@ namespace FakeBlade.Core
                 ringBColor.a = style.impactRingAlpha * Fade(phase);
             }
 
-            bool visible = flash > 0.001f || rim > 0.001f || ringAColor.a > 0.001f || ringBColor.a > 0.001f || fxColor.a > 0.001f;
+            bool visible = flash > 0.001f || rim > 0.001f || ringAColor.a > 0.001f || ringBColor.a > 0.001f || fxColor.a > 0.001f ||
+                           sweepColor.a > 0.001f;
             if (!visible && !_shown) return; // apagado y ya se pintó apagado: nada que cambiar
             _shown = visible;
 
@@ -239,6 +266,10 @@ namespace FakeBlade.Core
             _block.SetVector(FxId, fx);
             _block.SetVector(FxSheetId, fxSheet);
             _block.SetColor(FxColorId, fxColor);
+            _block.SetVector(SweepId, sweep);
+            _block.SetVector(SweepShapeId, sweepShape);
+            _block.SetColor(SweepColorId, sweepColor);
+            _block.SetFloat(SweepTrailAlphaId, _waveStyle != null ? _waveStyle.waveTrailAlpha : 0f);
             if (style.ringTexture != null) _block.SetTexture(RingTexId, style.ringTexture);
             _block.SetVector(RingAId, ringA);
             _block.SetColor(RingAColorId, ringAColor);
@@ -311,6 +342,75 @@ namespace FakeBlade.Core
             fxTexture = style.texture;
         }
 
+        /// <summary>
+        /// Onda del especial (2026-10-29, pedida por el usuario para todas las peonzas): sube por la peonza de abajo arriba y se
+        /// cierra en el núcleo, con un destello al llegar. Una al encenderse los efectos (Wave On Activate) y otra cada Wave
+        /// Interval mientras duran (Wave Loop), más tenues. on: los efectos del poder están encendidos.
+        /// </summary>
+        private void Wave(SpecialOverlayStyle style, bool on, float dt, Vector3 center, ref Vector4 sweep, ref Vector4 shape,
+            ref Color color, ref float flash, ref Color flashColor)
+        {
+            if (style != null && on)
+            {
+                if (!_waveWasOn)
+                {
+                    _waveWait = style.waveInterval;
+                    if (style.waveOnActivate) StartWave(style, style.waveAlpha);
+                }
+                else if (style.waveLoop && (_waveWait -= dt) <= 0f)
+                {
+                    _waveWait = style.waveInterval;
+                    StartWave(style, style.waveLoopAlpha);
+                }
+            }
+            _waveWasOn = on;
+
+            // Destello al cerrarse en el núcleo
+            if (_waveFlashTimer > 0f)
+            {
+                _waveFlashTimer = Mathf.Max(0f, _waveFlashTimer - dt);
+                float k = _waveFlashTimer / WaveFlashTime;
+                float waveFlash = _waveFlash * k * k;
+                if (waveFlash > flash)
+                {
+                    flash = waveFlash;
+                    flashColor = _waveColor;
+                }
+            }
+
+            SpecialOverlayStyle wave = _waveStyle;
+            if (_waveTime < 0f || wave == null) return;
+            _waveTime += dt;
+            // El frente llega al núcleo en Wave Duration; después pasan la banda y la estela
+            float front = _waveTime / wave.waveDuration;
+            if (front > 1f + wave.waveWidth + wave.waveTrail)
+            {
+                _waveTime = -1f;
+                return;
+            }
+            if (front >= 1f && !_waveClosed)
+            {
+                _waveClosed = true;
+                _waveFlash = wave.waveEndFlash * _waveAlpha;
+                _waveFlashTimer = WaveFlashTime;
+            }
+            sweep = new Vector4(center.x, center.y + _bottom, center.z, front);
+            shape = new Vector4(_height, _radius, wave.waveWidth, wave.waveTrail);
+            color = _waveColor;
+            color.a = _waveAlpha;
+        }
+
+        private void StartWave(SpecialOverlayStyle style, float alpha)
+        {
+            if (alpha <= 0f) return;
+            _waveStyle = style;
+            _waveTime = 0f;
+            _waveAlpha = alpha;
+            _waveClosed = false;
+            Color baseColor = style.wavePowerColor && _blade.FxSpecial != null ? _blade.FxSpecial.Color : style.waveColor;
+            _waveColor = Color.Lerp(baseColor, Color.white, style.waveLighten);
+        }
+
         /// <summary>Anillo para el shader: centro (x, z), radio (escala × radio de la peonza) y giro.</summary>
         private Vector4 Ring(Vector3 center, float scale, float angle) =>
             new Vector4(center.x, center.z, Mathf.Max(0.0001f, scale * _radius), angle);
@@ -324,6 +424,9 @@ namespace FakeBlade.Core
             _eventTimer = _quickRingTimer = _impactRingTimer = 0f;
             _lastChargeLevel = 0;
             _specialPulse.Fade = _statusPulse.Fade = 0f;
+            _waveTime = -1f;
+            _waveFlashTimer = 0f;
+            _waveWasOn = false;
             if (!_shown) return;
             _shown = false;
             _block.SetFloat(RimIntensityId, 0f);
@@ -331,6 +434,7 @@ namespace FakeBlade.Core
             _block.SetColor(RingAColorId, Color.clear);
             _block.SetColor(RingBColorId, Color.clear);
             _block.SetColor(FxColorId, Color.clear);
+            _block.SetColor(SweepColorId, Color.clear);
             _block.SetColor(OutlineColorId, Color.clear);
             for (int i = 0; i < _renderers.Count; i++)
                 if (_renderers[i] != null) _renderers[i].SetPropertyBlock(_block, _indices[i]);
@@ -403,6 +507,7 @@ namespace FakeBlade.Core
 
             Vector3 center = _blade.Position;
             float radius = 0f;
+            float bottom = float.MaxValue, top = float.MinValue;
             foreach (Renderer r in root.GetComponentsInChildren<Renderer>(true))
             {
                 if (!(r is MeshRenderer) && !(r is SkinnedMeshRenderer)) continue;
@@ -427,8 +532,15 @@ namespace FakeBlade.Core
                 Bounds b = r.bounds;
                 radius = Mathf.Max(radius, Mathf.Abs(b.max.x - center.x), Mathf.Abs(b.min.x - center.x),
                     Mathf.Abs(b.max.z - center.z), Mathf.Abs(b.min.z - center.z));
+                bottom = Mathf.Min(bottom, b.min.y - center.y);
+                top = Mathf.Max(top, b.max.y - center.y);
             }
             if (radius > 0.05f) _radius = radius;
+            if (top - bottom > 0.02f)
+            {
+                _bottom = bottom;
+                _height = top - bottom;
+            }
             _shown = true; // que el primer Tick deje los valores puestos (apagado)
         }
     }

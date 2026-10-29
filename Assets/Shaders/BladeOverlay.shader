@@ -8,6 +8,10 @@
 // - Sprite animado del especial activo (K8/K9): una hoja de fotogramas en rejilla (_FxTex) proyectada desde arriba,
 //   _Fx = (centro x, centro z, radio, giro), _FxSheet = (casillas en horizontal, en vertical, fotograma), teñida con
 //   _FxColor (su alfa es la transparencia).
+// - Onda del especial (2026-10-29): una banda que sube por la peonza de abajo arriba y se cierra en el núcleo, con una
+//   estela más tenue detrás. Recorrido de cada punto (0 abajo, 1 en el núcleo): la altura por el lateral y, ya arriba,
+//   lo que se acerca al centro. _Sweep = (centro x, altura de abajo, centro z, por dónde va), _SweepShape = (alto, radio,
+//   ancho de la banda, largo de la estela), _SweepColor (su alfa es la transparencia), _SweepTrailAlpha.
 // - Borde de corte duro (tipo cómic): la silueta (fresnel) por encima de 1 - _RimWidth, con _RimSoftness de suavizado.
 // Pase aparte (SRPDefaultUnlit, que URP pinta también): contorno grueso, la malla hinchada _OutlineWidth metros a lo
 // largo de las normales y con las caras de delante quitadas (casco invertido), del color _OutlineColor.
@@ -34,6 +38,10 @@ Shader "FakeBlade/BladeOverlay"
         _Fx ("Sprite del especial (x, z, radio, giro)", Vector) = (0, 0, 0, 0)
         _FxSheet ("Hoja (casillas x, casillas y, fotograma)", Vector) = (1, 1, 0, 0)
         _FxColor ("Color del sprite del especial", Color) = (1, 1, 1, 0)
+        _Sweep ("Onda (x, abajo, z, por dónde va)", Vector) = (0, 0, 0, -1)
+        _SweepShape ("Onda (alto, radio, ancho, estela)", Vector) = (0.4, 0.6, 0.12, 0.25)
+        _SweepColor ("Color de la onda", Color) = (1, 1, 1, 0)
+        _SweepTrailAlpha ("Transparencia de la estela", Range(0, 1)) = 0.35
         _OutlineColor ("Color del contorno", Color) = (1, 1, 1, 0)
         _OutlineWidth ("Grosor del contorno (m)", Float) = 0.04
     }
@@ -62,6 +70,10 @@ Shader "FakeBlade/BladeOverlay"
         float4 _Fx;
         float4 _FxSheet;
         half4 _FxColor;
+        float4 _Sweep;
+        float4 _SweepShape;
+        half4 _SweepColor;
+        half _SweepTrailAlpha;
         half4 _OutlineColor;
         float _OutlineWidth;
     CBUFFER_END
@@ -175,6 +187,24 @@ Shader "FakeBlade/BladeOverlay"
                 return SAMPLE_TEXTURE2D_LOD(_FxTex, sampler_FxTex, uv, 0) * _FxColor;
             }
 
+            // Onda del especial: por dónde va de su recorrido (0 abajo, 1 en el núcleo). La banda va justo detrás del frente,
+            // con corte duro, y la estela, más tenue, detrás de ella
+            half Sweep(float3 positionWS)
+            {
+                if (_SweepColor.a <= 0.001 || _Sweep.w < 0.0) return 0;
+                float height = max(0.01, _SweepShape.x);
+                float radius = max(0.01, _SweepShape.y);
+                float h = saturate((positionWS.y - _Sweep.y) / height);
+                float r = length(positionWS.xz - _Sweep.xz);
+                // Por el lateral cuenta la altura; arriba (h = 1), además, lo que se acerca al centro
+                float s = (h * height + max(0.0, radius - r) * h) / (height + radius);
+                float behind = _Sweep.w - s;
+                if (behind < 0.0) return 0;
+                if (behind <= _SweepShape.z) return 1;
+                float trail = max(0.001, _SweepShape.w);
+                return (behind - _SweepShape.z) <= trail ? _SweepTrailAlpha * (1.0 - (behind - _SweepShape.z) / trail) : 0;
+            }
+
             // Una capa encima de otra (color premultiplicado)
             void Over(inout half3 color, inout half alpha, half3 layerColor, half layerAlpha)
             {
@@ -197,6 +227,7 @@ Shader "FakeBlade/BladeOverlay"
                 Over(color, alpha, _RingBColor.rgb, Ring(input.positionWS, _RingB) * _RingBColor.a);
                 half4 fx = Fx(input.positionWS);
                 Over(color, alpha, fx.rgb, fx.a);
+                Over(color, alpha, _SweepColor.rgb, Sweep(input.positionWS) * _SweepColor.a);
 
                 float3 n = normalize(input.normalWS);
                 float3 v = normalize(input.viewWS);

@@ -66,6 +66,9 @@ namespace FakeBlade.Core.Editor
         private const string ChargeDomeShaderName = "FakeBlade/ChargeDome";
         private const string SpikeConeMaterialPath = "Assets/VFX/Materials/VFX_SpikeCone.mat";
         private const string SpikeConeShaderName = "FakeBlade/SpikeCone";
+        // Escudo: panal de hexágonos (2026-10-29)
+        private const string ShieldHexMaterialPath = "Assets/VFX/Materials/VFX_ShieldHex.mat";
+        private const string ShieldHexShaderName = "FakeBlade/ShieldHex";
         private const string UseMarkMaterialPath = "Assets/VFX/Materials/VFX_UseMark.mat";
         // Status and Auras FREE (Matthew Guz, Asset Store: fuera del repo, en ThirdParty). Sus materiales son del render
         // antiguo: los pasa a URP ConvertBuiltInParticles
@@ -235,7 +238,7 @@ namespace FakeBlade.Core.Editor
                    SetupTornado(library) + "; " + SetupRam(library) + "; " + SetupLeap(library) + "; " + SetupBounce(library) + "; " +
                    SetupDefense(library) + "; " + SetupWaterTrail(library) + "; " + SetupWet(library) + "; " +
                    SetupSpinBoost(library) + "; " + SetupGhost(library) + "; " + SetupSpikes(library) + "; " +
-                   SetupGenericSpecial(library);
+                   SetupShields(library) + "; " + SetupGenericSpecial(library);
         }
 
         /// <summary>
@@ -2441,6 +2444,233 @@ namespace FakeBlade.Core.Editor
                 name = "Chispas moradas de la golpeada", sprite = "Chispa", rate = 30f, spawnRadius = new Vector2(0.2f, 0.4f),
                 height = new Vector2(0.1f, 0.4f), coneAngle = 60f, speed = new Vector2(1f, 2.5f), inheritVelocity = -0.1f,
                 size = new Vector2(0.04f, 0.07f), lifetime = new Vector2(0.3f, 0.45f), color = Color.white, color2 = SpikesPurple
+            }
+        };
+
+        // Escudo: el dorado de su asset, uno pálido y uno oscuro
+        private static readonly Color ShieldGold = new Color(1f, 0.78f, 0.2f);
+        private static readonly Color ShieldPale = new Color(1f, 0.95f, 0.75f);
+        private static readonly Color ShieldAmber = new Color(0.85f, 0.5f, 0.08f);
+
+        /// <summary>
+        /// Escudo (K8, 2026-10-29; planteamiento del usuario: escudos que se vean claramente, dorado y blanco). Cada escudo, un
+        /// panal de hexágonos dorados con el borde blanco que gira con él (Shield Hex) y, en sus bordes, los puntos que dejan
+        /// rastro (los de antes), más partículas sueltas que se quedan atrás. Carga (0,1 s): círculo que se cierra y líneas que se
+        /// tragan; al encenderse, onda, líneas y chispas. Mientras queden escudos (While Lingering): la corona Zbam de la base y
+        /// un remolino de líneas y píxeles como el del Spin Boost, fuerte al activarlo y suave después (Soft After 1,5 s, Soft
+        /// Level 0,3). Al romperse un escudo, sus hexágonos se hacen añicos y sale una explosión muy exagerada hacia fuera del
+        /// choque (Shield Break). Al romperse el último, un anillo de chispas. Solo añade la entrada si falta y rellena lo vacío.
+        /// </summary>
+        private static string SetupShields(VfxLibrary library)
+        {
+            SpecialVfxStyle shields = library.GetSpecialEffects(SpecialAbilityType.Shields);
+            bool added = shields == null;
+            if (added)
+            {
+                shields = new SpecialVfxStyle
+                {
+                    type = SpecialAbilityType.Shields, replaceAura = true, windupSustain = 0f, whileLingering = true,
+                    softAfter = 1.5f, softLevel = 0.3f, softFade = 0.6f, domeWhileActive = true
+                };
+                shields.overlay = new SpecialOverlayStyle
+                {
+                    color = ShieldGold, hotColor = Color.white, baseRim = 0.15f, pulseRim = new Vector2(0.4f, 0.9f),
+                    pulseFlash = new Vector2(0f, 0.05f), pulseInterval = new Vector2(0.3f, 0.6f), pulseDecay = 0.3f
+                };
+                // Sin cuencos (con las flechas apenas se veían, 2026-10-29): la corona Zbam de la base
+                shields.tip.cups.Clear();
+                shields.tip.particleSprite = "";
+                shields.tip.ground = new TipGroundSprite();
+                shields.dome = new ChargeDomeStyle();
+                shields.baseDome = new ChargeDomeStyle();
+                shields.shieldHex = ShieldsHex();
+                library.specialEffects.Add(shields);
+            }
+
+            shields.shieldHex ??= ShieldsHex();
+            // Rastro de quemado dorado y muy corto (2026-10-29, pedido del usuario), solo si no tiene manchas
+            shields.scorch ??= new ScorchStyle();
+            if (string.IsNullOrEmpty(shields.scorch.sprite)) shields.scorch = ShieldsScorch();
+            Shader hexShader = Shader.Find(ShieldHexShaderName);
+            if (shields.shieldHex.material == null && hexShader != null)
+                shields.shieldHex.material = GetMaterial(ShieldHexMaterialPath, hexShader);
+            if (shields.baseDome == null || shields.baseDome.material == null)
+            {
+                Shader domeShader = Shader.Find(ChargeDomeShaderName);
+                shields.baseDome = ShieldsCrown();
+                shields.baseDome.material = domeShader != null ? GetMaterial(ChargeDomeMaterialPath, domeShader) : null;
+                shields.baseDome.linesTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(RamZbamTexturePath);
+            }
+            shields.windup ??= new List<SpiralParticleStyle>();
+            if (shields.windup.Count == 0) shields.windup.AddRange(ShieldsWindup());
+            shields.activationBurst ??= new List<SpiralParticleStyle>();
+            if (shields.activationBurst.Count == 0) shields.activationBurst.AddRange(ShieldsBurst());
+            shields.swirl ??= new List<SpiralParticleStyle>();
+            if (shields.swirl.Count == 0) shields.swirl.AddRange(ShieldsSwirl());
+            shields.shieldBreak ??= new List<SpiralParticleStyle>();
+            if (shields.shieldBreak.Count == 0) shields.shieldBreak.AddRange(ShieldsBreak());
+            shields.endBurst ??= new List<SpiralParticleStyle>();
+            if (shields.endBurst.Count == 0) shields.endBurst.AddRange(ShieldsEnd());
+            return "Escudo" + (added ? " (nuevo)" : "") + (shields.shieldHex.material == null ? " (falta el shader de los escudos)" : "");
+        }
+
+        /// <summary>
+        /// El panal: tres filas de hexágonos algo separados de la peonza e inclinados 45º hacia fuera (con la cámara alta, derechos
+        /// se veían casi de canto y pegados a ella; probe del 2026-10-29), dorados y bastante opacos, con el borde blanco y un
+        /// contorno ámbar (marrón ensuciaba).
+        /// </summary>
+        private static ShieldHexStyle ShieldsHex() => new ShieldHexStyle
+        {
+            rows = 3, hexSize = 0.12f, gap = 0.1f, height = 0.05f, radiusScale = 1.25f, lean = 45f,
+            fillColor = new Color(1f, 0.8f, 0.25f, 0.5f), edgeColor = new Color(1f, 0.98f, 0.88f, 1f),
+            outlineColor = new Color(ShieldAmber.r, ShieldAmber.g, ShieldAmber.b, 0.95f), edgeFrom = 0.7f, outlineFrom = 0.9f,
+            // Añicos más exagerados y menos estrellitas en los bordes (2026-10-29, tras verlo el usuario)
+            shatterTime = 0.8f, outwardSpeed = 3.5f, directionalSpeed = 7f, upSpeed = 3f, spin = 14f,
+            edgeRate = 15f, edgeSize = 0.12f
+        };
+
+        /// <summary>
+        /// Rastro (2026-10-29, pedido del usuario: un quemado dorado que dure muy poco): la mancha del Fuego en dorado, juntas y
+        /// pequeñas, que se apagan enseguida; mientras queden escudos, también parada (cada 0,3 s).
+        /// </summary>
+        private static ScorchStyle ShieldsScorch() => new ScorchStyle
+        {
+            sprite = "Quemado", spacing = 0.2f, idleInterval = 0.3f, size = new Vector2(0.8f, 1.1f), lifetime = 0.5f,
+            color = ShieldGold, alpha = 0.5f, height = 0.012f
+        };
+
+        /// <summary>
+        /// Corona de la base (2026-10-29, en vez de los cuencos de flechas, que apenas se veían): como la de Pinchos, baja y
+        /// ancha, con picos arriba y la Zbam del usuario (Zbam HORIZONTAL) girando, en dorado, blanco y ámbar.
+        /// </summary>
+        private static ChargeDomeStyle ShieldsCrown() => new ChargeDomeStyle
+        {
+            radius = 1.3f, heightScale = 0.3f, height = 0f, growEase = 2f, startRadius = 0.7f,
+            funnelPhase = 1f, funnelMorph = 0.2f, funnelShape = new Vector3(0.9f, 1.1f, 1.3f),
+            topCut = 0.5f, topSpikes = 12, topSpikesSpeed = 0.35f, insideAlpha = 0.3f,
+            bodyColor = new Color(ShieldGold.r, ShieldGold.g, ShieldGold.b, 0.18f), rimColor = new Color(1f, 0.98f, 0.88f, 0.95f),
+            outlineColor = new Color(ShieldAmber.r, ShieldAmber.g, ShieldAmber.b, 0.95f),
+            swirlColor = new Color(ShieldGold.r, ShieldGold.g, ShieldGold.b, 0.9f),
+            swirlColor2 = new Color(1f, 1f, 1f, 0.7f), rimWidth = 0.15f, outlineWidth = 0.05f,
+            linesTiling = new Vector2(6f, 2f), linesSpeed = 0.4f, linesTwist = 0f, linesRise = 0f, axisTilt = 0f, axisPrecess = 0f,
+            swirlLines = 12f, swirlTwist = 0f, swirlSpeed = 0.3f, swirlWidth = 0.04f,
+            shakeFrom = 1f, shakeScale = 0f, shakeRate = 0f, popTime = 0.25f, popScale = 1.4f, popFlash = 0.5f,
+            springEnabled = true, springSpeed = new Vector2(1f, 10f), springMinStrength = 0.35f, springSquash = 0.25f,
+            springOffset = 0.08f, springFrequency = 3.6f, springDamping = 0.25f
+        };
+
+        /// <summary>Carga: un círculo dorado que se cierra en el suelo y líneas que se tragan.</summary>
+        private static SpiralParticleStyle[] ShieldsWindup() => WindupOnly(new[]
+        {
+            ShockCircle("Círculo que se cierra (suelo)", "CircleImpact02Cierra", 3.5f, 0.03f, 0.25f, ShieldGold, 0.9f, rate: 12f),
+            InwardLines("Líneas que se tragan", 45f, Color.white, ShieldGold)
+        });
+
+        /// <summary>Al encenderse: onda dorada en el suelo, líneas hacia fuera y arriba y chispas.</summary>
+        private static SpiralParticleStyle[] ShieldsBurst() => new[]
+        {
+            ShockCircle("Onda", "CircleImpact02Suelo", 3.5f, 0.03f, 0.3f, ShieldGold, 0.9f),
+            new SpiralParticleStyle
+            {
+                name = "Líneas hacia fuera y arriba", sprite = "Linea", count = 24, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.05f, 0.4f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(2.5f, 4f),
+                upSpeed = new Vector2(2f, 3.5f), size = new Vector2(0.035f, 0.05f), lifetime = new Vector2(0.15f, 0.22f),
+                color = Color.white, color2 = ShieldGold
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas", sprite = "Chispa", count = 18, radius = new Vector2(0.2f, 0.4f), height = new Vector2(0.1f, 0.3f),
+                tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(3f, 5f), upSpeed = new Vector2(2f, 4f),
+                size = new Vector2(0.06f, 0.1f), lifetime = new Vector2(0.4f, 0.6f), color = Color.white, color2 = ShieldGold
+            }
+        };
+
+        /// <summary>
+        /// Mientras quedan escudos: el remolino pequeño del Spin Boost en dorado y blanco (líneas y píxeles que giran y suben
+        /// pegados a la peonza), más espeso y rápido al correr. Fuerte al activarlo y suave después (Soft Level). Sin estrellitas
+        /// y con las líneas más largas (2026-10-29: apenas se veían).
+        /// </summary>
+        private static SpiralParticleStyle[] ShieldsSwirl() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Remolino de líneas", sprite = "Linea", rate = 70f, ratePerSpeed = 6f, speedPerSpeed = 0.06f,
+                radius = new Vector2(0.35f, 0.5f), height = new Vector2(0f, 0.15f), tangentialSpeed = new Vector2(2.5f, 3.5f),
+                outwardSpeed = new Vector2(-0.6f, -0.3f), upSpeed = new Vector2(1.5f, 2.2f), size = new Vector2(0.03f, 0.05f),
+                lifetime = new Vector2(0.4f, 0.55f), color = Color.white, color2 = ShieldGold
+            },
+            new SpiralParticleStyle
+            {
+                name = "Remolino de píxeles", emitter = VfxType.AuraDefense, rate = 30f, ratePerSpeed = 3f, speedPerSpeed = 0.06f,
+                radius = new Vector2(0.3f, 0.45f), height = new Vector2(0f, 0.1f), tangentialSpeed = new Vector2(2.5f, 3.5f),
+                outwardSpeed = new Vector2(-0.5f, -0.2f), upSpeed = new Vector2(1.2f, 2f), size = new Vector2(0.05f, 0.08f),
+                lifetime = new Vector2(0.3f, 0.45f), color = ShieldGold, color2 = ShieldPale
+            }
+        };
+
+        /// <summary>
+        /// Al romperse un escudo (pedido del usuario: una explosión fuerte hacia fuera, en la dirección del choque; 2026-10-29,
+        /// mucho más exagerada): destello grande, dos ondas en el suelo, Zbam que suben, nubes, y muchas chispas, líneas y
+        /// trozos dorados lanzados hacia la que chocó (Directional Speed), algunos también hacia los lados.
+        /// </summary>
+        private static SpiralParticleStyle[] ShieldsBreak() => new[]
+        {
+            ShockCircle("Destello", "Impact10", 3f, 0.25f, 0.3f, Color.white, 1f),
+            ShockCircle("Onda en el suelo", "CircleImpact02Suelo", 5f, 0.03f, 0.4f, ShieldGold, 0.95f),
+            ShockCircle("Onda fina en el suelo", "CircleImpact04", 3.5f, 0.05f, 0.35f, Color.white, 0.9f),
+            new SpiralParticleStyle
+            {
+                name = "Zbam que suben", sprite = "ZbamSube", count = 3, radius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.2f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(0.5f, 1f),
+                upSpeed = new Vector2(1f, 2f), directionalSpeed = new Vector2(1.5f, 3f), size = new Vector2(1f, 1.5f),
+                lifetime = new Vector2(0.35f, 0.45f), color = ShieldPale, color2 = ShieldGold
+            },
+            new SpiralParticleStyle
+            {
+                name = "Nubes doradas", sprite = "NubeComic", count = 6, radius = new Vector2(0f, 0.3f),
+                height = new Vector2(0.2f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(1f, 2.5f),
+                upSpeed = new Vector2(0.5f, 1.5f), directionalSpeed = new Vector2(2f, 4f), size = new Vector2(0.6f, 1f),
+                lifetime = new Vector2(0.5f, 0.7f), color = ShieldPale, color2 = ShieldGold, alpha = 0.9f
+            },
+            new SpiralParticleStyle
+            {
+                name = "Chispas hacia fuera", sprite = "Chispa", count = 80, radius = new Vector2(0f, 0.15f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(2f, 5f),
+                upSpeed = new Vector2(2f, 5f), directionalSpeed = new Vector2(9f, 16f), size = new Vector2(0.08f, 0.14f),
+                lifetime = new Vector2(0.45f, 0.7f), color = Color.white, color2 = ShieldGold
+            },
+            new SpiralParticleStyle
+            {
+                name = "Líneas hacia fuera", sprite = "Linea", count = 40, radius = new Vector2(0f, 0.15f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(2f, 4f),
+                upSpeed = new Vector2(0f, 1.5f), directionalSpeed = new Vector2(12f, 20f), size = new Vector2(0.1f, 0.16f),
+                lifetime = new Vector2(0.2f, 0.32f), color = Color.white, color2 = ShieldPale
+            },
+            new SpiralParticleStyle
+            {
+                name = "Trozos dorados", sprite = "Trozo", count = 24, radius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.15f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(2f, 4f),
+                upSpeed = new Vector2(3f, 6f), directionalSpeed = new Vector2(6f, 11f), size = new Vector2(0.1f, 0.2f),
+                lifetime = new Vector2(0.6f, 0.9f), color = ShieldGold, color2 = ShieldAmber
+            },
+            new SpiralParticleStyle
+            {
+                name = "Píxeles dorados", emitter = VfxType.AuraDefense, count = 40, radius = new Vector2(0f, 0.2f),
+                height = new Vector2(0.1f, 0.5f), tangentialSpeed = Vector2.zero, outwardSpeed = new Vector2(3f, 6f),
+                upSpeed = new Vector2(1f, 4f), directionalSpeed = new Vector2(5f, 10f), size = new Vector2(0.06f, 0.1f),
+                lifetime = new Vector2(0.4f, 0.6f), color = ShieldGold, color2 = ShieldPale
+            }
+        };
+
+        /// <summary>Al romperse el último escudo: un anillo de chispas doradas que sale de la peonza.</summary>
+        private static SpiralParticleStyle[] ShieldsEnd() => new[]
+        {
+            new SpiralParticleStyle
+            {
+                name = "Anillo de chispas", sprite = "Chispa", count = 20, radius = new Vector2(0.3f, 0.5f),
+                height = new Vector2(0.1f, 0.3f), tangentialSpeed = new Vector2(1f, 2f), outwardSpeed = new Vector2(3f, 5f),
+                upSpeed = new Vector2(1f, 2f), size = new Vector2(0.06f, 0.09f), lifetime = new Vector2(0.3f, 0.45f),
+                color = ShieldGold, color2 = Color.white
             }
         };
 

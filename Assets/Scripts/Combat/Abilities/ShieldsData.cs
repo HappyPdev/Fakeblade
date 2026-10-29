@@ -43,6 +43,11 @@ namespace FakeBlade.Core
         /// <summary>Ángulo inicial (al azar en cada activación); el giro sale del tiempo, con o sin el poder activo.</summary>
         private float _phase;
         private int _pending = -1;
+        // Cada rotura (para los añicos de BladeShieldHex): cuántas lleva cada escudo, su ángulo al romperse y hacia dónde
+        // salió la peonza que lo rompió (en el suelo)
+        private readonly int[] _breaks = new int[MaxShields];
+        private readonly float[] _breakAngle = new float[MaxShields];
+        private readonly Vector3[] _breakDir = new Vector3[MaxShields];
 
         public ShieldsAbility(ShieldsData data, FakeBladeController owner) : base(data, owner) { }
 
@@ -67,6 +72,15 @@ namespace FakeBlade.Core
             _phase + time * Config.turnsPerSecond * Mathf.PI * 2f + index * Mathf.PI * 2f / ShieldCount;
         public float ArcRadians => Config.shieldArc * Mathf.Deg2Rad;
         public float Radius => Config.radius;
+        /// <summary>Vueltas por segundo de los escudos (para las partículas que se quedan atrás).</summary>
+        public float TurnsPerSecond => Config.turnsPerSecond;
+
+        /// <summary>Veces que se ha roto un escudo por un choque (cambia en cada rotura; no al reiniciar ni al quitarlos).</summary>
+        public int BreakCount(int index) => index >= 0 && index < MaxShields ? _breaks[index] : 0;
+        /// <summary>Ángulo del escudo al romperse (radianes, como CenterAngle).</summary>
+        public float BreakAngle(int index) => index >= 0 && index < MaxShields ? _breakAngle[index] : 0f;
+        /// <summary>Hacia fuera del choque que lo rompió: de la peonza hacia la que chocó, en el suelo.</summary>
+        public Vector3 BreakDirection(int index) => index >= 0 && index < MaxShields ? _breakDir[index] : Vector3.forward;
 
         /// <summary>
         /// Si un choque que llegue desde <paramref name="from"/> dentro de <paramref name="seconds"/> s entraría por un
@@ -129,10 +143,21 @@ namespace FakeBlade.Core
             if (_pending < 0) return;
             _up[_pending] = false;
             float a = CenterAngle(_pending);
+            Vector3 outward = attacker != null ? attacker.Position - Owner.Position : Vector3.zero;
+            outward.y = 0f;
+            outward = outward.sqrMagnitude > 0.0001f ? outward.normalized : new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
+            _breaks[_pending]++;
+            _breakAngle[_pending] = a;
+            _breakDir[_pending] = outward;
+            // Explosión dorada y blanca hacia fuera del choque (K8, 2026-10-29) o, sin efectos propios, la de antes
             Vector3 p = Owner.Position + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * Config.radius;
-            VfxSystem.Play(VfxType.Parry, p, Vector3.up, Data.color, 0.9f);
-            VfxSystem.Play(VfxType.Clash, p, Vector3.up, Data.color, 1.2f);
-            CameraShake.Shake(0.08f, 0.08f);
+            p.y = Owner.TipPosition.y;
+            if (!BladeSpecialFx.PlayShieldBreak(Owner, p, outward))
+            {
+                VfxSystem.Play(VfxType.Parry, p, Vector3.up, Data.color, 0.9f);
+                VfxSystem.Play(VfxType.Clash, p, Vector3.up, Data.color, 1.2f);
+            }
+            CameraShake.Shake(0.14f, 0.12f);
             _pending = -1;
 
             // Sin escudos, el poder termina (si aún estaba en su fase activa; si no, ya no queda nada puesto)

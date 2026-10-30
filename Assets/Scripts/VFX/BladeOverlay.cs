@@ -103,6 +103,10 @@ namespace FakeBlade.Core
         private readonly PulseState _statusPulse = new PulseState();
         private SpecialOverlayStyle _lastStatusOverlay;
 
+        // Vista previa del editor (2026-10-30): si se está viendo un especial (para su color) y espera hasta repetir el evento
+        private bool _previewSpecial;
+        private float _previewWait;
+
         public BladeOverlay(FakeBladeController blade)
         {
             _blade = blade;
@@ -146,9 +150,14 @@ namespace FakeBlade.Core
             if (style == null || style.material == null) return;
             if (!_bound || _boundMaterial != style.material) Bind(style.material);
 
+            OverlayPreview preview = Preview(style);
+            if (preview >= OverlayPreview.QuickAttack) PreviewEvent(style, preview, dt);
+            else _previewWait = 0f;
+
             // Destello del último evento: sube de golpe y se apaga (más rápido al principio)
             float flash = 0f, rim = 0f;
             Color rimColor = _eventColor;
+            rimColor.a = 1f; // el alfa del borde es la transparencia (Opacity de los especiales y estados)
             if (_eventTimer > 0f)
             {
                 _eventTimer = Mathf.Max(0f, _eventTimer - dt);
@@ -160,15 +169,20 @@ namespace FakeBlade.Core
 
             // Carga: borde que crece y se calienta con el nivel, y late
             AttackSystem attack = _blade.Attack;
-            bool charging = style.chargeEnabled && attack.IsCharging && !_blade.IsStaggered && !_blade.IsDestroyed;
+            bool previewCharge = preview == OverlayPreview.Charge;
+            bool charging = previewCharge || style.chargeEnabled && attack.IsCharging && !_blade.IsStaggered && !_blade.IsDestroyed;
             float heat = 0f;
             Color chargeColor = style.chargeColor;
             if (charging)
             {
-                int level = attack.ChargeLevel;
-                heat = attack.MaxCharges <= 1 ? 1f : Mathf.Clamp01((level - 1f) / (attack.MaxCharges - 1f));
-                if (level > _lastChargeLevel && _lastChargeLevel > 0) Trigger(style.chargeLevelUp, 1f);
-                _lastChargeLevel = level;
+                if (previewCharge) heat = style.previewCharge;
+                else
+                {
+                    int level = attack.ChargeLevel;
+                    heat = attack.MaxCharges <= 1 ? 1f : Mathf.Clamp01((level - 1f) / (attack.MaxCharges - 1f));
+                    if (level > _lastChargeLevel && _lastChargeLevel > 0) Trigger(style.chargeLevelUp, 1f);
+                    _lastChargeLevel = level;
+                }
 
                 Color baseColor = style.chargePlayerColor ? _blade.OwnerColor : style.chargeColor;
                 chargeColor = Color.Lerp(baseColor, style.chargeHotColor, heat);
@@ -179,6 +193,7 @@ namespace FakeBlade.Core
                 {
                     rim = chargeRim;
                     rimColor = chargeColor;
+                    rimColor.a = 1f;
                 }
             }
             else
@@ -195,21 +210,25 @@ namespace FakeBlade.Core
             Vector4 fxSheet = Vector4.zero;
             Color fxColor = Color.clear;
             Texture2D fxTexture = null;
-            SpecialOverlayStyle special = SpecialStyle();
-            bool specialOn = special != null && special.enabled && _blade.FxSpecialOn;
+            // En la vista previa, el especial elegido, encendido siempre
+            _previewSpecial = preview == OverlayPreview.Special;
+            SpecialOverlayStyle special = _previewSpecial ? PreviewSpecialStyle(style) : SpecialStyle();
+            bool fxOn = _previewSpecial || _blade.FxSpecialOn;
+            bool specialOn = special != null && special.enabled && fxOn;
             Pulses(_specialPulse, special, specialOn, dt, center, ref rim, ref rimColor, ref flash, ref flashColor,
                 ref fx, ref fxSheet, ref fxColor, ref fxTexture);
             // Onda que sube por la peonza (al encenderse y en bucle; no depende de Enabled, que es el de los impulsos)
             Vector4 sweep = new Vector4(0f, 0f, 0f, -1f);
             Vector4 sweepShape = Vector4.zero;
             Color sweepColor = Color.clear;
-            Wave(special, special != null && _blade.FxSpecialOn && !_blade.IsDestroyed, dt, center, ref sweep, ref sweepShape,
+            Wave(special, special != null && fxOn && !_blade.IsDestroyed, dt, center, ref sweep, ref sweepShape,
                 ref sweepColor, ref flash, ref flashColor);
 
             // Estado: impulsos naranjas del borde (quemada) o escarcha quieta (congelada). El último sigue mandando
             // mientras se apaga
             // Mojada (2026-10-26), si no tiene otro estado: borde azul
-            StatusVfxStyle status = BladeSpecialFx.StatusOrWetStyle(_blade);
+            StatusVfxStyle status = preview >= OverlayPreview.Burn && preview <= OverlayPreview.Wet
+                ? PreviewStatusStyle(preview) : BladeSpecialFx.StatusOrWetStyle(_blade);
             if (status != null) _lastStatusOverlay = status.overlay;
             Pulses(_statusPulse, _lastStatusOverlay, status != null, dt, center, ref rim, ref rimColor, ref flash,
                 ref flashColor, ref fx, ref fxSheet, ref fxColor, ref fxTexture);
@@ -278,7 +297,7 @@ namespace FakeBlade.Core
             _block.SetColor(RingShadowColorId, style.ringShadowColor);
             _block.SetFloat(RingShadowScaleId, style.ringShadowScale);
             Color outline = rimColor;
-            outline.a = style.outlineAlpha * Mathf.Clamp01(rim);
+            outline.a = style.outlineAlpha * Mathf.Clamp01(rim) * rimColor.a;
             _block.SetColor(OutlineColorId, outline);
             _block.SetFloat(OutlineWidthId, style.outlineWidth);
             for (int i = 0; i < _renderers.Count; i++)
@@ -312,16 +331,20 @@ namespace FakeBlade.Core
             state.Age += dt;
             float k = 1f - Mathf.Clamp01(state.Age / style.pulseDecay);
             k *= k;
-            Color baseColor = style.powerColor ? _blade.FxSpecial.Color : style.color;
+            Color baseColor = style.powerColor ? PowerColor(style.color) : style.color;
             Color color = Color.Lerp(baseColor, style.hotColor, state.Heat * k);
             float pulseRim = (style.baseRim + Mathf.Lerp(style.pulseRim.x, style.pulseRim.y, state.Strength) * k) * state.Fade;
-            if (pulseRim > rim)
+            // Manda el borde que más se ve (intensidad por transparencia; Opacity va en el alfa, que el shader aplica
+            // después de limitar la intensidad a 1)
+            if (pulseRim * style.opacity > rim * rimColor.a)
             {
                 rim = pulseRim;
                 rimColor = color;
+                rimColor.a = style.opacity;
             }
             // Tinte de siempre (escarcha quieta) más el de cada impulso
-            float pulseFlash = (style.baseFlash + Mathf.Lerp(style.pulseFlash.x, style.pulseFlash.y, state.Strength) * k) * state.Fade;
+            float pulseFlash = Mathf.Min(1f, style.baseFlash + Mathf.Lerp(style.pulseFlash.x, style.pulseFlash.y, state.Strength) * k)
+                               * state.Fade * style.opacity;
             if (pulseFlash > flash)
             {
                 flash = pulseFlash;
@@ -338,7 +361,7 @@ namespace FakeBlade.Core
             fx = Ring(center, style.textureScale, state.FxAngle);
             fxSheet = new Vector4(style.tilesX, style.tilesY, first + Mathf.Min(frames - 1, (int)(phase * frames)), 0f);
             fxColor = style.textureColor;
-            fxColor.a *= state.Fade;
+            fxColor.a *= state.Fade * style.opacity;
             fxTexture = style.texture;
         }
 
@@ -407,8 +430,70 @@ namespace FakeBlade.Core
             _waveTime = 0f;
             _waveAlpha = alpha;
             _waveClosed = false;
-            Color baseColor = style.wavePowerColor && _blade.FxSpecial != null ? _blade.FxSpecial.Color : style.waveColor;
+            Color baseColor = style.wavePowerColor ? PowerColor(style.waveColor) : style.waveColor;
             _waveColor = Color.Lerp(baseColor, Color.white, style.waveLighten);
+        }
+
+        /// <summary>Color del poder de la peonza; en la vista previa, solo si lleva el poder que se ve. Si no, fallback.</summary>
+        private Color PowerColor(Color fallback)
+        {
+            SpecialAbilitySystem special = _blade.FxSpecial;
+            if (special == null || _previewSpecial && Style != null && special.Type != Style.previewSpecial) return fallback;
+            return special.Color;
+        }
+
+        /// <summary>Efecto de la vista previa del editor (BladeOverlayStyle.preview); en la build, ninguno.</summary>
+        private static OverlayPreview Preview(BladeOverlayStyle style)
+        {
+#if UNITY_EDITOR
+            return style.preview;
+#else
+            return OverlayPreview.None;
+#endif
+        }
+
+        private static SpecialOverlayStyle PreviewSpecialStyle(BladeOverlayStyle style)
+        {
+            SpecialVfxStyle effects = VfxSystem.Library.GetSpecialEffects(style.previewSpecial);
+            return effects != null ? effects.overlay : null;
+        }
+
+        /// <summary>Estado de la vista previa, aunque esté apagado en la biblioteca.</summary>
+        private static StatusVfxStyle PreviewStatusStyle(OverlayPreview preview)
+        {
+            VfxLibrary lib = VfxSystem.Library;
+            switch (preview)
+            {
+                case OverlayPreview.Burn: return lib.burn;
+                case OverlayPreview.Frozen: return lib.frozen;
+                case OverlayPreview.Launched: return lib.launched;
+                default: return lib.wet;
+            }
+        }
+
+        /// <summary>Vista previa de los eventos: el elegido, cada Preview Repeat segundos.</summary>
+        private void PreviewEvent(BladeOverlayStyle style, OverlayPreview preview, float dt)
+        {
+            _previewWait -= dt;
+            if (_previewWait > 0f) return;
+            _previewWait = style.previewRepeat;
+            switch (preview)
+            {
+                case OverlayPreview.QuickAttack:
+                    if (style.quickRingEnabled) _quickRingTimer = Mathf.Max(0.05f, style.quickRingDuration);
+                    break;
+                case OverlayPreview.Damaged:
+                    // Golpe con el daño que da el destello entero, desde un lado al azar
+                    float angle = Random.value * Mathf.PI * 2f;
+                    StartDamaged(style.damageForFull, new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)));
+                    break;
+                case OverlayPreview.Parry:
+                    Trigger(style.parry, 1f);
+                    break;
+                case OverlayPreview.Block:
+                    Trigger(style.block, 1f);
+                    break;
+            }
         }
 
         /// <summary>Anillo para el shader: centro (x, z), radio (escala × radio de la peonza) y giro.</summary>
@@ -453,14 +538,18 @@ namespace FakeBlade.Core
         private void HandleDamaged(float damage, FakeBladeController source)
         {
             // Solo los golpes de otra peonza (la pared o la quemadura no)
-            if (source == null) return;
+            if (source != null) StartDamaged(damage, source.Position - _blade.Position);
+        }
+
+        /// <summary>Destello y anillo del golpe recibido; toSource apunta hacia quien golpea.</summary>
+        private void StartDamaged(float damage, Vector3 toSource)
+        {
             BladeOverlayStyle style = Style;
             if (style == null) return;
             Trigger(style.damaged, Mathf.Lerp(0.4f, 1f, Mathf.Clamp01(damage / style.damageForFull)));
 
             if (!style.impactRingEnabled) return;
             // Desde el borde que mira a quien golpea, con el color del daño (el mismo que los impactos)
-            Vector3 toSource = source.Position - _blade.Position;
             toSource.y = 0f;
             _impactOffset = toSource.sqrMagnitude > 0.0001f ? toSource.normalized * _radius : Vector3.zero;
             Color color = VfxSystem.Library.ImpactColor(damage);

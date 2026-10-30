@@ -13,6 +13,7 @@
 //   lo que se acerca al centro. _Sweep = (centro x, altura de abajo, centro z, por dónde va), _SweepShape = (alto, radio,
 //   ancho de la banda, largo de la estela), _SweepColor (su alfa es la transparencia), _SweepTrailAlpha.
 // - Borde de corte duro (tipo cómic): la silueta (fresnel) por encima de 1 - _RimWidth, con _RimSoftness de suavizado.
+//   _RimIntensity hasta 1 es su opacidad (por encima, solo más brillo) y el alfa de _RimColor, su transparencia.
 // Pase aparte (SRPDefaultUnlit, que URP pinta también): contorno grueso, la malla hinchada _OutlineWidth metros a lo
 // largo de las normales y con las caras de delante quitadas (casco invertido), del color _OutlineColor.
 // Con todo a 0 no se ve nada. Los valores los pone BladeOverlay con un MaterialPropertyBlock. Sin luz.
@@ -234,7 +235,8 @@ Shader "FakeBlade/BladeOverlay"
                 half fresnel = 1.0 - saturate(dot(n, v));
                 half edge = 1.0 - _RimWidth;
                 half rim = smoothstep(edge - _RimSoftness, edge + _RimSoftness, fresnel) * _RimIntensity;
-                Over(color, alpha, _RimColor.rgb * max(1.0, rim), rim);
+                // El alfa del color es la transparencia del borde (Opacity), después de limitar la intensidad a 1
+                Over(color, alpha, _RimColor.rgb * max(1.0, rim), saturate(rim) * _RimColor.a);
 
                 return half4(alpha > 0.0001 ? color / alpha : color, alpha);
             }

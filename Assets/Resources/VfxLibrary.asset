@@ -3996,6 +3996,67 @@ MonoBehaviour:
     groundSplashSize: 0.3
     groundSplashChance: 1
     prefab: {fileID: 7214992934676552528, guid: 03fffe0fb27501040a8122f375aab382, type: 3}
+  - id: Valo8Dir
+    texture: {fileID: 2800000, guid: ab41667d3e5495147a0b5ed61c88c5e4, type: 3}
+    tilesX: 3
+    tilesY: 3
+    firstFrame: 0
+    frames: 9
+    life: 0.4
+    randomRotation: 0
+    order: 1
+    depthTested: 1
+    flat: 0
+    gravity: 0
+    drag: 0
+    fadeOut: 0
+    fadeIn: 0
+    shrinkOut: 0
+    growIn: 0
+    stretch: 0
+    alignToVelocity: 1
+    reverse: 0
+    randomFrame: 0
+    dissolveTexture: {fileID: 0}
+    dissolveSmooth: 0.05
+    useColorOverLife: 0
+    colorOverLife:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    spin: 0
+    maxParticles: 128
+    groundCollision: 0
+    groundSplash: 
+    groundSplashSize: 0.3
+    groundSplashChance: 1
+    prefab: {fileID: 7159274523041178119, guid: ca9a3d4b5fc38a448a5b8b6555116425, type: 3}
   smallHitLayers:
   - sprite: MuzzleNeo
     size: 0.8
@@ -4093,17 +4154,17 @@ MonoBehaviour:
     lighten: 0
     rotation: 0
   impactParticles:
-    sprite: Valo8
-    hitCount: {x: 3, y: 10}
-    chargedScale: 1.5
+    sprite: Valo8Dir
+    hitCount: {x: 5, y: 3}
+    chargedScale: 2
     parryCount: 8
     blockCount: 6
-    coneAngle: 35
-    elevation: 25
-    speed: {x: 3, y: 6}
-    size: {x: 0.2, y: 0.3}
-    lifetime: {x: 0, y: 0}
-    rotation: {x: 0, y: 0}
+    coneAngle: 65
+    elevation: 15.8
+    speed: {x: 4, y: 6}
+    size: {x: 0.3, y: 0.5}
+    lifetime: {x: 0.7, y: 0.5}
+    rotation: {x: -100, y: -80}
     spawnRadius: 0.2
     height: 0.1
     lighten: 0.01
@@ -4113,7 +4174,7 @@ MonoBehaviour:
   launchColor: {r: 1, g: 0.95, b: 0.3, a: 1}
   wetColor: {r: 0.3, g: 0.6, b: 1, a: 1}
   statusParticleRate: 22
-  chargeHotColor: {r: 1, g: 0.95, b: 0.7, a: 1}
+  chargeHotColor: {r: 1, g: 0.9490196, b: 0.69803923, a: 1}
   chargeGatherRate: 30
   chargeFlameRate: 26
   chargeRingSprite: CircleImpact04Anillo
@@ -4217,7 +4278,7 @@ MonoBehaviour:
     groundLayers: []
   bladeOverlay:
     material: {fileID: 2100000, guid: 258f9be97bcf472468477f2086a508ca, type: 2}
-    rimWidth: 0.45
+    rimWidth: 0.454
     rimSoftness: 0.04
     outlineWidth: 0.05
     outlineAlpha: 0.9
@@ -4273,6 +4334,10 @@ MonoBehaviour:
       flash: 0.45
       rim: 3
       duration: 0.3
+    preview: 0
+    previewSpecial: 6
+    previewCharge: 1
+    previewRepeat: 1
   specialEffects:
   - type: 5
     replaceAura: 1
@@ -4349,6 +4414,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
       hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      opacity: 1
       baseRim: 0.6
       baseFlash: 0
       pulseRim: {x: 1, y: 2.5}
@@ -4366,7 +4432,7 @@ MonoBehaviour:
       textureColor: {r: 1, g: 1, b: 1, a: 0.9}
       waveOnActivate: 1
       waveLoop: 1
-      waveInterval: 1.6
+      waveInterval: 0.45
       waveDuration: 0.45
       waveWidth: 0.12
       waveTrail: 0.25
@@ -5328,6 +5394,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.55, g: 0.9, b: 1, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.55
       baseFlash: 0.079
       pulseRim: {x: 1.5, y: 3}
@@ -5345,11 +5412,11 @@ MonoBehaviour:
       textureColor: {r: 0.54901963, g: 0.9019608, b: 1, a: 1}
       waveOnActivate: 1
       waveLoop: 1
-      waveInterval: 1.6
-      waveDuration: 0.45
-      waveWidth: 0.12
-      waveTrail: 0.25
-      waveTrailAlpha: 0.35
+      waveInterval: 0.6
+      waveDuration: 0.7
+      waveWidth: 0.02
+      waveTrail: 0.239
+      waveTrailAlpha: 0.294
       wavePowerColor: 1
       waveColor: {r: 1, g: 1, b: 1, a: 1}
       waveLighten: 0.3
@@ -6342,6 +6409,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.85, b: 0.2, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 6.29
       baseFlash: 0.061
       pulseRim: {x: 1, y: 3}
@@ -7029,6 +7097,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.55, b: 0.15, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.6, y: 1.5}
@@ -8063,6 +8132,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.45, g: 0.85, b: 0.8, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.5, y: 1.2}
@@ -9075,6 +9145,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.7, g: 1, b: 0.25, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0.009
       pulseRim: {x: 0.5, y: 1.2}
@@ -10200,6 +10271,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.35, b: 0.45, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.5, y: 1.2}
@@ -11595,6 +11667,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.75, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.4, y: 1}
@@ -12660,6 +12733,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.64227116, g: 0.8282078, b: 0.96981126, a: 1}
       hotColor: {r: 0.4509804, g: 0.6, b: 1, a: 1}
+      opacity: 1
       baseRim: 15.18
       baseFlash: 0.2
       pulseRim: {x: 0.4, y: 0.9}
@@ -13618,6 +13692,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.5, g: 0.95, b: 1, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.4, y: 0.8}
@@ -14696,6 +14771,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.3, g: 1, b: 0.6, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0.174
       pulseRim: {x: 1.52, y: 1.1}
@@ -15747,6 +15823,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.8, g: 0.85, b: 1, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.25
       baseFlash: 0
       pulseRim: {x: 0.4, y: 0.9}
@@ -16803,6 +16880,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.8, g: 0.4, b: 1, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.2
       baseFlash: 0
       pulseRim: {x: 0.4, y: 0.9}
@@ -18519,6 +18597,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.78, b: 0.2, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.15
       baseFlash: 0
       pulseRim: {x: 0.4, y: 0.9}
@@ -19414,6 +19493,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
       hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      opacity: 1
       baseRim: 0.6
       baseFlash: 0
       pulseRim: {x: 1, y: 2.5}
@@ -20110,6 +20190,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.45, b: 0.1, a: 1}
       hotColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+      opacity: 1
       baseRim: 0.4
       baseFlash: 0
       pulseRim: {x: 0.8, y: 2}
@@ -20408,6 +20489,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.7411765, g: 0.92, b: 1, a: 1}
       hotColor: {r: 0.3830188, g: 0.75096804, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.8
       baseFlash: 0.35
       pulseRim: {x: 0, y: 0}
@@ -20617,6 +20699,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 1, g: 0.85, b: 0.2, a: 1}
       hotColor: {r: 1, g: 1, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.4
       baseFlash: 0
       pulseRim: {x: 1.5, y: 3.5}
@@ -20772,6 +20855,7 @@ MonoBehaviour:
       powerColor: 0
       color: {r: 0.25, g: 0.6, b: 1, a: 1}
       hotColor: {r: 0.5, g: 0.95, b: 1, a: 1}
+      opacity: 1
       baseRim: 0.35
       baseFlash: 0
       pulseRim: {x: 0.5, y: 0.9}

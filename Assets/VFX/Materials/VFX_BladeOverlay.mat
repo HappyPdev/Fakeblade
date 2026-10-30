@@ -40,6 +40,7 @@ Material:
     - _RimSoftness: 0.04
     - _RimWidth: 0.45
     - _RingShadowScale: 1.12
+    - _SweepTrailAlpha: 0.35
     m_Colors:
     - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
     - _Fx: {r: 0, g: 0, b: 0, a: 0}
@@ -52,5 +53,8 @@ Material:
     - _RingB: {r: 0, g: 0, b: 0, a: 0}
     - _RingBColor: {r: 1, g: 1, b: 1, a: 0}
     - _RingShadowColor: {r: 0, g: 0, b: 0, a: 0.7}
+    - _Sweep: {r: 0, g: 0, b: 0, a: -1}
+    - _SweepColor: {r: 1, g: 1, b: 1, a: 0}
+    - _SweepShape: {r: 0.4, g: 0.6, b: 0.12, a: 0.25}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

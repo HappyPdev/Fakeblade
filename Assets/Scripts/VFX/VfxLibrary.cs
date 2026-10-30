@@ -371,12 +371,17 @@ namespace FakeBlade.Core
         public Color color = new Color(1f, 0.45f, 0.1f);
         [Tooltip("Color en lo más alto de cada impulso (cada uno, al azar entre los dos)")]
         public Color hotColor = new Color(1f, 0.85f, 0.3f);
+        [Tooltip("Transparencia de todo el efecto: borde, tinte y sprite (1 = como está; 0,5 = la mitad de opaco). El alfa de " +
+                 "los colores no cuenta (2026-10-30)")]
+        [Range(0f, 1f)] public float opacity = 1f;
         [Header("Impulsos del borde")]
-        [Tooltip("Intensidad del borde entre impulsos (0 = solo los impulsos)")]
+        [Tooltip("Intensidad del borde entre impulsos (0 = solo los impulsos). Hasta 1 es lo opaco que es; por encima de 1 ya " +
+                 "no se ve más, solo brilla más (bloom)")]
         [Min(0f)] public float baseRim = 0.6f;
-        [Tooltip("Cuánto tiñe toda la peonza siempre, sin impulsos (0-1; la escarcha quieta de la congelada)")]
+        [Tooltip("Cuánto tiñe toda la peonza siempre, sin impulsos (0-1; la escarcha quieta de la congelada). Desde la cámara " +
+                 "alta es lo que más se nota")]
         [Range(0f, 1f)] public float baseFlash;
-        [Tooltip("Intensidad que suma cada impulso, al azar entre x e y")]
+        [Tooltip("Intensidad que suma cada impulso, al azar entre x e y (como Base Rim: por encima de 1, solo más brillo)")]
         public Vector2 pulseRim = new Vector2(1f, 2.5f);
         [Tooltip("Cuánto tiñe cada impulso toda la peonza, al azar entre x e y (0-1)")]
         public Vector2 pulseFlash = new Vector2(0f, 0.25f);
@@ -1458,6 +1463,36 @@ namespace FakeBlade.Core
         public OverlayFlash parry = new OverlayFlash { color = Color.white, flash = 0.6f, rim = 4f, duration = 0.35f };
         [Tooltip("Quien bloquea")]
         public OverlayFlash block = new OverlayFlash { color = new Color(0.75f, 0.9f, 1f), flash = 0.45f, rim = 3f, duration = 0.3f };
+
+        [Header("Vista previa (solo en el editor, en Play; 2026-10-30)")]
+        [Tooltip("Enciende un efecto en todas las peonzas para ajustarlo mientras se ve: los especiales y los estados se quedan " +
+                 "encendidos (solo el borde, el tinte, el sprite y la onda: el resto de sus efectos no sale); la carga, fija en " +
+                 "Preview Charge; los eventos, cada Preview Repeat. En la build no hace nada")]
+        public OverlayPreview preview;
+        [Tooltip("Especial que se enciende con Preview = Special. Con Power Color, el color del poder solo sale en las peonzas " +
+                 "que lo llevan; en las demás, Color")]
+        public SpecialAbilityType previewSpecial = SpecialAbilityType.Ice;
+        [Tooltip("Nivel de la carga con Preview = Charge (0 = nivel 1, 1 = el máximo)")]
+        [Range(0f, 1f)] public float previewCharge = 1f;
+        [Tooltip("Segundos entre repeticiones de los eventos (golpe recibido, parry, bloqueo y ataque rápido). En el especial, " +
+                 "la onda sale al encender la vista previa y después con su Wave Loop")]
+        [Min(0.2f)] public float previewRepeat = 1f;
+    }
+
+    /// <summary>Efecto de la vista previa del overlay (BladeOverlayStyle.preview).</summary>
+    public enum OverlayPreview
+    {
+        None = 0,
+        Special = 1,
+        Burn = 2,
+        Frozen = 3,
+        Launched = 4,
+        Wet = 5,
+        Charge = 6,
+        QuickAttack = 7,
+        Damaged = 8,
+        Parry = 9,
+        Block = 10
     }
 
     /// <summary>Un cuenco del efecto de la punta (BurstTipStyle.cups).</summary>

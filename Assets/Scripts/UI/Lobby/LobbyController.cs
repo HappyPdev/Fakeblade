@@ -31,6 +31,8 @@ namespace FakeBlade.UI
         [SerializeField] private bool debugInput = false;
 
         private const int MaxPlayers = 4;
+        /// <summary>Aprende a jugar: el dummy del centro ocupa la cuarta plaza (GDD 6.7, 2026-10-31).</summary>
+        private const int TutorialMaxPlayers = 3;
 
         private enum Phase { Columns, Settings }
 
@@ -82,6 +84,9 @@ namespace FakeBlade.UI
 
         /// <summary>Aprende a jugar (GDD 6.7): solo arquetipo, poder y color; sin IA ni parámetros de partida.</summary>
         private bool _tutorial;
+
+        /// <summary>Jugadores que caben en la selección: 4, o 3 en Aprende a jugar.</summary>
+        private int SlotLimit => _tutorial ? TutorialMaxPlayers : MaxPlayers;
         private Phase _phase = Phase.Columns;
         private float _allReadyTimer;
 
@@ -252,7 +257,7 @@ namespace FakeBlade.UI
         private void UpdateJoin(float dt)
         {
             float best = 0f;
-            if (_slots.Count < MaxPlayers)
+            if (_slots.Count < SlotLimit)
             {
                 CheckJoin(InputDeviceKind.KeyboardLeft, 0, dt, ref best);
                 CheckJoin(InputDeviceKind.KeyboardRight, 0, dt, ref best);
@@ -410,7 +415,7 @@ namespace FakeBlade.UI
 
         private void RebuildColumns()
         {
-            int visible = Mathf.Clamp(_slots.Count + 1, 2, MaxPlayers);
+            int visible = Mathf.Clamp(_slots.Count + 1, 2, SlotLimit);
             int cpuNumber = 0;
             for (int i = 0; i < _columns.Count; i++)
             {
@@ -1022,7 +1027,7 @@ namespace FakeBlade.UI
         {
             if (!MatchSetup.HasPlayers) return;
 
-            for (int i = 0; i < MatchSetup.Players.Count && _slots.Count < MaxPlayers; i++)
+            for (int i = 0; i < MatchSetup.Players.Count && _slots.Count < SlotLimit; i++)
             {
                 PlayerSetup setup = MatchSetup.Players[i];
                 if (setup.Controller != ControllerType.Human) continue;

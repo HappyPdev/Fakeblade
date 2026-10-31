@@ -104,6 +104,13 @@ namespace FakeBlade.Core
         private void Awake()
         {
             _bootstrap = GetComponent<BattleBootstrap>();
+
+            // Aprende a jugar (GDD 6.7) usa la escena del sandbox, pero sin su panel ni sus dummies
+            if (MatchSetup.IsTutorial)
+            {
+                gameObject.AddComponent<TutorialController>();
+                enabled = false;
+            }
         }
 
         private void Start()

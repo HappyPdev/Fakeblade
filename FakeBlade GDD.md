@@ -706,7 +706,7 @@ Cada partida local (no el Sandbox, que tiene su propia grabación, 6.3) deja un 
 
 ## 6.7 Tutorial: Aprende a jugar *(Fase P, diseñado el 2026-10-31)*
 
-Escenario guiado que enseña las mecánicas paso a paso. Se juega solo o con varios jugadores locales (hasta 4).
+Escenario guiado que enseña las mecánicas paso a paso. Se juega solo o con varios jugadores locales, **hasta 3**: el dummy ocupa la cuarta plaza de peonza (2026-10-31).
 
 - **Cómo se entra:** botón **Aprende a jugar** en el menú principal, entre Jugar y Opciones.
 - **Selección de peonzas simplificada:** la pantalla de columnas de 9.2.1, con la misma forma de unirse.
@@ -716,7 +716,7 @@ Escenario guiado que enseña las mecánicas paso a paso. Se juega solo o con var
   - Color sí, para distinguirse; equipo no. Sin rivales con IA en la selección.
   - Cuando todos han confirmado, se entra directamente en la arena (sin parámetros de partida).
 - **Arena:** la arena por defecto, con las reglas del Sandbox: sin tiempo, y quien llega a 0 RPM reaparece (jugadores y dummy).
-- **Dummy:** uno en el centro, Balanceada. Si lo sacan del centro, vuelve solo a su sitio; si muere, reaparece. Su comportamiento cambia según el paso.
+- **Dummy:** uno en el centro, Balanceada. Si lo sacan del centro, espera 0,8 s sin recibir daño y vuelve solo a su sitio, frenando al llegar; si muere, reaparece en el centro. Su comportamiento cambia según el paso.
 - **Ventana de indicaciones:** en un margen, a la altura del centro de la pantalla. Lleva el texto del paso (por `Loc`), los botones del dispositivo de cada jugador (mando, teclado J1 o teclado J2) y el **contador de cada jugador** (J1 3/5, J2 5/5...).
 - **Controles bloqueados:** solo responden las acciones ya enseñadas; las demás no hacen nada hasta su paso. La energía del especial no se carga hasta el suyo.
 - **Avance todos juntos:** se pasa al paso siguiente cuando **todos los jugadores** han cumplido el objetivo.
@@ -1489,6 +1489,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-30 | Siguientes pasos: repaso de efectos, postprocesado y tutorial (O10, P1) | Lo siguiente es **repasar los efectos** hechos (O10) y después el **postprocesado** (O4, O7). La **fase siguiente** es un **escenario de tutorial** que enseñe las mecánicas del juego paso a paso (Fase P nueva; dudas en 12). |
 | 2026-10-31 | Parche de seguridad de Unity (7.5) | El usuario actualiza Unity de 6000.3.11f1 a **6000.3.27f2** (sigue en 6.3 LTS) por problemas de seguridad; con él suben paquetes como Input System (1.19.0 → 1.20.1), AI Navigation, Timeline, Visual Scripting y Burst. Comprobado: compila sin errores, los tests de EditMode igual que antes (35 pasan, 3 omitidos) y la build de Windows sale bien (0 errores). Queda probar el mando en el juego con la versión nueva de Input System. |
 | 2026-10-31 | Tutorial: Aprende a jugar (6.7, Fase P) | Pedido por el usuario: se entra desde el menú principal y se puede jugar en multijugador. La selección deja solo los 4 arquetipos base, con su descripción y estilo de juego, y el poder, con su descripción y sus usos (al elegirlo se monta su núcleo). Arena con las reglas del Sandbox (sin tiempo y con reaparición) y un dummy Balanceada en el centro que vuelve solo a su sitio. Pasos con los demás controles bloqueados: moverse, dash, ataque rápido, cargado, parry (el dummy ataca cada 1 s), bloqueo (el dummy carga), especial (apagado hasta entonces) y combate contra una IA Fácil. En la pausa se cambian arquetipo y poder. Añadido por propuesta: RPM = vida y el HUD, gana quien llega más rápido, paredes y dash que golpea, y final con juego libre. En multijugador se avanza todos juntos; el primer especial se da lleno. |
+| 2026-10-31 | Tutorial: hasta 3 jugadores (6.7) | El dummy del centro ocupa una de las 4 plazas de peonza que admite el juego (HUD, choques; ampliarlo es F2), así que la selección de Aprende a jugar deja unirse a 3 jugadores. Decidido por el usuario. |
 
 12. # Pendiente de definir
 
@@ -1801,9 +1802,9 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 
 **Fase P. Tutorial** (pedido el 2026-10-30; diseño del 2026-10-31 en 6.7)
 
-- [x] P1. Botón **Aprende a jugar** en el menú principal y flujo de escenas del tutorial (selección → arena), con su `MatchSetup` de tutorial (6.7). *Hecho (2026-10-31): `MatchSetup.IsTutorial`. Mientras no esté P3, al confirmar se entra en el Sandbox normal (sin tiempo y con reaparición, arena por defecto).* 🎮
-- [x] P2. **Selección simplificada:** solo los 4 arquetipos base, con su descripción y estilo de juego; elección del poder (monta su núcleo), con su descripción y sus usos; color sí, equipo e IA no. Textos en `Loc`. *Hecho (2026-10-31) en `LobbyController` y `LobbyColumn` (modo tutorial): filas Arquetipo, Poder, Color y Confirmar, con la etiqueta más estrecha para que quepan los poderes largos con 4 columnas; textos `ARCHETYPE_DESC_*` y `POWER_DESC_*`. Revisar los textos jugando.* 🎮
-- [ ] P3. **Arena del tutorial:** reglas del Sandbox (sin tiempo y con reaparición) y dummy Balanceada en el centro que vuelve solo a su sitio y reaparece.
+- [x] P1. Botón **Aprende a jugar** en el menú principal y flujo de escenas del tutorial (selección → arena), con su `MatchSetup` de tutorial (6.7). *Hecho (2026-10-31): `MatchSetup.IsTutorial`. Al confirmar se entra en la escena Sandbox, con la arena por defecto, y allí el tutorial sustituye al panel (P3).* Probado con mando (2026-10-31).
+- [x] P2. **Selección simplificada:** solo los 4 arquetipos base, con su descripción y estilo de juego; elección del poder (monta su núcleo), con su descripción y sus usos; color sí, equipo e IA no. Textos en `Loc`. *Hecho (2026-10-31) en `LobbyController` y `LobbyColumn` (modo tutorial): filas Arquetipo, Poder, Color y Confirmar, con la etiqueta más estrecha para que quepan los poderes largos con 4 columnas; textos `ARCHETYPE_DESC_*` y `POWER_DESC_*`. Revisar los textos jugando.* Probado con mando (2026-10-31).
+- [x] P3. **Arena del tutorial:** reglas del Sandbox (sin tiempo y con reaparición) y dummy Balanceada en el centro que vuelve solo a su sitio y reaparece. *Hecho (2026-10-31): `TutorialController` (lo añade `SandboxController` en lugar de su panel y sus dummies) y `TutorialDummyBrain` (vuelve al centro en unos 2 s tras un empujón de 12 m/s). La selección del tutorial admite hasta 3 jugadores.* 🎮
 - [ ] P4. **Director de pasos:** acciones bloqueadas por paso, energía del especial apagada, objetivos con contador por jugador, avance todos juntos y ventana de indicaciones con los botones del dispositivo de cada jugador.
 - [ ] P5. Pasos 1-5: moverse y HUD, dash, ataque rápido, cargado, paredes y dash que golpea.
 - [ ] P6. Pasos 6-7: parry y bloqueo, con el dummy atacando cada 1 s (primero rápidos y después cargados) y las ayudas del parry.

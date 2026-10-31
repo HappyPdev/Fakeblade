@@ -93,6 +93,12 @@ namespace FakeBlade.Core
             if (!_isActive) _energy = 1f;
         }
 
+        /// <summary>Vacía la esfera (Aprende a jugar: el especial no se carga hasta su paso, GDD 6.7).</summary>
+        public void ClearEnergy()
+        {
+            if (!_isActive) _energy = 0f;
+        }
+
         public bool TryActivate()
         {
             if (!IsReady || _owner == null) return false;

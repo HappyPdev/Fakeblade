@@ -787,7 +787,7 @@ Objetivo: builds de **Windows, Linux y WebGL**, y más adelante **Android**. Est
 
 **Cómo elige Unity la API gráfica.** Cada plataforma tiene una lista de API en *Player Settings → Other Settings → Graphics APIs*. Con *Auto Graphics API* activado, Unity usa su lista por defecto; desactivado, se usa la primera de la lista que funcione en la máquina, y las siguientes son de reserva. Cada API añadida multiplica las variantes de shader (más tiempo de build y más tamaño). Por defecto: Windows DirectX 12 en los proyectos nuevos desde Unity 6.1 (antes DirectX 11); Linux Vulkan (reserva OpenGL Core); WebGL WebGL 2 (WebGPU solo si se añade a mano); Android Vulkan con reserva OpenGL ES 3.
 
-**Configuración actual** (Unity 6000.3.11f1, URP 17.3):
+**Configuración actual** (Unity 6000.3.27f2, URP 17.3; actualizado desde 6000.3.11f1 el 2026-10-31):
 
 | Plataforma | API gráficas | Calidad por defecto | Scripting |
 |---|---|---|---|
@@ -856,7 +856,7 @@ Objetivo: builds de **Windows, Linux y WebGL**, y más adelante **Android**. Est
 7. Probar cada plataforma con una build, no solo en el editor: el editor de Windows (DirectX 11, Mono) no muestra los fallos de IL2CPP, Vulkan ni WebGL.
 8. Cada efecto visual nuevo dice en qué plataformas va y con qué nivel (tabla de 7.6) y se puede apagar o rebajar sin romper nada.
 
-**Versión de Unity** *(revisado el 2026-10-16)*. El proyecto está en **Unity 6.3 LTS** (6000.3). **Unity 6.6** ya ha salido, pero **no es LTS**: es la última versión «Update» antes de **Unity 6.7 LTS**, prevista para el último trimestre de 2026. Unity la da como *Supported* hasta que salga 6.7, y algunas funciones nuevas de 6.6 pueden cambiar o quitarse en 6.7. Propuesta (12): **seguir en 6.3 LTS** y, cuando salga 6.7 LTS y lleve un par de parches, probar la migración en una rama aparte (copia de seguridad, comprobar Coplay, los paquetes de terceros, los shaders propios, el banco y los tests) y pasar si va bien. Lo que traería: WebGPU soportada (aún no por defecto) y las mejoras de 6.4-6.6. Ojo: en 6.6, *Fast Enter Play Mode* viene activado por defecto en los proyectos nuevos (no resetea los `static` al entrar en Play); este proyecto usa estáticos (`MatchSetup`, ajustes del Sandbox), así que si se activa hay que revisarlos.
+**Versión de Unity** *(revisado el 2026-10-16)*. El proyecto está en **Unity 6.3 LTS** (6000.3; parche **6000.3.27f2** desde el 2026-10-31, por seguridad, con Input System 1.20.1). **Unity 6.6** ya ha salido, pero **no es LTS**: es la última versión «Update» antes de **Unity 6.7 LTS**, prevista para el último trimestre de 2026. Unity la da como *Supported* hasta que salga 6.7, y algunas funciones nuevas de 6.6 pueden cambiar o quitarse en 6.7. Propuesta (12): **seguir en 6.3 LTS** y, cuando salga 6.7 LTS y lleve un par de parches, probar la migración en una rama aparte (copia de seguridad, comprobar Coplay, los paquetes de terceros, los shaders propios, el banco y los tests) y pasar si va bien. Lo que traería: WebGPU soportada (aún no por defecto) y las mejoras de 6.4-6.6. Ojo: en 6.6, *Fast Enter Play Mode* viene activado por defecto en los proyectos nuevos (no resetea los `static` al entrar en Play); este proyecto usa estáticos (`MatchSetup`, ajustes del Sandbox), así que si se activa hay que revisarlos.
 
 ## 7.6 Estilo visual, shaders y efectos *(propuestas del 2026-10-16, Fase O)*
 
@@ -1458,6 +1458,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-30 | Diseñador de sonido (G4) | Una persona hará los efectos de sonido. Hay que dejarle preparado todo lo necesario: un punto de sonido en cada acción del juego y un **archivo de configuración** donde meta sus sonidos y los pruebe de forma sencilla, sin tocar código (G4.7, 9.4). Los tiempos de los poderes se le pasan en una tabla aparte, fuera del repo. |
 | 2026-10-30 | Overlay de los especiales: transparencia y vista previa (K9) | El usuario no veía sus cambios en el overlay (el color de un especial sobre la peonza, como el del Hielo) y quería poder retocar lo transparente que es. Causas: solo se enciende en eventos cortos y en los poderes, con impulsos al azar; el borde sale solo en el perfil con la cámara alta; y la intensidad del borde por encima de 1 no se ve más (había bordes en 6 y 15). Se añade **Opacity** al overlay de cada especial y estado y una **vista previa** en el editor que lo deja encendido en Play (7.6). El borde visible desde arriba y los impulsos no aleatorios se ofrecieron y quedan para más adelante. |
 | 2026-10-30 | Siguientes pasos: repaso de efectos, postprocesado y tutorial (O10, P1) | Lo siguiente es **repasar los efectos** hechos (O10) y después el **postprocesado** (O4, O7). La **fase siguiente** es un **escenario de tutorial** que enseñe las mecánicas del juego paso a paso (Fase P nueva; dudas en 12). |
+| 2026-10-31 | Parche de seguridad de Unity (7.5) | El usuario actualiza Unity de 6000.3.11f1 a **6000.3.27f2** (sigue en 6.3 LTS) por problemas de seguridad; con él suben paquetes como Input System (1.19.0 → 1.20.1), AI Navigation, Timeline, Visual Scripting y Burst. Comprobado: compila sin errores, los tests de EditMode igual que antes (35 pasan, 3 omitidos) y la build de Windows sale bien (0 errores). Queda probar el mando en el juego con la versión nueva de Input System. |
 
 12. # Pendiente de definir
 
@@ -1525,7 +1526,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 - Herramienta de red para la LAN de Android (propuesta: Netcode for GameObjects + Unity Transport; se decide al empezar, cuando la versión de PC esté completa).
 - Opción Calidad en WebGL: dejar elegir PC o limitarla a Mobile (propuesta: dejarla y avisar de que puede ir lento, después de probarla).
 - WebGPU (propuesta: no usarla hasta actualizar a Unity 6.6 o posterior y probarla).
-- **Actualizar Unity** (2026-10-16; 7.5): el proyecto está en 6.3 LTS; 6.6 no es LTS y 6.7 LTS sale en el último trimestre de 2026 (propuesta: seguir en 6.3 LTS y probar 6.7 LTS en una rama aparte cuando lleve un par de parches).
+- **Actualizar Unity** (2026-10-16; 7.5): el proyecto está en 6.3 LTS (6000.3.27f2 desde el 2026-10-31); 6.6 no es LTS y 6.7 LTS sale en el último trimestre de 2026 (propuesta: seguir en 6.3 LTS y probar 6.7 LTS en una rama aparte cuando lleve un par de parches).
 - **Efectos por plataforma** (7.6): qué efectos van en WebGL y Android y con qué nivel (propuesta: la tabla de 7.6, que se confirma probando cada efecto en su build).
 - Dónde se publica la versión WebGL (propuesta: itch.io, que admite la compresión Brotli).
 

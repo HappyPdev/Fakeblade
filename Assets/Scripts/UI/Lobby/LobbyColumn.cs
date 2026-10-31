@@ -13,6 +13,7 @@ namespace FakeBlade.UI
     /// Vista jugador: cabecera (J1 + dispositivo), vista previa 3D, arquetipo, stats y filas
     ///                Preset / Punta / Cuerpo / Disco / Núcleo / Color / Equipo / Confirmar.
     /// Vista IA (D7): igual, con «IA» en la cabecera y la fila Nivel IA en vez de Confirmar.
+    /// Aprende a jugar (GDD 6.7): Arquetipo / Poder / Color / Confirmar, con la descripción del arquetipo y del poder.
     ///                Solo enseña el foco mientras un jugador la edita (SetFocusVisible).
     /// Capa "¡LISTO!" cuando el jugador confirma.
     ///
@@ -28,6 +29,8 @@ namespace FakeBlade.UI
         public const int PartCount = 4;
         /// <summary>Las barras se dibujan por pasos (estética pixel).</summary>
         private const float StatSteps = 40f;
+        /// <summary>Aprende a jugar: la etiqueta ocupa el 36% de la fila y el valor el resto.</summary>
+        private const float TutorialLabelSplit = 0.36f;
 
         private HUDTheme _theme;
         private int _px;
@@ -46,6 +49,10 @@ namespace FakeBlade.UI
         private RawImage _preview;
         private TextMeshProUGUI _archetypeText;
         private TextMeshProUGUI _specialText;
+        /// <summary>Aprende a jugar (GDD 6.7): sin piezas sueltas ni equipo, con fila Poder y las descripciones.</summary>
+        private bool _tutorial;
+        private TextMeshProUGUI _archetypeDesc;
+        private TextMeshProUGUI _powerDesc;
         private readonly TextMeshProUGUI[] _statLabels = new TextMeshProUGUI[StatCount];
         private readonly StatBar[] _statBars = new StatBar[StatCount];
         private int _blinkPart = -1;
@@ -63,6 +70,8 @@ namespace FakeBlade.UI
         public PixelOptionRow BodyRow { get; private set; }
         public PixelOptionRow BladeRow { get; private set; }
         public PixelOptionRow CoreRow { get; private set; }
+        /// <summary>Solo en Aprende a jugar: elige el poder (monta su núcleo).</summary>
+        public PixelOptionRow PowerRow { get; private set; }
         public PixelOptionRow ColorRow { get; private set; }
         public PixelOptionRow TeamRow { get; private set; }
         /// <summary>Solo en la vista IA (D7).</summary>
@@ -72,7 +81,7 @@ namespace FakeBlade.UI
         public PixelOptionRow FocusedRow => _rows[_focus];
 
         #region Creation
-        public static LobbyColumn Create(Transform parent, HUDTheme theme)
+        public static LobbyColumn Create(Transform parent, HUDTheme theme, bool tutorial = false)
         {
             RectTransform root = PixelUI.CreateRect("Column", parent);
             var le = root.gameObject.AddComponent<LayoutElement>();
@@ -80,14 +89,15 @@ namespace FakeBlade.UI
             le.flexibleHeight = 1f;
 
             var column = root.gameObject.AddComponent<LobbyColumn>();
-            column.Build(theme);
+            column.Build(theme, tutorial);
             return column;
         }
 
-        private void Build(HUDTheme theme)
+        private void Build(HUDTheme theme, bool tutorial)
         {
             _theme = theme;
             _px = Mathf.Max(1, theme.pixelSize);
+            _tutorial = tutorial;
 
             var outline = PixelUI.CreateImage("Outline", transform, theme.sphereOutline);
             PixelUI.Stretch(outline.rectTransform, 0, _px);
@@ -185,15 +195,37 @@ namespace FakeBlade.UI
 
             Fixed("Spacer", view, 1);
 
+            // Aprende a jugar: estilo de juego del arquetipo y qué hace el poder (ocupan el sitio de las piezas)
+            if (_tutorial)
+            {
+                _archetypeDesc = DescriptionText("ArchetypeDesc", view, 22, _theme.textColor);
+                _powerDesc = DescriptionText("PowerDesc", view, 28, _theme.textColor);
+            }
+
             PresetRow = AddRow(view, false);
             TipRow = AddRow(view, false, PartRowHeight);
             BodyRow = AddRow(view, false, PartRowHeight);
             BladeRow = AddRow(view, false, PartRowHeight);
             CoreRow = AddRow(view, false, PartRowHeight);
+            PowerRow = AddRow(view, false);
             ColorRow = AddRow(view, false);
             TeamRow = AddRow(view, false);
             LevelRow = AddRow(view, false);
             ConfirmRow = AddRow(view, true);
+
+            TipRow.gameObject.SetActive(!_tutorial);
+            BodyRow.gameObject.SetActive(!_tutorial);
+            BladeRow.gameObject.SetActive(!_tutorial);
+            CoreRow.gameObject.SetActive(!_tutorial);
+            TeamRow.gameObject.SetActive(!_tutorial);
+            PowerRow.gameObject.SetActive(_tutorial);
+            if (_tutorial)
+            {
+                // Etiquetas cortas y valores largos (ONDA DE CHOQUE): más sitio para el valor
+                PresetRow.SetLabelSplit(TutorialLabelSplit);
+                PowerRow.SetLabelSplit(TutorialLabelSplit);
+                ColorRow.SetLabelSplit(TutorialLabelSplit);
+            }
 
             // Dos líneas: listo / salir y añadir IA / cambiar de columna
             _hintText = FixedText("Hint", view, 9, 3.5f, _theme.textDimColor);
@@ -231,6 +263,17 @@ namespace FakeBlade.UI
             var le = text.gameObject.AddComponent<LayoutElement>();
             le.preferredHeight = heightPx * _px;
             le.minHeight = heightPx * _px;
+            return text;
+        }
+
+        /// <summary>Texto de varias líneas con alto fijo: si no cabe, se acorta el texto, nunca la letra (GDD 9.2, regla 4).</summary>
+        private TextMeshProUGUI DescriptionText(string name, Transform parent, int heightPx, Color color)
+        {
+            TextMeshProUGUI text = FixedText(name, parent, heightPx, 3.5f, color);
+            text.alignment = TextAlignmentOptions.Top;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.richText = true;
+            text.margin = new Vector4(_px, 0f, _px, 0f);
             return text;
         }
 
@@ -279,11 +322,12 @@ namespace FakeBlade.UI
             LevelRow.gameObject.SetActive(cpu);
             ConfirmRow.gameObject.SetActive(!cpu);
 
-            PresetRow.SetLabel(Loc.Get("LOBBY_PRESET"));
+            PresetRow.SetLabel(Loc.Get(_tutorial ? "LOBBY_ARCHETYPE" : "LOBBY_PRESET"));
             TipRow.SetLabel(Loc.Get("SLOT_TIP"));
             BodyRow.SetLabel(Loc.Get("SLOT_BODY"));
             BladeRow.SetLabel(Loc.Get("SLOT_BLADE"));
             CoreRow.SetLabel(Loc.Get("SLOT_CORE"));
+            PowerRow.SetLabel(Loc.Get("LOBBY_POWER"));
             ColorRow.SetLabel(Loc.Get("LOBBY_COLOR"));
             TeamRow.SetLabel(Loc.Get("LOBBY_TEAM"));
             LevelRow.SetLabel(Loc.Get("LOBBY_AI_LEVEL"));
@@ -309,6 +353,14 @@ namespace FakeBlade.UI
             _archetypeText.text = archetype;
             _archetypeText.color = archetypeColor;
             _specialText.text = special;
+        }
+
+        /// <summary>Aprende a jugar: estilo de juego del arquetipo y qué hace el poder, con su nombre de su color.</summary>
+        public void SetDescriptions(string archetype, string powerName, string power, Color powerColor)
+        {
+            if (!_tutorial) return;
+            _archetypeDesc.text = archetype;
+            _powerDesc.text = "<color=#" + ColorUtility.ToHtmlStringRGB(powerColor) + ">" + powerName + ":</color> " + power;
         }
 
         /// <summary>
@@ -406,7 +458,8 @@ namespace FakeBlade.UI
                 if (row == TipRow) return (int)ComponentSlot.Tip;
                 if (row == BodyRow) return (int)ComponentSlot.Body;
                 if (row == BladeRow) return (int)ComponentSlot.Blade;
-                if (row == CoreRow) return (int)ComponentSlot.Core;
+                // El poder es el núcleo: parpadea lo que aporta a las barras
+                if (row == CoreRow || row == PowerRow) return (int)ComponentSlot.Core;
                 return -1;
             }
         }

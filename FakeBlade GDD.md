@@ -704,6 +704,35 @@ Cada partida local (no el Sandbox, que tiene su propia grabación, 6.3) deja un 
 
 **Informe** (*FakeBlade → Informe de telemetría*): junta todos los `partida_*.csv` de `Logs/Telemetria/` y sus subcarpetas (para analizar las partidas de otro ordenador, copiar allí su carpeta `Telemetria`; un archivo repetido cuenta una vez) y deja en `Logs/Telemetria/Informes/` un informe en Markdown y una tabla `jugadores_*.csv` con una fila por jugador y partida. El informe compara las **victorias con las esperadas** (1 / jugadores o 1 / equipos; 1 es lo justo) por arquetipo, preset, poder, pieza y control (humano o nivel de IA), y da el uso de cada poder, los duelos 1 contra 1 entre arquetipos y el origen del daño. Las partidas abandonadas y las que no tienen ni un choque solo cuentan en el resumen.
 
+## 6.7 Tutorial: Aprende a jugar *(Fase P, diseñado el 2026-10-31)*
+
+Escenario guiado que enseña las mecánicas paso a paso. Se juega solo o con varios jugadores locales (hasta 4).
+
+- **Cómo se entra:** botón **Aprende a jugar** en el menú principal, entre Jugar y Opciones.
+- **Selección de peonzas simplificada:** la pantalla de columnas de 9.2.1, con la misma forma de unirse.
+  - Solo los **4 arquetipos base** (Ataque, Balanceada, Defensa y Agilidad), sin Aleatorio ni cambiar las piezas una a una.
+  - Las barras de estadísticas del arquetipo y un **texto con su descripción y su estilo de juego**.
+  - **Poder:** se elige entre todos, con un texto que dice **qué hace y cuándo usarlo**. Elegir un poder **monta su núcleo**, como en el juego, así que las barras cambian un poco.
+  - Color sí, para distinguirse; equipo no. Sin rivales con IA en la selección.
+  - Cuando todos han confirmado, se entra directamente en la arena (sin parámetros de partida).
+- **Arena:** la arena por defecto, con las reglas del Sandbox: sin tiempo, y quien llega a 0 RPM reaparece (jugadores y dummy).
+- **Dummy:** uno en el centro, Balanceada. Si lo sacan del centro, vuelve solo a su sitio; si muere, reaparece. Su comportamiento cambia según el paso.
+- **Ventana de indicaciones:** en un margen, a la altura del centro de la pantalla. Lleva el texto del paso (por `Loc`), los botones del dispositivo de cada jugador (mando, teclado J1 o teclado J2) y el **contador de cada jugador** (J1 3/5, J2 5/5...).
+- **Controles bloqueados:** solo responden las acciones ya enseñadas; las demás no hacen nada hasta su paso. La energía del especial no se carga hasta el suyo.
+- **Avance todos juntos:** se pasa al paso siguiente cuando **todos los jugadores** han cumplido el objetivo.
+- **Pasos** (entre paréntesis, el objetivo; las cifras son una propuesta que se ajusta probándolo con mando):
+  1. **Moverse** con el stick (movimiento normal). Se explica que **las RPM son la vida** y el HUD: barra de RPM, puntos de carga, línea del dash y esfera del especial. La vida se gasta sola, con los golpes, las paredes, los ataques y el dash. *(moverse unos 3 s)*
+  2. **Dash:** para esquivar o recolocarse. Cuesta RPM (vida) y tiene tiempo de recarga (la línea del dash). *(2 dashes)*
+  3. **Ataque rápido:** cuanto más rápido se llega, más daño; cuanto más pesada la peonza, más empuje. En un choque gana quien llega más rápido y la lenta recibe el golpe. Sin dirección, el ataque va solo al enemigo más cercano. Los ataques gastan cargas (los puntos), que se recargan sin atacar. *(5 golpes que entren, al dummy o a otros jugadores)*
+  4. **Ataque cargado:** mantener ataque. Cada nivel gasta una carga y da más daño, alcance y empuje; en el máximo se lanza solo. *(3 golpes cargados al dummy)*
+  5. **Paredes y dash que golpea:** empujar al dummy contra la pared le quita RPM (y a uno mismo, si choca fuerte). Un dash que gana el choque también golpea y recupera la mitad de su coste. *(un golpe de pared al dummy y un dash que gane un choque)*
+  6. **Parry:** el dummy lanza un ataque rápido cada 1 s. Un ataque rápido justo cuando el otro ataca lo anula y lo deja aturdido. Ayudas: el anillo de la ventana de parry y un aviso del dummy antes de atacar. *(3 parrys)*
+  7. **Bloqueo:** el dummy pasa a lanzar ataques cargados (nivel 2 o más). El parry contra ellos es un bloqueo: se recibe la mitad. *(3 bloqueos)*
+  8. **Especial:** se enciende la energía. Se carga con el tiempo y con los ataques acertados, los parrys y los bloqueos. La primera vez se llena la esfera para probarlo. Al activarlo cura un 25% y rellena las cargas, y un golpe enemigo corta esa curación. *(activarlo una vez)*
+  9. **Combate:** el dummy pasa a ser una **IA Fácil** Balanceada, con todo activo y la energía normal. *(ganarle una vez)*
+  10. **Final:** mensaje de tutorial completado. Se sigue jugando libre hasta salir.
+- **Pausa:** la normal más **Cambiar arquetipo**, **Cambiar poder**, **Repetir paso**, **Saltar paso** y **Salir del tutorial** (con confirmación).
+
 7. # Sistema Técnico
 
 ## 7.1 Motor de Física
@@ -1035,7 +1064,7 @@ Todos los menús se pueden recorrer con las flechas o WASD del teclado y con el 
 8. **Ayuda de botones** en pantalla en los menús (qué hace Confirmar y Atrás con el dispositivo en uso).
 9. **Legible:** contraste alto entre texto y fondo, la opción seleccionada se distingue sin depender solo del color (barra lateral y fondo) y el texto tiene un tamaño mínimo cómodo a la distancia del sofá.
 
-**Menú principal:** Jugar, Opciones, Controles, Información y Salir. De fondo se ve la arena en 3D con varias peonzas controladas por la máquina combatiendo solas, pixelada, con el título encima.
+**Menú principal:** Jugar, Aprende a jugar (tutorial, 6.7), Opciones, Controles, Información y Salir. De fondo se ve la arena en 3D con varias peonzas controladas por la máquina combatiendo solas, pixelada, con el título encima.
 
 **Salir:** muestra una ventana de confirmación y, si se acepta, cierra la aplicación. En WebGL el navegador no deja cerrar la pestaña, así que el botón Salir se oculta.
 
@@ -1459,6 +1488,7 @@ Los sonidos elegidos se copian renombrados a una carpeta propia: `Assets/Audio/S
 | 2026-10-30 | Overlay de los especiales: transparencia y vista previa (K9) | El usuario no veía sus cambios en el overlay (el color de un especial sobre la peonza, como el del Hielo) y quería poder retocar lo transparente que es. Causas: solo se enciende en eventos cortos y en los poderes, con impulsos al azar; el borde sale solo en el perfil con la cámara alta; y la intensidad del borde por encima de 1 no se ve más (había bordes en 6 y 15). Se añade **Opacity** al overlay de cada especial y estado y una **vista previa** en el editor que lo deja encendido en Play (7.6). El borde visible desde arriba y los impulsos no aleatorios se ofrecieron y quedan para más adelante. |
 | 2026-10-30 | Siguientes pasos: repaso de efectos, postprocesado y tutorial (O10, P1) | Lo siguiente es **repasar los efectos** hechos (O10) y después el **postprocesado** (O4, O7). La **fase siguiente** es un **escenario de tutorial** que enseñe las mecánicas del juego paso a paso (Fase P nueva; dudas en 12). |
 | 2026-10-31 | Parche de seguridad de Unity (7.5) | El usuario actualiza Unity de 6000.3.11f1 a **6000.3.27f2** (sigue en 6.3 LTS) por problemas de seguridad; con él suben paquetes como Input System (1.19.0 → 1.20.1), AI Navigation, Timeline, Visual Scripting y Burst. Comprobado: compila sin errores, los tests de EditMode igual que antes (35 pasan, 3 omitidos) y la build de Windows sale bien (0 errores). Queda probar el mando en el juego con la versión nueva de Input System. |
+| 2026-10-31 | Tutorial: Aprende a jugar (6.7, Fase P) | Pedido por el usuario: se entra desde el menú principal y se puede jugar en multijugador. La selección deja solo los 4 arquetipos base, con su descripción y estilo de juego, y el poder, con su descripción y sus usos (al elegirlo se monta su núcleo). Arena con las reglas del Sandbox (sin tiempo y con reaparición) y un dummy Balanceada en el centro que vuelve solo a su sitio. Pasos con los demás controles bloqueados: moverse, dash, ataque rápido, cargado, parry (el dummy ataca cada 1 s), bloqueo (el dummy carga), especial (apagado hasta entonces) y combate contra una IA Fácil. En la pausa se cambian arquetipo y poder. Añadido por propuesta: RPM = vida y el HUD, gana quien llega más rápido, paredes y dash que golpea, y final con juego libre. En multijugador se avanza todos juntos; el primer especial se da lleno. |
 
 12. # Pendiente de definir
 
@@ -1492,7 +1522,7 @@ Entre paréntesis, la propuesta por defecto si no se decide otra cosa.
 
 **Modos y escenarios futuros (2026-10-12):**
 
-- **Tutorial** (Fase P, 2026-10-30): qué mecánicas enseña y en qué orden, cómo se avanza de un paso a otro y desde dónde se entra (propuesta: un escenario propio con pasos cortos —moverse, ataque rápido, cargado, dash, parry y bloqueo, especial, paredes y K.O.—, cada uno con un texto por `Loc`, un dummy o una IA dócil como rival y un objetivo que hay que cumplir para pasar al siguiente; se entra desde el menú principal y se ofrece la primera vez que se juega). Preguntar al usuario antes de empezar.
+- **Tutorial** (6.7, diseñado el 2026-10-31): quedan las cifras de cada objetivo (propuesta: las de 6.7, ajustadas probándolo con mando), dónde va el paso de paredes y dash que golpea (propuesta: después del cargado), las ayudas del parry (propuesta: el anillo de la ventana de parry y un aviso del dummy antes de atacar) y si se ofrece el tutorial la primera vez que se juega (propuesta: no; de momento, solo desde el menú).
 - Carreras: circuito, vueltas y si hay choques y poderes (propuesta: circuito cerrado con puntos de control, choques y poderes activos; necesita arenas propias).
 - Pilla pilla de fuego (el fuego no quita vida, decidido): si hay varias rondas (propuesta: quien pierde cada ronda queda eliminado y se juega hasta que quede uno). Un tiempo sin poder devolverlo al que te lo pegó (propuesta: 1 s).
 - Virus (no quita vida y al acabar el tiempo ganan los no infectados, decidido): qué pasa si todos quedan infectados antes de tiempo (propuesta: la partida acaba antes y gana quien empezó con el virus). El fuego verde reutiliza el estado de quemadura con otro color.
@@ -1769,9 +1799,17 @@ Descartados en el análisis (se pueden revisar): NodeCanvas (la IA de la fase D 
 - [ ] O9. **UV de las piezas** (tarea del usuario, solo si hace falta): desplegado automático para degradados y brillos; uno cuidado solo para texturas pintadas a mano.
 - [ ] O10. **Repaso de los efectos de esta fase y de K** (2026-10-30, lo siguiente según el usuario): revisar con mando los efectos ya hechos (overlay de los especiales con su *Opacity* y la vista previa, partículas de los impactos que miran hacia donde van) antes de pasar al postprocesado (O4, O7). 🎮
 
-**Fase P. Tutorial** (pedido el 2026-10-30, la siguiente fase después del repaso de efectos y el postprocesado)
+**Fase P. Tutorial** (pedido el 2026-10-30; diseño del 2026-10-31 en 6.7)
 
-- [ ] P1. **Escenario de tutorial:** enseñar las mecánicas del juego paso a paso. Antes de empezar, decidir con el usuario qué mecánicas, en qué orden, cómo se pasa de un paso a otro y desde dónde se entra (propuesta en 12).
+- [x] P1. Botón **Aprende a jugar** en el menú principal y flujo de escenas del tutorial (selección → arena), con su `MatchSetup` de tutorial (6.7). *Hecho (2026-10-31): `MatchSetup.IsTutorial`. Mientras no esté P3, al confirmar se entra en el Sandbox normal (sin tiempo y con reaparición, arena por defecto).* 🎮
+- [x] P2. **Selección simplificada:** solo los 4 arquetipos base, con su descripción y estilo de juego; elección del poder (monta su núcleo), con su descripción y sus usos; color sí, equipo e IA no. Textos en `Loc`. *Hecho (2026-10-31) en `LobbyController` y `LobbyColumn` (modo tutorial): filas Arquetipo, Poder, Color y Confirmar, con la etiqueta más estrecha para que quepan los poderes largos con 4 columnas; textos `ARCHETYPE_DESC_*` y `POWER_DESC_*`. Revisar los textos jugando.* 🎮
+- [ ] P3. **Arena del tutorial:** reglas del Sandbox (sin tiempo y con reaparición) y dummy Balanceada en el centro que vuelve solo a su sitio y reaparece.
+- [ ] P4. **Director de pasos:** acciones bloqueadas por paso, energía del especial apagada, objetivos con contador por jugador, avance todos juntos y ventana de indicaciones con los botones del dispositivo de cada jugador.
+- [ ] P5. Pasos 1-5: moverse y HUD, dash, ataque rápido, cargado, paredes y dash que golpea.
+- [ ] P6. Pasos 6-7: parry y bloqueo, con el dummy atacando cada 1 s (primero rápidos y después cargados) y las ayudas del parry.
+- [ ] P7. Pasos 8-10: especial (primera esfera llena), combate contra la IA Fácil, final y juego libre.
+- [ ] P8. **Pausa del tutorial:** cambiar arquetipo y poder, repetir paso, saltar paso y salir.
+- [ ] P9. Probarlo con mando, solo y con 2-4 jugadores, y ajustar las cifras de los objetivos. 🎮
 
 **Otros pendientes**
 

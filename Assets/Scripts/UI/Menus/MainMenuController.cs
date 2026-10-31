@@ -5,7 +5,7 @@ using UnityEngine;
 namespace FakeBlade.UI
 {
     /// <summary>
-    /// Menú principal (GDD 9.2): Jugar, Opciones, Controles, Información y Salir.
+    /// Menú principal (GDD 9.2): Jugar, Aprende a jugar, Opciones, Controles, Información y Salir.
     /// Todo se construye por código con el tema del catálogo. Navegable con teclado, mando y ratón.
     /// </summary>
     [DefaultExecutionOrder(-50)]
@@ -96,6 +96,7 @@ namespace FakeBlade.UI
             rt.pivot = new Vector2(0.5f, 0.5f);
 
             _main.AddButton("PLAY", () => SceneFlow.Load(SceneFlow.Lobby));
+            _main.AddButton("LEARN_TO_PLAY", OpenTutorial);
             _main.AddButton("OPTIONS", () => OpenScreen(_options));
             _main.AddButton("CONTROLS", () => OpenScreen(_controls));
             _main.AddButton("INFO", () => OpenScreen(_credits));
@@ -130,6 +131,13 @@ namespace FakeBlade.UI
             vrt.anchoredPosition = new Vector2(-4 * _px, 4 * _px);
             vrt.sizeDelta = new Vector2(60 * _px, 8 * _px);
             version.text = "v" + Application.version;
+        }
+
+        /// <summary>Aprende a jugar (GDD 6.7): la misma selección de peonzas, simplificada, y después el tutorial.</summary>
+        private static void OpenTutorial()
+        {
+            MatchSetup.IsTutorial = true;
+            SceneFlow.Load(SceneFlow.Lobby);
         }
 
         private void OpenScreen(MenuScreen screen)

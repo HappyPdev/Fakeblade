@@ -17,6 +17,9 @@ namespace FakeBlade.UI
     ///    Atrás la quita. Las IA siempre están listas y van detrás de los jugadores; sin jugadores, se quitan.
     /// 2. Con todos listos, J1 configura la partida (modo, vidas, tiempo, puntos, fuego amigo, escenario).
     /// 3. ¡Empezar! guarda todo en MatchSetup y carga la batalla.
+    ///
+    /// Aprende a jugar (GDD 6.7, MatchSetup.IsTutorial): cada columna elige solo arquetipo (los presets),
+    /// poder (el núcleo) y color, con la descripción de los dos; sin IA. Con todos listos se entra al tutorial.
     /// </summary>
     [DefaultExecutionOrder(-50)]
     public class LobbyController : MonoBehaviour
@@ -46,6 +49,8 @@ namespace FakeBlade.UI
             public Slot Editing;
             public LobbyColumn Column;
             public BladePreviewStage Stage;
+            /// <summary>Aprende a jugar: el jugador eligió poder; cambiar de arquetipo ya no se lo cambia.</summary>
+            public bool PowerPicked;
 
             public bool IsCpu => Setup.IsCpu;
         }
@@ -75,6 +80,8 @@ namespace FakeBlade.UI
         private readonly BladePreviewStage[] _stages = new BladePreviewStage[MaxPlayers];
         private readonly Dictionary<long, float> _joinHold = new Dictionary<long, float>(8);
 
+        /// <summary>Aprende a jugar (GDD 6.7): solo arquetipo, poder y color; sin IA ni parámetros de partida.</summary>
+        private bool _tutorial;
         private Phase _phase = Phase.Columns;
         private float _allReadyTimer;
 
@@ -102,6 +109,7 @@ namespace FakeBlade.UI
 
             _theme = catalog.uiTheme != null ? catalog.uiTheme : HUDTheme.CreateDefault();
             _px = Mathf.Max(1, _theme.pixelSize);
+            _tutorial = MatchSetup.IsTutorial;
 
             MatchMenuUI.EnsureEventSystem();
             SetupCamera();
@@ -180,7 +188,7 @@ namespace FakeBlade.UI
             layout.childForceExpandHeight = true;
 
             for (int i = 0; i < MaxPlayers; i++)
-                _columns.Add(LobbyColumn.Create(area, _theme));
+                _columns.Add(LobbyColumn.Create(area, _theme, _tutorial));
         }
 
         private void BuildSettings(Transform root)
@@ -225,7 +233,11 @@ namespace FakeBlade.UI
             if (allReady)
             {
                 _allReadyTimer += dt;
-                if (_allReadyTimer >= allReadyDelay) EnterSettings();
+                if (_allReadyTimer >= allReadyDelay)
+                {
+                    if (_tutorial) StartTutorial();
+                    else EnterSettings();
+                }
             }
             else
             {
@@ -340,6 +352,17 @@ namespace FakeBlade.UI
                 Setup = setup,
                 Input = setup.IsCpu ? null : new DeviceMenuInput(setup.Device, setup.GamepadDeviceId)
             };
+            if (_tutorial)
+            {
+                // Aprende a jugar solo tiene los arquetipos base: una peonza personalizada vuelve al primero
+                if (setup.PresetIndex < 0 || setup.PresetIndex >= catalog.presets.Count)
+                {
+                    setup.PresetIndex = 0;
+                    setup.ApplyPreset(catalog.GetPreset(0));
+                }
+                BladePreset preset = catalog.GetPreset(setup.PresetIndex);
+                slot.PowerPicked = preset != null && preset.core != setup.Core;
+            }
             if (index < 0 || index > _slots.Count) _slots.Add(slot);
             else _slots.Insert(index, slot);
         }
@@ -463,6 +486,12 @@ namespace FakeBlade.UI
                 Slot slot = _slots[i];
                 if (slot.Column == null) continue;
 
+                if (!slot.IsCpu && _tutorial)
+                {
+                    slot.Column.SetHint(Loc.Get("LOBBY_HINT"));
+                    continue;
+                }
+
                 if (!slot.IsCpu)
                 {
                     slot.Column.SetFocusVisible(slot.Editing == null);
@@ -509,12 +538,12 @@ namespace FakeBlade.UI
                 return;
             }
 
-            if (input.AddCpu)
+            if (input.AddCpu && !_tutorial)
             {
                 AddCpu();
                 return;
             }
-            if (input.ColumnStep != 0)
+            if (input.ColumnStep != 0 && !_tutorial)
             {
                 StepEditing(slot, input.ColumnStep);
                 return;
@@ -568,7 +597,12 @@ namespace FakeBlade.UI
             PixelOptionRow row = column.FocusedRow;
             PlayerSetup s = slot.Setup;
 
-            if (row == column.PresetRow) StepPreset(s, dir);
+            if (row == column.PresetRow)
+            {
+                if (_tutorial) StepArchetype(slot, dir);
+                else StepPreset(s, dir);
+            }
+            else if (row == column.PowerRow) StepPower(slot, dir);
             else if (row == column.TipRow) StepPart(s, ComponentSlot.Tip, dir);
             else if (row == column.BodyRow) StepPart(s, ComponentSlot.Body, dir);
             else if (row == column.BladeRow) StepPart(s, ComponentSlot.Blade, dir);
@@ -600,6 +634,32 @@ namespace FakeBlade.UI
                 s.Blade = RandomPart(ComponentSlot.Blade);
                 s.Core = RandomPart(ComponentSlot.Core);
             }
+        }
+
+        /// <summary>
+        /// Aprende a jugar: solo los presets (los 4 arquetipos base), sin Aleatorio. Si el jugador ya eligió
+        /// poder, se queda con su núcleo; si no, el arquetipo trae el suyo.
+        /// </summary>
+        private void StepArchetype(Slot slot, int dir)
+        {
+            int count = catalog.presets.Count;
+            if (count == 0) return;
+
+            PlayerSetup s = slot.Setup;
+            FakeBladeComponentData core = s.Core;
+            s.PresetIndex = (Mathf.Max(0, s.PresetIndex) + dir + count) % count;
+            s.ApplyPreset(catalog.presets[s.PresetIndex]);
+            if (slot.PowerPicked) s.Core = core;
+        }
+
+        /// <summary>Aprende a jugar: el poder es el núcleo montado (GDD 5), así que las barras cambian un poco.</summary>
+        private void StepPower(Slot slot, int dir)
+        {
+            // Sigue siendo su arquetipo (StepPart la marcaría como personalizada)
+            int preset = Mathf.Max(0, slot.Setup.PresetIndex);
+            StepPart(slot.Setup, ComponentSlot.Core, dir);
+            slot.Setup.PresetIndex = preset;
+            slot.PowerPicked = true;
         }
 
         private FakeBladeComponentData RandomPart(ComponentSlot slot)
@@ -671,9 +731,22 @@ namespace FakeBlade.UI
             column.SetBorderColor(s.Color);
 
             BladeStatBlock stats = FakeBladeStats.Calculate(catalog.GetBaseStats(), s.Tip, s.Body, s.Blade, s.Core);
-            column.SetArchetype(ArchetypeName(stats.Archetype),
-                Loc.Format("LOBBY_SPECIAL_LINE", SpecialAbilities.Get(stats.Special).DisplayName, stats.AttackCharges),
-                _theme.GetArchetypeColor(stats.Archetype));
+            // En Aprende a jugar manda el arquetipo elegido: otro núcleo podría mover el calculado
+            BladeArchetype archetype = _tutorial ? PresetArchetype(s.PresetIndex) : stats.Archetype;
+            SpecialAbilityData special = SpecialAbilities.Get(stats.Special);
+            column.SetArchetype(ArchetypeName(archetype),
+                Loc.Format("LOBBY_SPECIAL_LINE", special.DisplayName, stats.AttackCharges),
+                _theme.GetArchetypeColor(archetype));
+
+            if (_tutorial)
+            {
+                column.PresetRow.SetValueColor(_theme.GetArchetypeColor(archetype));
+                column.PowerRow.SetValueText(special.DisplayName.ToUpperInvariant());
+                column.PowerRow.SetValueColor(special.color);
+                column.SetDescriptions(Loc.Get("ARCHETYPE_DESC_" + archetype.ToString().ToUpperInvariant()),
+                    special.DisplayName.ToUpperInvariant(), Loc.Get("POWER_DESC_" + special.Type.ToString().ToUpperInvariant()),
+                    special.color);
+            }
 
             // Barras por tramos: base + lo que aporta cada pieza
             BladeBaseStats b = catalog.GetBaseStats();
@@ -695,6 +768,14 @@ namespace FakeBlade.UI
             if (index < 0) return Loc.Get("PRESET_CUSTOM");
             if (index >= catalog.presets.Count) return Loc.Get("PRESET_RANDOM");
             return Loc.Get(catalog.presets[index].nameKey);
+        }
+
+        /// <summary>Arquetipo de un preset con sus piezas de serie.</summary>
+        private BladeArchetype PresetArchetype(int index)
+        {
+            BladePreset p = catalog.GetPreset(index);
+            if (p == null) return BladeArchetype.Balanced;
+            return FakeBladeStats.Calculate(catalog.GetBaseStats(), p.tip, p.body, p.blade, p.core).Archetype;
         }
 
         private static string PartName(FakeBladeComponentData part) =>
@@ -866,6 +947,28 @@ namespace FakeBlade.UI
             SceneFlow.Load(mode == ModeOption.Sandbox ? SceneFlow.Sandbox : SceneFlow.Battle);
         }
 
+        /// <summary>
+        /// Aprende a jugar (GDD 6.7): sin parámetros de partida. Reglas del sandbox (sin tiempo y con
+        /// reaparición) en la arena por defecto.
+        /// </summary>
+        private void StartTutorial()
+        {
+            MatchRules rules = BuildRules(ModeOption.Sandbox);
+            rules.displayNameKey = "LEARN_TO_PLAY";
+
+            MatchSetup.Players.Clear();
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                _slots[i].Setup.PlayerIndex = i;
+                MatchSetup.Players.Add(_slots[i].Setup);
+            }
+            MatchSetup.Rules = rules;
+            MatchSetup.Arena = catalog.arenas.Count > 0 ? catalog.arenas[0] : null;
+
+            // Por ahora el escenario es el sandbox; el tutorial con sus pasos llega en P3-P7
+            SceneFlow.Load(SceneFlow.Sandbox);
+        }
+
         private MatchRules BuildRules(ModeOption mode)
         {
             MatchRules template;
@@ -948,7 +1051,7 @@ namespace FakeBlade.UI
 
         private void RefreshTopBar()
         {
-            _title.text = Loc.Get("LOBBY_TITLE");
+            _title.text = Loc.Get(_tutorial ? "LEARN_TO_PLAY" : "LOBBY_TITLE");
             _backButton.SetLabel("< " + Loc.Get("BACK"));
         }
         #endregion

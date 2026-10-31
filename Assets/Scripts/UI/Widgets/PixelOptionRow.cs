@@ -129,6 +129,23 @@ namespace FakeBlade.UI
         }
         #endregion
 
+        /// <summary>
+        /// Dónde acaba la etiqueta y empieza el valor (0-1; por defecto 0,5). Con etiquetas cortas, el valor
+        /// gana sitio sin reducir la letra (GDD 9.2, regla 4).
+        /// </summary>
+        public void SetLabelSplit(float split)
+        {
+            if (IsButton) return;
+            RectTransform labelRt = _label.rectTransform;
+            labelRt.anchorMax = new Vector2(split, 1f);
+            RectTransform valueRt = _value.rectTransform;
+            valueRt.anchorMin = new Vector2(split, 0f);
+            RectTransform arrowRt = _leftArrow.rectTransform;
+            arrowRt.anchorMin = new Vector2(split, 0f);
+            arrowRt.anchorMax = new Vector2(split, 1f);
+            arrowRt.pivot = new Vector2(split, 0.5f);
+        }
+
         #region Content
         public void SetLabel(string text) => _label.text = text;
 

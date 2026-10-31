@@ -91,6 +91,12 @@ namespace FakeBlade.Core
         public static MatchRules Rules;
         public static ArenaData Arena;
 
+        /// <summary>
+        /// Aprende a jugar (GDD 6.7): la selección solo deja elegir arquetipo, poder y color, y lleva al tutorial.
+        /// Se activa desde el menú principal y se apaga con Clear (al volver al menú).
+        /// </summary>
+        public static bool IsTutorial;
+
         public static bool HasPlayers => Players.Count > 0;
         public static bool IsSandbox => Rules != null && Rules.IsSandbox;
 
@@ -99,6 +105,7 @@ namespace FakeBlade.Core
             Players.Clear();
             Rules = null;
             Arena = null;
+            IsTutorial = false;
         }
 
         /// <summary>

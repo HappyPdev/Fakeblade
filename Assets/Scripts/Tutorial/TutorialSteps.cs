@@ -25,6 +25,8 @@ namespace FakeBlade.Core
         Attack,
         /// <summary>Mantener ataque.</summary>
         HoldAttack,
+        /// <summary>Ataque y dash (paredes y dash que golpea).</summary>
+        AttackAndDash,
         Special
     }
 
@@ -80,7 +82,7 @@ namespace FakeBlade.Core
                 case TutorialStep.Dash: return TutorialButton.Dash;
                 case TutorialStep.QuickAttack: return TutorialButton.Attack;
                 case TutorialStep.ChargedAttack: return TutorialButton.HoldAttack;
-                case TutorialStep.WallsAndDash: return TutorialButton.Dash;
+                case TutorialStep.WallsAndDash: return TutorialButton.AttackAndDash;
                 case TutorialStep.Parry: return TutorialButton.Attack;
                 case TutorialStep.Block: return TutorialButton.Attack;
                 case TutorialStep.Special: return TutorialButton.Special;

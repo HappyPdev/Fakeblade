@@ -24,6 +24,8 @@ namespace FakeBlade.Core
         private const float AdvanceDelay = 1.5f;
         /// <summary>Moverse: cuenta mientras el stick está a más de la mitad y la peonza va a más de esto (m/s).</summary>
         private const float MoveMinSpeed = 2f;
+        /// <summary>Paredes: el golpe contra la pared cuenta para quien golpeó a la víctima en estos segundos.</summary>
+        private const float WallCreditTime = 1.5f;
 
         private BattleBootstrap _bootstrap;
         private Transform _home;
@@ -36,6 +38,11 @@ namespace FakeBlade.Core
         private readonly List<TutorialInputGate> _gates = new List<TutorialInputGate>(3);
         private int[] _progress = new int[0];
         private float[] _moveTime = new float[0];
+        /// <summary>Ataques lanzados por cada jugador y el último que ya contó: un ataque cuenta una vez aunque choque dos.</summary>
+        private int[] _attackSerial = new int[0];
+        private int[] _countedSerial = new int[0];
+        private bool[] _wallDone = new bool[0];
+        private bool[] _dashWinDone = new bool[0];
 
         private TutorialStep _step;
         private float _advanceTimer = -1f;
@@ -82,6 +89,7 @@ namespace FakeBlade.Core
             }
             Loc.OnLanguageChanged -= ShowStep;
             InputBindings.OnChanged -= ShowStep;
+            CollisionResolver.OnClashResolved -= HandleClash;
         }
 
         /// <summary>El dummy Balanceada (el último preset del catálogo), en la plaza que sigue a los jugadores.</summary>
@@ -122,9 +130,14 @@ namespace FakeBlade.Core
             }
             _humans.Sort((a, b) => a.PlayerID.CompareTo(b.PlayerID));
 
-            _progress = new int[_humans.Count];
-            _moveTime = new float[_humans.Count];
-            for (int i = 0; i < _humans.Count; i++)
+            int count = _humans.Count;
+            _progress = new int[count];
+            _moveTime = new float[count];
+            _attackSerial = new int[count];
+            _countedSerial = new int[count];
+            _wallDone = new bool[count];
+            _dashWinDone = new bool[count];
+            for (int i = 0; i < count; i++)
             {
                 PlayerController player = _humans[i];
                 _setups.Add(FindSetup(player.PlayerID));
@@ -135,7 +148,15 @@ namespace FakeBlade.Core
 
                 int index = i;
                 player.Blade.OnDashExecuted += () => OnDash(index);
+                player.Blade.OnAttackLaunched += level => _attackSerial[index]++;
+                FakeBladeController blade = player.Blade;
+                blade.OnWallHit += intensity => OnWallHit(blade);
             }
+
+            // Paredes: vale empujar al dummy o a otro jugador
+            FakeBladeController dummyBlade = _dummy.Blade;
+            dummyBlade.OnWallHit += intensity => OnWallHit(dummyBlade);
+            CollisionResolver.OnClashResolved += HandleClash;
 
             EnterStep(TutorialStep.Move);
         }
@@ -157,7 +178,10 @@ namespace FakeBlade.Core
             {
                 _progress[i] = 0;
                 _moveTime[i] = 0f;
+                _countedSerial[i] = _attackSerial[i];
+                _wallDone[i] = _dashWinDone[i] = false;
             }
+            if (_dummyBrain != null) _dummyBrain.ReturnHome = step != TutorialStep.WallsAndDash;
 
             for (int i = 0; i < _gates.Count; i++)
             {
@@ -248,6 +272,61 @@ namespace FakeBlade.Core
         {
             if (_step == TutorialStep.Dash && index < _progress.Length) _progress[index]++;
         }
+
+        /// <summary>
+        /// Golpes que entran: un choque normal que gana el jugador (llega más rápido) mientras ataca. Cuenta una vez por
+        /// ataque; en el paso del cargado, solo los de nivel 1 o más. El dash que gana un choque, en el paso de paredes.
+        /// </summary>
+        private void HandleClash(CollisionResolver.ClashReport report)
+        {
+            if (report.Kind != CollisionResolver.ClashKind.Normal || _advanceTimer >= 0f) return;
+
+            bool aWins = report.ApproachA >= report.ApproachB;
+            FakeBladeController winner = aWins ? report.A : report.B;
+            bool dash = aWins ? report.DashA : report.DashB;
+            int i = HumanIndex(winner);
+            if (i < 0) return;
+
+            switch (_step)
+            {
+                case TutorialStep.QuickAttack:
+                case TutorialStep.ChargedAttack:
+                    AttackSystem attack = winner.Attack;
+                    if (dash || !attack.IsAttacking || _countedSerial[i] == _attackSerial[i]) return;
+                    if (_step == TutorialStep.ChargedAttack && attack.AttackLevel < 1) return;
+                    _countedSerial[i] = _attackSerial[i];
+                    _progress[i]++;
+                    break;
+                case TutorialStep.WallsAndDash:
+                    if (!dash) return;
+                    _dashWinDone[i] = true;
+                    UpdateWallsProgress(i);
+                    break;
+            }
+        }
+
+        /// <summary>Paredes: la víctima choca contra la pared poco después de que un jugador la golpeara.</summary>
+        private void OnWallHit(FakeBladeController victim)
+        {
+            if (_step != TutorialStep.WallsAndDash || _advanceTimer >= 0f) return;
+            FakeBladeController source = victim.LastDamageSource;
+            if (source == null || source == victim || Time.time - victim.LastDamageTime > WallCreditTime) return;
+
+            int i = HumanIndex(source);
+            if (i < 0) return;
+            _wallDone[i] = true;
+            UpdateWallsProgress(i);
+        }
+
+        private void UpdateWallsProgress(int i) => _progress[i] = (_wallDone[i] ? 1 : 0) + (_dashWinDone[i] ? 1 : 0);
+
+        private int HumanIndex(FakeBladeController blade)
+        {
+            if (blade == null) return -1;
+            for (int i = 0; i < _humans.Count; i++)
+                if (_humans[i].Blade == blade) return i;
+            return -1;
+        }
         #endregion
 
         #region Botones
@@ -262,6 +341,8 @@ namespace FakeBlade.Core
                 case TutorialButton.Dash: return ActionLabel(device, BindingAction.Dash);
                 case TutorialButton.Attack: return ActionLabel(device, BindingAction.Attack);
                 case TutorialButton.HoldAttack: return Loc.Format("TUT_HOLD", ActionLabel(device, BindingAction.Attack));
+                case TutorialButton.AttackAndDash:
+                    return ActionLabel(device, BindingAction.Attack) + " + " + ActionLabel(device, BindingAction.Dash);
                 case TutorialButton.Special: return ActionLabel(device, BindingAction.Special);
                 default: return string.Empty;
             }

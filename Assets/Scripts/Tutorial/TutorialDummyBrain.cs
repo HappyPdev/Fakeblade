@@ -27,6 +27,12 @@ namespace FakeBlade.Core
         /// <summary>Su sitio, en el centro de la arena.</summary>
         public Vector3 Home { get; set; }
 
+        /// <summary>
+        /// Vuelve solo a su sitio. En el paso de paredes no: desde el centro un golpe no lo lleva hasta la pared
+        /// (un empujón de 12 m/s lo mueve unos 3 m y la pared está a unos 7), así que se le va empujando.
+        /// </summary>
+        public bool ReturnHome { get; set; } = true;
+
         public Vector2 MovementInput => _move;
         public bool AttackHeld => false;
         public bool ConsumeDash() => false;
@@ -42,7 +48,7 @@ namespace FakeBlade.Core
         private void Update()
         {
             _move = Vector2.zero;
-            if (Time.deltaTime <= 0f || _blade.IsDestroyed || _blade.IsStaggered) return;
+            if (!ReturnHome || Time.deltaTime <= 0f || _blade.IsDestroyed || _blade.IsStaggered) return;
             if (Time.time - _blade.LastDamageTime < ReturnDelay) return;
 
             Vector3 offset = Home - _blade.Position;

@@ -65,15 +65,15 @@ namespace FakeBlade.UI
         private static bool s_friendlyFire;
         private static int s_arena;
 
-        /// <summary>Nombres de los niveles de IA, en el orden de AIDifficulty.</summary>
-        private static readonly string[] AILevelKeys = { "AI_EASY", "AI_NORMAL", "AI_HARD", "AI_EXPERT", "AI_IMPOSSIBLE" };
-        private static readonly int AILevelCount = AILevelKeys.Length;
+        private static readonly int AILevelCount = BladeSetupEditor.AILevelKeys.Length;
 
         private static readonly int[] TimeOptions = { 0, 60, 120, 180, 300, 600 };
         private static readonly int[] PointOptions = { 0, 3, 5, 10, 15, 20 };
 
         private HUDTheme _theme;
         private int _px;
+        /// <summary>Cambios de piezas y color y vista de cada columna (lo comparte la pausa del tutorial).</summary>
+        private BladeSetupEditor _editor;
         private Canvas _canvas;
         private TextMeshProUGUI _title;
         private PixelOptionRow _backButton;
@@ -114,6 +114,7 @@ namespace FakeBlade.UI
 
             _theme = catalog.uiTheme != null ? catalog.uiTheme : HUDTheme.CreateDefault();
             _px = Mathf.Max(1, _theme.pixelSize);
+            _editor = new BladeSetupEditor(catalog, _theme);
             _tutorial = MatchSetup.IsTutorial;
 
             MatchMenuUI.EnsureEventSystem();
@@ -605,40 +606,19 @@ namespace FakeBlade.UI
             if (row == column.PresetRow)
             {
                 if (_tutorial) StepArchetype(slot, dir);
-                else StepPreset(s, dir);
+                else _editor.StepPreset(s, dir);
             }
             else if (row == column.PowerRow) StepPower(slot, dir);
-            else if (row == column.TipRow) StepPart(s, ComponentSlot.Tip, dir);
-            else if (row == column.BodyRow) StepPart(s, ComponentSlot.Body, dir);
-            else if (row == column.BladeRow) StepPart(s, ComponentSlot.Blade, dir);
-            else if (row == column.CoreRow) StepPart(s, ComponentSlot.Core, dir);
-            else if (row == column.ColorRow) StepColor(slot, dir);
+            else if (row == column.TipRow) _editor.StepPart(s, ComponentSlot.Tip, dir);
+            else if (row == column.BodyRow) _editor.StepPart(s, ComponentSlot.Body, dir);
+            else if (row == column.BladeRow) _editor.StepPart(s, ComponentSlot.Blade, dir);
+            else if (row == column.CoreRow) _editor.StepPart(s, ComponentSlot.Core, dir);
+            else if (row == column.ColorRow) _editor.StepColor(s, dir, c => IsColorUsed(c, slot));
             else if (row == column.TeamRow) s.Team = 1 - s.Team;
             else if (row == column.LevelRow) s.Difficulty = (AIDifficulty)(((int)s.Difficulty + dir + AILevelCount) % AILevelCount);
             else return;
 
             RefreshSlot(slot);
-        }
-
-        /// <summary>Presets + "Aleatorio" (índice = número de presets). -1 = personalizada.</summary>
-        private void StepPreset(PlayerSetup s, int dir)
-        {
-            int count = catalog.presets.Count;
-            int options = count + 1;
-            int index = s.PresetIndex < 0 ? (dir > 0 ? 0 : count) : (s.PresetIndex + dir + options) % options;
-            s.PresetIndex = index;
-
-            if (index < count)
-            {
-                s.ApplyPreset(catalog.presets[index]);
-            }
-            else
-            {
-                s.Tip = RandomPart(ComponentSlot.Tip);
-                s.Body = RandomPart(ComponentSlot.Body);
-                s.Blade = RandomPart(ComponentSlot.Blade);
-                s.Core = RandomPart(ComponentSlot.Core);
-            }
         }
 
         /// <summary>
@@ -662,39 +642,9 @@ namespace FakeBlade.UI
         {
             // Sigue siendo su arquetipo (StepPart la marcaría como personalizada)
             int preset = Mathf.Max(0, slot.Setup.PresetIndex);
-            StepPart(slot.Setup, ComponentSlot.Core, dir);
+            _editor.StepPart(slot.Setup, ComponentSlot.Core, dir);
             slot.Setup.PresetIndex = preset;
             slot.PowerPicked = true;
-        }
-
-        private FakeBladeComponentData RandomPart(ComponentSlot slot)
-        {
-            var parts = catalog.GetParts(slot);
-            return parts.Count == 0 ? null : parts[Random.Range(0, parts.Count)];
-        }
-
-        private void StepPart(PlayerSetup s, ComponentSlot slot, int dir)
-        {
-            var parts = catalog.GetParts(slot);
-            if (parts.Count == 0) return;
-
-            int index = parts.IndexOf(s.GetPart(slot));
-            index = index < 0 ? 0 : (index + dir + parts.Count) % parts.Count;
-            s.SetPart(slot, parts[index]);
-            s.PresetIndex = -1; // personalizada
-        }
-
-        private void StepColor(Slot slot, int dir)
-        {
-            int count = catalog.palette.Length;
-            int index = slot.Setup.ColorIndex;
-            for (int i = 0; i < count; i++)
-            {
-                index = (index + dir + count) % count;
-                if (!IsColorUsed(index, slot)) break;
-            }
-            slot.Setup.ColorIndex = index;
-            slot.Setup.Color = catalog.GetColor(index);
         }
 
         private bool IsColorUsed(int colorIndex, Slot except)
@@ -712,106 +662,7 @@ namespace FakeBlade.UI
         }
 
         /// <summary>Actualiza los valores de la columna, las stats y la vista previa.</summary>
-        private void RefreshSlot(Slot slot)
-        {
-            PlayerSetup s = slot.Setup;
-            LobbyColumn column = slot.Column;
-
-            column.PresetRow.SetValueText(PresetName(s.PresetIndex));
-            column.TipRow.SetValueText(PartName(s.Tip));
-            column.BodyRow.SetValueText(PartName(s.Body));
-            column.BladeRow.SetValueText(PartName(s.Blade));
-            column.CoreRow.SetValueText(PartName(s.Core));
-            column.CoreRow.SetValueColor(CoreColor(s.Core));
-            SetPartArchetype(column.TipRow, s.Tip);
-            SetPartArchetype(column.BodyRow, s.Body);
-            SetPartArchetype(column.BladeRow, s.Blade);
-            SetPartArchetype(column.CoreRow, s.Core);
-
-            column.ColorRow.SetValueText(Loc.Format("COLOR_N", s.ColorIndex + 1));
-            column.ColorRow.SetValueColor(s.Color);
-            column.TeamRow.SetValueText(s.Team == 0 ? "A" : "B");
-            column.TeamRow.SetValueColor(catalog.GetTeamColor(s.Team));
-            if (s.IsCpu) column.LevelRow.SetValueText(Loc.Get(AILevelKeys[(int)s.Difficulty]));
-            column.SetBorderColor(s.Color);
-
-            BladeStatBlock stats = FakeBladeStats.Calculate(catalog.GetBaseStats(), s.Tip, s.Body, s.Blade, s.Core);
-            // En Aprende a jugar manda el arquetipo elegido: otro núcleo podría mover el calculado
-            BladeArchetype archetype = _tutorial ? PresetArchetype(s.PresetIndex) : stats.Archetype;
-            SpecialAbilityData special = SpecialAbilities.Get(stats.Special);
-            column.SetArchetype(ArchetypeName(archetype),
-                Loc.Format("LOBBY_SPECIAL_LINE", special.DisplayName, stats.AttackCharges),
-                _theme.GetArchetypeColor(archetype));
-
-            if (_tutorial)
-            {
-                column.PresetRow.SetValueColor(_theme.GetArchetypeColor(archetype));
-                column.PowerRow.SetValueText(special.DisplayName.ToUpperInvariant());
-                column.PowerRow.SetValueColor(special.color);
-                column.SetDescriptions(Loc.Get("ARCHETYPE_DESC_" + archetype.ToString().ToUpperInvariant()),
-                    special.DisplayName.ToUpperInvariant(), Loc.Get("POWER_DESC_" + special.Type.ToString().ToUpperInvariant()),
-                    special.color);
-            }
-
-            // Barras por tramos: base + lo que aporta cada pieza
-            BladeBaseStats b = catalog.GetBaseStats();
-            SetStatBar(column, 0, "STAT_ATTACK", s, b.attackPower, p => p.AttackPowerModifier, stats.AttackPower, 40f);
-            SetStatBar(column, 1, "STAT_DEFENSE", s, b.defense, p => p.DefenseModifier, stats.Defense, 60f);
-            SetStatBar(column, 2, "STAT_SPEED", s, b.moveSpeed, p => p.MoveSpeedModifier, stats.MoveSpeed, 16f);
-            SetStatBar(column, 3, "STAT_RPM", s, b.maxSpin, p => p.MaxSpinModifier, stats.MaxSpin, 900f);
-            SetStatBar(column, 4, "STAT_WEIGHT", s, b.weight, p => p.WeightModifier, stats.Weight, 4f);
-
-            slot.Stage.SetParts(s.Tip, s.Body, s.Blade, s.Core);
-            slot.Stage.SetScheme(BladeColors.Get(catalog, s.ColorIndex));
-            // El núcleo brilla con el color de su poder, como con la esfera llena
-            slot.Stage.SetCoreGlow(SpecialAbilities.Get(stats.Special).color, 1f);
-            slot.Stage.SetSpinSpeed(300f + stats.MaxSpin);
-        }
-
-        private string PresetName(int index)
-        {
-            if (index < 0) return Loc.Get("PRESET_CUSTOM");
-            if (index >= catalog.presets.Count) return Loc.Get("PRESET_RANDOM");
-            return Loc.Get(catalog.presets[index].nameKey);
-        }
-
-        /// <summary>Arquetipo de un preset con sus piezas de serie.</summary>
-        private BladeArchetype PresetArchetype(int index)
-        {
-            BladePreset p = catalog.GetPreset(index);
-            if (p == null) return BladeArchetype.Balanced;
-            return FakeBladeStats.Calculate(catalog.GetBaseStats(), p.tip, p.body, p.blade, p.core).Archetype;
-        }
-
-        private static string PartName(FakeBladeComponentData part) =>
-            part != null ? part.ComponentName.ToUpperInvariant() : "—";
-
-        private static string ArchetypeName(BladeArchetype archetype) =>
-            Loc.Get("ARCHETYPE_" + archetype.ToString().ToUpperInvariant());
-
-        /// <summary>Arquetipo de la pieza, pequeño y de su color, debajo del nombre (para elegir sin confusiones).</summary>
-        private void SetPartArchetype(PixelOptionRow row, FakeBladeComponentData part)
-        {
-            if (part == null) row.SetSubValue("", _theme.textDimColor);
-            else row.SetSubValue(ArchetypeName(part.Archetype), _theme.GetArchetypeColor(part.Archetype));
-        }
-
-        private readonly float[] _statParts = new float[LobbyColumn.PartCount];
-
-        private void SetStatBar(LobbyColumn column, int index, string labelKey, PlayerSetup s, float baseValue,
-            System.Func<FakeBladeComponentData, float> modifier, float finalValue, float scale)
-        {
-            for (int i = 0; i < _statParts.Length; i++)
-            {
-                FakeBladeComponentData part = s.GetPart((ComponentSlot)i);
-                _statParts[i] = part != null ? modifier(part) : 0f;
-            }
-            column.SetStat(index, Loc.Get(labelKey), baseValue, _statParts, finalValue, scale);
-        }
-
-        /// <summary>El núcleo se ve con el color de su poder (el de su aura y su esfera), para reconocerlo de un vistazo.</summary>
-        private Color CoreColor(FakeBladeComponentData core) =>
-            core != null ? SpecialAbilities.Get(core.SpecialAbility).color : _theme.chargeReady;
+        private void RefreshSlot(Slot slot) => _editor.Refresh(slot.Column, slot.Setup, slot.Stage, _tutorial);
         #endregion
 
         #region Settings phase

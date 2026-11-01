@@ -56,13 +56,19 @@ namespace FakeBlade.Core
         private TutorialStep _step;
         private float _advanceTimer = -1f;
 
+        /// <summary>El tutorial en marcha (null fuera de él): la pausa enseña la suya (MatchMenuUI, P8).</summary>
+        public static TutorialController Current { get; private set; }
+
         public PlayerController Dummy => _dummy;
         public TutorialDummyBrain DummyBrain => _dummyBrain;
         public TutorialStep Step => _step;
+        /// <summary>En el final (juego libre).</summary>
+        public bool IsFinished => _step == TutorialStep.Done;
 
         private void Awake()
         {
             _bootstrap = GetComponent<BattleBootstrap>();
+            Current = this;
         }
 
         private void Start()
@@ -102,6 +108,7 @@ namespace FakeBlade.Core
 
         private void OnDestroy()
         {
+            if (Current == this) Current = null;
             var gm = GameManager.Instance;
             if (gm != null)
             {
@@ -223,6 +230,40 @@ namespace FakeBlade.Core
             for (int i = 0; i < MatchSetup.Players.Count; i++)
                 if (MatchSetup.Players[i].PlayerIndex == playerId) return MatchSetup.Players[i];
             return null;
+        }
+        #endregion
+
+        #region Pausa (P8)
+        /// <summary>Vuelve a empezar el paso actual (contadores a cero y RPM llenas).</summary>
+        public void RepeatStep()
+        {
+            if (_humans.Count > 0) EnterStep(_step);
+        }
+
+        public void SkipStep()
+        {
+            if (_humans.Count > 0 && _step < TutorialStep.Done) EnterStep(_step + 1);
+        }
+
+        /// <summary>Desde el final: todo el tutorial otra vez, desde el paso 1.</summary>
+        public void RestartTutorial()
+        {
+            if (_humans.Count > 0) EnterStep(TutorialStep.Move);
+        }
+
+        /// <summary>
+        /// Tras cambiar las peonzas en la pausa (ChangeBladeScreen): un núcleo nuevo vacía la esfera, así que en el paso
+        /// del especial se vuelve a llenar a quien aún no lo ha usado; y el color nuevo, en la ventana de indicaciones.
+        /// </summary>
+        public void HandleBladesChanged()
+        {
+            if (_step == TutorialStep.Special)
+            {
+                int goal = TutorialSteps.Goal(_step);
+                for (int i = 0; i < _humans.Count; i++)
+                    if (_progress[i] < goal) _humans[i].Blade.Special.FillEnergy();
+            }
+            ShowStep();
         }
         #endregion
 

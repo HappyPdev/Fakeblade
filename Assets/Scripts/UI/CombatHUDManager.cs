@@ -198,6 +198,12 @@ namespace FakeBlade.UI
             ShowCenter(Loc.Get("KO"), 0.8f, 14);
         }
 
+        /// <summary>Vuelve a pintar el panel de un jugador (tras cambiarle el color en la pausa, ChangeBladeScreen).</summary>
+        public void RefreshPanel(PlayerController player)
+        {
+            if (player != null && _panelByPlayer.TryGetValue(player, out var panel)) panel.Bind(player);
+        }
+
         private void HandlePlayerRespawned(PlayerController player)
         {
             if (_panelByPlayer.TryGetValue(player, out var panel))

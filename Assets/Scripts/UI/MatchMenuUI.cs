@@ -13,6 +13,9 @@ namespace FakeBlade.UI
     /// Menús de la escena de batalla (GDD 9.2), en estilo pixel-art y navegables con
     /// flechas/stick: Pausa (reanudar, reiniciar, idioma, salir con confirmación)
     /// y Resultados (ganadores, revancha, menú principal).
+    /// En Aprende a jugar (GDD 6.7, P8) la pausa es otra: reanudar, repetir paso, saltar paso, cambiar peonza
+    /// (ChangeBladeScreen), opciones, controles y salir del tutorial. En el final, «Repetir paso» repite todo el
+    /// tutorial (con confirmación) y «Saltar paso» queda en gris.
     /// </summary>
     public class MatchMenuUI : MonoBehaviour
     {
@@ -24,6 +27,11 @@ namespace FakeBlade.UI
         private const int TITLE_H = 14;
         private const int ROW_H = 8;
         private const int PADDING = 6;
+        /// <summary>Pausa del tutorial: más ancha para «SALIR DEL TUTORIAL» (texto que no se pisa, GDD 9.2).</summary>
+        private const int TUTORIAL_W = 150;
+        private const int TUTORIAL_BUTTON_W = 120;
+        /// <summary>Confirmaciones del tutorial: «¿REPETIR TODO EL TUTORIAL?» en una línea.</summary>
+        private const int TUTORIAL_CONFIRM_W = 200;
         #endregion
 
         private HUDTheme _theme;
@@ -33,7 +41,19 @@ namespace FakeBlade.UI
         private Window _pause;
         private Window _confirm;
         private Window _results;
+        private readonly List<Window> _windows = new List<Window>(5);
         private readonly List<ResultRow> _rows = new List<ResultRow>(4);
+
+        // Aprende a jugar (se crean la primera vez que se pausa)
+        private Window _tutorialPause;
+        private Window _tutorialConfirm;
+        private Button _repeatButton;
+        private Button _skipButton;
+        private TextMeshProUGUI _repeatLabel;
+        private TextMeshProUGUI _skipLabel;
+        private string _tutorialConfirmKey;
+        private Action _tutorialConfirmAction;
+        private ChangeBladeScreen _changeBlade;
 
         private readonly List<KeyValuePair<TextMeshProUGUI, string>> _localized =
             new List<KeyValuePair<TextMeshProUGUI, string>>(16);
@@ -47,6 +67,8 @@ namespace FakeBlade.UI
             public RectTransform Root;
             public TextMeshProUGUI Title;
             public int ButtonCount;
+            public int Width;
+            public int ButtonWidth;
             public readonly List<Button> Buttons = new List<Button>(4);
         }
 
@@ -140,38 +162,39 @@ namespace FakeBlade.UI
         private void OpenSubmenu(ref MenuScreen screen, Func<MenuScreen> factory)
         {
             if (screen == null) screen = factory();
-            _pause.Root.gameObject.SetActive(false);
-            _confirm.Root.gameObject.SetActive(false);
+            HideWindows();
             _dim.SetActive(true);
             screen.Open();
         }
 
-        private Window CreateWindow(string name, string titleKey, int buttonCount, int resultRows = 0)
+        private Window CreateWindow(string name, string titleKey, int buttonCount, int resultRows = 0,
+            int width = WINDOW_W, int buttonWidth = BUTTON_W)
         {
             int height = PADDING + TITLE_H + resultRows * ROW_H + (resultRows > 0 ? PADDING : 0)
                          + buttonCount * (BUTTON_H + BUTTON_GAP) - BUTTON_GAP + PADDING;
 
             RectTransform root = PixelUI.CreateRect(name, transform);
             root.anchorMin = root.anchorMax = root.pivot = new Vector2(0.5f, 0.5f);
-            root.sizeDelta = new Vector2(WINDOW_W * _px, height * _px);
+            root.sizeDelta = new Vector2(width * _px, height * _px);
 
             var shadow = PixelUI.CreateImage("Shadow", root, _theme.panelShadow);
-            PixelUI.Place(shadow.rectTransform, 2, 2, WINDOW_W, height, _px);
+            PixelUI.Place(shadow.rectTransform, 2, 2, width, height, _px);
             var outline = PixelUI.CreateImage("Outline", root, _theme.sphereOutline);
-            PixelUI.Place(outline.rectTransform, 0, 0, WINDOW_W, height, _px);
+            PixelUI.Place(outline.rectTransform, 0, 0, width, height, _px);
             var border = PixelUI.CreateImage("Border", root, _theme.chargeReady);
-            PixelUI.Place(border.rectTransform, 1, 1, WINDOW_W - 2, height - 2, _px);
+            PixelUI.Place(border.rectTransform, 1, 1, width - 2, height - 2, _px);
             var bg = PixelUI.CreateImage("Background", root, _theme.panelBackground);
-            PixelUI.Place(bg.rectTransform, 2, 2, WINDOW_W - 4, height - 4, _px);
+            PixelUI.Place(bg.rectTransform, 2, 2, width - 4, height - 4, _px);
 
-            var window = new Window { Root = root, ButtonCount = buttonCount };
+            var window = new Window { Root = root, ButtonCount = buttonCount, Width = width, ButtonWidth = buttonWidth };
             window.Title = PixelUI.CreateText("Title", root, _theme, 8 * _px, TextAlignmentOptions.Center, _theme.textColor);
-            PixelUI.Place(window.Title.rectTransform, PADDING, PADDING, WINDOW_W - PADDING * 2, TITLE_H - 3, _px);
+            PixelUI.Place(window.Title.rectTransform, PADDING, PADDING, width - PADDING * 2, TITLE_H - 3, _px);
             Localize(window.Title, titleKey);
 
             for (int i = 0; i < resultRows; i++)
                 _rows.Add(CreateResultRow(root, PADDING + TITLE_H + i * ROW_H));
 
+            _windows.Add(window);
             return window;
         }
 
@@ -192,15 +215,15 @@ namespace FakeBlade.UI
             return row;
         }
 
-        private void AddButton(Window window, string labelKey, Action onClick)
+        private Button AddButton(Window window, string labelKey, Action onClick)
         {
             int index = window.Buttons.Count;
             int height = Mathf.RoundToInt(window.Root.sizeDelta.y / _px);
             int y = height - PADDING - (window.ButtonCount - index) * (BUTTON_H + BUTTON_GAP) + BUTTON_GAP;
-            int x = (WINDOW_W - BUTTON_W) / 2;
+            int x = (window.Width - window.ButtonWidth) / 2;
 
             var outline = PixelUI.CreateImage($"Button_{labelKey}", window.Root, _theme.sphereOutline);
-            PixelUI.Place(outline.rectTransform, x, y, BUTTON_W, BUTTON_H, _px);
+            PixelUI.Place(outline.rectTransform, x, y, window.ButtonWidth, BUTTON_H, _px);
 
             var face = PixelUI.CreateImage("Face", outline.transform, Color.white);
             face.raycastTarget = true;
@@ -225,8 +248,10 @@ namespace FakeBlade.UI
             button.onClick.AddListener(() => onClick?.Invoke());
 
             window.Buttons.Add(button);
+            return button;
         }
 
+        /// <summary>Arriba/abajo en bucle, saltando los botones en gris (GDD 9.2, regla 2). Repetirla si cambian.</summary>
         private static void LinkNavigation(Window window)
         {
             int count = window.Buttons.Count;
@@ -235,11 +260,122 @@ namespace FakeBlade.UI
                 var nav = new Navigation
                 {
                     mode = Navigation.Mode.Explicit,
-                    selectOnUp = window.Buttons[(i - 1 + count) % count],
-                    selectOnDown = window.Buttons[(i + 1) % count]
+                    selectOnUp = NextInteractable(window, i, -1),
+                    selectOnDown = NextInteractable(window, i, 1)
                 };
                 window.Buttons[i].navigation = nav;
             }
+        }
+
+        private static Button NextInteractable(Window window, int from, int dir)
+        {
+            int count = window.Buttons.Count;
+            for (int step = 1; step < count; step++)
+            {
+                Button candidate = window.Buttons[((from + dir * step) % count + count) % count];
+                if (candidate.interactable) return candidate;
+            }
+            return window.Buttons[from];
+        }
+        #endregion
+
+        #region Aprende a jugar
+        private void BuildTutorialWindows()
+        {
+            if (_tutorialPause != null) return;
+
+            _tutorialPause = CreateWindow("TutorialPauseWindow", "PAUSED", 7, 0, TUTORIAL_W, TUTORIAL_BUTTON_W);
+            AddButton(_tutorialPause, "RESUME", () => GameManager.Instance?.ResumeGame());
+            _repeatButton = AddButton(_tutorialPause, "TUT_REPEAT_STEP", RepeatStep);
+            _repeatLabel = _repeatButton.GetComponentInChildren<TextMeshProUGUI>();
+            _skipButton = AddButton(_tutorialPause, "TUT_SKIP_STEP", SkipStep);
+            _skipLabel = _skipButton.GetComponentInChildren<TextMeshProUGUI>();
+            AddButton(_tutorialPause, "CHANGE_BLADE", OpenChangeBlade);
+            AddButton(_tutorialPause, "OPTIONS", () => OpenSubmenu(ref _options, () => OptionsScreen.Create(transform, _theme, ShowPause)));
+            AddButton(_tutorialPause, "CONTROLS", () => OpenSubmenu(ref _controls, () => ControlsScreen.Create(transform, _theme, ShowPause)));
+            AddButton(_tutorialPause, "TUT_QUIT", () => ShowTutorialConfirm("TUT_CONFIRM_QUIT", 6, () => GameManager.Instance?.ReturnToMenu()));
+
+            _tutorialConfirm = CreateWindow("TutorialConfirmWindow", "TUT_CONFIRM_QUIT", 2, 0, TUTORIAL_CONFIRM_W);
+            AddButton(_tutorialConfirm, "YES", () => _tutorialConfirmAction?.Invoke());
+            AddButton(_tutorialConfirm, "NO", () =>
+            {
+                if (TutorialController.Current != null) ShowTutorialPause(TutorialController.Current, _confirmReturnIndex);
+                else ShowPause();
+            });
+            LinkNavigation(_tutorialConfirm);
+        }
+
+        /// <summary>En el final, «Repetir paso» pasa a «Repetir tutorial» y «Saltar paso» queda en gris.</summary>
+        private void RefreshTutorialPause(TutorialController tutorial)
+        {
+            bool finished = tutorial.IsFinished;
+            _repeatLabel.text = Loc.Get(finished ? "TUT_REPEAT_ALL" : "TUT_REPEAT_STEP");
+            _skipButton.interactable = !finished;
+            _skipLabel.color = finished ? _theme.textDimColor : _theme.textColor;
+            LinkNavigation(_tutorialPause);
+        }
+
+        private void ShowTutorialPause(TutorialController tutorial, int selectedIndex)
+        {
+            BuildTutorialWindows();
+            RefreshTutorialPause(tutorial);
+            Show(_tutorialPause, selectedIndex);
+        }
+
+        private void RepeatStep()
+        {
+            TutorialController tutorial = TutorialController.Current;
+            if (tutorial == null) return;
+            if (tutorial.IsFinished)
+            {
+                ShowTutorialConfirm("TUT_CONFIRM_RESTART", 1, () =>
+                {
+                    TutorialController.Current?.RestartTutorial();
+                    GameManager.Instance?.ResumeGame();
+                });
+                return;
+            }
+            tutorial.RepeatStep();
+            GameManager.Instance?.ResumeGame();
+        }
+
+        private void SkipStep()
+        {
+            TutorialController tutorial = TutorialController.Current;
+            if (tutorial == null || tutorial.IsFinished) return;
+            tutorial.SkipStep();
+            GameManager.Instance?.ResumeGame();
+        }
+
+        private int _confirmReturnIndex;
+
+        /// <summary>Confirmación del tutorial; «No» vuelve a la pausa con el foco en el botón que la abrió.</summary>
+        private void ShowTutorialConfirm(string titleKey, int returnIndex, Action onYes)
+        {
+            _tutorialConfirmKey = titleKey;
+            _tutorialConfirmAction = onYes;
+            _confirmReturnIndex = returnIndex;
+            _tutorialConfirm.Title.text = Loc.Get(titleKey);
+            // «No» primero: confirmar sin querer no saca a nadie del tutorial
+            Show(_tutorialConfirm, 1);
+        }
+
+        private void OpenChangeBlade()
+        {
+            GameManager gm = GameManager.Instance;
+            if (gm == null) return;
+            if (_changeBlade == null)
+            {
+                var bootstrap = FindFirstObjectByType<BattleBootstrap>();
+                if (bootstrap == null || bootstrap.Catalog == null) return;
+                _changeBlade = ChangeBladeScreen.Create(transform, _theme, bootstrap.Catalog,
+                    () => { if (gm.IsPaused) ShowTutorialPause(TutorialController.Current, 3); },
+                    () => TutorialController.Current?.HandleBladesChanged());
+            }
+            HideWindows();
+            _dim.SetActive(true);
+            _changeBlade.Open(gm.Players);
+            if (!_changeBlade.IsOpen) ShowPause();
         }
         #endregion
 
@@ -248,14 +384,24 @@ namespace FakeBlade.UI
         {
             if (_options != null) _options.Dismiss();
             if (_controls != null) _controls.Dismiss();
+            if (_changeBlade != null) _changeBlade.Dismiss();
             _dim.SetActive(false);
-            _pause.Root.gameObject.SetActive(false);
-            _confirm.Root.gameObject.SetActive(false);
-            _results.Root.gameObject.SetActive(false);
+            HideWindows();
             _shownResult = null;
         }
 
-        public void ShowPause() => Show(_pause, 0);
+        private void HideWindows()
+        {
+            for (int i = 0; i < _windows.Count; i++) _windows[i].Root.gameObject.SetActive(false);
+        }
+
+        /// <summary>La pausa normal o, en Aprende a jugar, la suya.</summary>
+        public void ShowPause()
+        {
+            TutorialController tutorial = TutorialController.Current;
+            if (tutorial != null) ShowTutorialPause(tutorial, 0);
+            else Show(_pause, 0);
+        }
 
         public void ShowConfirm() => Show(_confirm, 1);
 
@@ -271,12 +417,15 @@ namespace FakeBlade.UI
         private void Show(Window window, int selectedIndex)
         {
             _dim.SetActive(true);
-            _pause.Root.gameObject.SetActive(window == _pause);
-            _confirm.Root.gameObject.SetActive(window == _confirm);
-            _results.Root.gameObject.SetActive(window == _results);
+            for (int i = 0; i < _windows.Count; i++) _windows[i].Root.gameObject.SetActive(_windows[i] == window);
 
             if (EventSystem.current != null && window.Buttons.Count > 0)
-                EventSystem.current.SetSelectedGameObject(window.Buttons[Mathf.Clamp(selectedIndex, 0, window.Buttons.Count - 1)].gameObject);
+            {
+                // Nunca en un botón en gris: el siguiente que se pueda pulsar
+                int index = Mathf.Clamp(selectedIndex, 0, window.Buttons.Count - 1);
+                Button selected = window.Buttons[index].interactable ? window.Buttons[index] : NextInteractable(window, index, 1);
+                EventSystem.current.SetSelectedGameObject(selected.gameObject);
+            }
         }
 
         private void FillResults()
@@ -347,6 +496,9 @@ namespace FakeBlade.UI
                 _localized[i].Key.text = Loc.Get(_localized[i].Value);
 
             if (_shownResult != null) FillResults();
+            // Textos que cambian con el paso del tutorial
+            if (_tutorialConfirm != null && _tutorialConfirmKey != null) _tutorialConfirm.Title.text = Loc.Get(_tutorialConfirmKey);
+            if (_tutorialPause != null && TutorialController.Current != null) RefreshTutorialPause(TutorialController.Current);
         }
         #endregion
     }

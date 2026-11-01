@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace FakeBlade.UI
 {
     /// <summary>
-    /// «Cambiar peonza» en la pausa (GDD 6.7, P8; después también en el Sandbox): una columna de la selección de peonzas
+    /// «Cambiar peonza» en la pausa del tutorial (GDD 6.7, P8) y en «Mi peonza» del panel del Sandbox (E8): una columna de la selección de peonzas
     /// por jugador, en fila, para cambiar el preset, cada pieza y el color. Cada jugador maneja la suya con su mando o
     /// su teclado (como en la selección) y confirma con Ataque; con todos listos se aplica a sus peonzas y se vuelve a
     /// la pausa. Atrás de cualquiera que no esté listo cancela sin cambiar nada. Con el ratón: flechas de cada fila,
@@ -64,17 +64,18 @@ namespace FakeBlade.UI
         public bool IsOpen => _isOpen;
 
         #region Creación
-        public static ChangeBladeScreen Create(Transform parent, HUDTheme theme, FakeBladeCatalog catalog, Action onClose, Action onApplied)
+        /// <param name="sortingOrder">Por encima de lo que la abre (la pausa va en 500 y el panel del Sandbox en 520).</param>
+        public static ChangeBladeScreen Create(Transform parent, HUDTheme theme, FakeBladeCatalog catalog, Action onClose,
+            Action onApplied, int sortingOrder = 510)
         {
             RectTransform root = PixelUI.CreateRect("ChangeBladeScreen", parent);
             root.anchorMin = Vector2.zero;
             root.anchorMax = Vector2.one;
             root.offsetMin = root.offsetMax = Vector2.zero;
 
-            // Por encima de las ventanas de la pausa
             var canvas = root.gameObject.AddComponent<Canvas>();
             canvas.overrideSorting = true;
-            canvas.sortingOrder = 510;
+            canvas.sortingOrder = sortingOrder;
             root.gameObject.AddComponent<GraphicRaycaster>();
 
             var screen = root.gameObject.AddComponent<ChangeBladeScreen>();

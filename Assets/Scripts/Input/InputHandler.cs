@@ -43,6 +43,9 @@ namespace FakeBlade.Core
         #endregion
 
         #region Private Fields
+        /// <summary>Los que leen un dispositivo ahora: un mando nuevo solo lo adopta quien perdió el suyo y nadie más lo usa.</summary>
+        private static readonly System.Collections.Generic.List<InputHandler> s_enabled = new System.Collections.Generic.List<InputHandler>(4);
+
         private int _gamepadDeviceId;
         private Gamepad _gamepad;
         private Vector2 _move;
@@ -67,12 +70,14 @@ namespace FakeBlade.Core
         #region Unity Lifecycle
         private void OnEnable()
         {
+            s_enabled.Add(this);
             InputSystem.onDeviceChange += OnDeviceChange;
             ResolveGamepad();
         }
 
         private void OnDisable()
         {
+            s_enabled.Remove(this);
             InputSystem.onDeviceChange -= OnDeviceChange;
             StopVibration();
             _move = Vector2.zero;
@@ -249,13 +254,37 @@ namespace FakeBlade.Core
 
         private void OnDeviceChange(InputDevice device, InputDeviceChange change)
         {
-            if (!(device is Gamepad)) return;
+            if (!(device is Gamepad pad)) return;
+            if (change == InputDeviceChange.Added && TryAdopt(pad)) return;
 
             if (change == InputDeviceChange.Added || change == InputDeviceChange.Removed ||
                 change == InputDeviceChange.Reconnected || change == InputDeviceChange.Disconnected)
             {
                 ResolveGamepad();
             }
+        }
+
+        /// <summary>
+        /// Un mando que se desconecta puede volver con otro deviceId, y el jugador se quedaría sin control (2026-11-01).
+        /// Si este jugador perdió su mando y se conecta uno que no usa nadie, se lo queda (también en MatchSetup).
+        /// </summary>
+        private bool TryAdopt(Gamepad pad)
+        {
+            if (deviceKind != InputDeviceKind.Gamepad || _gamepadDeviceId <= 0) return false;
+            if (_gamepadDeviceId == pad.deviceId || InputDeviceUtil.FindGamepad(_gamepadDeviceId) != null) return false;
+            for (int i = 0; i < s_enabled.Count; i++)
+            {
+                InputHandler other = s_enabled[i];
+                if (other != this && other.deviceKind == InputDeviceKind.Gamepad && other.GamepadDeviceId == pad.deviceId)
+                    return false;
+            }
+
+            int lost = _gamepadDeviceId;
+            _gamepadDeviceId = pad.deviceId;
+            _gamepad = pad;
+            MatchSetup.ReplaceGamepad(lost, pad.deviceId);
+            Debug.Log($"[Mandos] {name} recupera el control con {pad.displayName} (id {lost} → {pad.deviceId})", this);
+            return true;
         }
         #endregion
 

@@ -53,6 +53,8 @@ namespace FakeBlade.UI
             public BladePreviewStage Stage;
             /// <summary>Aprende a jugar: el jugador eligió poder; cambiar de arquetipo ya no se lo cambia.</summary>
             public bool PowerPicked;
+            /// <summary>Su mando ya no está (se desconectó o volvió con otro deviceId): otro mando libre puede recuperarla.</summary>
+            public bool PadLost;
 
             public bool IsCpu => Setup.IsCpu;
         }
@@ -258,20 +260,28 @@ namespace FakeBlade.UI
         private void UpdateJoin(float dt)
         {
             float best = 0f;
-            if (_slots.Count < SlotLimit)
+            bool room = _slots.Count < SlotLimit;
+            // Un jugador que perdió su mando: el primer mando libre que mantenga A recupera su columna
+            Slot lost = FindLostSlot();
+            if (room)
             {
-                CheckJoin(InputDeviceKind.KeyboardLeft, 0, dt, ref best);
-                CheckJoin(InputDeviceKind.KeyboardRight, 0, dt, ref best);
-                var pads = Gamepad.all;
-                for (int i = 0; i < pads.Count; i++)
-                    CheckJoin(InputDeviceKind.Gamepad, pads[i].deviceId, dt, ref best);
+                CheckJoin(InputDeviceKind.KeyboardLeft, 0, dt, ref best, null);
+                CheckJoin(InputDeviceKind.KeyboardRight, 0, dt, ref best, null);
+            }
+            var pads = Gamepad.all;
+            for (int i = 0; i < pads.Count; i++)
+            {
+                int id = pads[i].deviceId;
+                if (room || lost != null) CheckJoin(InputDeviceKind.Gamepad, id, dt, ref best, lost);
+                else if (pads[i].buttonSouth.wasPressedThisFrame && !IsAssigned(InputDeviceKind.Gamepad, id))
+                    Debug.Log($"[Selección] {pads[i].displayName} (id {id}) no puede unirse: no quedan columnas libres.", this);
             }
 
             if (_slots.Count < _columns.Count && _columns[_slots.Count].gameObject.activeSelf)
                 _columns[_slots.Count].SetJoinProgress(best);
         }
 
-        private void CheckJoin(InputDeviceKind kind, int deviceId, float dt, ref float best)
+        private void CheckJoin(InputDeviceKind kind, int deviceId, float dt, ref float best, Slot lost)
         {
             if (IsAssigned(kind, deviceId)) return;
 
@@ -287,12 +297,56 @@ namespace FakeBlade.UI
             if (held >= joinHoldTime)
             {
                 _joinHold.Remove(key);
-                Join(kind, deviceId);
+                if (lost != null) RecoverSlot(lost, deviceId);
+                else Join(kind, deviceId);
                 return;
             }
 
             _joinHold[key] = held;
             best = Mathf.Max(best, held / joinHoldTime);
+        }
+
+        /// <summary>
+        /// Jugador con mando cuyo mando ya no está conectado. Un mando que se desconecta puede volver con otro deviceId
+        /// y su columna se quedaría sin nadie que la maneje ni la pueda quitar (2026-11-01).
+        /// </summary>
+        private Slot FindLostSlot()
+        {
+            for (int i = 0; i < _slots.Count; i++)
+                if (IsPadLost(_slots[i])) return _slots[i];
+            return null;
+        }
+
+        private static bool IsPadLost(Slot slot) =>
+            !slot.IsCpu && slot.Setup.Device == InputDeviceKind.Gamepad &&
+            InputDeviceUtil.FindGamepad(slot.Setup.GamepadDeviceId) == null;
+
+        /// <summary>Otro mando sigue con la columna de quien perdió el suyo: su peonza, su color y si estaba listo.</summary>
+        private void RecoverSlot(Slot slot, int deviceId)
+        {
+            int lostId = slot.Setup.GamepadDeviceId;
+            slot.Setup.GamepadDeviceId = deviceId;
+            slot.Input = new DeviceMenuInput(InputDeviceKind.Gamepad, deviceId);
+            slot.LeaveTimer = 0f;
+            UpdatePadLost(slot);
+            Debug.Log($"[Selección] J{slot.Setup.PlayerIndex + 1} recupera su columna con el mando id {deviceId} (antes {lostId}).", this);
+        }
+
+        /// <summary>La cabecera y la ayuda de la columna dicen que su mando no está y cómo seguir con ella.</summary>
+        private void UpdatePadLost(Slot slot)
+        {
+            bool lost = IsPadLost(slot);
+            if (lost == slot.PadLost) return;
+            slot.PadLost = lost;
+            if (lost)
+            {
+                slot.Column.SetDeviceText(Loc.Get("LOBBY_PAD_LOST"));
+                slot.Column.SetHint(Loc.Get("LOBBY_PAD_LOST_HINT"));
+                Debug.Log($"[Selección] J{slot.Setup.PlayerIndex + 1} se ha quedado sin su mando (id {slot.Setup.GamepadDeviceId}).", this);
+                return;
+            }
+            slot.Column.SetDeviceText(InputDeviceUtil.DeviceLabel(slot.Setup.Device, slot.Setup.GamepadDeviceId));
+            RefreshEditing();
         }
 
         private bool IsAssigned(InputDeviceKind kind, int deviceId)
@@ -443,6 +497,8 @@ namespace FakeBlade.UI
             slot.Stage = GetStage(index);
             slot.Stage.SetVisible(true);
             slot.LeaveTimer = 0f;
+            // ShowPlayer pone el nombre del dispositivo: si su mando no está, se vuelve a avisar
+            slot.PadLost = false;
 
             LobbyColumn column = slot.Column;
             if (slot.IsCpu) column.ShowCpu(slot.Setup.Color, CpuName(slot));
@@ -492,6 +548,12 @@ namespace FakeBlade.UI
                 Slot slot = _slots[i];
                 if (slot.Column == null) continue;
 
+                if (slot.PadLost)
+                {
+                    slot.Column.SetHint(Loc.Get("LOBBY_PAD_LOST_HINT"));
+                    continue;
+                }
+
                 if (!slot.IsCpu && _tutorial)
                 {
                     slot.Column.SetHint(Loc.Get("LOBBY_HINT"));
@@ -531,6 +593,7 @@ namespace FakeBlade.UI
 
         private void UpdateSlot(Slot slot, float dt)
         {
+            UpdatePadLost(slot);
             DeviceMenuInput input = slot.Input;
             input.Update(dt);
             LobbyColumn column = slot.Column;

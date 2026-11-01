@@ -7,6 +7,25 @@ namespace FakeBlade.Core
     /// <summary>Utilidades para identificar mandos de forma estable (por deviceId).</summary>
     public static class InputDeviceUtil
     {
+        /// <summary>
+        /// Cada mando que se conecta o se desconecta queda en el registro (consola o Player.log), con su deviceId: un
+        /// mando que se reconecta puede volver con otro (2026-11-01, mando que dejó de responder en la selección).
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void RegisterDeviceLog()
+        {
+            InputSystem.onDeviceChange -= LogDeviceChange;
+            InputSystem.onDeviceChange += LogDeviceChange;
+        }
+
+        private static void LogDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            if (!(device is Gamepad)) return;
+            if (change != InputDeviceChange.Added && change != InputDeviceChange.Removed &&
+                change != InputDeviceChange.Reconnected && change != InputDeviceChange.Disconnected) return;
+            Debug.Log($"[Mandos] {change}: {device.displayName} (id {device.deviceId}); conectados: {Gamepad.all.Count}");
+        }
+
         public static Gamepad FindGamepad(int deviceId)
         {
             if (deviceId <= 0) return null;

@@ -100,6 +100,17 @@ namespace FakeBlade.Core
         public static bool HasPlayers => Players.Count > 0;
         public static bool IsSandbox => Rules != null && Rules.IsSandbox;
 
+        /// <summary>Un mando que se reconectó con otro deviceId: sus jugadores pasan al nuevo (se mantiene al reiniciar).</summary>
+        public static void ReplaceGamepad(int oldDeviceId, int newDeviceId)
+        {
+            for (int i = 0; i < Players.Count; i++)
+            {
+                PlayerSetup setup = Players[i];
+                if (setup.Device == InputDeviceKind.Gamepad && setup.GamepadDeviceId == oldDeviceId)
+                    setup.GamepadDeviceId = newDeviceId;
+            }
+        }
+
         public static void Clear()
         {
             Players.Clear();

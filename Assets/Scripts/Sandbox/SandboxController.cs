@@ -13,7 +13,8 @@ namespace FakeBlade.Core
     /// Panel principal con secciones (cada una en su subpanel; Atrás vuelve al principal):
     /// - Rivales: de 0 a 3 dummies (cambiar el número reinicia la partida al cerrar el panel),
     ///   su comportamiento y su intervalo (al momento, SandboxSettings).
-    /// - Mi peonza (E1): punta, cuerpo, disco y núcleo de un jugador, en caliente.
+    /// - Mi peonza (E1, E8): abre Cambiar peonza (ChangeBladeScreen), una columna de la selección por jugador, que
+    ///   maneja cada uno con su mando o teclado: preset, piezas y color, en caliente.
     /// - Trucos (E2): RPM infinitas, especial lleno, cargas infinitas, dash sin espera e
     ///   invulnerable, cada uno para nadie, los jugadores, los dummies o todos.
     /// - Reiniciar todo (E3): posiciones, RPM, cargas, energía y estados de todas las peonzas.
@@ -25,14 +26,9 @@ namespace FakeBlade.Core
     public class SandboxController : MonoBehaviour
     {
         private const int PanelWidthPx = 160;
-        private const int PartRowHeight = 13;
         private const int CanvasOrder = 520;
         /// <summary>Invulnerable por truco: se renueva cada frame, así que dura poco al quitarlo.</summary>
         private const float CheatInvulnerableSeconds = 0.2f;
-
-        private static readonly ComponentSlot[] PartSlots =
-            { ComponentSlot.Tip, ComponentSlot.Body, ComponentSlot.Blade, ComponentSlot.Core };
-        private static readonly string[] PartKeys = { "SLOT_TIP", "SLOT_BODY", "SLOT_BLADE", "SLOT_CORE" };
 
         private BattleBootstrap _bootstrap;
         private readonly List<PlayerController> _dummies = new List<PlayerController>(3);
@@ -46,7 +42,6 @@ namespace FakeBlade.Core
         // Panel principal y subpaneles
         private PixelMenuList _main;
         private PixelMenuList _rivalsPanel;
-        private PixelMenuList _bladePanel;
         private PixelMenuList _cheatsPanel;
         private PixelMenuList _current;
 
@@ -59,9 +54,10 @@ namespace FakeBlade.Core
         private PixelOptionRow _dummyCoreRow;
         private TextMeshProUGUI _maxHint;
 
-        private PixelOptionRow _playerRow;
-        private readonly PixelOptionRow[] _partRows = new PixelOptionRow[4];
-        private int _bladePlayer;
+        private ChangeBladeScreen _changeBlade;
+        private PixelOptionRow _bladeButton;
+        /// <summary>Frame en que se cerró Cambiar peonza: su Atrás no cierra también el panel.</summary>
+        private int _changeBladeClosedFrame = -1;
 
         private PixelOptionRow _spinCheat, _specialCheat, _chargesCheat, _dashCheat, _invulnerableCheat;
 
@@ -149,15 +145,20 @@ namespace FakeBlade.Core
             var gm = GameManager.Instance;
             if (gm == null || _main == null) return;
 
-            // GameManager (orden -100) ya ha mirado la pausa este frame: Esc/Start no se pisan
-            if (_open)
+            // GameManager (orden -100) ya ha mirado la pausa este frame: Esc/Start no se pisan.
+            // Con Cambiar peonza abierta (o recién cerrada) los botones son suyos
+            bool changingBlade = (_changeBlade != null && _changeBlade.IsOpen) || _changeBladeClosedFrame == Time.frameCount;
+            if (!changingBlade)
             {
-                if (MenuInput.AnySandboxPanelPressed()) ClosePanel();
-                else if (MenuInput.AnyBackPressed()) Back();
-            }
-            else if (gm.CurrentState == GameManager.GameState.InMatch && !MenuStack.IsSubmenuOpen && MenuInput.AnySandboxPanelPressed())
-            {
-                OpenPanel();
+                if (_open)
+                {
+                    if (MenuInput.AnySandboxPanelPressed()) ClosePanel();
+                    else if (MenuInput.AnyBackPressed()) Back();
+                }
+                else if (gm.CurrentState == GameManager.GameState.InMatch && !MenuStack.IsSubmenuOpen && MenuInput.AnySandboxPanelPressed())
+                {
+                    OpenPanel();
+                }
             }
 
             bool showHint = !_open && (gm.CurrentState == GameManager.GameState.InMatch || gm.CurrentState == GameManager.GameState.Countdown);
@@ -241,7 +242,7 @@ namespace FakeBlade.Core
         private void RefreshAll()
         {
             RefreshRivals();
-            RefreshBlade();
+            CollectHumans();
             RefreshCheats();
             RefreshDebug();
             RefreshTuning();
@@ -285,7 +286,8 @@ namespace FakeBlade.Core
             if (_impactTimer > 0f) return;
             _impactTimer = SandboxSettings.Intervals[Mathf.Clamp(SandboxSettings.ImpactIntervalIndex, 0, SandboxSettings.Intervals.Length - 1)];
 
-            PlayerController player = BladePlayer;
+            // Junto a J1 (el primer jugador)
+            PlayerController player = _humans.Count > 0 ? _humans[0] : null;
             if (player == null || player.Blade == null) return;
             var (kind, damage) = SandboxSettings.ImpactPreviews[preview];
             // Al lado de la peonza, para ver el impacto y la peonza a la vez
@@ -624,7 +626,7 @@ namespace FakeBlade.Core
         }
         #endregion
 
-        #region Mi peonza (E1)
+        #region Mi peonza (E1, E8)
         /// <summary>Jugadores humanos de la partida, por orden (J1, J2...).</summary>
         private void CollectHumans()
         {
@@ -636,76 +638,32 @@ namespace FakeBlade.Core
             _humans.Sort((a, b) => a.PlayerID.CompareTo(b.PlayerID));
         }
 
-        private PlayerController BladePlayer
+        /// <summary>
+        /// Cambiar peonza (la ventana de la pausa del tutorial, GDD 6.7): sobre el panel, que sigue abierto debajo; al
+        /// cerrarla se vuelve a su menú principal. Lo elegido se guarda en MatchSetup (se mantiene al reiniciar).
+        /// </summary>
+        private void OpenChangeBlade()
         {
-            get
+            var gm = GameManager.Instance;
+            if (gm == null) return;
+            if (_changeBlade == null)
             {
-                if (_humans.Count == 0) return null;
-                _bladePlayer = Mathf.Clamp(_bladePlayer, 0, _humans.Count - 1);
-                return _humans[_bladePlayer];
+                _changeBlade = ChangeBladeScreen.Create(_dim.transform.parent, _theme, _bootstrap.Catalog, () =>
+                {
+                    _changeBladeClosedFrame = Time.frameCount;
+                    if (_open) ShowMainOnBlade();
+                }, () => _recorder?.Note("BLADES", ""), CanvasOrder + 5);
             }
+            _current?.Hide();
+            _changeBlade.Open(gm.Players);
+            if (!_changeBlade.IsOpen) ShowMainOnBlade();
         }
 
-        private void RefreshBlade()
+        /// <summary>De vuelta al panel, con el foco en Mi peonza (el botón que abrió la ventana).</summary>
+        private void ShowMainOnBlade()
         {
-            CollectHumans();
-            var players = new string[Mathf.Max(1, _humans.Count)];
-            for (int i = 0; i < _humans.Count; i++) players[i] = Loc.Format("PLAYER_BADGE", _humans[i].PlayerID + 1);
-            if (_humans.Count == 0) players[0] = "-";
-            PlayerController player = BladePlayer;
-            _playerRow.SetOptions(players, _bladePlayer);
-            // Con un solo jugador no hace falta elegir
-            _playerRow.gameObject.SetActive(_humans.Count > 1);
-
-            for (int i = 0; i < PartSlots.Length; i++)
-            {
-                FakeBladeComponentData part = player != null ? Equipped(player.Stats, PartSlots[i]) : null;
-                PixelOptionRow row = _partRows[i];
-                row.SetValueText(part != null ? part.ComponentName.ToUpperInvariant() : "—");
-                row.SetValueColor(PartSlots[i] == ComponentSlot.Core && part != null
-                    ? SpecialAbilities.Get(part.SpecialAbility).color
-                    : _theme.chargeReady);
-                if (part == null) row.SetSubValue("", _theme.textDimColor);
-                else row.SetSubValue(Loc.Get("ARCHETYPE_" + part.Archetype.ToString().ToUpperInvariant()),
-                    _theme.GetArchetypeColor(part.Archetype));
-            }
-        }
-
-        /// <summary>Siguiente pieza del catálogo en un hueco: se equipa al momento (modelo, stats y poder).</summary>
-        private void StepPart(int slotIndex, int dir)
-        {
-            PlayerController player = BladePlayer;
-            if (player == null) return;
-
-            ComponentSlot slot = PartSlots[slotIndex];
-            List<FakeBladeComponentData> parts = _bootstrap.Catalog.GetParts(slot);
-            if (parts.Count == 0) return;
-            int index = parts.IndexOf(Equipped(player.Stats, slot));
-            index = index < 0 ? 0 : (index + dir + parts.Count) % parts.Count;
-            FakeBladeComponentData part = parts[index];
-
-            player.Stats.EquipComponent(part);
-
-            // Que se mantenga al reiniciar la partida (cambiar rivales)
-            foreach (PlayerSetup setup in MatchSetup.Players)
-            {
-                if (setup.PlayerIndex != player.PlayerID) continue;
-                setup.SetPart(slot, part);
-                setup.PresetIndex = -1;
-            }
-
-            RefreshBlade();
-        }
-
-        private static FakeBladeComponentData Equipped(FakeBladeStats stats, ComponentSlot slot)
-        {
-            switch (slot)
-            {
-                case ComponentSlot.Tip: return stats.EquippedTip;
-                case ComponentSlot.Body: return stats.EquippedBody;
-                case ComponentSlot.Blade: return stats.EquippedBlade;
-                default: return stats.EquippedCore;
-            }
+            ShowPanel(_main);
+            _main.SelectRow(_bladeButton);
         }
         #endregion
 
@@ -785,7 +743,7 @@ namespace FakeBlade.Core
             // Principal
             _main = CreatePanel(canvas, "SANDBOX_TITLE");
             _main.AddButton("SANDBOX_SECTION_RIVALS", () => ShowPanel(_rivalsPanel));
-            _main.AddButton("SANDBOX_SECTION_BLADE", () => ShowPanel(_bladePanel));
+            _bladeButton = _main.AddButton("SANDBOX_SECTION_BLADE", OpenChangeBlade);
             _main.AddButton("SANDBOX_SECTION_CHEATS", () => ShowPanel(_cheatsPanel));
             _main.AddButton("SANDBOX_SECTION_DEBUG", () => ShowPanel(_debugPanel));
             _main.AddButton("SANDBOX_SECTION_TUNING", () => ShowPanel(_tuningPanel));
@@ -820,20 +778,6 @@ namespace FakeBlade.Core
             _dummyPresetRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_BLADE", new[] { "-" }, 0, SetDummyPreset);
             _dummyCoreRow = _rivalsPanel.AddSelector("SANDBOX_DUMMY_CORE", new[] { "-" }, 0, SetDummyCore);
             AddBack(_rivalsPanel);
-
-            // Mi peonza
-            _bladePanel = CreatePanel(canvas, "SANDBOX_SECTION_BLADE");
-            _playerRow = _bladePanel.AddSelector("SANDBOX_PLAYER", new[] { "-" }, 0, i =>
-            {
-                _bladePlayer = i;
-                RefreshBlade();
-            });
-            for (int i = 0; i < PartSlots.Length; i++)
-            {
-                int slot = i;
-                _partRows[i] = _bladePanel.AddCustom(PartKeys[i], "", dir => StepPart(slot, dir), null, PartRowHeight);
-            }
-            AddBack(_bladePanel);
 
             // Trucos
             _cheatsPanel = CreatePanel(canvas, "SANDBOX_SECTION_CHEATS");

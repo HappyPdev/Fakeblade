@@ -30,7 +30,7 @@ Juego de combate de peonzas (tipo Beyblade) para 2-4 jugadores locales con tecla
 - **`BladeFormulas` y el JavaScript de `ComponentsStatsHtml` (Editor) son la misma fórmula escrita dos veces**: si se cambia una, hay que cambiar la otra y el GDD 2.8.
 - Rendimiento: cero asignaciones (GC) por frame en gameplay, HUD y efectos; partículas con emisores compartidos (`Emit()`), sin instanciar nada en combate. Mantenerlo (GDD 7.3).
 - Menús: cumplir las **Reglas de los menús navegables** (GDD 9.2): el foco nunca se pierde, navegación en bucle, texto que no se pisa (panel más ancho, no letra más pequeña), todo usable solo con mando, solo con teclado o solo con ratón.
-- Cada peonza recibe órdenes de un `IBladeInputSource` (jugador, dummy o IA). En las pruebas se cambia con `PlayerController.SetInputSource(...)`.
+- Cada peonza recibe órdenes de un `IBladeInputSource` (jugador, dummy o IA). En las pruebas se cambia con `PlayerController.SetInputSource(...)`. Ojo: `SetInputSource` apaga el `InputHandler` (deja de leer el mando). Para filtrar el mando de un jugador sin quitárselo (como el tutorial), usar `PlayerController.SetInputFilter(...)`. Una prueba que sustituye la fuente por una falsa no comprueba esto: mirar que `player.Input.enabled` sigue a `true`.
 
 ## Herramientas del editor (menú FakeBlade)
 

@@ -43,6 +43,8 @@ namespace FakeBlade.Core
         private int[] _countedSerial = new int[0];
         private bool[] _wallDone = new bool[0];
         private bool[] _dashWinDone = new bool[0];
+        /// <summary>Ajustes de debug del sandbox del jugador (se restauran al salir).</summary>
+        private bool[] _savedDebug;
 
         private TutorialStep _step;
         private float _advanceTimer = -1f;
@@ -69,6 +71,17 @@ namespace FakeBlade.Core
             _hint = TutorialHintPanel.Create(transform, theme, HintCanvasOrder);
             _hint.SetVisible(false);
 
+            // Anillo de la ventana de parry (el debug del sandbox) en los pasos del parry y del bloqueo. Los demás
+            // ajustes de debug se apagan aquí y vuelven como los tenía el jugador al salir
+            _savedDebug = new[]
+            {
+                SandboxSettings.ShowParryWindow, SandboxSettings.ShowVelocity, SandboxSettings.ShowDamageNumbers,
+                SandboxSettings.ShowStatus, SandboxSettings.ShowFps, SandboxSettings.ShowEventLog
+            };
+            SandboxSettings.ShowParryWindow = SandboxSettings.ShowVelocity = SandboxSettings.ShowDamageNumbers =
+                SandboxSettings.ShowStatus = SandboxSettings.ShowFps = SandboxSettings.ShowEventLog = false;
+            SandboxDebugView.Create(transform, theme, HintCanvasOrder - 10);
+
             var gm = GameManager.Instance;
             if (gm != null)
             {
@@ -90,6 +103,18 @@ namespace FakeBlade.Core
             Loc.OnLanguageChanged -= ShowStep;
             InputBindings.OnChanged -= ShowStep;
             CollisionResolver.OnClashResolved -= HandleClash;
+            CollisionResolver.OnParry -= HandleParry;
+            CollisionResolver.OnBlock -= HandleBlock;
+
+            if (_savedDebug != null)
+            {
+                SandboxSettings.ShowParryWindow = _savedDebug[0];
+                SandboxSettings.ShowVelocity = _savedDebug[1];
+                SandboxSettings.ShowDamageNumbers = _savedDebug[2];
+                SandboxSettings.ShowStatus = _savedDebug[3];
+                SandboxSettings.ShowFps = _savedDebug[4];
+                SandboxSettings.ShowEventLog = _savedDebug[5];
+            }
         }
 
         /// <summary>El dummy Balanceada (el último preset del catálogo), en la plaza que sigue a los jugadores.</summary>
@@ -144,7 +169,7 @@ namespace FakeBlade.Core
 
                 var gate = new TutorialInputGate(player.Input);
                 _gates.Add(gate);
-                player.SetInputSource(gate);
+                player.SetInputFilter(gate);
 
                 int index = i;
                 player.Blade.OnDashExecuted += () => OnDash(index);
@@ -157,6 +182,8 @@ namespace FakeBlade.Core
             FakeBladeController dummyBlade = _dummy.Blade;
             dummyBlade.OnWallHit += intensity => OnWallHit(dummyBlade);
             CollisionResolver.OnClashResolved += HandleClash;
+            CollisionResolver.OnParry += HandleParry;
+            CollisionResolver.OnBlock += HandleBlock;
 
             EnterStep(TutorialStep.Move);
         }
@@ -181,7 +208,14 @@ namespace FakeBlade.Core
                 _countedSerial[i] = _attackSerial[i];
                 _wallDone[i] = _dashWinDone[i] = false;
             }
-            if (_dummyBrain != null) _dummyBrain.ReturnHome = step != TutorialStep.WallsAndDash;
+            if (_dummyBrain != null)
+            {
+                _dummyBrain.ReturnHome = step != TutorialStep.WallsAndDash;
+                _dummyBrain.SetMode(step == TutorialStep.Parry ? TutorialDummyMode.QuickAttacks
+                    : step == TutorialStep.Block ? TutorialDummyMode.ChargedAttacks
+                    : TutorialDummyMode.Idle);
+            }
+            SandboxSettings.ShowParryWindow = step == TutorialStep.Parry || step == TutorialStep.Block;
 
             for (int i = 0; i < _gates.Count; i++)
             {
@@ -235,6 +269,7 @@ namespace FakeBlade.Core
             }
 
             if (_step == TutorialStep.Move) TrackMovement(Time.deltaTime);
+            if (_step == TutorialStep.Parry || _step == TutorialStep.Block) PickDummyTarget();
 
             int goal = TutorialSteps.Goal(_step);
             bool allDone = goal > 0;
@@ -316,6 +351,44 @@ namespace FakeBlade.Core
             if (i < 0) return;
             _wallDone[i] = true;
             UpdateWallsProgress(i);
+        }
+
+        /// <summary>
+        /// Parry y bloqueo: el dummy ataca al jugador más cercano que aún no ha cumplido el objetivo (si ya lo han
+        /// cumplido todos, al más cercano), para que nadie se quede sin practicar.
+        /// </summary>
+        private void PickDummyTarget()
+        {
+            if (_dummyBrain == null) return;
+            int goal = TutorialSteps.Goal(_step);
+            FakeBladeController best = null, bestAny = null;
+            float bestDist = float.MaxValue, bestAnyDist = float.MaxValue;
+            Vector3 dummyPos = _dummy.Blade.Position;
+            for (int i = 0; i < _humans.Count; i++)
+            {
+                FakeBladeController blade = _humans[i].Blade;
+                if (blade.IsDestroyed) continue;
+                float dist = (blade.Position - dummyPos).sqrMagnitude;
+                if (dist < bestAnyDist) { bestAnyDist = dist; bestAny = blade; }
+                if (_progress[i] < goal && dist < bestDist) { bestDist = dist; best = blade; }
+            }
+            _dummyBrain.Target = best != null ? best : bestAny;
+        }
+
+        /// <summary>Parry (no vale el doble parry): quien para es un jugador.</summary>
+        private void HandleParry(FakeBladeController parrier, FakeBladeController attacker, bool doubleParry)
+        {
+            if (_step != TutorialStep.Parry || doubleParry || _advanceTimer >= 0f) return;
+            int i = HumanIndex(parrier);
+            if (i >= 0) _progress[i]++;
+        }
+
+        /// <summary>Bloqueo: un parry contra un cargado de nivel 2 o más (GDD 2.5).</summary>
+        private void HandleBlock(FakeBladeController parrier, FakeBladeController attacker)
+        {
+            if (_step != TutorialStep.Block || _advanceTimer >= 0f) return;
+            int i = HumanIndex(parrier);
+            if (i >= 0) _progress[i]++;
         }
 
         private void UpdateWallsProgress(int i) => _progress[i] = (_wallDone[i] ? 1 : 0) + (_dashWinDone[i] ? 1 : 0);

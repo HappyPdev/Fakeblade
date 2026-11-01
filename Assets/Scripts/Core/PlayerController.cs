@@ -46,6 +46,8 @@ namespace FakeBlade.Core
         /// <summary>Último nivel de carga que ya ha dado su pulso de vibración.</summary>
         private int _vibratedChargeLevel;
         private bool _inputAssignedExternally;
+        /// <summary>La fuente es un filtro del propio mando (SetInputFilter): el InputHandler sigue activo.</summary>
+        private bool _filtersHumanInput;
         /// <summary>Se registra en el GameManager al empezar (falso en el clon de Fantasma: no cuenta como jugador).</summary>
         private bool _registerInMatch = true;
         #endregion
@@ -324,11 +326,24 @@ namespace FakeBlade.Core
         {
             if (_input == null) _input = GetComponent<InputHandler>();
             _source = source ?? _input;
+            _filtersHumanInput = false;
             _inputAssignedExternally = true;
             _input.enabled = ReferenceEquals(_source, _input);
         }
 
-        public bool IsHumanControlled => ReferenceEquals(_source, _input);
+        /// <summary>
+        /// Pone un filtro entre el mando del jugador y su peonza (Aprende a jugar: TutorialInputGate). A diferencia de
+        /// SetInputSource, el InputHandler sigue leyendo el mando y la peonza sigue siendo de una persona. Null lo quita.
+        /// </summary>
+        public void SetInputFilter(IBladeInputSource filter)
+        {
+            if (_input == null) _input = GetComponent<InputHandler>();
+            _source = filter ?? _input;
+            _filtersHumanInput = filter != null;
+            _input.enabled = true;
+        }
+
+        public bool IsHumanControlled => ReferenceEquals(_source, _input) || _filtersHumanInput;
 
         /// <summary>Rival con IA de la selección de peonzas (D7): el HUD lo marca como IA en vez de J1-J4.</summary>
         public bool IsCpu { get; private set; }

@@ -15,6 +15,10 @@ namespace FakeBlade.Core
     /// P4, director de pasos (TutorialSteps): cada jugador juega a través de un TutorialInputGate que solo deja
     /// las acciones ya enseñadas; la energía del especial se vacía hasta su paso; cada jugador tiene su contador y
     /// se pasa al paso siguiente cuando todos han cumplido el objetivo (ventana TutorialHintPanel).
+    ///
+    /// P7: en el paso del especial la esfera se da llena (también al reaparecer sin haberlo usado); en el combate el
+    /// dummy pasa a ser una IA Fácil Balanceada y el paso se cumple cuando un jugador la deja K.O.; en el final la IA
+    /// sigue para jugar libre. Al empezar cada paso se rellenan las RPM de todas las peonzas.
     /// </summary>
     [RequireComponent(typeof(BattleBootstrap))]
     public class TutorialController : MonoBehaviour
@@ -31,6 +35,9 @@ namespace FakeBlade.Core
         private Transform _home;
         private PlayerController _dummy;
         private TutorialDummyBrain _dummyBrain;
+        /// <summary>La IA Fácil del combate (null hasta su paso).</summary>
+        private AIBrain _fightBrain;
+        private bool _dummyFighting;
         private TutorialHintPanel _hint;
 
         private readonly List<PlayerController> _humans = new List<PlayerController>(3);
@@ -87,6 +94,7 @@ namespace FakeBlade.Core
             {
                 gm.OnMatchPrepared += HandleMatchPrepared;
                 gm.OnPlayerRespawned += HandleRespawned;
+                gm.OnPlayerKO += HandleKO;
             }
             Loc.OnLanguageChanged += ShowStep;
             InputBindings.OnChanged += ShowStep;
@@ -99,6 +107,7 @@ namespace FakeBlade.Core
             {
                 gm.OnMatchPrepared -= HandleMatchPrepared;
                 gm.OnPlayerRespawned -= HandleRespawned;
+                gm.OnPlayerKO -= HandleKO;
             }
             Loc.OnLanguageChanged -= ShowStep;
             InputBindings.OnChanged -= ShowStep;
@@ -138,9 +147,29 @@ namespace FakeBlade.Core
             if (_humans.Count == 0) SetupPlayers(players);
         }
 
+        /// <summary>
+        /// El dummy reaparece en el centro. En el paso del especial, quien cae sin haberlo usado vuelve con la esfera
+        /// llena (al reaparecer se vacía).
+        /// </summary>
         private void HandleRespawned(PlayerController player)
         {
-            if (player == _dummy) _dummy.SetSpawnPosition(_home);
+            if (player == _dummy)
+            {
+                _dummy.SetSpawnPosition(_home);
+                return;
+            }
+            int i = HumanIndex(player.Blade);
+            if (_step == TutorialStep.Special && i >= 0 && _progress[i] < TutorialSteps.Goal(_step))
+                player.Blade.Special.FillEnergy();
+        }
+
+        /// <summary>Combate: un jugador deja K.O. a la IA y el paso se cumple para todos (ganarle una vez, GDD 6.7).</summary>
+        private void HandleKO(PlayerController victim, PlayerController killer)
+        {
+            if (_step != TutorialStep.Fight || victim != _dummy || killer == null || _advanceTimer >= 0f) return;
+            if (HumanIndex(killer.Blade) < 0) return;
+            int goal = TutorialSteps.Goal(_step);
+            for (int i = 0; i < _progress.Length; i++) _progress[i] = goal;
         }
 
         #region Jugadores
@@ -176,6 +205,7 @@ namespace FakeBlade.Core
                 player.Blade.OnAttackLaunched += level => _attackSerial[index]++;
                 FakeBladeController blade = player.Blade;
                 blade.OnWallHit += intensity => OnWallHit(blade);
+                blade.OnSpecialActivated += type => OnSpecial(index);
             }
 
             // Paredes: vale empujar al dummy o a otro jugador
@@ -214,8 +244,18 @@ namespace FakeBlade.Core
                 _dummyBrain.SetMode(step == TutorialStep.Parry ? TutorialDummyMode.QuickAttacks
                     : step == TutorialStep.Block ? TutorialDummyMode.ChargedAttacks
                     : TutorialDummyMode.Idle);
+                SetDummyFighting(step >= TutorialStep.Fight);
             }
             SandboxSettings.ShowParryWindow = step == TutorialStep.Parry || step == TutorialStep.Block;
+
+            // Cada paso empieza con las RPM llenas (§12, dificultad del bloqueo); en el del especial, con la esfera llena
+            for (int i = 0; i < _humans.Count; i++)
+            {
+                FakeBladeController blade = _humans[i].Blade;
+                blade.AddSpin(blade.MaxSpinSpeed - blade.CurrentSpinSpeed);
+                if (step == TutorialStep.Special) blade.Special.FillEnergy();
+            }
+            if (_dummy != null) _dummy.Blade.AddSpin(_dummy.Blade.MaxSpinSpeed - _dummy.Blade.CurrentSpinSpeed);
 
             for (int i = 0; i < _gates.Count; i++)
             {
@@ -306,6 +346,40 @@ namespace FakeBlade.Core
         private void OnDash(int index)
         {
             if (_step == TutorialStep.Dash && index < _progress.Length) _progress[index]++;
+        }
+
+        private void OnSpecial(int index)
+        {
+            if (_step == TutorialStep.Special && _advanceTimer < 0f && index < _progress.Length) _progress[index]++;
+        }
+
+        /// <summary>
+        /// Desde el combate el dummy lo juega una IA Fácil Balanceada, con todo activo; antes, su TutorialDummyBrain.
+        /// Solo al cambiar (AIProfiles.Ensure no se llama cada frame).
+        /// </summary>
+        private void SetDummyFighting(bool fight)
+        {
+            if (_dummy == null || fight == _dummyFighting) return;
+            _dummyFighting = fight;
+            _dummyBrain.ClearBuffers();
+            _dummyBrain.enabled = !fight;
+            if (fight)
+            {
+                if (_fightBrain == null) _fightBrain = AIProfiles.Ensure(_dummy.gameObject, AIProfiles.ForStyle(AIStyle.Balanced));
+                _fightBrain.Difficulty = AIDifficulty.Easy;
+                _fightBrain.ClearBuffers();
+                _fightBrain.enabled = true;
+                _dummy.SetInputSource(_fightBrain);
+            }
+            else
+            {
+                if (_fightBrain != null)
+                {
+                    _fightBrain.ClearBuffers();
+                    _fightBrain.enabled = false;
+                }
+                _dummy.SetInputSource(_dummyBrain);
+            }
         }
 
         /// <summary>

@@ -13,14 +13,30 @@ namespace FakeBlade.UI
         private const float Interval = 0.5f;
 
         private static FpsCounter _instance;
+        private static bool _quitting;
 
         private TextMeshProUGUI _text;
         private float _timer;
         private int _frames;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            _instance = null;
+            _quitting = false;
+            Application.quitting -= OnQuitting;
+            Application.quitting += OnQuitting;
+        }
+
+        /// <summary>
+        /// Al salir (también al parar el Play en el editor) ya no se crea el contador: el OnDestroy del sandbox
+        /// lo pedía cuando el [FPS] ya estaba destruido y quedaba vivo al cerrar la escena (2026-11-01).
+        /// </summary>
+        private static void OnQuitting() => _quitting = true;
+
         public static void SetVisible(bool visible)
         {
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying || _quitting) return;
 
             if (visible && _instance == null)
                 Create();

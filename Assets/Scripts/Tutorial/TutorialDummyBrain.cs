@@ -113,9 +113,9 @@ namespace FakeBlade.Core
         /// <summary>Ataques de los pasos del parry y del bloqueo. Devuelve true si este frame apunta al objetivo.</summary>
         private bool UpdateAttacks(float dt)
         {
-            if (_blade.IsStaggered)
+            if (_blade.ActionsLocked)
             {
-                // Tras un parry o un bloqueo queda aturdido: suelta la carga y vuelve a empezar
+                // Tras un golpe, un parry o un bloqueo queda aturdido: suelta la carga y vuelve a empezar
                 _charging = _attackHeld = false;
                 _timer = 0f;
                 _warned = false;
@@ -183,7 +183,7 @@ namespace FakeBlade.Core
 
         private void ReturnToHome()
         {
-            if (!ReturnHome || _blade.IsStaggered) return;
+            if (!ReturnHome || _blade.ActionsLocked) return;
             if (Time.time - _blade.LastDamageTime < ReturnDelay) return;
 
             Vector3 offset = Home - _blade.Position;

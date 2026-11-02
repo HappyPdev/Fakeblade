@@ -30,8 +30,8 @@ namespace FakeBlade.Core
         public float radius = 4.5f;
         [Tooltip("Lo que queda del efecto en el borde (0,7 = el 70% del centro)")]
         [Range(0f, 1f)] public float edgeFactor = 0.7f;
-        [Tooltip("Daño en el centro (fracción de las RPM máximas del objetivo)")]
-        [Range(0f, 1f)] public float damagePct = 0.2f;
+        [Tooltip("Daño en el centro, en RPM (fijas desde el 2026-11-02; antes el 20% de las RPM máximas del objetivo, 80 con 400 de base)")]
+        [Min(0f)] public float damage = 80f;
         [Tooltip("Empuje (m/s) en el centro")]
         public float force = 22f;
         [Tooltip("Segundos que quedan lanzadas (daño de pared si chocan)")]
@@ -232,8 +232,8 @@ namespace FakeBlade.Core
 
                 float falloff = Mathf.Lerp(1f, Config.edgeFactor, distance / radius);
                 Vector3 dir = distance > 0.001f ? offset / distance : Owner.Facing;
-                other.ApplyKnockback(dir * (Config.force * falloff * other.KnockbackResistance));
-                other.ApplyDamage(other.MaxSpinSpeed * Config.damagePct * falloff, Owner);
+                other.ApplyKnockback(dir * (Config.force * falloff * other.KnockbackResistance), true);
+                other.ApplyDamage(Config.damage * falloff, Owner, Config.Type);
                 if (Config.launchDuration > 0f) other.TryLaunch(Owner, Config.launchDuration);
                 BladeSpecialFx.PlayPushHit(Owner, other, dir);
                 other.RequestRumble(1f, 0.7f, 0.25f);

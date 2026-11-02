@@ -48,7 +48,7 @@ MonoBehaviour:
   attackRechargeTime: 1.5
   attackRechargeDelay: 0.5
   quickAttackImpulse: 9
-  quickAttackSpinCostPct: 0.02
+  quickAttackSpinCost: 8
   quickAttackDuration: 0.35
   quickAttackMassBonus: 0.5
   chargeHoldThreshold: 0.18
@@ -78,7 +78,7 @@ MonoBehaviour:
   comboBonusPerHit: 0.1
   maxComboHits: 3
   dashCooldown: 1.8
-  dashSpinCostPct: 0.08
+  dashSpinCost: 32
   dashAttackWindow: 0.35
   dashHitRefundFraction: 0.5
   damageMultiplier: 0.5
@@ -104,7 +104,7 @@ MonoBehaviour:
   knockbackControlMinSpeed: 4
   knockbackControlRecoverTime: 0.15
   killCreditWindow: 5
-  specialActivationSpinPct: 0.25
+  specialActivationSpinPct: 0.125
   specialHealTime: 2
   specialEnergyQuickHit: 0.08
   specialEnergyDashHit: 0.06

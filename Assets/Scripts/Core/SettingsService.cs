@@ -43,10 +43,16 @@ namespace FakeBlade.Core
         /// <summary>Telemetría (C19): un archivo por partida con datos para el equilibrio. Activada por defecto.</summary>
         public bool telemetry = true;
         /// <summary>
-        /// Números de daño en la arena (CombatPopups, 2026-10-16). Desactivados por defecto desde el 2026-10-17: el daño se ve
-        /// con el color de la onda del golpe sobre la peonza (BladeOverlay).
+        /// Números de daño en la arena (CombatPopups, 2026-10-16). Desactivados por defecto del 2026-10-17 al 2026-11-02 (el daño
+        /// se veía con la onda del golpe sobre la peonza, BladeOverlay); activados otra vez con el estilo nuevo (9.1).
         /// </summary>
-        public bool damageNumbers = false;
+        public bool damageNumbers = true;
+        /// <summary>Con los números de daño activados, los golpes seguidos a una peonza se suman en un solo número (2026-11-02).</summary>
+        public bool damageNumbersSummed = true;
+        /// <summary>Glow de los números de daño (Opciones → Brillo de los números; 2026-11-02).</summary>
+        public bool damageNumberGlow = true;
+        /// <summary>Fuente de los números de daño (índice en HUDTheme.damageFonts; 2026-11-02).</summary>
+        public int damageNumberFont = 0;
 
         [Header("Colores de peonza")]
         /// <summary>Colores por pieza personalizados (por color de la paleta). Los que no estén usan los de por defecto.</summary>

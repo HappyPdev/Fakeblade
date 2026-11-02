@@ -33,7 +33,7 @@ namespace FakeBlade.Core
 
         public static BladeBaseStats Default => new BladeBaseStats
         {
-            maxSpin = 400f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
+            maxSpin = 800f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
             attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3, grip = 0f
         };
     }

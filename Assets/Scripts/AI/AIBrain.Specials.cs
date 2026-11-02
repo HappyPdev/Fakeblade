@@ -336,7 +336,7 @@ namespace FakeBlade.Core
         }
 
         /// <summary>Puede atacar o hacer dash: ni aturdida ni con las acciones bloqueadas por su poder.</summary>
-        private bool CanAct => !Blade.IsStaggered && !Blade.Special.BlocksActions && !Blade.IsTrapped;
+        private bool CanAct => !Blade.ActionsLocked && !Blade.Special.BlocksActions && !Blade.IsTrapped;
 
         /// <summary>
         /// De lado respecto a una línea de ataque que viene hacia ella: hacia el lado en que ya está desviada y, si va

@@ -310,7 +310,7 @@ namespace FakeBlade.Core
             Vector2 jitter = UnityEngine.Random.insideUnitCircle * 0.3f;
             n.World = position + new Vector3(jitter.x, 1.1f, jitter.y);
             n.Age = 0f;
-            n.Text.text = "-" + Mathf.RoundToInt(amount);
+            n.Text.text = Mathf.RoundToInt(amount).ToString(); // sin «-», como los del juego (2026-11-02)
             n.Text.color = amount >= 30f ? _theme.healthLow : amount >= 10f ? _theme.healthMid : Color.white;
             n.Text.enabled = true;
         }

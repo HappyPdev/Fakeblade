@@ -147,6 +147,16 @@ namespace FakeBlade.Core
         }
 
         /// <summary>
+        /// Corta la carga en curso y gasta las cargas del nivel alcanzado, como si lo hubiera lanzado (aturdida por un
+        /// golpe, 2026-11-02). Si solo estaba pulsando (aún no cargaba) no pierde nada.
+        /// </summary>
+        public void CancelChargeLosingCharges()
+        {
+            if (_isCharging) _charges = Mathf.Max(0, _charges - ChargeCost(_chargeLevel));
+            CancelCharge();
+        }
+
+        /// <summary>
         /// Avanza temporizadores y procesa el botón.
         /// Devuelve el nivel a lanzar (0 = rápido, 1+ = cargado) o NoLaunch.
         /// </summary>

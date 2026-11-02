@@ -23,8 +23,8 @@ namespace FakeBlade.Core
         [Header("Cada onda")]
         [Tooltip("Empuje (m/s) en el centro")]
         public float force = 20f;
-        [Tooltip("Daño en el centro (fracción de las RPM máximas del objetivo)")]
-        [Range(0f, 1f)] public float damagePct = 0.06f;
+        [Tooltip("Daño en el centro, en RPM (fijas desde el 2026-11-02; antes el 6% de las RPM máximas del objetivo, 24 con 400 de base)")]
+        [Min(0f)] public float damage = 24f;
         [Tooltip("Segundos que quedan lanzadas: sin control y, si chocan contra la pared, con daño de pared (0 = no se lanzan)")]
         [Min(0f)] public float launchDuration = 0.5f;
 
@@ -133,8 +133,8 @@ namespace FakeBlade.Core
                 float falloff = Mathf.Lerp(1f, Config.edgeFactor, distance / radius);
                 Vector3 dir = distance > 0.001f ? offset / distance : Owner.Facing;
 
-                other.ApplyKnockback(dir * Config.force * falloff * other.KnockbackResistance);
-                other.ApplyDamage(other.MaxSpinSpeed * Config.damagePct * falloff, Owner);
+                other.ApplyKnockback(dir * Config.force * falloff * other.KnockbackResistance, true);
+                other.ApplyDamage(Config.damage * falloff, Owner, Config.Type);
                 // Después del empuje: la lanzada cuenta ya con él para no frenarla en el tope de velocidad
                 if (Config.launchDuration > 0f) other.TryLaunch(Owner, Config.launchDuration);
                 BladeSpecialFx.PlayPushHit(Owner, other, dir);

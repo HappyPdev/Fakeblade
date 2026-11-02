@@ -19,6 +19,8 @@ MonoBehaviour:
   energyRequired: 1
   duration: 5
   activationBurst: 1.5
-  burnDamagePct: 0.015
+  windupTime: 0.3
+  windupBrake: 12
+  burnDamagePerTick: 6
   burnTickInterval: 0.5
   burnDuration: 3

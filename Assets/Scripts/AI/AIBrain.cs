@@ -149,7 +149,7 @@ namespace FakeBlade.Core
         protected bool FullStyle => Level.fullProfile;
 
         /// <summary>Atacando, cargando, preparando un parry, aturdida o con su poder bloqueando las acciones: no empieza otra acción.</summary>
-        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.IsStaggered || Blade.Special.BlocksActions || Blade.IsTrapped;
+        protected bool Busy => _parryPending || _attackHeld || Blade.Attack.IsAttacking || Blade.ActionsLocked || Blade.Special.BlocksActions || Blade.IsTrapped;
 
         /// <summary>Sentido en que rodea al rival (1 o -1).</summary>
         protected float OrbitSign => _orbitSign;
@@ -533,7 +533,7 @@ namespace FakeBlade.Core
         /// </summary>
         protected bool StartAttack(int level, bool evenIfAttacking = false)
         {
-            if (_attackHeld || Blade.Attack.CurrentCharges <= 0 || Blade.IsStaggered) return false;
+            if (_attackHeld || Blade.Attack.CurrentCharges <= 0 || Blade.ActionsLocked) return false;
             if (Blade.Attack.IsAttacking && !evenIfAttacking) return false;
             _attackHeld = true;
             _holdTimer = 0f;
@@ -587,7 +587,7 @@ namespace FakeBlade.Core
             bool release = _chargeTarget <= 0
                 ? Time.frameCount > _pressFrame
                 : (Blade.Attack.ChargeLevel >= _chargeTarget && !HoldsForShieldGap()) || Blade.Attack.IsAttacking || _holdTimer >= MaxChargeHold;
-            if (release || Blade.IsStaggered) ReleaseAttack();
+            if (release || Blade.ActionsLocked) ReleaseAttack();
         }
 
         /// <summary>Va recto a por el rival y suelta un ataque rápido al tenerlo a StrikeDistance.</summary>

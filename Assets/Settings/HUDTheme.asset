@@ -40,3 +40,69 @@ MonoBehaviour:
   dashCooldown: {r: 0.35, g: 0.3, b: 0.12, a: 1}
   sphereOutline: {r: 0.02, g: 0.02, b: 0.05, a: 1}
   sphereEmpty: {r: 0.1, g: 0.1, b: 0.18, a: 1}
+  archetypeAttack: {r: 1, g: 0.4, b: 0.35, a: 1}
+  archetypeBalanced: {r: 0.45, g: 0.95, b: 0.5, a: 1}
+  archetypeDefense: {r: 0.45, g: 0.65, b: 1, a: 1}
+  archetypeAgility: {r: 1, g: 0.85, b: 0.3, a: 1}
+  statBase: {r: 0.45, g: 0.48, b: 0.58, a: 1}
+  statLoss: {r: 0.75, g: 0.18, b: 0.22, a: 1}
+  damageFonts:
+  - {fileID: 11400000, guid: b5a80d6057ab62a438d6747f2814f862, type: 2}
+  - {fileID: 11400000, guid: c59878f027d5de640a87bcf4d50cb522, type: 2}
+  - {fileID: 11400000, guid: 58d9cc6f12ced7e4d86fa8cccf4d287f, type: 2}
+  - {fileID: 11400000, guid: 4f3e608e5df60144fae18a85cb0564b2, type: 2}
+  - {fileID: 11400000, guid: f58a9df9928dc6d41a6e99bdd08dd960, type: 2}
+  - {fileID: 11400000, guid: 3854e3f92f957c34fb2542d75a49b77c, type: 2}
+  damageNumbers:
+    minDamage: 5
+    maxDamage: 60
+    sizeMin: 5.2
+    sizeMax: 10.4
+    noSourceFill: {r: 0.78, g: 0.78, b: 0.8, a: 1}
+    outline: {r: 1, g: 1, b: 1, a: 1}
+    outlineWidth: 0.07
+    faceDilate: 0.12
+    characterSpacing: 8
+    glowLow: {r: 1, g: 1, b: 1, a: 0.4}
+    glowMid: {r: 1, g: 0.88, b: 0.5, a: 0.5}
+    glowHigh: {r: 1, g: 0.5, b: 0.45, a: 0.5}
+    midDamage: 10
+    highDamage: 30
+    glowOuter: 1
+    glowGap: 0
+    glowPower: 1
+    sumWindow: 0.6
+    italic: 1
+    life: 0.95
+    rise: 14
+    popMin: 0.5
+    popMax: 1.4
+    settleSpeed: 11
+    settleWobble: 9
+    shakeFrom: 0.25
+    shakeMax: 1.5
+    shakeAngle: 8
+    shakeTime: {x: 0.08, y: 0.18}
+    specialFx:
+    - special: 5
+      gradientTop: {r: 1, g: 0.95, b: 0.45, a: 1}
+      gradientBottom: {r: 1, g: 0.38, b: 0.1, a: 1}
+      faceTexture: {fileID: 0}
+      faceTiling: {x: 1, y: 1}
+      faceScroll: {x: 0, y: -1}
+      fill: {r: 1, g: 1, b: 1, a: 0}
+      outline: {r: 1, g: 0.96, b: 0.82, a: 1}
+      glow: {r: 1, g: 0.82, b: 0.3, a: 0.55}
+      flicker: 0.4
+      flickerSpeed: 8
+    - special: 4
+      gradientTop: {r: 1, g: 1, b: 0.88, a: 1}
+      gradientBottom: {r: 1, g: 0.84, b: 0.15, a: 1}
+      faceTexture: {fileID: 0}
+      faceTiling: {x: 1, y: 1}
+      faceScroll: {x: 0, y: -1}
+      fill: {r: 1, g: 1, b: 1, a: 0}
+      outline: {r: 1, g: 1, b: 1, a: 1}
+      glow: {r: 1, g: 0.93, b: 0.45, a: 0.6}
+      flicker: 0.7
+      flickerSpeed: 25

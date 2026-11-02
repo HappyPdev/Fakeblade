@@ -127,6 +127,8 @@ namespace FakeBlade.Core
         private float _dashAttackEndTime = float.NegativeInfinity;
         /// <summary>Fin del aturdimiento tras recibir un parry (sin control ni ataques).</summary>
         private float _staggerEndTime = float.NegativeInfinity;
+        /// <summary>Fin del aturdimiento por un golpe recibido (sin ataques, cargas, dash ni especial; 2026-11-02).</summary>
+        private float _stunEndTime = float.NegativeInfinity;
         /// <summary>Tras un empuje fuerte o una lanzada: hasta aquí el stick no mueve la peonza; después vuelve poco a poco.</summary>
         private float _controlLossEnd = float.NegativeInfinity;
         // Atrapada por un Tornado mientras atrae: no puede atacar, cargar ni hacer dash (lo renueva el Tornado cada frame)
@@ -189,6 +191,8 @@ namespace FakeBlade.Core
         private float _leapGravityScale = 1f;
         /// <summary>El poder activo bloqueaba las acciones el frame anterior.</summary>
         private bool _actionsBlocked;
+        /// <summary>Aturdida (golpe, parry o bloqueo) el frame anterior.</summary>
+        private bool _actionsLocked;
         private float _impulseFactor = 1f;
         #endregion
 
@@ -203,6 +207,10 @@ namespace FakeBlade.Core
         public bool IsInvulnerable => _invulnerableTimer > 0f;
         public bool IsDashAttacking => Time.time < _dashAttackEndTime;
         public bool IsStaggered => Time.time < _staggerEndTime;
+        /// <summary>Aturdida por un golpe recibido: sale despedida sin poder atacar, cargar, hacer dash ni usar el especial.</summary>
+        public bool IsStunned => Time.time < _stunEndTime;
+        /// <summary>Aturdida por un golpe, un parry o un bloqueo: sin ataques, cargas, dash ni especial.</summary>
+        public bool ActionsLocked => IsStaggered || IsStunned;
         /// <summary>Atrapada por un Tornado que atrae (2026-10-19): no puede atacar, cargar ni hacer dash.</summary>
         public bool IsTrapped => Time.time < _trappedEnd;
 
@@ -670,15 +678,26 @@ namespace FakeBlade.Core
         /// <summary>
         /// Aplica daño (RPM) tras defensa y modificadores. Devuelve las RPM realmente perdidas.
         /// </summary>
-        public float ApplyDamage(float amount, FakeBladeController source) => ApplyDamageInternal(amount, source, false);
+        public float ApplyDamage(float amount, FakeBladeController source) => ApplyDamageInternal(amount, source, false, SpecialAbilityType.None);
+
+        /// <summary>Daño causado por un poder (onda, embestida, caída del Salto, golpe fuerte de Rayos...): lo lleva DamageSpecial.</summary>
+        public float ApplyDamage(float amount, FakeBladeController source, SpecialAbilityType special) =>
+            ApplyDamageInternal(amount, source, false, special);
 
         /// <summary>
         /// Daño de un estado alterado (quemadura): fijo, no lo reduce la defensa de las piezas,
         /// pero sí un poder defensivo activo y la invulnerabilidad.
         /// </summary>
-        public float ApplyStatusDamage(float amount, FakeBladeController source) => ApplyDamageInternal(amount, source, true);
+        public float ApplyStatusDamage(float amount, FakeBladeController source, SpecialAbilityType special = SpecialAbilityType.None) =>
+            ApplyDamageInternal(amount, source, true, special);
 
-        private float ApplyDamageInternal(float amount, FakeBladeController source, bool ignoreDefense)
+        /// <summary>
+        /// Poder que causa el daño que se está avisando ahora (None si no es de un poder). Solo vale dentro de OnDamaged: lo usan
+        /// los números de daño para el efecto de cada poder (2026-11-02).
+        /// </summary>
+        public SpecialAbilityType DamageSpecial { get; private set; } = SpecialAbilityType.None;
+
+        private float ApplyDamageInternal(float amount, FakeBladeController source, bool ignoreDefense, SpecialAbilityType special)
         {
             if (_isDestroyed || amount <= 0f || _invulnerableTimer > 0f || IsGhost) return 0f;
             // El daño del clon de Fantasma cuenta para su dueña (punto de K.O.)
@@ -694,7 +713,9 @@ namespace FakeBlade.Core
             if (damage <= 0f) return 0f;
 
             _currentSpin = Mathf.Max(0f, _currentSpin - damage);
+            DamageSpecial = special;
             OnDamaged?.Invoke(damage, source);
+            DamageSpecial = SpecialAbilityType.None;
 
             if (source != null && source != this)
             {
@@ -716,8 +737,8 @@ namespace FakeBlade.Core
 
         #region Status Effects (GDD 5)
         /// <summary>Quemadura (Fuego). Devuelve false si está bloqueada, invulnerable o fuera de combate.</summary>
-        public bool TryBurn(FakeBladeController source, float damagePctPerTick, float tickInterval, float duration) =>
-            CanReceiveStatus && NotifyStatusApplied(_status.TryBurn(source, damagePctPerTick, tickInterval, StatusDuration(source, duration)));
+        public bool TryBurn(FakeBladeController source, float damagePerTick, float tickInterval, float duration) =>
+            CanReceiveStatus && NotifyStatusApplied(_status.TryBurn(source, damagePerTick, tickInterval, StatusDuration(source, duration)));
 
         /// <summary>Congelación (Hielo).</summary>
         public bool TryFreeze(FakeBladeController source, float moveMultiplier, float rechargeMultiplier, float duration) =>
@@ -730,6 +751,7 @@ namespace FakeBlade.Core
             float seconds = StatusDuration(source, duration);
             if (!NotifyStatusApplied(_status.TryLaunch(source, seconds))) return false;
             LoseControl(seconds);
+            Stun(seconds);
             // Sin tope de velocidad mientras vuela (cuenta el empuje del mismo choque, aún sin aplicar)
             Vector3 velocity = _rb.linearVelocity + _pendingVelocityChange;
             OpenBurst(new Vector3(velocity.x, 0f, velocity.z).magnitude, seconds);
@@ -868,6 +890,16 @@ namespace FakeBlade.Core
             UpdateStatus(dt);
             if (_isDestroyed) return;
 
+            // Aturdida (golpe, parry o bloqueo): al empezar, un cargado a medias se pierde con las cargas del nivel alcanzado
+            // (2026-11-02: antes se soltaba y cortaba el vuelo); al empezar y al acabar, el botón no cuenta hasta soltarlo
+            bool locked = ActionsLocked;
+            if (locked != _actionsLocked)
+            {
+                _actionsLocked = locked;
+                if (locked) _attack.CancelChargeLosingCharges();
+                _attack.IgnoreHeldUntilReleased();
+            }
+
             // Un poder que bloquea las acciones (Salto) o atrapada por un Tornado: al empezar y al acabar se corta la carga y el botón
             // no cuenta hasta soltarlo, para que no se escape un ataque al cambiar
             bool blocked = _special.BlocksActions || IsTrapped;
@@ -878,9 +910,9 @@ namespace FakeBlade.Core
                 _attack.IgnoreHeldUntilReleased();
             }
 
-            // Aturdida tras un parry o con las acciones bloqueadas: el botón de ataque no cuenta. La recarga depende
+            // Aturdida o con las acciones bloqueadas: el botón de ataque no cuenta. La recarga depende
             // del poder (Defensa, más rápida), del estado (congelada, más lenta) y de los rasgos de las piezas
-            int launch = _attack.Tick(dt, _attackHeld && !IsStaggered && !blocked,
+            int launch = _attack.Tick(dt, _attackHeld && !locked && !blocked,
                 _special.ChargeSpeedMultiplier / Trait(PartTraitType.ChargeTime),
                 _special.AttackRechargeMultiplier * _status.AttackRechargeMultiplier / Trait(PartTraitType.AttackRechargeTime));
             if (launch != AttackSystem.NoLaunch)
@@ -890,7 +922,7 @@ namespace FakeBlade.Core
         private void LaunchAttack(int level)
         {
             var cfg = CombatConfig.Active;
-            float cost = _maxSpin * cfg.quickAttackSpinCostPct * AttackSystem.ChargeCost(level) * Trait(PartTraitType.AttackCost);
+            float cost = cfg.quickAttackSpinCost * AttackSystem.ChargeCost(level) * Trait(PartTraitType.AttackCost);
 
             if (_currentSpin <= cost * 1.5f || !_attack.CanAfford(level))
             {
@@ -924,10 +956,10 @@ namespace FakeBlade.Core
 
         private bool TryDash()
         {
-            if (!CanDash || IsStaggered || _special.BlocksActions || IsTrapped) return false;
+            if (!CanDash || ActionsLocked || _special.BlocksActions || IsTrapped) return false;
 
             var cfg = CombatConfig.Active;
-            float cost = _maxSpin * cfg.dashSpinCostPct * _special.DashCostMultiplier * Trait(PartTraitType.DashCost);
+            float cost = cfg.dashSpinCost * _special.DashCostMultiplier * Trait(PartTraitType.DashCost);
             if (_currentSpin <= cost * 1.5f) return false;
 
             Vector3 direction = ResolveActionDirection();
@@ -954,6 +986,8 @@ namespace FakeBlade.Core
         private bool TryActivateSpecial()
         {
             if (_isDestroyed || !_simulationActive || IsGhost) return false; // el clon de Fantasma no usa especial
+            // Aturdida: ni activarlo ni pulsar el que está activo (antes cortaba el vuelo de un golpe, 2026-11-02)
+            if (ActionsLocked) return false;
             // Con el poder activo, la pulsación es para él (Onda de choque: siguiente onda)
             if (_special.IsActive) return _special.TryPressActive();
             // Con lo que deja el poder todavía puesto, primero es para él (Fantasma: cambiar de sitio con el clon, 2026-10-28)
@@ -1057,8 +1091,10 @@ namespace FakeBlade.Core
         /// <summary>
         /// Empuje instantáneo (cambio de velocidad en m/s). Un empuje fuerte quita el control un rato
         /// (más cuanto más fuerte): si no, el stick a contrapelo lo cancelaba enseguida (2026-10-11).
+        /// Con <paramref name="stun"/> (el empuje viene de un golpe o un poder del rival), ese mismo rato queda
+        /// aturdida: sin ataques, cargas, dash ni especial (2026-11-02).
         /// </summary>
-        public void ApplyKnockback(Vector3 velocityChange)
+        public void ApplyKnockback(Vector3 velocityChange, bool stun = false)
         {
             if (_isDestroyed || _rb == null) return;
 
@@ -1071,7 +1107,11 @@ namespace FakeBlade.Core
             float controlLoss = push >= cfg.knockbackControlMinSpeed
                 ? cfg.knockbackControlLossBase + cfg.knockbackControlLossPerSpeed * push
                 : 0f;
-            if (controlLoss > 0f) LoseControl(controlLoss);
+            if (controlLoss > 0f)
+            {
+                LoseControl(controlLoss);
+                if (stun) Stun(controlLoss);
+            }
 
             // Permite que el empuje supere la velocidad máxima normal mientras dura
             Vector3 horizontal = _rb.linearVelocity;
@@ -1132,6 +1172,12 @@ namespace FakeBlade.Core
         {
             _controlLossEnd = Mathf.Max(_controlLossEnd, Time.time + seconds);
             _controlRecoverEnd = _controlLossEnd + CombatConfig.Active.knockbackControlRecoverTime;
+        }
+
+        /// <summary>Aturdida estos segundos: sin ataques, cargas, dash ni especial (lo aplica UpdateCombatTimers).</summary>
+        private void Stun(float seconds)
+        {
+            if (seconds > 0f) _stunEndTime = Mathf.Max(_stunEndTime, Time.time + seconds);
         }
 
         /// <summary>Control del movimiento: 0 tras un empuje o lanzada, subiendo a 1 al recuperarse.</summary>
@@ -1266,7 +1312,10 @@ namespace FakeBlade.Core
         /// <summary>Le han hecho parry: algo de energía por haberse arriesgado a atacar (2026-10-12).</summary>
         public void RegisterParried() => AddSpecialEnergy(CombatConfig.Active.parriedEnergy);
 
-        /// <summary>Aturdida unos segundos (sin control, ataques ni dash) sin cortar lo que esté haciendo.</summary>
+        /// <summary>
+        /// Aturdida unos segundos (sin control, ataques, cargas, dash ni especial) sin cortar el ataque en curso;
+        /// un cargado a medias sí se pierde.
+        /// </summary>
         public void ApplyStagger(float seconds)
         {
             if (seconds > 0f) _staggerEndTime = Mathf.Max(_staggerEndTime, Time.time + seconds);
@@ -1784,6 +1833,8 @@ namespace FakeBlade.Core
             _dashTimer = 0f;
             _dashAttackEndTime = float.NegativeInfinity;
             _staggerEndTime = float.NegativeInfinity;
+            _stunEndTime = float.NegativeInfinity;
+            _actionsLocked = false;
             _dashRefundableCost = 0f;
             _controlLossEnd = float.NegativeInfinity;
             _trappedEnd = float.NegativeInfinity;

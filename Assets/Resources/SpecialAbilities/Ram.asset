@@ -19,14 +19,14 @@ MonoBehaviour:
   energyRequired: 1
   duration: 6
   activationBurst: 1.5
-  charges: 2
   windupTime: 0.3
   windupBrake: 12
+  charges: 2
   speed: 13
   lungeTime: 0.45
   hitRadius: 1.8
   force: 24
-  damagePct: 0.06
+  damage: 24
   launchDuration: 0.4
   speedKeptOnHit: 0.35
   hitShake: 0.2

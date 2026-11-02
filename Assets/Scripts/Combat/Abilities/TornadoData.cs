@@ -36,10 +36,10 @@ namespace FakeBlade.Core
         [Header("Empujón")]
         [Tooltip("Empuje (m/s) en el centro con la fuerza completa (la mitad en el borde)")]
         public float pushForce = 26f;
-        [Tooltip("Daño en el centro (fracción de las RPM máximas del objetivo; la mitad en el borde y menos si se suelta antes). " +
+        [Tooltip("Daño en el centro, en RPM (la mitad en el borde y menos si se suelta antes). 2026-11-02: fijas, 100 (antes el 25% de las RPM máximas del objetivo). " +
                  "2026-10-19: 25% para probarlo, porque con solo la pared quitaba unos 20 RPM, poco para un poder de un solo uso; la " +
                  "defensa y el multiplicador global lo rebajan: al dummy Balanceado, unos 35 RPM")]
-        [Range(0f, 1f)] public float pushDamagePct = 0.25f;
+        [Min(0f)] public float pushDamage = 100f;
         [Tooltip("Fuerza si se suelta nada más activarlo (sube hasta 1 al acabar la atracción)")]
         [Range(0f, 1f)] public float minPushFraction = 0.5f;
         [Tooltip("Segundos que quedan lanzadas (si chocan contra la pared, la pared les hace daño)")]
@@ -167,8 +167,8 @@ namespace FakeBlade.Core
                 // Primero se anula la velocidad con la que venía atraída hacia ella: si no, se come parte del empujón
                 Vector3 velocity = other.Velocity;
                 float inward = Mathf.Max(0f, -(velocity.x * dir.x + velocity.z * dir.z));
-                other.ApplyKnockback(dir * (inward + Config.pushForce * strength * falloff * other.KnockbackResistance));
-                other.ApplyDamage(other.MaxSpinSpeed * Config.pushDamagePct * strength * falloff, Owner);
+                other.ApplyKnockback(dir * (inward + Config.pushForce * strength * falloff * other.KnockbackResistance), true);
+                other.ApplyDamage(Config.pushDamage * strength * falloff, Owner, Config.Type);
                 // Después del empuje: la lanzada cuenta ya con él (como Onda de choque)
                 if (Config.launchDuration > 0f) other.TryLaunch(Owner, Config.launchDuration);
                 BladeSpecialFx.PlayPushHit(Owner, other, dir);

@@ -30,7 +30,10 @@ MonoBehaviour:
   massWhilePulling: 50
   trapsInRange: 1
   pushForce: 26
-  pushDamagePct: 0.25
+  pushDamage: 100
   minPushFraction: 0.5
   launchDuration: 0.4
   pushShake: 0.2
+  pullRumbleStart: 0.3
+  pullRumbleEnd: 0.85
+  pushRumbleTime: 0.4

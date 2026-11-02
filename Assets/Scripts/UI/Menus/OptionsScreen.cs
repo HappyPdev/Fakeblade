@@ -14,7 +14,7 @@ namespace FakeBlade.UI
 
         private List<Vector2Int> _resolutions;
         private PixelOptionRow _resolution, _fullscreen, _quality, _shadows, _antialiasing, _bloom,
-            _particles, _pixelation, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage, _damageNumbers, _telemetry;
+            _particles, _pixelation, _vsync, _fps, _master, _music, _sfx, _language, _vibration, _shake, _coreImage, _damageNumbers, _damageFont, _damageGlow, _telemetry;
 
         private FakeBladeCatalog _catalog;
         private BladeColorsScreen _bladeColors;
@@ -66,7 +66,15 @@ namespace FakeBlade.UI
             _vibration = List.AddSelector("OPT_VIBRATION", YesNo(), s.vibration ? 1 : 0, i => Set(() => s.vibration = i == 1), RowHeight);
             _shake = List.AddSelector("OPT_SHAKE", YesNo(), s.cameraShake ? 1 : 0, i => Set(() => s.cameraShake = i == 1), RowHeight);
             _coreImage = List.AddSelector("OPT_CORE_IMAGE", YesNo(), s.showCoreImage ? 1 : 0, i => Set(() => s.showCoreImage = i == 1), RowHeight);
-            _damageNumbers = List.AddSelector("OPT_DAMAGE_NUMBERS", YesNo(), s.damageNumbers ? 1 : 0, i => Set(() => s.damageNumbers = i == 1), RowHeight);
+            _damageNumbers = List.AddSelector("OPT_DAMAGE_NUMBERS", DamageNumberLabels(), DamageNumberIndex(), i => Set(() =>
+            {
+                s.damageNumbers = i > 0;
+                if (i > 0) s.damageNumbersSummed = i == 2;
+            }), RowHeight);
+            _damageFont = List.AddSelector("OPT_DAMAGE_FONT", DamageFontLabels(), DamageFontIndex(), i => Set(() => s.damageNumberFont = i), RowHeight);
+            // Sin fuentes en el tema (tema por defecto) no hay nada que elegir
+            _damageFont.gameObject.SetActive(Theme.damageFonts != null && Theme.damageFonts.Count > 1);
+            _damageGlow = List.AddSelector("OPT_DAMAGE_GLOW", YesNo(), s.damageNumberGlow ? 1 : 0, i => Set(() => s.damageNumberGlow = i == 1), RowHeight);
             _telemetry = List.AddSelector("OPT_TELEMETRY", YesNo(), s.telemetry ? 1 : 0, i => Set(() => s.telemetry = i == 1), RowHeight);
 #if UNITY_WEBGL && !UNITY_EDITOR
             // En el navegador no se graba (J3)
@@ -119,7 +127,9 @@ namespace FakeBlade.UI
             _vibration.SetOptions(YesNo(), s.vibration ? 1 : 0);
             _shake.SetOptions(YesNo(), s.cameraShake ? 1 : 0);
             _coreImage.SetOptions(YesNo(), s.showCoreImage ? 1 : 0);
-            _damageNumbers.SetOptions(YesNo(), s.damageNumbers ? 1 : 0);
+            _damageNumbers.SetOptions(DamageNumberLabels(), DamageNumberIndex());
+            _damageFont.SetOptions(DamageFontLabels(), DamageFontIndex());
+            _damageGlow.SetOptions(YesNo(), s.damageNumberGlow ? 1 : 0);
             _telemetry.SetOptions(YesNo(), s.telemetry ? 1 : 0);
         }
 
@@ -157,6 +167,32 @@ namespace FakeBlade.UI
         private static string[] PixelationLabels() =>
             new[] { Loc.Get("NO"), Loc.Get("PIX_SOFT"), Loc.Get("PIX_MEDIUM"), Loc.Get("PIX_STRONG") };
         private static string[] LanguageLabels() => new[] { "ESPAÑOL", "ENGLISH" };
+
+        /// <summary>Números de daño: no, cada golpe o sumados (2026-11-02).</summary>
+        private static string[] DamageNumberLabels() => new[] { Loc.Get("NO"), Loc.Get("DMG_EACH_HIT"), Loc.Get("DMG_SUMMED") };
+
+        private static int DamageNumberIndex()
+        {
+            GameSettings s = SettingsService.Current;
+            return !s.damageNumbers ? 0 : s.damageNumbersSummed ? 2 : 1;
+        }
+
+        /// <summary>Nombres de las fuentes de los números de daño (nombres propios, sin traducir, como los idiomas).</summary>
+        private string[] DamageFontLabels()
+        {
+            List<TMPro.TMP_FontAsset> fonts = Theme.damageFonts;
+            if (fonts == null || fonts.Count == 0) return new[] { "-" };
+            var labels = new string[fonts.Count];
+            for (int i = 0; i < labels.Length; i++)
+                labels[i] = fonts[i] != null ? fonts[i].faceInfo.familyName.ToUpperInvariant() : "-";
+            return labels;
+        }
+
+        private int DamageFontIndex()
+        {
+            int count = Theme.damageFonts != null ? Theme.damageFonts.Count : 0;
+            return Mathf.Clamp(SettingsService.Current.damageNumberFont, 0, Mathf.Max(0, count - 1));
+        }
 
         private static string[] VolumeLabels()
         {

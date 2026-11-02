@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using FakeBlade.Core;
 using TMPro;
 using UnityEngine;
@@ -74,6 +76,12 @@ namespace FakeBlade.UI
         [Tooltip("Lo que resta una pieza (al final de la barra)")]
         public Color statLoss = new Color(0.75f, 0.18f, 0.22f);
 
+        [Header("=== NÚMEROS DE DAÑO (CombatPopups) ===")]
+        [Tooltip("Fuentes que se eligen en Opciones → Fuente de los números (la primera es la de por defecto). Solo llevan las " +
+                 "cifras 0-9; las crea FakeBlade → Setup Números de daño desde los TTF de ThirdParty/Free/Fonts")]
+        public List<TMP_FontAsset> damageFonts = new List<TMP_FontAsset>();
+        public DamageNumberStyle damageNumbers = new DamageNumberStyle();
+
         public Color GetArchetypeColor(BladeArchetype archetype)
         {
             switch (archetype)
@@ -95,6 +103,14 @@ namespace FakeBlade.UI
 
         public TMP_FontAsset ResolveFont() => font != null ? font : TMP_Settings.defaultFontAsset;
 
+        /// <summary>Fuente de los números de daño elegida en Opciones (la primera si no existe; la del HUD si no hay ninguna).</summary>
+        public TMP_FontAsset ResolveDamageFont(int index)
+        {
+            if (damageFonts == null || damageFonts.Count == 0) return ResolveFont();
+            TMP_FontAsset f = damageFonts[Mathf.Clamp(index, 0, damageFonts.Count - 1)];
+            return f != null ? f : ResolveFont();
+        }
+
         public static HUDTheme CreateDefault()
         {
             var theme = CreateInstance<HUDTheme>();
@@ -102,5 +118,126 @@ namespace FakeBlade.UI
             theme.hideFlags = HideFlags.DontSave;
             return theme;
         }
+    }
+
+    /// <summary>
+    /// Aspecto de los números de daño (GDD 9.1, 2026-11-02): solo la cifra, inclinada, con el relleno del color de quien
+    /// golpea, contorno blanco y un glow del color del daño. Salen grandes y bajan a su tamaño con un solo asentamiento;
+    /// el tamaño, el salto y la sacudida crecen con el daño, de minDamage a maxDamage.
+    /// </summary>
+    [Serializable]
+    public class DamageNumberStyle
+    {
+        [Tooltip("Daño con el que el número sale al mínimo (tamaño, salto y sacudida)")]
+        [Min(0f)] public float minDamage = 5f;
+        [Tooltip("Daño con el que sale al máximo (60 = el tope de un golpe, GDD 2.7)")]
+        [Min(1f)] public float maxDamage = 60f;
+        [Tooltip("Tamaño de letra con el daño mínimo, en píxeles de UI")]
+        [Min(1f)] public float sizeMin = 5.2f;
+        [Tooltip("Tamaño de letra con el daño máximo, en píxeles de UI")]
+        [Min(1f)] public float sizeMax = 10.4f;
+
+        [Header("Colores")]
+        [Tooltip("Relleno cuando nadie lo causa (pared, roce, desgaste). Si no, el color de quien golpea")]
+        public Color noSourceFill = new Color(0.78f, 0.78f, 0.8f);
+        public Color outline = Color.white;
+        [Range(0f, 1f)] public float outlineWidth = 0.07f;
+        [Tooltip("Engorda el trazo de la cifra (las fuentes de pincel finas se quedaban en el contorno blanco)")]
+        [Range(-1f, 1f)] public float faceDilate = 0.12f;
+        [Tooltip("Espacio entre cifras (unidades de TextMesh Pro): con el trazo engordado y la cursiva se pisaban")]
+        public float characterSpacing = 8f;
+        [Tooltip("Glow por debajo de midDamage")]
+        public Color glowLow = new Color(1f, 1f, 1f, 0.4f);
+        [Tooltip("Glow desde midDamage")]
+        public Color glowMid = new Color(1f, 0.88f, 0.5f, 0.5f);
+        [Tooltip("Glow desde highDamage")]
+        public Color glowHigh = new Color(1f, 0.5f, 0.45f, 0.5f);
+        [Min(0f)] public float midDamage = 10f;
+        [Min(0f)] public float highDamage = 30f;
+        [Tooltip("Hasta dónde llega el glow (0-1 del margen de la fuente): más = más difuminado")]
+        [Range(0f, 1f)] public float glowOuter = 1f;
+        [Tooltip("Separación entre el contorno y el glow (0 = pegado al contorno). El glow empieza donde acaba el contorno " +
+                 "(faceDilate + outlineWidth): más cerca lo tapa, porque se pinta encima, y más lejos queda una raya entre los dos")]
+        [Range(-0.5f, 0.5f)] public float glowGap = 0f;
+        [Tooltip("Caída del glow (1 = la más suave y ancha; menos = más fino). Su transparencia, en el alfa de cada color")]
+        [Range(0f, 1f)] public float glowPower = 1f;
+
+        [Header("Suma de golpes (Opciones → Números de daño → Sumados)")]
+        [Tooltip("Los golpes que recibe una peonza a menos de estos segundos del anterior se suman en el mismo número")]
+        [Min(0f)] public float sumWindow = 0.6f;
+
+        [Header("Animación")]
+        [Tooltip("Inclinada (cursiva de TextMesh Pro)")]
+        public bool italic = true;
+        [Tooltip("Segundos en pantalla")]
+        [Min(0.1f)] public float life = 0.95f;
+        [Tooltip("Lo que sube mientras dura, en píxeles de UI")]
+        public float rise = 14f;
+        [Tooltip("Tamaño extra al salir con el daño mínimo (0,5 = sale a ×1,5 de su tamaño final)")]
+        [Min(0f)] public float popMin = 0.5f;
+        [Tooltip("Tamaño extra al salir con el daño máximo")]
+        [Min(0f)] public float popMax = 1.4f;
+        [Tooltip("Rapidez con la que baja a su tamaño (más = más rápido)")]
+        [Min(0.1f)] public float settleSpeed = 11f;
+        [Tooltip("Oscilación al bajar (poca = un solo asentamiento suave; mucha = rebote de goma)")]
+        [Min(0f)] public float settleWobble = 9f;
+        [Tooltip("Daño (0-1 de la escala) desde el que tiembla al salir")]
+        [Range(0f, 1f)] public float shakeFrom = 0.25f;
+        [Tooltip("Temblor lateral máximo, en píxeles de UI")]
+        [Min(0f)] public float shakeMax = 1.5f;
+        [Tooltip("Giro máximo del temblor, en grados")]
+        [Min(0f)] public float shakeAngle = 8f;
+        [Tooltip("Lo que dura el temblor con el daño mínimo (x) y con el máximo (y), en segundos")]
+        public Vector2 shakeTime = new Vector2(0.08f, 0.18f);
+
+        [Header("Efectos por poder (daño del propio poder)")]
+        [Tooltip("Aspecto de los números cuando el daño lo causa un poder: onda, embestida, caída del Salto, empujón del " +
+                 "Tornado, golpe fuerte de Rayos, quemadura del Fuego, reflejo de Pinchos. Setup Números de daño crea los que faltan")]
+        public List<DamageNumberSpecialFx> specialFx = new List<DamageNumberSpecialFx>();
+
+        /// <summary>Efecto del poder que causa el daño (null si no tiene o no es de un poder).</summary>
+        public DamageNumberSpecialFx FindFx(SpecialAbilityType special)
+        {
+            if (special == SpecialAbilityType.None || specialFx == null) return null;
+            for (int i = 0; i < specialFx.Count; i++)
+                if (specialFx[i] != null && specialFx[i].special == special) return specialFx[i];
+            return null;
+        }
+
+        /// <summary>Posición del daño en la escala (0 = minDamage, 1 = maxDamage).</summary>
+        public float Strength(float damage) => Mathf.Clamp01((damage - minDamage) / Mathf.Max(0.01f, maxDamage - minDamage));
+
+        public Color GlowColor(float damage) => damage >= highDamage ? glowHigh : damage >= midDamage ? glowMid : glowLow;
+    }
+
+    /// <summary>
+    /// Aspecto de los números de daño de un poder (2026-11-02), con el propio shader de TextMesh Pro: un degradado en la
+    /// cifra, una textura que se mueve dentro (opcional), el contorno y el glow del poder y un parpadeo del glow. Sin los
+    /// colores (alfa 0) se quedan los normales: relleno de quien golpea y glow del daño.
+    /// </summary>
+    [Serializable]
+    public class DamageNumberSpecialFx
+    {
+        public SpecialAbilityType special;
+        [Tooltip("Degradado de la cifra: arriba (alfa 0 = sin degradado; se queda el relleno). Sustituye al color de quien golpea")]
+        public Color gradientTop = new Color(1f, 1f, 1f, 0f);
+        [Tooltip("Degradado de la cifra: abajo")]
+        public Color gradientBottom = new Color(1f, 1f, 1f, 0f);
+        [Tooltip("Textura dentro de la cifra. Ojo: multiplica el color, solo oscurece (con un ruido gris, la cifra se ensucia; " +
+                 "2026-11-02). Vacío = sin textura")]
+        public Texture2D faceTexture;
+        [Tooltip("Repeticiones de la textura en cada cifra")]
+        public Vector2 faceTiling = Vector2.one;
+        [Tooltip("Velocidad de la textura (x, y), en vueltas por segundo. Negativa en y = sube")]
+        public Vector2 faceScroll = new Vector2(0f, -1f);
+        [Tooltip("Relleno en vez del color de quien golpea (alfa 0 = el de quien golpea)")]
+        public Color fill = new Color(1f, 1f, 1f, 0f);
+        public Color outline = Color.white;
+        [Tooltip("Glow en vez del color del daño (alfa 0 = el del daño); su alfa es su transparencia")]
+        public Color glow = new Color(1f, 1f, 1f, 0f);
+        [Tooltip("Parpadeo del glow (0 = nada, 1 = se apaga del todo a ratos)")]
+        [Range(0f, 1f)] public float flicker;
+        [Tooltip("Rapidez del parpadeo")]
+        [Min(0f)] public float flickerSpeed = 20f;
     }
 }

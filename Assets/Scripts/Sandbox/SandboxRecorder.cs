@@ -167,8 +167,8 @@ namespace FakeBlade.Core
                 "damagePerImpactSpeed={6}|damagePerSpeedDiff={7}|knockbackBase={8}|specialEnergyMultiplier={9}|" +
                 "speedSpread={10}|referenceMaxSpeed={11}|attackHitDamage={12}|dashHitDamage={13}|dashCooldown={14}|" +
                 "hitBaseDamage={15}|hitSpeedFactor={16}-{17}",
-                SandboxSettings.Speed, c.damageMultiplier, c.chargedDamagePerLevel, c.parryWindow, c.quickAttackSpinCostPct,
-                c.dashSpinCostPct, c.damagePerImpactSpeed, c.damagePerSpeedDiff, c.knockbackBase, c.specialEnergyMultiplier,
+                SandboxSettings.Speed, c.damageMultiplier, c.chargedDamagePerLevel, c.parryWindow, c.quickAttackSpinCost,
+                c.dashSpinCost, c.damagePerImpactSpeed, c.damagePerSpeedDiff, c.knockbackBase, c.specialEnergyMultiplier,
                 c.speedSpread, c.referenceMaxSpeed, c.attackHitDamageMultiplier, c.dashHitDamageMultiplier, c.dashCooldown,
                 c.hitBaseDamage, c.hitSpeedFactor.x, c.hitSpeedFactor.y);
         }

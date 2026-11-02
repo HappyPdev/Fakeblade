@@ -97,7 +97,7 @@ namespace FakeBlade.Core
 
         private bool TryAct(DummyBehaviour behaviour)
         {
-            if (_blade.IsDestroyed || _blade.IsStaggered) return false;
+            if (_blade.IsDestroyed || _blade.ActionsLocked) return false;
             switch (behaviour)
             {
                 case DummyBehaviour.Attack:

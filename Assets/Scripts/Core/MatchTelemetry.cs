@@ -573,11 +573,11 @@ namespace FakeBlade.Core
             Row(sb, 0f, "CONFIG", null, null, 0, 0, 0, 0, string.Format(Inv,
                 "damageMultiplier={0}|hitBaseDamage={1}|hitSpeedFactor={2}-{3}|chargedDamagePerLevel={4}|parryWindow={5}|" +
                 "quickAttackCost={6}|dashCost={7}|dashCooldown={8}|attackHitDamage={9}|dashHitDamage={10}|" +
-                "specialEnergyPerSecond={11}|specialEnergyMultiplier={12}|damagePerImpactSpeed={13}|knockbackBase={14}",
+                "specialEnergyPerSecond={11}|specialEnergyMultiplier={12}|damagePerImpactSpeed={13}|knockbackBase={14}|specialHealPct={15}",
                 c.damageMultiplier, c.hitBaseDamage, c.hitSpeedFactor.x, c.hitSpeedFactor.y, c.chargedDamagePerLevel,
-                c.parryWindow, c.quickAttackSpinCostPct, c.dashSpinCostPct, c.dashCooldown, c.attackHitDamageMultiplier,
+                c.parryWindow, c.quickAttackSpinCost, c.dashSpinCost, c.dashCooldown, c.attackHitDamageMultiplier,
                 c.dashHitDamageMultiplier, c.specialEnergyPerSecond, c.specialEnergyMultiplier, c.damagePerImpactSpeed,
-                c.knockbackBase));
+                c.knockbackBase, c.specialActivationSpinPct));
 
             for (int i = 0; i < _sides.Count; i++)
             {

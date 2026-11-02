@@ -26,8 +26,8 @@ namespace FakeBlade.Core
         public float hitRadius = 1.8f;
         [Tooltip("Empuje (m/s)")]
         public float force = 24f;
-        [Tooltip("Daño (fracción de las RPM máximas del rival)")]
-        [Range(0f, 1f)] public float damagePct = 0.06f;
+        [Tooltip("Daño en RPM (fijas desde el 2026-11-02; antes el 6% de las RPM máximas del rival, 24 con 400 de base)")]
+        [Min(0f)] public float damage = 24f;
         [Tooltip("Segundos que queda lanzado (daño de pared si choca)")]
         [Min(0f)] public float launchDuration = 0.4f;
         [Tooltip("Lo que le queda de velocidad a ella tras golpear (el golpe la frena)")]
@@ -169,8 +169,8 @@ namespace FakeBlade.Core
                 // Empuje sobre todo en la dirección de la embestida, algo hacia donde está el rival
                 Vector3 toOther = offset.sqrMagnitude > 0.0001f ? offset.normalized : _dir;
                 Vector3 dir = (_dir * 0.6f + toOther * 0.4f).normalized;
-                other.ApplyKnockback(dir * (Config.force * other.KnockbackResistance));
-                other.ApplyDamage(other.MaxSpinSpeed * Config.damagePct, Owner);
+                other.ApplyKnockback(dir * (Config.force * other.KnockbackResistance), true);
+                other.ApplyDamage(Config.damage, Owner, Config.Type);
                 if (Config.launchDuration > 0f) other.TryLaunch(Owner, Config.launchDuration);
                 if (other.IsGhost) other.RegisterGhostHit(); // cuenta como un ataque contra el clon de Fantasma
 

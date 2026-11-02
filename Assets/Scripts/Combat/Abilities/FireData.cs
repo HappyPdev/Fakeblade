@@ -12,8 +12,8 @@ namespace FakeBlade.Core
     public class FireData : SpecialAbilityData
     {
         [Header("Quemadura")]
-        [Tooltip("Fracción de las RPM máximas del rival que pierde en cada tic (0,015 = 1,5%)")]
-        [Range(0f, 0.2f)] public float burnDamagePct = 0.015f;
+        [Tooltip("RPM que pierde el rival en cada tic (fijas desde el 2026-11-02; antes el 1,5% de sus RPM máximas, 6 con 400 de base)")]
+        [Min(0f)] public float burnDamagePerTick = 6f;
         [Tooltip("Segundos entre tics")]
         [Min(0.05f)] public float burnTickInterval = 0.5f;
         [Tooltip("Segundos que dura la quemadura")]
@@ -58,7 +58,7 @@ namespace FakeBlade.Core
         public override void OnClashDamageDealt(FakeBladeController target, float damage)
         {
             if (IsWindingUp) return; // todavía no se ha encendido
-            target.TryBurn(Owner, Config.burnDamagePct, Config.burnTickInterval, Config.burnDuration);
+            target.TryBurn(Owner, Config.burnDamagePerTick, Config.burnTickInterval, Config.burnDuration);
         }
     }
 }

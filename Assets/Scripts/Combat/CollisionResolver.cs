@@ -168,9 +168,9 @@ namespace FakeBlade.Core
             if (neutral) damageToFast *= SlowHitFactor(slow, slowDamageSpeed);
 
             float dealtToSlow = slow.ApplyDamage(damageToSlow * fastBonus.DamageMultiplier * slowGuard.DamageTakenMultiplier
-                                                 * fastGuard.DamageToAttackerMultiplier, fast);
+                                                 * fastGuard.DamageToAttackerMultiplier, fast, BonusSpecial(fastBonus, fast));
             float dealtToFast = fast.ApplyDamage(damageToFast * slowBonus.DamageMultiplier * fastGuard.DamageTakenMultiplier
-                                                 * slowGuard.DamageToAttackerMultiplier, slow);
+                                                 * slowGuard.DamageToAttackerMultiplier, slow, BonusSpecial(slowBonus, slow));
             CutHealIfAttacked(slow, fast, dealtToSlow);
             CutHealIfAttacked(fast, slow, dealtToFast);
             ApplyThorns(slow, fast, dealtToSlow);
@@ -185,12 +185,14 @@ namespace FakeBlade.Core
             float slowKnockback = knockback * slow.KnockbackResistance * fastBonus.KnockbackMultiplier
                                   * fastGuard.KnockbackToAttackerMultiplier;
             // La que gana el choque se lleva solo una fracción del empuje, salvo si rebota en un Rebote o un Escudo: entero
-            float winnerFraction = neutral || !slowGuard.IsNone ? 1f : cfg.winnerKnockbackFraction;
+            bool fastIsHit = neutral || !slowGuard.IsNone;
+            float winnerFraction = fastIsHit ? 1f : cfg.winnerKnockbackFraction;
             float fastKnockback = knockback * winnerFraction * fast.KnockbackResistance
                                   * slowBonus.KnockbackMultiplier * slowGuard.KnockbackToAttackerMultiplier;
 
-            slow.ApplyKnockback(fastToSlow * slowKnockback);
-            fast.ApplyKnockback(-fastToSlow * fastKnockback);
+            // Queda aturdida quien recibe el golpe (2026-11-02); la que gana solo pierde el stick, para no cortar sus combos
+            slow.ApplyKnockback(fastToSlow * slowKnockback, true);
+            fast.ApplyKnockback(-fastToSlow * fastKnockback, fastIsHit);
 
             fast.Special.NotifyClashBonusApplied(slow, fastBonus, contactPoint);
             slow.Special.NotifyClashBonusApplied(fast, slowBonus, contactPoint);
@@ -303,7 +305,7 @@ namespace FakeBlade.Core
             float hitDamage = cfg.hitBaseDamage * BladeFormulas.HitSpeedFactor(cfg, attackerSpeed);
             float damage = hitDamage * attacker.OffenseMultiplier * attacker.ChargeDamageMultiplier *
                            attacker.HitTypeDamageMultiplier * SlowHitFactor(attacker, attackerSpeed) * cfg.blockDamageFraction;
-            float dealt = parrier.ApplyDamage(damage * bonus.DamageMultiplier, attacker);
+            float dealt = parrier.ApplyDamage(damage * bonus.DamageMultiplier, attacker, BonusSpecial(bonus, attacker));
             CutHealIfAttacked(parrier, attacker, dealt);
             ApplyThorns(parrier, attacker, dealt);
 
@@ -364,8 +366,8 @@ namespace FakeBlade.Core
             CutHealIfAttacked(other, launched, dealtToOther);
 
             float knockback = Mathf.Min(cfg.knockbackBase + diff * cfg.knockbackPerSpeedDiff, cfg.maxKnockback);
-            launched.ApplyKnockback(-launchedToOther * knockback * launched.KnockbackResistance);
-            other.ApplyKnockback(launchedToOther * knockback * other.KnockbackResistance);
+            launched.ApplyKnockback(-launchedToOther * knockback * launched.KnockbackResistance, true);
+            other.ApplyKnockback(launchedToOther * knockback * other.KnockbackResistance, true);
 
             other.PlayClashFeedback(contactPoint, Mathf.Clamp01(closing / 15f));
             launched.NotifyClash(other, dealtToLaunched);
@@ -446,8 +448,15 @@ namespace FakeBlade.Core
         {
             if (dealt <= 0f || !hitter.IsAttacking) return;
             float thorns = victim.TraitSum(PartTraitType.Thorns) + victim.Special.ReflectFraction;
-            if (thorns > 0f) hitter.ApplyStatusDamage(dealt * thorns, victim);
+            // El reflejo de Pinchos es daño de su poder (números de daño); el rasgo Espinas, no
+            if (thorns > 0f)
+                hitter.ApplyStatusDamage(dealt * thorns, victim,
+                    victim.Special.ReflectFraction > 0f ? victim.Special.Type : SpecialAbilityType.None);
         }
+
+        /// <summary>El golpe fuerte de un poder (Rayos) es daño de ese poder (números de daño, 2026-11-02).</summary>
+        private static SpecialAbilityType BonusSpecial(ClashBonus bonus, FakeBladeController owner) =>
+            bonus.Strong ? owner.Special.Type : SpecialAbilityType.None;
 
         /// <summary>Relación de masas para el empuje (con el bonus de masa del ataque en curso). La masa no
         /// cuenta en el daño. Límites en CombatConfig.massRatioRange: el peso cuenta, pero no lo decide todo.</summary>

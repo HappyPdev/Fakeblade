@@ -27,8 +27,11 @@ MonoBehaviour:
   knockbackTakenInAir: 0.2
   radius: 4.5
   edgeFactor: 0.7
-  damagePct: 0.2
+  damage: 80
   force: 22
   launchDuration: 0.4
   landShake: 0.25
   landHitStop: 0.05
+  flightRumbleStart: 0.2
+  flightRumbleEnd: 0.55
+  landRumbleTime: 0.45

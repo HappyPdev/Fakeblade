@@ -63,8 +63,8 @@ namespace FakeBlade.Core
         public static Side BuildSide(CombatConfig cfg, BladeStatBlock s, SpecialAbilityData special, float hitDamage, float selfDamagePerHit)
         {
             PartTraits t = s.Traits ?? PartTraits.None;
-            float attackCost = s.MaxSpin * cfg.quickAttackSpinCostPct * ChargesPerAttack * t.Multiplier(PartTraitType.AttackCost);
-            float dashCost = s.MaxSpin * cfg.dashSpinCostPct * t.Multiplier(PartTraitType.DashCost) *
+            float attackCost = cfg.quickAttackSpinCost * ChargesPerAttack * t.Multiplier(PartTraitType.AttackCost);
+            float dashCost = cfg.dashSpinCost * t.Multiplier(PartTraitType.DashCost) *
                              (1f - DashLandShare * cfg.dashHitRefundFraction);
 
             // Energía por golpe: los ataques, mitad rápidos y mitad cargados de nivel 2

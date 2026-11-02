@@ -156,8 +156,8 @@ namespace FakeBlade.Core
         public float attackRechargeDelay = 0.5f;
         [Tooltip("Impulso (m/s) del ataque rápido")]
         public float quickAttackImpulse = 9f;
-        [Tooltip("Coste en RPM del ataque rápido (fracción de las RPM máximas)")]
-        [Range(0f, 0.2f)] public float quickAttackSpinCostPct = 0.02f;
+        [Tooltip("Coste en RPM del ataque por cada carga que gasta (RPM fijas desde el 2026-11-02, con la vida base doblada; antes el 2% de las RPM máximas)")]
+        [Min(0f)] public float quickAttackSpinCost = 8f;
         [Tooltip("Duración del estado de ataque (bonus de masa activo)")]
         public float quickAttackDuration = 0.35f;
         [Tooltip("Bonus de masa durante el ataque rápido (0.5 = +50%). Solo empuje: la masa no cuenta en el daño")]
@@ -227,8 +227,8 @@ namespace FakeBlade.Core
 
         [Header("=== DASH ===")]
         public float dashCooldown = 1.8f;
-        [Tooltip("Coste en RPM del dash (fracción de las RPM máximas)")]
-        [Range(0f, 0.3f)] public float dashSpinCostPct = 0.08f;
+        [Tooltip("Coste en RPM del dash (RPM fijas desde el 2026-11-02, con la vida base doblada; antes el 8% de las RPM máximas)")]
+        [Min(0f)] public float dashSpinCost = 32f;
         [Tooltip("Ventana en la que un choque tras el dash cuenta como ataque")]
         public float dashAttackWindow = 0.35f;
         [Tooltip("Fracción de las RPM gastadas en el dash que se recuperan si el dash gana un choque " +
@@ -291,8 +291,8 @@ namespace FakeBlade.Core
 
         [Header("=== ESPECIAL (GDD 5) ===")]
         [Tooltip("Efecto común de todos los poderes al activarse: RPM recuperadas (fracción de las RPM máximas). " +
-                 "Además se rellenan todas las cargas de ataque.")]
-        [Range(0f, 1f)] public float specialActivationSpinPct = 0.25f;
+                 "Además se rellenan todas las cargas de ataque. 2026-11-02: 12,5% (antes 25%) al doblar la vida base; pendiente de revisar con la telemetría.")]
+        [Range(0f, 1f)] public float specialActivationSpinPct = 0.125f;
         [Tooltip("Segundos en los que se recuperan esas RPM (no es al momento). Un golpe de ataque enemigo " +
                  "corta lo que falte, también la regeneración del poder")]
         public float specialHealTime = 2f;

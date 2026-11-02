@@ -41,7 +41,7 @@ namespace FakeBlade.Core
         private float _elapsed;
 
         // Quemadura: daño por tic contado por tiempo transcurrido (siempre duration/interval tics)
-        private float _burnDamagePct;
+        private float _burnDamagePerTick;
         private float _burnInterval;
         private int _burnTicksDone;
         private int _burnTicksTotal;
@@ -100,11 +100,11 @@ namespace FakeBlade.Core
 
         public void ClearWet() => _wetTime = _wetDuration = 0f;
 
-        /// <summary>Quemadura: pierde damagePctPerTick de sus RPM máximas cada tickInterval segundos.</summary>
-        public bool TryBurn(FakeBladeController source, float damagePctPerTick, float tickInterval, float duration)
+        /// <summary>Quemadura: pierde damagePerTick RPM cada tickInterval segundos (fijas desde el 2026-11-02; antes, % de sus RPM máximas).</summary>
+        public bool TryBurn(FakeBladeController source, float damagePerTick, float tickInterval, float duration)
         {
             if (!Begin(StatusEffectType.Burning, source, duration)) return false;
-            _burnDamagePct = Mathf.Max(0f, damagePctPerTick);
+            _burnDamagePerTick = Mathf.Max(0f, damagePerTick);
             _burnInterval = Mathf.Max(0.05f, tickInterval);
             _burnTicksDone = 0;
             _burnTicksTotal = Mathf.FloorToInt(duration / _burnInterval + 0.001f);
@@ -148,7 +148,7 @@ namespace FakeBlade.Core
                 while (_burnTicksDone < _burnTicksTotal && _elapsed >= (_burnTicksDone + 1) * _burnInterval - 0.0001f)
                 {
                     _burnTicksDone++;
-                    owner.ApplyStatusDamage(owner.MaxSpinSpeed * _burnDamagePct, _source);
+                    owner.ApplyStatusDamage(_burnDamagePerTick, _source, SpecialAbilityType.Fire);
                     if (_current == StatusEffectType.None) return true; // la quemadura lo ha dejado K.O.
                 }
             }

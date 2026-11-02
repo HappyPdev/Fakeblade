@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59fc9befd7e8c948a1e9a61f1ce3282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FakeBlade.Core.FakeBladeStats
-  baseMaxSpin: 400
+  baseMaxSpin: 800
   baseSpinDecay: 1
   baseMoveSpeed: 6
   baseWeight: 1
@@ -175,6 +175,7 @@ MonoBehaviour:
   baseDefense: 10
   baseDashForce: 18
   baseAttackCharges: 3
+  baseGrip: 0
   equippedTip: {fileID: 11400000, guid: 15d40c543a915d043b10e2bcc6372a59, type: 2}
   equippedBody: {fileID: 11400000, guid: 5b3e13f580773ff45b86da98190f5fad, type: 2}
   equippedBlade: {fileID: 11400000, guid: 29925219fda8ae749a16e6c8061eab3f, type: 2}

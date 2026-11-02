@@ -21,8 +21,9 @@ namespace FakeBlade.Core
         [Range(0f, 1f)] public float spinDecayMultiplier = 0f;
 
         [Header("Curación")]
-        [Tooltip("RPM recuperadas por segundo mientras está activo (fracción de las RPM máximas). Un golpe de ataque enemigo la corta")]
-        [Range(0f, 0.5f)] public float regenPctPerSecond = 0.02f;
+        [Tooltip("RPM recuperadas por segundo mientras está activo (fracción de las RPM máximas). Un golpe de ataque enemigo la corta. " +
+                 "2026-11-02: 1% (antes 2%) al doblar la vida base; pendiente de revisar con la telemetría")]
+        [Range(0f, 0.5f)] public float regenPctPerSecond = 0.01f;
 
         public override SpecialAbilityType Type => SpecialAbilityType.SpinBoost;
 

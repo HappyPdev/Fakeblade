@@ -10,10 +10,11 @@ namespace FakeBlade.Core
     /// </summary>
     public static class DuelEstimator
     {
-        // Ritmo de juego medido en los registros del sandbox (2026-10-07 a 2026-10-10, jugador contra dummy):
-        // por cada golpe que entra, 0,6-0,9 ataques (nivel medio ~1) y 0,05-0,2 dashes; 7 de 30 curaciones cortadas.
-        public const float AttacksPerHit = 0.7f;
-        public const float DashesPerHit = 0.1f;
+        // Ritmo de juego medido en la telemetría de la build del 2026-11-01 (30 duelos entre humanos): por cada
+        // golpe que entra, 0,77 ataques y 0,34 dashes (antes, con los registros del sandbox contra un dummy de
+        // 2026-10-07 a 2026-10-10: 0,7 y 0,1). Curaciones cortadas: 7 de 30 en esos registros.
+        public const float AttacksPerHit = 0.77f;
+        public const float DashesPerHit = 0.34f;
         public const float PassiveHitsPerHit = 0.2f;
         /// <summary>Mitad rápidos y mitad cargados de nivel 2 (nivel medio 1): cargas gastadas por ataque.</summary>
         public const float ChargesPerAttack = 1.5f;

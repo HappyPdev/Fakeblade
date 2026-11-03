@@ -33,7 +33,7 @@ namespace FakeBlade.Core
 
         public static BladeBaseStats Default => new BladeBaseStats
         {
-            maxSpin = 800f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
+            maxSpin = 600f, spinDecay = 1f, moveSpeed = 6f, weight = 1f,
             attackPower = 10f, defense = 10f, dashForce = 18f, attackCharges = 3, grip = 0f
         };
     }
@@ -71,7 +71,7 @@ namespace FakeBlade.Core
 
         #region Base Stats
         [Header("=== BASE STATS (sin piezas) ===")]
-        [SerializeField] private float baseMaxSpin = 800f;
+        [SerializeField] private float baseMaxSpin = 600f;
         [SerializeField] private float baseSpinDecay = 2f;
         [SerializeField] private float baseMoveSpeed = 8f;
         [SerializeField] private float baseWeight = 1f;

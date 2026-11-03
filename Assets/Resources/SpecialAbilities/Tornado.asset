@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: TORNADO
   color: {r: 0.55, g: 0.9, b: 0.85, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 1.8
   activationBurst: 1.5
   windupTime: 0.3

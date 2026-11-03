@@ -28,10 +28,11 @@ namespace FakeBlade.Core
         // Objetivos (GDD 2.7): golpe de referencia, multiplicadores por arquetipo, tope y duración
         private const float TargetQuick = 20f;
         private const float MaxSingleHit = 60f;
-        /// <summary>Duración aceptada del espejo de Balanceada (GDD 2.7, 2026-10-07: duelos más largos aceptados).</summary>
-        private static readonly Vector2 TargetMirrorSeconds = new Vector2(90f, 120f);
-        /// <summary>Segundos entre golpes con daño en el registro del sandbox (2026-10-07: uno cada 4,2 s).</summary>
-        private const float SecondsPerHit = 4.2f;
+        /// <summary>Duración aceptada del espejo de Balanceada (GDD 2.7; 2026-11-03: 70-90 s al ritmo de la telemetría, antes 90-120 s con un golpe cada 4,2 s).</summary>
+        private static readonly Vector2 TargetMirrorSeconds = new Vector2(70f, 90f);
+        /// <summary>Segundos entre golpes que entran, por jugador, en la telemetría de la build del 2026-11-01
+        /// (30 duelos entre humanos: uno cada 3,06 s; antes, 4,2 s contra un dummy en el sandbox).</summary>
+        private const float SecondsPerHit = 3.06f;
         private const float Tolerance = 0.1f;
 
         private static readonly Dictionary<string, Vector2> ArchetypeTargets = new Dictionary<string, Vector2>
@@ -340,7 +341,7 @@ namespace FakeBlade.Core
             md.AppendLine();
             md.AppendLine($"Las dos se golpean a la vez, un golpe cada {F(SecondsPerHit)} s, con el daño medio medido arriba (P y T) y lo que reciben al golpear. " +
                           $"Por cada golpe que entra gastan {F(DuelEstimator.AttacksPerHit)} ataques ({F(DuelEstimator.ChargesPerAttack)} cargas de media) y " +
-                          $"{F(DuelEstimator.DashesPerHit)} dashes (ritmo de los registros del sandbox; la mitad de los dashes aciertan y devuelven " +
+                          $"{F(DuelEstimator.DashesPerHit)} dashes (ritmo de la telemetría de partidas entre humanos; la mitad de los dashes aciertan y devuelven " +
                           $"el {F(cfg.dashHitRefundFraction * 100f)}% de su coste); pierden su desgaste por segundo; y al llenar el especial " +
                           $"se curan el {F(cfg.specialActivationSpinPct * 100f)}% (más la curación de Spin Boost), con un {F(DuelEstimator.HealCutChance * 100f)}% " +
                           "de curaciones cortadas. No cuenta los demás efectos de los poderes, las paredes ni el parry. " +

@@ -291,8 +291,8 @@ namespace FakeBlade.Core
 
         [Header("=== ESPECIAL (GDD 5) ===")]
         [Tooltip("Efecto común de todos los poderes al activarse: RPM recuperadas (fracción de las RPM máximas). " +
-                 "Además se rellenan todas las cargas de ataque. 2026-11-02: 12,5% (antes 25%) al doblar la vida base; pendiente de revisar con la telemetría.")]
-        [Range(0f, 1f)] public float specialActivationSpinPct = 0.125f;
+                 "Además se rellenan todas las cargas de ataque. 2026-11-03: 16,7% con la vida base de 600 (las mismas 100 RPM que el 25% de 400 y el 12,5% de 800).")]
+        [Range(0f, 1f)] public float specialActivationSpinPct = 0.1667f;
         [Tooltip("Segundos en los que se recuperan esas RPM (no es al momento). Un golpe de ataque enemigo " +
                  "corta lo que falte, también la regeneración del poder")]
         public float specialHealTime = 2f;

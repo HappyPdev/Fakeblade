@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: LIGHTNING
   color: {r: 1, g: 0.95, b: 0.25, a: 1}
   icon: {fileID: 0}
-  energyRequired: 0.8
+  energyRequired: 1
   duration: 6
   activationBurst: 1
   windupTime: 0.3

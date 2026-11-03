@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: DEFENSE
   color: {r: 0.45, g: 0.55, b: 1, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1.2
+  energyRequired: 1.5
   duration: 5
   activationBurst: 1
   windupTime: 0.3

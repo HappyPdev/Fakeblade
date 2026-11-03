@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: SHOCKWAVE
   color: {r: 1, g: 0.55, b: 0.15, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 5
   activationBurst: 2.5
   windupTime: 0.5

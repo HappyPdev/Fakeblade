@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: SPIKES
   color: {r: 0.8, g: 0.4, b: 1, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 5
   activationBurst: 1.5
   windupTime: 0.3

@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: WATER TRAIL
   color: {r: 0.3, g: 0.6, b: 1, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 4
   activationBurst: 1.5
   windupTime: 0.3
@@ -24,6 +24,8 @@ MonoBehaviour:
   puddleLifetime: 3
   spacing: 0.4
   puddleRadius: 0.8
+  finalPuddleRadius: 2
+  finalPuddleLifetime: 6
   wetDuration: 2
   wetGripMultiplier: 0.1
   ownerSpeedOnWater: 1.2

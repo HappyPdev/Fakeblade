@@ -104,7 +104,7 @@ MonoBehaviour:
   knockbackControlMinSpeed: 4
   knockbackControlRecoverTime: 0.15
   killCreditWindow: 5
-  specialActivationSpinPct: 0.125
+  specialActivationSpinPct: 0.1667
   specialHealTime: 2
   specialEnergyQuickHit: 0.08
   specialEnergyDashHit: 0.06

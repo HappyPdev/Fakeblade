@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: SPIN BOOST
   color: {r: 0.3, g: 1, b: 0.6, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 5
   activationBurst: 1
   windupTime: 0.3
@@ -25,4 +25,4 @@ MonoBehaviour:
   accelerationMultiplier: 1.25
   attackRechargeMultiplier: 1.5
   spinDecayMultiplier: 0
-  regenPctPerSecond: 0.01
+  regenPctPerSecond: 0.0133

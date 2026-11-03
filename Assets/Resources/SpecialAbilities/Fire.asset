@@ -16,7 +16,7 @@ MonoBehaviour:
   nameEn: FIRE
   color: {r: 1, g: 0.3, b: 0.08, a: 1}
   icon: {fileID: 0}
-  energyRequired: 1
+  energyRequired: 1.25
   duration: 5
   activationBurst: 1.5
   windupTime: 0.3

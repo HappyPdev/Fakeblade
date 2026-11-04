@@ -17,8 +17,8 @@ MonoBehaviour:
   speedSpread: 0.5
   referenceMaxSpeed: 15.5
   referenceWeight: 2.5
-  referenceAcceleration: 24.4
-  accelerationWeightExponent: 1.34
+  referenceAcceleration: 26.1
+  accelerationWeightExponent: 0.8
   referenceImpulse: 0.91
   impulseWeightExponent: 0.28
   turnRate: 8

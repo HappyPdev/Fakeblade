@@ -19,6 +19,7 @@ MonoBehaviour:
   archetype: 0
   icon: {fileID: 0}
   model: {fileID: 919132149155446097, guid: 121c224285be2634095a489f5d39ce3f, type: 3}
+  visualSpinMultiplier: 1
   maxSpinModifier: -50
   spinDecayModifier: 0
   moveSpeedModifier: 0
@@ -26,7 +27,8 @@ MonoBehaviour:
   attackPowerModifier: -2
   defenseModifier: 0
   dashForceModifier: 0
-  attackChargesModifier: -1
+  attackChargesModifier: 0
   parryWindowModifier: 0
+  gripModifier: 0
   traits: []
   specialAbility: 1

@@ -52,9 +52,9 @@ namespace FakeBlade.Core
                  "Cada efecto del peso es valor × (referencia ÷ peso)^exponente: sin topes, nunca llega a 0 (C11)")]
         public float referenceWeight = 2.5f;
         [Tooltip("Aceleración (m/s²) de una peonza con el peso de referencia y velocidad 10 o menos")]
-        public float referenceAcceleration = 24.4f;
-        [Tooltip("Cuánto cambia la aceleración con el peso (0 = nada; 1,34 = como antes de C11)")]
-        public float accelerationWeightExponent = 1.34f;
+        public float referenceAcceleration = 26.1f;
+        [Tooltip("Cuánto cambia la aceleración con el peso (0 = nada; 1,34 = como antes de C11; 0,8 desde el 2026-11-04)")]
+        public float accelerationWeightExponent = 0.8f;
         [Tooltip("Multiplicador de los acelerones del ataque y del dash con el peso de referencia")]
         public float referenceImpulse = 0.91f;
         [Tooltip("Cuánto cambian los acelerones con el peso (0 = nada)")]
